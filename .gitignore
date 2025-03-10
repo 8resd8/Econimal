@@ -1,0 +1,51 @@
+# User-specific stuff
+.idea/
+.idea/**
+*.iml
+*.iws
+out/
+
+# File-based project format
+BackEnd/*.iws
+
+
+# Gradle
+BackEnd/.gradle/
+BackEnd/build/
+
+# IntelliJ
+BackEnd/out
+External Libraries/
+Scratches and Consoles/
+
+# Packaging files
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.rar
+
+# OS related files
+.DS_Store
+Thumbs.db
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+### Java ###
+*.class
+
+# Log file
+*.log
+
+### Secret Files ###
+**/application-secret.yml
+**/application-prod.yml
+**/secret.yml
+**/secret.properties
+*.pem
+*.p12
+*.key
+*.crt
+*.jks
+*.keystore
