@@ -19,14 +19,19 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-../.idea/**
-../.idea/
+.idea/
+.idea/**
 *.iws
 *.iml
 *.ipr
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
 
 ### NetBeans ###
 /nbproject/private/
@@ -87,3 +92,17 @@ package-lock.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+gradle/wrapper/gradle-wrapper.properties
+
+### BackEnd Specific ###
+/BackEnd.iml
+/BackEnd.ipr
