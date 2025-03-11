@@ -1,0 +1,37 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+
+const CourtModal = () => {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>퀴즈1. 뭐할래</AlertDialogTitle>
+          <AlertDialogDescription>
+            <Button>1. 집갈래</Button>
+            <Button>2. 누울래</Button>
+            <Button>3. 휴</Button>
+            <Button>4. 야호</Button>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          {/* 컨티뉴 버튼이 필요할까? */}
+          <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+export default CourtModal;
