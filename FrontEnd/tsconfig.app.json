@@ -16,6 +16,11 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
 
+    /* Path alias */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
 
     /* Linting */
     "strict": true,
