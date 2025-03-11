@@ -2,21 +2,28 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
 import { VitePWA } from 'vite-plugin-pwa';
+import mkcert from 'vite-plugin-mkcert';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    mkcert({
+      hosts: ['localhost', '192.168.36.196'],
+    }),
     checker({
       typescript: true,
     }),
-
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
         enabled: true,
+        type: 'module',
       },
+      includeAssets: [
+        'android-chrome-192x192.png',
+        'android-chrome-512x512.png',
+      ],
       manifest: {
         name: '에코니멀',
         short_name: '에코니멀',
@@ -24,25 +31,32 @@ export default defineConfig({
         theme_color: '#242424',
         icons: [
           {
-            src: 'android-chrome-192x192.png',
+            src: '/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'android-chrome-512x512.png',
+            src: '/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
         ],
-        display: 'fullscreen',
+        display: 'standalone',
+        orientation: 'landscape', // 가로 모드로 설정
+        start_url: '/',
+        scope: './',
       },
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
+        globPatterns: ['**/*.{js,css,html}'], // 빌드된 결과물만 캐싱
         runtimeCaching: [
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg)$/,
             handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+            },
           },
           {
             urlPattern: /\.(?:js|ts|tsx|css)$/,
@@ -53,8 +67,9 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: true, // 모든 네트워크 인터페이스에서 접근 가능
-    port: 5173, // 기본 포트
-    strictPort: true, // 포트가 사용 중이면 종료
+    https: true,
+    host: true,
+    port: 5173,
+    strictPort: true,
   },
 });
