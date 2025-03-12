@@ -1,13 +1,20 @@
 // 법원
+import { useState } from 'react';
 import CourtModal from './CourtModal';
 import courtImg from '@/assets/court.png';
 
 const Court = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div>
-      <img src={courtImg} alt='법원' />
-      {/* 법원 클릭 시 퀴즈 모달 */}
-      <CourtModal />
+      <img
+        className='size-4/12 cursor-pointer'
+        src={courtImg}
+        alt='법원'
+        onClick={() => setIsModalOpen(true)}
+      />
+      <CourtModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 };
