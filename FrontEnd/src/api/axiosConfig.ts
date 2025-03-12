@@ -32,3 +32,6 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// axiosInstance를 기본 내보내기로 설정
+export default axiosInstance;
