@@ -58,4 +58,5 @@ public class User extends BaseTimeEntity {
 	@Column(name = "last_login_at")
 	private LocalDateTime lastLoginAt;
 
+
 }
