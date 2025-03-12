@@ -14,16 +14,26 @@ const CharacterCards = ({
   detailStory,
 }: CharacterCardProps) => {
   const { myChar, setMyChar } = useCharStore();
+  console.log(myChar); //담기는 것 확인됨 => 근데 왜 3번뜨는지?
 
-  // 직접적 event.type 발생 여부X
   const handlePickChar = () => {
-    setMyChar({
-      name,
-      description,
-      img,
-      // subStory
-      // detailStory
-    });
+    if (!myChar.name) {
+      // 캐릭터 정보 들어가는 것
+      setMyChar({
+        name,
+        description,
+        img,
+        // subStory
+        // detailStory
+      });
+    } else {
+      setMyChar({
+        //다시 객체 배열 초기화 상태
+        name: '',
+        description: '',
+        img: '',
+      });
+    }
   };
 
   return (
@@ -39,11 +49,19 @@ const CharacterCards = ({
         className={`rounded-2xl p-12 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
       >
         <div className='rounded-2xl relative w-40 h-40 mx-auto mb-4 bg-white'>
-          <img src={img} alt={name} className='w-full h-full object-cover' />
+          <img src={img} alt={name} className='w-full h-full object-contain' />
         </div>
         <h3 className='text-xl font-bold text-primary mb-2'>{name}</h3>
         <p className='text-primary/80'>{description}</p>
-        <CharButton handleEvent={handlePickChar} />
+        <CharButton
+          handleEvent={handlePickChar}
+          isSelect={myChar.name ? true : false}
+        />
+        {/* {myChar ? (
+          ''
+        ) : (
+          <CharButton handleEvent={handlePickChar} isSelect={myChar} />
+        )} */}
       </div>
     </motion.div>
   );
