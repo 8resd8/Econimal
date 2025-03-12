@@ -36,9 +36,9 @@ const CharacterCards = ({
       whileTap={{ scale: 0.95 }}
     >
       <div
-        className={`rounded-2xl p-4 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
+        className={`rounded-2xl p-12 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
       >
-        <div className='relative w-40 h-40 mx-auto mb-4 bg-white'>
+        <div className='rounded-2xl relative w-40 h-40 mx-auto mb-4 bg-white'>
           <img src={img} alt={name} className='w-full h-full object-cover' />
         </div>
         <h3 className='text-xl font-bold text-primary mb-2'>{name}</h3>
