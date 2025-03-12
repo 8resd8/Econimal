@@ -7,7 +7,8 @@ import town from '@/assets/town.png';
 
 const Town = () => {
   return (
-    <div className='w-full h-full relative'>
+    // <div className='w-full h-full relative'>
+    <div className='w-full h-screen'>
       {/* 배경 이미지 */}
       <img
         src={town}
@@ -23,23 +24,23 @@ const Town = () => {
         </div>
 
         {/* 각 건물/시설 컴포넌트들의 위치 지정 */}
-        <div className='absolute top-1/4 left-1/4 bg-white p-3 rounded-lg shadow-md'>
+        <div className='absolute top-1/4 left-1/4'>
           <MyHouse />
         </div>
 
-        <div className='absolute top-1/3 right-1/4 bg-white p-3 rounded-lg shadow-md'>
+        <div className='absolute top-1/3 right-1/4'>
           <RecyclingCenter />
         </div>
 
-        <div className='absolute bottom-1/4 left-1/3 bg-white p-3 rounded-lg shadow-md'>
+        <div className='absolute bottom-1/4 left-1/3'>
           <SewageTreatmentCenter />
         </div>
 
-        <div className='absolute bottom-1/3 right-1/3 bg-white p-3 rounded-lg shadow-md'>
+        <div className='absolute bottom-1/3 right-1/3'>
           <Vehicle />
         </div>
 
-        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 rounded-lg shadow-md'>
+        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
           <Court />
         </div>
       </div>
