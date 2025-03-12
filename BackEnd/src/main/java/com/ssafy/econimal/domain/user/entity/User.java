@@ -59,4 +59,5 @@ public class User extends BaseTimeEntity {
 	private LocalDateTime lastLoginAt;
 
 
+
 }
