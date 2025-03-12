@@ -14,6 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -26,38 +27,37 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseTimeEntity {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "town_id", nullable = false)
 	private Town town;
 
-	@Column(name = "user_email")
+	@Column(name = "user_email", nullable = false, unique = true)
 	private String email;
 
-	@Column(name = "user_name")
+	@Column(name = "user_name", nullable = false)
 	private String name;
 
-	@Column(name = "birth")
+	@Column(name = "birth", nullable = false)
 	private LocalDateTime birth;
 
 	@Column(name = "nickname")
 	private String nickname;
 
-	@Column(name = "password")
+	@Column(name = "password", nullable = false)
 	private String password;
 
-	@Column(name = "is_admin")
+	@Column(name = "role", nullable = false, columnDefinition = "ENUM('USER', 'ADMIN') DEFAULT 'USER'")
 	@Enumerated(EnumType.STRING)
 	private UserType role;
 
-	@Column(name = "coin")
+	@Column(name = "coin", columnDefinition = "BIGINT DEFAULT 0")
 	private long coin;
 
 	@Column(name = "last_login_at")
 	private LocalDateTime lastLoginAt;
-
-
-
 }
