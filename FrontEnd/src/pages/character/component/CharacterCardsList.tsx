@@ -14,7 +14,6 @@ const CharacterCardsList = () => {
             className='flex-1 justify-center items-center gap-3'
           >
             <CharacterCards {...item} />
-            {/* {item.name} - {item.description} */}
           </div>
         ))}
       </div>

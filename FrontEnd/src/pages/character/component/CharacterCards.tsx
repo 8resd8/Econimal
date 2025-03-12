@@ -23,8 +23,8 @@ const CharacterCards = ({
         name,
         description,
         img,
-        // subStory
-        // detailStory
+        subStory,
+        detailStory,
       });
     } else {
       setMyChar({
@@ -32,6 +32,8 @@ const CharacterCards = ({
         name: '',
         description: '',
         img: '',
+        subStory: '',
+        detailStory: '',
       });
     }
   };
@@ -57,11 +59,6 @@ const CharacterCards = ({
           handleEvent={handlePickChar}
           isSelect={myChar.name ? true : false}
         />
-        {/* {myChar ? (
-          ''
-        ) : (
-          <CharButton handleEvent={handlePickChar} isSelect={myChar} />
-        )} */}
       </div>
     </motion.div>
   );
