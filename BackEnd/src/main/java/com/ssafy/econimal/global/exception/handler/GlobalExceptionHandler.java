@@ -1,7 +1,5 @@
 package com.ssafy.econimal.global.exception.handler;
 
-import java.util.NoSuchElementException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,9 +23,4 @@ public class GlobalExceptionHandler {
 		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
 	}
 
-	@ExceptionHandler
-	public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex,
-		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
-	}
 }
