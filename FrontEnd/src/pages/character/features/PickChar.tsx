@@ -13,13 +13,14 @@ const PickChar = () => {
   }
 
   return (
-    <div>
-      <h2>
-        {myChar.description.slice(0, -2)}-{myChar.name}
+    <div className='flex flex-col m-8'>
+      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center'>
+        {myChar.description.slice(0, -2)} "{myChar.name}"
       </h2>
-      <div className='flex flex-1 justify-center items-center gap-3'>
+      <div className='flex justify-center items-center gap-9'>
         <CharacterCards {...myChar} />
         <CharacterDetail
+          name={myChar.name}
           subStory={myChar.subStory}
           detailStory={myChar.detailStory}
         />

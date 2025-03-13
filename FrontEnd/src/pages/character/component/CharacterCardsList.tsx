@@ -3,8 +3,8 @@ import CharacterCards from './CharacterCards';
 
 const CharacterCardsList = () => {
   return (
-    <div>
-      <h2 className='felx mb-6 flex-1 text-4xl'>
+    <div className='flex-col justify-center items-center'>
+      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center'>
         환경 위기에서 구해줄 친구를 골라주세요!
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
