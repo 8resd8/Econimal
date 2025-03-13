@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +33,10 @@ public class Product extends BaseTimeEntity {
 
 	@Column(name = "price", nullable = false, columnDefinition = "INT DEFAULT 0 CHECK (price >= 0) COMMENT '상품 가격'")
 	private int price;
+
+	@Builder
+	public Product(ProductType type, int price) {
+		this.type = type;
+		this.price = price;
+	}
 }

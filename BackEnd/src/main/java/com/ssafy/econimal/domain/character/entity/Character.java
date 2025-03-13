@@ -1,5 +1,8 @@
 package com.ssafy.econimal.domain.character.entity;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+
 import com.ssafy.econimal.domain.store.entity.Product;
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 import com.ssafy.econimal.global.common.enums.CharacterType;
@@ -16,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,12 +52,22 @@ public class Character extends BaseTimeEntity {
 	private String description;
 
 	@Column(name = "exp_per_level", nullable = false, columnDefinition = "INT DEFAULT 1000")
-	private int expPerLevel;
+	private int expPerLevel = 1000;
 
 	@Column(name = "max_level", nullable = false, columnDefinition = "INT DEFAULT 3")
-	private int maxLevel;
+	private int maxLevel = 3;
 
 	@Column(name = "is_original", columnDefinition = "TINYINT DEFAULT 0")
 	private boolean is_original;
 
+	@Builder
+	public Character(Product product, String name, CharacterType type, String summary, String description,
+		boolean is_original) {
+		this.product = product;
+		this.name = name;
+		this.type = type;
+		this.summary = summary;
+		this.description = description;
+		this.is_original = is_original;
+	}
 }

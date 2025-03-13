@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,5 +36,12 @@ public class Infrastructure extends BaseTimeEntity {
 	private Facility facility;
 
 	@Column(name = "is_clean", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-	private boolean isClean;
+	private boolean isClean = false;
+
+	@Builder
+	public Infrastructure(Town town, Facility facility, boolean isClean) {
+		this.town = town;
+		this.facility = facility;
+		this.isClean = isClean;
+	}
 }
