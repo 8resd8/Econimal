@@ -10,6 +10,7 @@ const CharacterCards = ({
   name,
   description,
   img,
+  backImg,
   subStory,
   detailStory,
 }: CharacterCardProps) => {
@@ -23,6 +24,7 @@ const CharacterCards = ({
         name,
         description,
         img,
+        backImg,
         subStory,
         detailStory,
       });
@@ -32,6 +34,7 @@ const CharacterCards = ({
         name: '',
         description: '',
         img: '',
+        backImg: '',
         subStory: '',
         detailStory: '',
       });
