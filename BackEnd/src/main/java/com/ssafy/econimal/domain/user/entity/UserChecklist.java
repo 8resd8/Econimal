@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,12 @@ public class UserChecklist extends BaseTimeEntity {
 
 	@Column(name = "completion_date")
 	private LocalDateTime completionDate;
+
+	@Builder
+	public UserChecklist(User user, Checklist checklist, boolean isComplete, LocalDateTime completionDate) {
+		this.user = user;
+		this.checklist = checklist;
+		this.isComplete = isComplete;
+		this.completionDate = completionDate;
+	}
 }
