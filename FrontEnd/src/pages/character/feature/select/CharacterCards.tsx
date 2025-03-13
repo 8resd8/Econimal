@@ -1,6 +1,6 @@
 import useCharStore from '@/store/useCharStore';
 import CharButton from '../../componet/select/CharButton';
-import { CharacterTypes } from '@/types/CharacterTypes';
+import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 import { motion } from 'framer-motion';
 
 //CharacterCardProps와 관련된 interface type 설정 => props 설정

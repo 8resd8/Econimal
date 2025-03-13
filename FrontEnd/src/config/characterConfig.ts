@@ -4,7 +4,7 @@ import pengImg from '../assets/char_peng.png';
 import pengbackImg from '../assets/peng_back.png';
 import horangImg from '../assets/char_horang.png';
 import hobackImg from '../assets/horang_back.png';
-import { CharacterTypes } from '@/types/CharacterTypes';
+import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 
 export const characterConfig: CharacterTypes<string>[] = [
   {

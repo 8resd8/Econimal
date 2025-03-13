@@ -1,4 +1,4 @@
-import { CharacterDetailProps } from '@/types/CharacterDetailProps';
+import { CharacterDetailProps } from '@/pages/character/types/CharacterDetailProps';
 import { motion } from 'framer-motion';
 import CharNextChap from '../../componet/select/CharNextChap';
 import useCharStore from '@/store/useCharStore';
