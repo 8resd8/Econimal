@@ -9,6 +9,12 @@ spring:
     password: ${database.password}
     driver-class-name: ${database.driver-class-name}
 
+  data:
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      password: ${redis.password}
+
   jpa:
     hibernate:
       ddl-auto: update
