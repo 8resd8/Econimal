@@ -5,6 +5,7 @@ import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/SignUp';
 import MyCharacter from './pages/character/MyCharacter';
+import Earth from './pages/earth/Earth';
 
 export const router = createBrowserRouter([
   {
@@ -30,5 +31,9 @@ export const router = createBrowserRouter([
   {
     path: '/signup',
     element: <Signup />,
+  },
+  {
+    path: '/earth',
+    element: <Earth />
   },
 ]);
