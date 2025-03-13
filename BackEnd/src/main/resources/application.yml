@@ -1,14 +1,20 @@
 spring:
-  profiles:
-    include: secret
+  config:
+    import:
+    - classpath:secret.yml
+
+  datasource:
+    url: ${database.url}
+    username: ${database.name}
+    password: ${database.password}
+    driver-class-name: ${database.driver-class-name}
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MariaDBDialect
+      format_sql: true
 
 server:
   servlet:
@@ -16,5 +22,7 @@ server:
 
 logging:
   level:
+    root: info
+    com.ssafy.econimal: debug
     org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql: trace
+    org.hibernate.type.descriptor.sql: debug
