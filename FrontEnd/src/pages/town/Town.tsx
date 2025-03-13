@@ -17,8 +17,9 @@ const Town = () => {
       {/* 환영 메시지와 컴포넌트들을 위한 오버레이 컨테이너 */}
       <div className='inset-0 z-10'>
         {/* 환영 메시지 */}
-        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white'>
-          🏙️ 마을에 온 걸 환영해
+        {/* -translate-x-1/2: 요소를 X축 기준으로 왼쪽으로 50% 이동 */}
+        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white text-3xl'>
+          ㅇㅇ님의 마을
         </div>
 
         {/* 각 건물/시설 컴포넌트들 - 이미지의 특정 위치에 고정 */}
