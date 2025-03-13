@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 
-interface CourtModalProps {
+interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const CourtModal = ({ open, onOpenChange }: CourtModalProps) => {
+const NormalModal = ({ open, onOpenChange }: NormalModalProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
@@ -27,17 +27,13 @@ const CourtModal = ({ open, onOpenChange }: CourtModalProps) => {
 
         <AlertDialogHeader>
           <AlertDialogTitle className='text-4xl m-6'>
-            문제다 문제. 환경 문제~~~~~
+            당신이 학교에 갈 때 이용할 교통수단은?
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className='space-y-4'>
           <div className='flex w-full gap-4'>
-            <Button className='flex-1 py-8 text-2xl'>1. 정답</Button>
-            <Button className='flex-1 py-8 text-2xl'>2. 오답</Button>
-          </div>
-          <div className='flex w-full gap-4'>
-            <Button className='flex-1 py-8 text-2xl'>3. 매력적인 오답</Button>
-            <Button className='flex-1 py-8 text-2xl'>4. 대놓고 오답</Button>
+            <Button className='flex-1 py-8 text-2xl'>선택1</Button>
+            <Button className='flex-1 py-8 text-2xl'>선택2</Button>
           </div>
         </AlertDialogDescription>
 
@@ -49,4 +45,4 @@ const CourtModal = ({ open, onOpenChange }: CourtModalProps) => {
     </AlertDialog>
   );
 };
-export default CourtModal;
+export default NormalModal;
