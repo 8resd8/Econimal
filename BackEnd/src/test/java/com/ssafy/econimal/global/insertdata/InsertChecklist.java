@@ -5,10 +5,10 @@ import static com.ssafy.econimal.global.common.enums.EcoType.*;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.checklist.repository.ChecklistRepository;
@@ -22,32 +22,36 @@ public class InsertChecklist {
 	private ChecklistRepository checklistRepository;
 
 	@Test
-	void 체크리스트등록() {
+	@Disabled
+	void 전기등록() {
 		insertChecklistsForEcoType(ELECTRICITY);
-		insertChecklistsForEcoType(WATER);
-		insertChecklistsForEcoType(GAS);
-		insertChecklistsForEcoType(COURT);
+	}
 
-		System.out.println("체크리스트 등록 완료!");
+	@Test
+	@Disabled
+	void 물등록() {
+		insertChecklistsForEcoType(WATER);
+	}
+
+	@Test
+	@Disabled
+	void 가스등록() {
+		insertChecklistsForEcoType(GAS);
+	}
+
+	@Test
+	@Disabled
+	void 법원등록() {
+		insertChecklistsForEcoType(COURT);
 	}
 
 	private void insertChecklistsForEcoType(EcoType ecoType) {
-		List<ChecklistItem> checklistItems = null;
-
-		switch (ecoType) {
-			case ELECTRICITY:
-				checklistItems = getElectricityChecklist();
-				break;
-			case WATER:
-				checklistItems = getWaterChecklist();
-				break;
-			case GAS:
-				checklistItems = getGasChecklist();
-				break;
-			case COURT:
-				checklistItems = getCourtChecklist();
-				break;
-		}
+		List<ChecklistItem> checklistItems = switch (ecoType) {
+			case ELECTRICITY -> getElectricityChecklist();
+			case WATER -> getWaterChecklist();
+			case GAS -> getGasChecklist();
+			case COURT -> getCourtChecklist();
+		};
 
 		if (checklistItems != null) {
 			for (ChecklistItem item : checklistItems) {
