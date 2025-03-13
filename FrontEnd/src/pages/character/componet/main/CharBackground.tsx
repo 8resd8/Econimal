@@ -7,26 +7,36 @@ import EarthIcon from './EarthIcon';
 import ShopIcon from './ShopIcon';
 
 const CharBackground = () => {
-  const { myChar, setMyChar } = useCharStore();
+  const { myChar } = useCharStore();
+
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
+      {/* 배경 이미지 */}
       <img
         src={myChar.backImg}
         alt='캐릭터_배경'
-        className='w-full h-full object-cover'
+        className='absolute inset-0 w-full h-full object-cover z-0'
       />
+
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 상단바 */}
         <div className='flex items-center justify-between p-6'>
-          <CharProfile />
-          <div className='ml-3'>
-            <ExpBar current={15} max={100} />
+          {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
+          <div className='flex items-center gap-4'>
+            <CharProfile />
+            <ExpBar current={85} max={100} />
           </div>
-          <CharCoin />
+
+          {/* 오른쪽: 금 정보 */}
+          <div className='flex items-center gap-4'>
+            <CharCoin />
+          </div>
         </div>
       </div>
-      <div className='absolute left-12 sm:left-16 md:left-24 top-1/2 -translate-y-1/2 flex flex-col gap-8'>
+
+      {/* 아이콘들 */}
+      <div className='absolute left-12 sm:left-16 md:left-24 top-[60%] -translate-y-1/2 flex flex-col gap-8'>
         <TownIcon />
         <EarthIcon />
         <ShopIcon />
@@ -34,4 +44,5 @@ const CharBackground = () => {
     </div>
   );
 };
+
 export default CharBackground;
