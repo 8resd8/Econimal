@@ -1,5 +1,5 @@
 import useCharStore from '@/store/useCharStore';
-import CharButton from '../features/CharButton';
+import CharButton from '../../componet/select/CharButton';
 import { CharacterTypes } from '@/types/CharacterTypes';
 import { motion } from 'framer-motion';
 

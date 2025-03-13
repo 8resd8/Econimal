@@ -4,6 +4,7 @@ import Town from './pages/town/Town';
 import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/SignUp';
+import MyCharacter from './pages/character/MyCharacter';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
   {
     path: '/charsel',
     element: <CharacterSelect />,
+  },
+  {
+    path: '/my',
+    element: <MyCharacter />,
   },
   {
     path: '/login',

@@ -1,5 +1,5 @@
 import { characterConfig } from '@/config/characterConfig';
-import CharacterCards from './CharacterCards';
+import CharacterCards from '../../feature/select/CharacterCards';
 
 const CharacterCardsList = () => {
   return (

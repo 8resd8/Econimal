@@ -1,8 +1,8 @@
 import { characterConfig } from '@/config/characterConfig';
-import CharacterCards from '../component/CharacterCards';
+import CharacterCards from '../../feature/select/CharacterCards';
 import useCharStore from '@/store/useCharStore';
-import CharacterCardsList from '../component/CharacterCardsList';
-import CharacterDetail from '../component/CharacterDetail';
+import CharacterCardsList from './CharacterCardsList';
+import CharacterDetail from '../../feature/select/CharacterDetail';
 
 const PickChar = () => {
   // store값의 유무에 따라서 return 값이 달라지는 것

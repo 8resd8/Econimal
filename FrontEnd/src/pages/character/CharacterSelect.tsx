@@ -1,4 +1,4 @@
-import PickChar from './features/PickChar';
+import PickChar from './componet/select/PickChar';
 import bgThem from '../../assets/auth_background.png';
 
 const CharacterSelect = () => {
