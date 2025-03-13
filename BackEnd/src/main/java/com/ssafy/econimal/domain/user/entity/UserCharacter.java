@@ -39,7 +39,7 @@ public class UserCharacter extends BaseTimeEntity {
 	private Character character;
 
 	@Column(name = "level", nullable = false, columnDefinition = "INT DEFAULT 1")
-	private int level;
+	private int level = 1;
 
 	@Column(name = "total_exp", nullable = false, columnDefinition = "INT DEFAULT 0 COMMENT '누적 경험치'")
 	private int totalExp;
