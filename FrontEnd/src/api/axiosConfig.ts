@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const DOMAIN = 'https://econimal.com'; // 임시 URL
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: DOMAIN,
   timeout: 5000,
   // withCredentials: true, // httpOnly 쿠키를 사용한다면
@@ -32,3 +32,6 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// axiosInstance를 기본 내보내기로 설정
+export default axiosInstance;

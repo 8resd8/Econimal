@@ -7,14 +7,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 
-const CourtModal = () => {
+interface CourtModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const CourtModal = ({ open, onOpenChange }: CourtModalProps) => {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>퀴즈1. 뭐할래</AlertDialogTitle>
