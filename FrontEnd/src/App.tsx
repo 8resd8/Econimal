@@ -1,9 +1,9 @@
 import './App.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { RouterProvider } from 'react-router-dom';
+// import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
-// import AspectRatioContainer from './components/AspectRatioContainer'; // 16:9 비율 유지 컴포넌트
+import { RouterProvider } from 'react-router-dom';
 
 const queryClient = new QueryClient(); // 일단 기본 옵션으로 설정. 추가 옵션 설정 후 파일 분리 및 import 해서 사용해도 됨
 // 쿼리 클라이언트 : 쿼리, 캐시, 쿼리 캐시를 조작하는 도구가 속함.
