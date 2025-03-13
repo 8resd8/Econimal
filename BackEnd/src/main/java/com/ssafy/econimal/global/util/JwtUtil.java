@@ -23,7 +23,7 @@ public class JwtUtil {
 	@Value("${jwt.secret}")
 	private String secretKey;
 
-	private final long expireTime = 1000 * 60 * 60 * 24;
+	private final long accessExpireTime = 1000 * 60 * 30; // 30분
 
 	@Value("${jwt.refresh-expiration}")
 	private long refreshExpiration;
@@ -31,7 +31,7 @@ public class JwtUtil {
 	// 토큰 생성
 	public String createToken(Long userId, UserType userType) {
 		Date now = new Date();
-		Date expiration = new Date(now.getTime() + expireTime);
+		Date expiration = new Date(now.getTime() + accessExpireTime);
 
 		return Jwts.builder()
 			.subject(userId.toString())
@@ -56,7 +56,6 @@ public class JwtUtil {
 			.expiration(expiration)
 			.signWith(getSigningKey())
 			.compact();
-
 	}
 
 	// 토큰 검증 및 클레임 추출
@@ -90,6 +89,7 @@ public class JwtUtil {
 		return claims.get("role", String.class);
 	}
 
+	// 서명방식
 	private SecretKey getSigningKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);
