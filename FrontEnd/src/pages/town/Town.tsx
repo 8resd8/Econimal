@@ -13,7 +13,7 @@ const Town = () => {
       <img src={town} alt='마을' className='w-full h-full object-cover' />
 
       {/* 환영 메시지와 컴포넌트들을 위한 오버레이 컨테이너 */}
-      <div className='absolute inset-0 z-10'>
+      <div className='inset-0 z-10'>
         {/* 환영 메시지 */}
         <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white'>
           🏙️ 마을에 온 걸 환영해
@@ -36,7 +36,7 @@ const Town = () => {
           <Vehicle />
         </div>
 
-        <div className='absolute top-[75%] left-[30%] transform -translate-x-1/2 -translate-y-1/2 z-10'>
+        <div className='absolute top-[75%] left-[30%] transform z-10'>
           <Court />
         </div>
       </div>

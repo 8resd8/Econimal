@@ -20,7 +20,7 @@ const CourtModal = ({ open, onOpenChange }: CourtModalProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
-      <AlertDialogContent>
+      <AlertDialogContent className='bg-orange-200 p-40'>
         <AlertDialogHeader>
           <AlertDialogTitle>퀴즈1. 뭐할래</AlertDialogTitle>
           <AlertDialogDescription>
