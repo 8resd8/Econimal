@@ -5,6 +5,7 @@ import CharCoin from './CharCoin';
 import TownIcon from './TownIcon';
 import EarthIcon from './EarthIcon';
 import ShopIcon from './ShopIcon';
+import CharMenu from './CharMenu';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
@@ -28,9 +29,10 @@ const CharBackground = () => {
             <ExpBar current={85} max={100} />
           </div>
 
-          {/* 오른쪽: 금 정보 */}
+          {/* 오른쪽: 금 정보 + 햄버거 메뉴 */}
           <div className='flex items-center gap-4'>
             <CharCoin />
+            <CharMenu />
           </div>
         </div>
       </div>
@@ -40,6 +42,13 @@ const CharBackground = () => {
         <TownIcon />
         <EarthIcon />
         <ShopIcon />
+      </div>
+
+      {/* 캐릭터 */}
+      <div className='absolute bottom-0 left-0 w-full'>
+        <div className='absolute bottom-24 left-[40%] -translate-x-1/2 w-64 h-64 md:w-80 md:h-80'>
+          <img src={myChar.img} alt='캐릭터' className='absolute' />
+        </div>
       </div>
     </div>
   );

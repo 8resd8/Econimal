@@ -6,6 +6,7 @@ import CharacterDetail from '../../feature/select/CharacterDetail';
 
 const PickChar = () => {
   // store값의 유무에 따라서 return 값이 달라지는 것
+  // feat?
   const { myChar, setMyChar } = useCharStore();
 
   if (!myChar.name) {
