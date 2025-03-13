@@ -6,6 +6,8 @@ import Court from './components/Court';
 import town from '@/assets/town.png';
 
 const Town = () => {
+  // 마을 전체 이벤트 조회
+
   return (
     // <div className='w-full h-full relative'>
     <div className='w-full h-screen'>

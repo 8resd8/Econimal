@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+// 이게 맞아?
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+}
+
 const DOMAIN = 'https://econimal.com'; // 임시 URL
 
 export const axiosInstance = axios.create({
