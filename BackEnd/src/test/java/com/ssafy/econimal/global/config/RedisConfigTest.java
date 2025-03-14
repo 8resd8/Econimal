@@ -28,5 +28,8 @@ class RedisConfigTest {
 
 		// then
 		assertThat(retrievedValue).isEqualTo(value);
+		
+		// 삭제
+		redisTemplate.delete(key);
 	}
 }
