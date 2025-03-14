@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -50,4 +51,14 @@ public class UserCharacter extends BaseTimeEntity {
 
 	@Column(name = "is_main", nullable = false, columnDefinition = "tinyint(1) DEFAULT 0")
 	private boolean isMain;
+
+	@Builder
+	public UserCharacter(User user, Character character, int level, int totalExp, ExpressionType expression, boolean isMain) {
+		this.user = user;
+		this.character = character;
+		this.level = level;
+		this.totalExp = totalExp;
+		this.expression = expression;
+		this.isMain = isMain;
+	}
 }

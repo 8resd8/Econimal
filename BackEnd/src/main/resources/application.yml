@@ -2,6 +2,7 @@ spring:
   config:
     import:
     - classpath:secret.yml
+  product: false
 
   datasource:
     url: ${database.url}
