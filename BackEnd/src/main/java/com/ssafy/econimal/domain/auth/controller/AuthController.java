@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.auth.dto.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.LoginResponse;
-import com.ssafy.econimal.domain.auth.dto.RefreshTokenRequest;
 import com.ssafy.econimal.domain.auth.dto.SignupRequest;
 import com.ssafy.econimal.domain.auth.service.LoginService;
 import com.ssafy.econimal.domain.auth.service.LogoutService;
@@ -58,9 +57,9 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh")
-	public ResponseEntity<LoginResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request,
+	public ResponseEntity<LoginResponse> refreshToken(@CookieValue(name = "refreshToken") String refreshToken,
 		HttpServletResponse response) {
-		LoginResponse loginResponse = loginService.refreshToken(request.refreshToken(), response);
+		LoginResponse loginResponse = loginService.refreshToken(refreshToken, response);
 		return ResponseEntity.ok()
 			.header("Cache-Control", "no-store")
 			.body(loginResponse);
