@@ -3,12 +3,14 @@ package com.ssafy.econimal.global.exception.handler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ssafy.econimal.global.common.response.ErrorResponse;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler

@@ -1,5 +1,6 @@
 package com.ssafy.econimal.domain.user.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.ssafy.econimal.domain.town.entity.Town;
@@ -18,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,7 +45,7 @@ public class User extends BaseTimeEntity {
 	private String name;
 
 	@Column(name = "birth", nullable = false)
-	private LocalDateTime birth;
+	private LocalDate birth;
 
 	@Column(name = "nickname")
 	private String nickname;
@@ -60,4 +62,22 @@ public class User extends BaseTimeEntity {
 
 	@Column(name = "last_login_at")
 	private LocalDateTime lastLoginAt;
+
+	@Builder
+	public User(Town town, String email, String name, LocalDate birth, String nickname, String password,
+		UserType role) {
+		this.town = town;
+		this.email = email;
+		this.name = name;
+		this.birth = birth;
+		if (nickname == null)
+			nickname = name;
+		this.nickname = nickname;
+		this.password = password;
+		this.role = role;
+	}
+
+	public void updateLastLoginAt() {
+		this.lastLoginAt = LocalDateTime.now();
+	}
 }
