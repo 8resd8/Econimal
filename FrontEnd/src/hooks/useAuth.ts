@@ -9,6 +9,7 @@ interface User {
   nickname: string;
 }
 
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
