@@ -1,8 +1,6 @@
 package com.ssafy.econimal.domain.auth.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 import com.ssafy.econimal.global.common.enums.UserType;
 
@@ -33,7 +31,7 @@ public record SignupRequest(
 	@Size(max = 10, message = "{max.length}")
 	String nickname,
 
-	@Past
+	@Past(message = "{past}")
 	LocalDate birth,
 
 	@NotNull(message = "{required}")
