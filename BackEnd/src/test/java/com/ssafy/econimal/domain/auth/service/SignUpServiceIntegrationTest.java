@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,10 +26,10 @@ import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 @SpringBootTest
 @Transactional
-public class AuthServiceIntegrationTest {
+public class SignUpServiceIntegrationTest {
 
 	@Autowired
-	private AuthService authService;
+	private SignUpService signUpService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -59,7 +57,7 @@ public class AuthServiceIntegrationTest {
 
 	@Test
 	public void 회원가입() {
-		authService.signup(signupRequest);
+		signUpService.signup(signupRequest);
 
 		// Assert: 회원가입 후 User가 생성되었는지 검증
 		Optional<User> user = userRepository.findByEmail(signupRequest.email());
@@ -77,10 +75,10 @@ public class AuthServiceIntegrationTest {
 
 	@Test
 	public void 이메일중복() {
-		authService.signup(signupRequest);
+		signUpService.signup(signupRequest);
 
 		// 동일요청 똑같이 보냄
-		assertThatThrownBy(() -> authService.signup(signupRequest))
+		assertThatThrownBy(() -> signUpService.signup(signupRequest))
 			.isInstanceOf(InvalidArgumentException.class);
 
 	}

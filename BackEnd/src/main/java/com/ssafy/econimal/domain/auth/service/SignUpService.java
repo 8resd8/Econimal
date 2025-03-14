@@ -6,6 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
@@ -31,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AuthService {
+public class SignUpService {
 
 	private final UserRepository userRepository;
 	private final CharacterRepository characterRepository;
@@ -42,9 +43,10 @@ public class AuthService {
 	private final FacilityRepository facilityRepository;
 	private final TownRepository townRepository;
 	private final BCryptPasswordEncoder encoder;
+	private final AuthValidator validator;
 
 	public User signup(SignupRequest request) {
-		validateUser(request);
+		validator.validateSignUpUser(request);
 
 		String encodedPassword = encoder.encode(request.password1());
 
@@ -103,15 +105,5 @@ public class AuthService {
 		}
 
 		return saveUser;
-	}
-
-	private void validateUser(SignupRequest request) {
-		if (userRepository.findByEmail(request.email()).isPresent()) {
-			throw new InvalidArgumentException("중복된 이메일입니다.");
-		}
-
-		if (!request.password1().equals(request.password2())) {
-			throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
-		}
 	}
 }
