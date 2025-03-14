@@ -1,4 +1,4 @@
-import CharBackground from './componet/main/CharBackground';
+import CharBackground from './componet/main/status/CharBackground';
 
 // import useCharStore from '@/store/useCharStore';
 const MyCharacter = () => {

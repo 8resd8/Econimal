@@ -2,6 +2,7 @@ import useCharStore from '@/store/useCharStore';
 import CharButton from '../../componet/select/CharButton';
 import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 import { motion } from 'framer-motion';
+//원래는 card도 card기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
 //CharacterCardProps와 관련된 interface type 설정 => props 설정
 interface CharacterCardProps extends CharacterTypes<string> {}

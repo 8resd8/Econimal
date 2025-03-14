@@ -1,11 +1,11 @@
 import useCharStore from '@/store/useCharStore';
-import CharProfile from './status/CharProfile';
+import CharProfile from './CharProfile';
 import ExpBar from '@/components/ExpBar';
-import CharCoin from './status/CharCoin';
-import TownIcon from './moveicon/TownIcon';
-import EarthIcon from './moveicon/EarthIcon';
-import ShopIcon from './moveicon/ShopIcon';
-import CharMenu from '../../feature/select/CharMenu';
+import CharCoin from './CharCoin';
+import TownIcon from '../moveicon/TownIcon';
+import EarthIcon from '../moveicon/EarthIcon';
+import ShopIcon from '../moveicon/ShopIcon';
+import CharMenu from '@/pages/character/feature/select/CharMenu';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();

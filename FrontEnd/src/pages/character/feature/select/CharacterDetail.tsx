@@ -4,6 +4,7 @@ import CharNextChap from '../../componet/select/CharNextChap';
 import useCharStore from '@/store/useCharStore';
 import { useNavigate } from 'react-router-dom';
 import MyCharacter from '../../MyCharacter';
+//원래는 detail도 detail기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
 // 디테일 사이즈 수정
 const CharacterDetail = ({
