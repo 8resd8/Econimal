@@ -49,9 +49,6 @@ public class AuthController {
 	@PostMapping("/logout")
 	public void logout(@CookieValue(name = "refreshToken", required = false) String refreshToken,
 		HttpServletResponse response) {
-		if (refreshToken == null || refreshToken.isEmpty()) {
-			throw new IllegalArgumentException("리프레시 토큰이 없습니다.");
-		}
 
 		logoutService.logout(refreshToken, response);
 	}
