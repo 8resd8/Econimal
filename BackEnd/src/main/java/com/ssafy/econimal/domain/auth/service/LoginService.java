@@ -51,8 +51,6 @@ public class LoginService {
 		redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + user.getId(), refreshToken,
 			jwtUtil.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
-		response.setHeader("Refresh-Token", refreshToken);
-
 		// 쿠키에 저장
 		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
