@@ -6,6 +6,7 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.ssafy.econimal.domain.auth.exception.JwtException;
 import com.ssafy.econimal.global.common.enums.UserType;
@@ -15,6 +16,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 
 @Component
@@ -112,5 +114,13 @@ public class JwtUtil {
 			throw new IllegalArgumentException("키의 길이가 짧은 오류, 256비트 이상이어야 함");
 		}
 		return Keys.hmacShaKeyFor(keyBytes);
+	}
+
+	public String getResolveAccessToken(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7);
+		}
+		return null;
 	}
 }
