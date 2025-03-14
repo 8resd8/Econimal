@@ -5,16 +5,18 @@ import { motion } from 'framer-motion';
 //원래는 card도 card기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
 //CharacterCardProps와 관련된 interface type 설정 => props 설정
-interface CharacterCardProps extends CharacterTypes<string> {}
+// interface CharacterCardProps extends CharacterTypes<string> {}
 
 const CharacterCards = ({
   name,
   description,
   img,
   backImg,
+  profileImg,
+  footImg,
   subStory,
   detailStory,
-}: CharacterCardProps) => {
+}: CharacterTypes<string>) => {
   const { myChar, setMyChar } = useCharStore();
   console.log(myChar); //담기는 것 확인됨 => 근데 왜 3번뜨는지?
 
@@ -26,6 +28,8 @@ const CharacterCards = ({
         description,
         img,
         backImg,
+        profileImg,
+        footImg,
         subStory,
         detailStory,
       });
@@ -36,6 +40,8 @@ const CharacterCards = ({
         description: '',
         img: '',
         backImg: '',
+        profileImg: '',
+        footImg: '',
         subStory: '',
         detailStory: '',
       });

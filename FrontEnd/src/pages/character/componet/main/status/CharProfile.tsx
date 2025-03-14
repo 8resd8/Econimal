@@ -5,14 +5,13 @@ const CharProfile = () => {
         {/* 레벨 */}
       </div>
       <div className='w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-blue-300 shadow-lg'>
-        <image
-          // src는 캐릭터들의 얼굴 ..?
+        <img
           src=''
           alt='프로필'
           width={96}
           height={96}
           className='object-cover'
-        />
+        ></img>
       </div>
     </div>
   );

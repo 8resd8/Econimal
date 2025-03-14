@@ -12,6 +12,8 @@ const useCharStore = create(
         description: '',
         img: '',
         backImg: '',
+        profileImg: '',
+        footImg: '',
         subStory: undefined, // 초기값 설정
         detailStory: undefined, // 초기값 설정
       },

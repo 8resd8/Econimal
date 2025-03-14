@@ -5,11 +5,11 @@ import CharCoin from './CharCoin';
 import TownIcon from '../moveicon/TownIcon';
 import EarthIcon from '../moveicon/EarthIcon';
 import ShopIcon from '../moveicon/ShopIcon';
-import CharMenu from '@/pages/character/feature/select/CharMenu';
+import CharMenu from '../../../feature/status/CharMenu';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
-
+  console.log(myChar);
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
       {/* 배경 이미지 */}
@@ -46,8 +46,19 @@ const CharBackground = () => {
 
       {/* 캐릭터 */}
       <div className='absolute bottom-0 left-0 w-full'>
-        <div className='absolute bottom-24 left-[40%] -translate-x-1/2 w-64 h-64 md:w-80 md:h-80'>
-          <img src={myChar.img} alt='캐릭터' className='absolute' />
+        <div className='relative bottom-24 left-[40%] -translate-x-1/2 w-64 md:w-80'>
+          {/* 발판 이미지 */}
+          <img
+            src={myChar.footImg}
+            alt='발판'
+            className='absolute bottom-[-50px] left-[50%] -translate-x-1/2 w-[90%] z-[1]'
+          />
+          {/* 캐릭터 이미지 */}
+          <img
+            src={myChar.img}
+            alt='캐릭터'
+            className='absolute bottom-[30px] left-[50%] -translate-x-1/2 w-full h-auto z-[2]'
+          />
         </div>
       </div>
     </div>

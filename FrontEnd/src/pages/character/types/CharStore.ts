@@ -1,4 +1,4 @@
-import { CharacterTypes } from "./CharacterTypes";
+import { CharacterTypes } from './CharacterTypes';
 
 export interface CharStore {
   myChar: CharacterTypes<string>;

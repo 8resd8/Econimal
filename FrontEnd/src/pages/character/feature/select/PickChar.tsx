@@ -1,11 +1,10 @@
-import { characterConfig } from '@/config/characterConfig';
 import CharacterCards from './CharacterCards';
 import useCharStore from '@/store/useCharStore';
 import CharacterCardsList from '../../componet/select/CharacterCardsList';
 import CharacterDetail from './CharacterDetail';
 
 const PickChar = () => {
-  const { myChar, setMyChar } = useCharStore();
+  const { myChar } = useCharStore();
   if (!myChar.name) {
     return <CharacterCardsList />;
   }
@@ -19,8 +18,8 @@ const PickChar = () => {
         <CharacterCards {...myChar} />
         <CharacterDetail
           name={myChar.name}
-          subStory={myChar.subStory}
-          detailStory={myChar.detailStory}
+          subStory={myChar.subStory ? myChar.subStory : ''}
+          detailStory={myChar.detailStory ? myChar.detailStory : ''}
         />
       </div>
     </div>

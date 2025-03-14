@@ -1,7 +1,6 @@
 import { Menu } from 'lucide-react';
-import { useState } from 'react';
 
-const CharMenuUI = ({ onClick} : {onClick : () => void }) => {
+const CharMenuUI = ({ onClick }: { onClick: () => void }) => {
   // 메뉴에 버튼이 눌리는 기능만 있을거니까
   return (
     <button
