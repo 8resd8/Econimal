@@ -17,11 +17,6 @@ const EarthIcon = () => {
             stroke='#22c55e'
             strokeWidth='2'
           />
-          <path
-            d='M12 2a10 10 0 0110 10M2 12a10 10 0 0110-10'
-            stroke='#22c55e'
-            strokeWidth='2'
-          />
           <path d='M12 2v20M2 12h20' stroke='#22c55e' strokeWidth='2' />
           <circle
             cx='12'
@@ -30,11 +25,6 @@ const EarthIcon = () => {
             fill='#22c55e'
             stroke='#22c55e'
             strokeWidth='0'
-          />
-          <path
-            d='M18.4 5.6a9 9 0 010 12.8M5.6 5.6a9 9 0 000 12.8'
-            stroke='#22c55e'
-            strokeWidth='1'
           />
         </svg>
       </div>

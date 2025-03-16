@@ -33,12 +33,6 @@ const TownIcon = () => {
             stroke='#3b82f6'
             strokeWidth='0'
           />
-          <path
-            d='M7 9a5 5 0 0110 0'
-            stroke='#3b82f6'
-            strokeWidth='1'
-            strokeLinecap='round'
-          />
         </svg>
       </div>
       <span className='text-base mt-2 font-bold text-blue-700'>마을가기</span>

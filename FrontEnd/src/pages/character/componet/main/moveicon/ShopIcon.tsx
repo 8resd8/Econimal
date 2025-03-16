@@ -40,14 +40,6 @@ const ShopIcon = () => {
             strokeLinecap='round'
             strokeLinejoin='round'
           />
-          <circle
-            cx='16'
-            cy='8'
-            r='3'
-            fill='#ffedd5'
-            stroke='#f97316'
-            strokeWidth='1'
-          />
         </svg>
       </div>
       <span className='text-base mt-2 font-bold text-orange-700'>상점</span>
