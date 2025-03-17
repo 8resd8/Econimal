@@ -17,7 +17,9 @@ const CharacterCards = ({
 }: CharacterTypes<number>) => {
   const { myChar, setMyChar } = useCharStore();
   console.log(myChar);
+  //상태 유효성 검사 로직
 
+  // handle에 console.log 찍어보기
   const handlePickChar = () => {
     if (!myChar.name) {
       // 캐릭터 정보 들어가는 것

@@ -4,7 +4,7 @@ import CharNextChap from '../../componet/select/CharNextChap';
 import useCharStore from '@/store/useCharStore';
 import { useNavigate } from 'react-router-dom';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
-
+import { useCharInfo } from './../hooks/useCharInfo';
 const CharacterDetail = ({
   id,
   name,
@@ -12,10 +12,19 @@ const CharacterDetail = ({
   detailStory,
 }: CharacterDetailProps<number>) => {
   const { myChar, setMyChar } = useCharStore();
-  const nav = useNavigate();
+  const { data, isLoading, isError, error } = useCharInfo();
   const { handleFetchMyChar } = useFetchMyChar();
+  const nav = useNavigate();
 
-  // 지금 캐릭터 돕기
+  if (isLoading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (isError) {
+    return <div>에러 발생</div>;
+  }
+
+  // 지금 캐릭터 돕기 => 이거 상세 id값이어야함
   const handleHelpChar = () => {
     if (myChar.name !== name) {
       return;

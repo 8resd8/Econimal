@@ -5,7 +5,7 @@ import CharacterDetail from './CharacterDetail';
 
 const PickChar = () => {
   const { myChar } = useCharStore();
-  if (!myChar.name) {
+  if (!myChar.name || myChar.id === undefined) {
     return <CharacterCardsList />;
   }
 

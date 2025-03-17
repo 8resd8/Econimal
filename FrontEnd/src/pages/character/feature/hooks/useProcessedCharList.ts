@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useCharList } from './useCharList';
 import { CharacterTypes } from '../../types/CharacterTypes';
 import { characterConfig } from '@/config/characterConfig';
+import { useCharInfo } from './useCharInfo';
 //캐릭터
 // import turtleImg from '../../../../assets/char/char_bugi.png';
 // import pengImg from '../../../../assets/char/char_peng.png';
@@ -33,14 +34,14 @@ export const useProcessedCharList = () => {
           const configItem = characterConfig[idx];
           return {
             id: item.userCharacterId,
-            name: item.characterName,
+            name: item.characterName, //여기랑
             description: item.summary,
             img: configItem.img,
             backImg: configItem.backImg,
             profileImg: configItem.profileImg,
             footImg: configItem.footImg,
-            subStory: configItem.subStory,
-            detailStory: configItem.detailStory,
+            subStory: configItem.subStory, //여기랑
+            detailStory: configItem.detailStory, //여기랑
           };
         });
       setProcessedData(processed); //type 내용
