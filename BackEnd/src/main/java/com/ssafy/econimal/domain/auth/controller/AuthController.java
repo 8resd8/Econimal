@@ -36,7 +36,6 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
 		HttpServletResponse response) {
 		LoginResponse result = loginService.login(request, response);
