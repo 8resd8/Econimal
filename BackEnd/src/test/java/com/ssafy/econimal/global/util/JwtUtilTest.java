@@ -10,27 +10,35 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ssafy.econimal.global.common.enums.UserType;
+import com.ssafy.econimal.global.config.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+@SpringBootTest
 class JwtUtilTest {
 
-	private JwtUtil jwtUtil;
 	private final String TEST_SECRET_KEY = "VGhpc0lzVGVzdFNlY3JldEtleUZvckp3dFV0aWxUZXN0aW5nUHVycG9zZXNPbmx5";
 	private final Long TEST_USER_ID = 123L;
 	private final UserType TEST_USER_TYPE = UserType.USER;
 
+	@Autowired
+	private JwtProperties jwtProperties;
+
+	@Autowired
+	private JwtUtil jwtUtil;
+
 	@BeforeEach
 	void setUp() {
-		jwtUtil = new JwtUtil();
-		ReflectionTestUtils.setField(jwtUtil, "secretKey", TEST_SECRET_KEY);
-		ReflectionTestUtils.setField(jwtUtil, "refreshExpiration", 1000L * 60 * 60 * 24 * 7); // 7일
+		ReflectionTestUtils.setField(jwtProperties, "secretKey", TEST_SECRET_KEY);
+		ReflectionTestUtils.setField(jwtProperties, "refreshExpiration", 1000L * 60 * 60 * 24 * 7); // 7일
 	}
 
 	@Test

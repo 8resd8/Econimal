@@ -2,6 +2,7 @@ spring:
   config:
     import:
     - classpath:secret.yml
+  product: false
 
   datasource:
     url: ${database.url}
@@ -34,5 +35,10 @@ logging:
     org.hibernate.type.descriptor.sql: debug
 
 jwt:
-  secret: ${jwt.secret}
+  secret-key: ${jwt.secret}
   refresh-expiration: ${jwt.refresh-expiration}
+  pass-url:
+    - /api/users/signup
+    - /api/users/login
+    - /api/users/logout
+    - /api/users/refresh

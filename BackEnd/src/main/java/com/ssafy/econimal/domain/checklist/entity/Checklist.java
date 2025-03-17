@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,5 +38,12 @@ public class Checklist extends BaseTimeEntity {
 	private String description;
 
 	@Column(name = "exp")
-	private Integer exp;
+	private int exp = 30;
+
+	@Builder
+	public Checklist(DifficultyType difficulty, String ecoType, String description) {
+		this.difficulty = difficulty;
+		this.ecoType = ecoType;
+		this.description = description;
+	}
 }

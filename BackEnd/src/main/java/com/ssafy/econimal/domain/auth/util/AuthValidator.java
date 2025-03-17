@@ -1,0 +1,76 @@
+package com.ssafy.econimal.domain.auth.util;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import com.ssafy.econimal.domain.auth.dto.LoginRequest;
+import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.exception.AuthenticationException;
+import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.repository.UserRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
+import com.ssafy.econimal.global.util.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class AuthValidator {
+
+	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder encoder;
+	private final JwtUtil jwtUtil;
+
+
+	// 회원가입 요청 검증
+	public void validateSignUpUser(SignupRequest request) {
+		if (userRepository.findByEmail(request.email()).isPresent()) {
+			throw new InvalidArgumentException("중복된 이메일입니다.");
+		}
+
+		if (!request.password1().equals(request.password2())) {
+			throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
+		}
+	}
+
+	// 로그인 요청 검증
+	public User validateLoginRequest(LoginRequest request) {
+		User user = userRepository.findByEmail(request.email())
+			.orElseThrow(() -> new InvalidArgumentException("잘못된 이메일 주소입니다."));
+
+		if (!verifyPassword(request.password(), user.getPassword())) {
+			throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
+		}
+		return user;
+	}
+
+	// 리프레시 토큰 사용자 검증
+	public Long validateRefreshToken(String refreshToken) {
+		if (!jwtUtil.isTokenValid(refreshToken) || jwtUtil.isRefreshToken(refreshToken)) {
+			throw new AuthenticationException("유효하지 않은 리프레시 토큰입니다.");
+		}
+
+		Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+
+		if (!userRepository.existsById(userId)) {
+			throw new AuthenticationException("존재하지 않는 사용자입니다.");
+		}
+		return userId;
+	}
+
+	// 리프레시 토큰 유효 검증
+	public void validateNullRefreshToken(String refreshToken) {
+		if (refreshToken == null || refreshToken.isEmpty()) {
+			throw new AuthenticationException("리프레시 토큰이 없습니다.");
+		}
+
+		if (!jwtUtil.isTokenValid(refreshToken)) {
+			throw new AuthenticationException("유효하지 않은 리프레시 토큰입니다.");
+		}
+	}
+
+	// 비밀번호 검증
+	private boolean verifyPassword(String requestPassword, String encodedPassword) {
+		return encoder.matches(requestPassword, encodedPassword);
+	}
+}

@@ -9,33 +9,95 @@ interface User {
   nickname: string;
 }
 
+interface LoginResponse {
+  accessToken: string;
+  expiresIn: number;
+}
+
+// 회원가입 인터페이스 추가
+interface SignupData {
+  email: string;
+  password1: string;
+  password2: string;
+  name: string;
+  nickname: string;
+  birth: string;
+  userType: string;
+}
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { token, setToken, clearToken } = useAuthStore(); // Zustand 상태 관리
 
-  // 로그인 함수
+  // 로그인 함수 - API 명세에 맞게 수정
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post("/users/login", { email, password });
-      setToken(res.data.accessToken); // Zustand에 저장
+      // API 명세에 따라 요청 구성
+      const res = await axios.post<LoginResponse>("/api/users/login", {
+        email,
+        password
+      }, {
+        headers: {
+          'Cache-Control': 'no-store'
+        },
+        withCredentials: true // 쿠키 기반 인증을 위해 추가
+        // params: {
+        //   userId: null
+        // }
+      });
+
+      // 응답에서 토큰과 만료 시간 저장
+      setToken(res.data.accessToken);
+      
+      // 쿠키는 서버에서 자동으로 설정됨 (Set-Cookie 헤더를 통해)
+      
+      // 사용자 정보 가져오기
       await fetchUserData();
-      navigate("/"); // 로그인 후 홈으로 이동
+      
+      // 로그인 성공 후 홈 페이지로 이동
+      navigate("/");
+      
+      return res.data;
     } catch (error) {
       console.error("로그인 실패", error);
       throw error;
     }
   };
 
-  // 회원가입 함수
-  const signup = async (email: string, password: string, nickname: string) => {
+  // 회원가입 함수 - API 명세서에 맞게 수정 및 에러 처리 개선
+  const signup = async (
+    email: string, 
+    password1: string, 
+    password2: string, 
+    name: string, 
+    nickname: string, 
+    birth: string, 
+    userType: string = "USER"
+  ) => {
     try {
-      await axios.post("/users/signup", { email, password, nickname });
-      navigate("/login"); // 회원가입 후 로그인 페이지로 이동
-    } catch (error) {
+      // API 명세서에 맞게 데이터 구성
+      const signupData: SignupData = {
+        email,
+        password1,
+        password2,
+        name,
+        nickname,
+        birth,
+        userType
+      };
+      
+      // API 요청 보내기
+      await axios.post("/api/users/signup", signupData);
+      
+      // 회원가입 성공 후 로그인 페이지로 이동
+      navigate("/login");
+      
+      return { success: true };
+    } catch (error: any) { // any 타입으로 지정
       console.error("회원가입 실패", error);
-      throw error;
+      throw error; // 에러를 다시 throw하여 컴포넌트에서 처리할 수 있게 함
     }
   };
 
@@ -66,10 +128,10 @@ export const useAuth = () => {
     }
   };
 
-  // AccessToken 갱신
+  // AccessToken 갱신 (refreshToken은 쿠키에 있으므로 자동으로 전송됨)
   const refreshToken = async () => {
     try {
-      const res = await axios.post("/users/token/refresh");
+      const res = await axios.post<LoginResponse>("/users/token/refresh");
       setToken(res.data.accessToken);
     } catch (error) {
       console.error("토큰 갱신 실패", error);
@@ -106,7 +168,11 @@ export const useAuth = () => {
 
   // 초기 로그인 상태 확인
   useEffect(() => {
-    fetchUserData();
+    if (token) {
+      fetchUserData();
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   return {
