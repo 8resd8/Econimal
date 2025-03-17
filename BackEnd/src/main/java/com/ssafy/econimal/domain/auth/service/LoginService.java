@@ -13,6 +13,7 @@ import com.ssafy.econimal.domain.auth.dto.LoginResponse;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.common.enums.UserType;
+import com.ssafy.econimal.global.config.JwtProperties;
 import com.ssafy.econimal.global.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ public class LoginService {
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final AuthValidator validator;
+	private final JwtProperties jwtProperties;
 
 	private static final String REFRESH_TOKEN_PREFIX = "RT:";
 
@@ -40,13 +42,13 @@ public class LoginService {
 		String refreshToken = jwtUtil.createRefreshToken(user.getId());
 
 		redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + user.getId(), refreshToken,
-			jwtUtil.getRefreshExpiration(), TimeUnit.MILLISECONDS);
+			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
 		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
 			.path("/")
-			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtUtil.getRefreshExpiration()))
+			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
 			.secure(isProduction)
 			.sameSite("Strict") // Strict, Lax, None
 			.build();
@@ -62,13 +64,13 @@ public class LoginService {
 		String newRefreshToken = jwtUtil.createRefreshToken(userId);
 
 		redisTemplate.opsForValue().set(REFRESH_TOKEN_PREFIX + userId, newRefreshToken,
-			jwtUtil.getRefreshExpiration(), TimeUnit.MILLISECONDS);
+			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
 		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken)
 			.httpOnly(true)
 			.path("/")
-			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtUtil.getRefreshExpiration()))
+			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
 			.secure(isProduction)
 			.sameSite("Strict")
 			.build();
