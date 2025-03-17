@@ -1,8 +1,5 @@
 package com.ssafy.econimal.domain.character.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
-
 import com.ssafy.econimal.domain.store.entity.Product;
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 import com.ssafy.econimal.global.common.enums.CharacterType;
@@ -58,16 +55,16 @@ public class Character extends BaseTimeEntity {
 	private int maxLevel = 3;
 
 	@Column(name = "is_original", columnDefinition = "TINYINT DEFAULT 0")
-	private boolean is_original;
+	private boolean isOriginal;
 
 	@Builder
 	public Character(Product product, String name, CharacterType type, String summary, String description,
-		boolean is_original) {
+		boolean isOriginal) {
 		this.product = product;
 		this.name = name;
 		this.type = type;
 		this.summary = summary;
 		this.description = description;
-		this.is_original = is_original;
+		this.isOriginal = isOriginal;
 	}
 }
