@@ -35,16 +35,17 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       // API 명세에 따라 요청 구성
-      const res = await axios.post<LoginResponse>("/users/login", {
+      const res = await axios.post<LoginResponse>("/api/users/login", {
         email,
         password
       }, {
         headers: {
           'Cache-Control': 'no-store'
         },
-        params: {
-          userId: null // API 명세에 있지만 필수 값인지 확실하지 않음
-        }
+        withCredentials: true // 쿠키 기반 인증을 위해 추가
+        // params: {
+        //   userId: null
+        // }
       });
 
       // 응답에서 토큰과 만료 시간 저장
@@ -88,7 +89,7 @@ export const useAuth = () => {
       };
       
       // API 요청 보내기
-      await axios.post("/users/signup", signupData);
+      await axios.post("/api/users/signup", signupData);
       
       // 회원가입 성공 후 로그인 페이지로 이동
       navigate("/login");
