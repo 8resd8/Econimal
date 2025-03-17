@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class JwtProperties {
-	private String secret;
-	private String refreshExpiration;
+	private String secretKey;
+	private Long refreshExpiration;
 	private List<String> passURL = new ArrayList<>();
 }

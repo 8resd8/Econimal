@@ -35,7 +35,7 @@ logging:
     org.hibernate.type.descriptor.sql: debug
 
 jwt:
-  secret: ${jwt.secret}
+  secret-key: ${jwt.secret}
   refresh-expiration: ${jwt.refresh-expiration}
   pass-url:
     - /api/users/signup
