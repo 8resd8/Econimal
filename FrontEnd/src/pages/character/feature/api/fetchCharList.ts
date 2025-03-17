@@ -1,9 +1,5 @@
 import { characterListAPI } from '@/api/axiosConfig';
-import axios from 'axios';
-
-//보면 => config.ts 내용에서 fetch내용 가져와서 이미지랑 또 일치시켜야..
-//근데 이 fetch가 일단 받아와서 2가지로 활용해야할 것 같음
-//도감으로 slice해서 받아올 내용이랑, 전체 받아올 내용이랑.
+import { CharacterListResponse } from '../../types/CharacterListRes';
 //근데 이부분들은 zustand를 사용하지 않아도 되지 않을까?
 //그냥 있는 데이터만 뿌릴 것 => 가공X
 
@@ -17,12 +13,14 @@ import axios from 'axios';
 //   }
 // }
 
-const fetchCharList = async () => {
+const fetchCharList = async (): Promise<CharacterListResponse<number>> => {
+  //반환값 명시 모두 설정
   try {
-    const response = await characterListAPI.getCharList(); 
-    return response.data
+    const response = await characterListAPI.getCharList();
+    return response.data; //비동기로 fetching받는 데이터 반환 값에 대한 Type설정
   } catch (error) {
     console.log('캐릭터 리스트 패칭 오류');
+    throw error; // 예외를 던지는 것
   }
 };
 

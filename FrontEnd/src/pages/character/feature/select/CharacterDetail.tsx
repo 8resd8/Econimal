@@ -4,28 +4,22 @@ import CharNextChap from '../../componet/select/CharNextChap';
 import useCharStore from '@/store/useCharStore';
 import { useNavigate } from 'react-router-dom';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
-//원래는 detail도 detail기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
-// 여기 handle 자체에서는 이제 id값을 주는 것
-// 디테일 사이즈 수정
 const CharacterDetail = ({
+  id,
   name,
   subStory,
   detailStory,
-}: CharacterDetailProps) => {
+}: CharacterDetailProps<number>) => {
   const { myChar, setMyChar } = useCharStore();
-  // const { } = useFetchMyChar(); => return 하는 값만 있어서 여기 매개변수를 넘겨줘야하는데,,
   const nav = useNavigate();
   const { handleFetchMyChar } = useFetchMyChar();
 
-  // 지금 캐릭터 돕기기
+  // 지금 캐릭터 돕기
   const handleHelpChar = () => {
     if (myChar.name !== name) {
       return;
     }
-    //추후 여기서 서버에 나의 캐릭터 정보를 보내줘야하지 않을까?라는 생각
-    // 여기서 post로 전달해주는 것 => query이벤트 발생해서서 => 그럼 그냥 저기서 char로?
-    // mutate(myChar.id) //type설정안한다는 가정하에
     handleFetchMyChar();
     nav('/my');
   };

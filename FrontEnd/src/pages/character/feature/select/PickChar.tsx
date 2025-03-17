@@ -17,6 +17,7 @@ const PickChar = () => {
       <div className='flex justify-center items-center gap-9'>
         <CharacterCards {...myChar} />
         <CharacterDetail
+          id={myChar.id}
           name={myChar.name}
           subStory={myChar.subStory ? myChar.subStory : ''}
           detailStory={myChar.detailStory ? myChar.detailStory : ''}

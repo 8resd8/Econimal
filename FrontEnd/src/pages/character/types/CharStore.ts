@@ -1,6 +1,6 @@
 import { CharacterTypes } from './CharacterTypes';
 
 export interface CharStore {
-  myChar: CharacterTypes<string>;
-  setMyChar: (char: CharacterTypes<string>) => void; //return값 없음
+  myChar: CharacterTypes<number>;
+  setMyChar: (char: CharacterTypes<number>) => void; //return값 없음
 }

@@ -8,7 +8,7 @@ export const useFetchMyChar = () => {
   const queryClient = useQueryClient();
   // const { data, isError, error, isPending } = useMutation({
   const { mutate } = useMutation({
-    mutationFn: (userCharacterId) => fetchMyChar(userCharacterId), //요청 => 근데 여기 myChar..?
+    mutationFn: (userCharacterId) => fetchMyChar(userCharacterId : number), //요청 => 근데 여기 myChar..?
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['MyChar'] }); //이거 기능이 정확하게 무엇인지?
       console.log('useFetchMyChar내부, 서버에 useCharacterId 전달');
