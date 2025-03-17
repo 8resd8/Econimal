@@ -1,6 +1,9 @@
 import axios from 'axios';
+import { API } from './apiConfig';
 
-const DOMAIN = 'https://econimal.com'; // 임시 URL
+
+// const DOMAIN = 'https://econimal.com'; // 임시 URL
+const DOMAIN = 'https://econimal.com/api/v1'; // 임시 URL
 
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
@@ -53,6 +56,15 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// ------------------------- 서버 fetching api 로직 ---------------------------
+
+//캐릭터 api
+//직관적으로 매개변수, get/post 요청을 무엇으로 보내는지 알기 위해서
+//한꺼번에 api로 관리하기 위해서 분리하였습니다.
+export const characterListAPI = {
+  getCharList: () => axiosInstance.get(`${DOMAIN}/${API.CHARACTERS.LIST}`),
+};
 
 // axiosInstance를 기본 내보내기로 설정
 export default axiosInstance;
