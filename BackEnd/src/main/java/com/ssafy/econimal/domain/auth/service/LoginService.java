@@ -54,6 +54,8 @@ public class LoginService {
 			.build();
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
+		user.updateLastLoginAt();
+
 		return new LoginResponse(accessToken, jwtUtil.getAccessExpireTime());
 	}
 
