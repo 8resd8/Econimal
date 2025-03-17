@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.SignupRequest;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
@@ -24,9 +25,7 @@ import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.common.enums.ExpressionType;
-import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
