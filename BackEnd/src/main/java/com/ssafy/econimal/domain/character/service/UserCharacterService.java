@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class UserCharacterService {
 
 	private final UserCharacterRepository userCharacterRepository;
@@ -24,5 +24,15 @@ public class UserCharacterService {
 	public UserCharacterDetailResponse getUserCharacterDetail(User user, Long userCharacterId) {
 		return new UserCharacterDetailResponse(
 			userCharacterRepository.findCharacterDetailByUser(user, userCharacterId));
+	}
+
+	public void updateUserCharacterMain(User user, Long userCharacterId) {
+		// 기존 대표 캐릭터: false 변경
+		userCharacterRepository.findByUserAndMainIsTrue(user)
+			.ifPresent(userCharacter -> userCharacter.updateIsMain(false));
+
+		// 변경할 대표 캐릭터 true 설정
+		userCharacterRepository.findByUserAndId(user, userCharacterId).
+			ifPresent(userCharacter -> userCharacter.updateIsMain(true));
 	}
 }
