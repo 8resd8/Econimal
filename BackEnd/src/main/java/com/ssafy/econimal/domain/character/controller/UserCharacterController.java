@@ -34,6 +34,11 @@ public class UserCharacterController {
 		return userCharacterService.getUserCharacterDetail(user, userCharacterId);
 	}
 
+	@GetMapping("/main")
+	public void patchUserCharacterMain(@Login User user, @PathVariable("userCharacterId") Long userCharacterId) {
+		userCharacterService.updateUserCharacterMain(user, userCharacterId);
+	}
+
 	@PatchMapping("/main/{userCharacterId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void patchUserCharacterMain(@Login User user, @PathVariable("userCharacterId") Long userCharacterId) {
