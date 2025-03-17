@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
 
-const DOMAIN = 'https://econimal.com'; // 임시 URL
+const DOMAIN = 'http://localhost:8080'; // 임시 URL
 
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
