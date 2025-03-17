@@ -7,36 +7,46 @@ interface TownNameData {
 }
 
 interface TownNameResponse {
-  // name: string;
   message?: string;
 }
 
 // 각 장소에 대한 이벤트
 interface TownEvent {
-  id: string;
-  title: string;
+  infraId: string;
+  ecoType: 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
+  isClean: string;
+  infraEventId: string;
+  isActive: boolean; // 이벤트 발생 여부
 }
 
 // 마을 전체 데이터
-interface TownEventsData {
-  events: TownEvent[]; // 배열일까 문자일까 숫자일까
+interface TownEventsResponse {
+  events: TownEvent[];
   message?: string;
 }
 
 // 마을 이름 수정
-const patchTownName = async (name: TownNameData) => {
-  const response = await axiosInstance.patch<TownNameResponse>('/towns');
+export const patchTownName = async (townData: TownNameData) => {
+  // TownData : townId,townName 담긴 객체
+  const response = await axiosInstance.patch<TownNameResponse>(
+    '/towns',
+    townData,
+  );
 
   if (!response || !response.data) {
     throw new Error(
       response?.data?.message || '마을 이름 수정 중 오류가 발생했습니다.',
     );
   }
+  return response.data;
 };
 
-// 마을 전체 시점에서 바라봤을 때의 이벤트 발생(마을 이벤트 조회)
-const getTownEvents = async () => {
-  const response = await axiosInstance.get<TownEventsData>('/towns/events');
+// 마을 전체 이벤트 발생(마을 화면 진입 시 호출)
+export const getTownEvents = async (townId: string) => {
+  const response = await axiosInstance.get<TownEventsResponse>(
+    '/towns/events',
+    { params: { townId } },
+  );
 
   if (!response || !response.data) {
     throw new Error(
@@ -44,4 +54,5 @@ const getTownEvents = async () => {
         '마을 전체 이벤트 조회 중 요류가 발생했습니다.',
     );
   }
+  return response.data; // 꼭 있어야?
 };

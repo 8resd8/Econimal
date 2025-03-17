@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { InfraSubmitResponse } from '../features/infraApi';
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -10,13 +12,45 @@ import {
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+  useGetInfraEvent,
+  useSubmitInfraResult,
+} from '../features/useInfraQuery';
 
 interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  infraEventId: number;
 }
 
-const NormalModal = ({ open, onOpenChange }: NormalModalProps) => {
+const NormalModal = ({
+  open,
+  onOpenChange,
+  infraEventId,
+}: NormalModalProps) => {
+  const [showResult, setShowResult] = useState(false);
+  // const [result, setResult] = useState(null); // 타입지정... <InfraSubmitResponse> import해서 사용...?
+  const [result, setResult] = useState<InfraSubmitResponse | null>(null); // api 응답 받을때 검증한거 아닌가... 왜 또 해야하지
+
+  // 인프라 이벤트 상세 조회 쿼리
+  // const { data: eventData, isLoading, error } = useGetInfraEvent(infraEventId);
+  const { data: eventData } = useGetInfraEvent(infraEventId);
+
+  // 인프라 이벤트 선택지 제출 뮤테이션
+  const submitInfraResult = useSubmitInfraResult();
+
+  // 선택지 제출 핸들러
+  const handleSubmit = (ecoAnswerId: number) => {
+    submitInfraResult(ecoAnswerId, {
+      onSuccess: (data) => {
+        if (data) {
+          setResult(data); // data가 있는 경우에만 실행
+          setShowResult(true);
+        }
+      },
+    });
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
