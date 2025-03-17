@@ -24,11 +24,32 @@ axiosInstance.interceptors.request.use(
 // 응답 인터셉터
 axiosInstance.interceptors.response.use(
   (response) => {
-    // 응답 데이터가 있는 작업 수행
-    return response;
+    return response; //응답 그대로 전달
   },
   (error) => {
-    // 응답 오류가 있는 작업 수행
+    if (error.response) {
+      switch (error.response.status) {
+        case 400:
+          console.error('Bad Request, 400에러 : 클라이언트 오류');
+          break;
+        case 401:
+          console.error('Unauthorized, 401에러 : 인증 오류');
+          // 로그아웃 처리 또는 토큰 갱신 로직
+          break;
+        case 403:
+          console.error('Forbidden, 403에러 : 권한 오류');
+          break;
+        case 404:
+          console.error('Not Found, 404에러 : 페이지 없음 오류');
+          break;
+        default:
+          console.error('Server Error, 500에러 외 모든 에러 : 서버 측 에러');
+      }
+    } else if (error.request) {
+      console.error('네트워크 에러');
+    } else {
+      console.error('Error', error.message);
+    }
     return Promise.reject(error);
   },
 );
