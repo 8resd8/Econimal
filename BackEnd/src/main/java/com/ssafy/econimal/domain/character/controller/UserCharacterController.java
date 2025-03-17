@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.character.dto.UserCharacterDetailResponse;
+import com.ssafy.econimal.domain.character.dto.UserCharacterMainResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
 import com.ssafy.econimal.domain.character.service.UserCharacterService;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -35,8 +36,8 @@ public class UserCharacterController {
 	}
 
 	@GetMapping("/main")
-	public void patchUserCharacterMain(@Login User user, @PathVariable("userCharacterId") Long userCharacterId) {
-		userCharacterService.updateUserCharacterMain(user, userCharacterId);
+	public UserCharacterMainResponse getUserCharacterMain(@Login User user) {
+		return userCharacterService.getUserCharacterMain(user);
 	}
 
 	@PatchMapping("/main/{userCharacterId}")
