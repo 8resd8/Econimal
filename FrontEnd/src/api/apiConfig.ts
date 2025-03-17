@@ -1,5 +1,6 @@
 export const API = {
   CHARACTERS: {
-    LIST: '/characters',
+    LIST: '/characters/users',
+    MAIN_CHAR : '/characters/users/main/'
   },
 };

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API } from './apiConfig';
 import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
+import { data } from 'react-router-dom';
 
 const DOMAIN = 'http://localhost:8080'; // 임시 URL
 
@@ -109,6 +110,12 @@ axiosInstance.interceptors.response.use(
 //한꺼번에 api로 관리하기 위해서 분리하였습니다.
 export const characterListAPI = {
   getCharList: () => axiosInstance.get(`${DOMAIN}/${API.CHARACTERS.LIST}`),
+  // 타입도 설정
+  //그런데 이거 원래 data : {},이렇게 해야하는건 아닌지?
+  patchmyChar: (userCharacterId) =>
+    axiosInstance.patch(`${DOMAIN}/${API.CHARACTERS.MAIN_CHAR}`, {
+      userCharacterId,
+    }),
 };
 
 // axiosInstance를 기본 내보내기로 설정

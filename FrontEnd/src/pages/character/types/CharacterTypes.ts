@@ -1,10 +1,11 @@
 export interface CharacterTypes<T> {
+  id?: T; //암호화 로직에 따라서 바뀔수도 있는 내용
   name: string;
   description: string;
   img?: string;
   backImg?: string;
   profileImg?: string;
   footImg?: string;
-  subStory?: T; //나중에 추가할 속성
-  detailStory?: T; //나중에 추가할 속성
+  subStory?: string;
+  detailStory?: string;
 }

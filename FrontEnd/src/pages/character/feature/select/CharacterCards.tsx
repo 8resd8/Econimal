@@ -16,6 +16,7 @@ const CharacterCards = ({
   footImg,
   subStory,
   detailStory,
+  id,
 }: CharacterTypes<string>) => {
   const { myChar, setMyChar } = useCharStore();
   console.log(myChar); //담기는 것 확인됨 => 근데 왜 3번뜨는지?
@@ -32,6 +33,7 @@ const CharacterCards = ({
         footImg,
         subStory,
         detailStory,
+        id,
       });
     } else {
       setMyChar({
@@ -44,6 +46,7 @@ const CharacterCards = ({
         footImg: '',
         subStory: '',
         detailStory: '',
+        id: '', //다시 빈값으로
       });
     }
   };
