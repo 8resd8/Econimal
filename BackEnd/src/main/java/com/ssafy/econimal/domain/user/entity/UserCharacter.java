@@ -61,4 +61,8 @@ public class UserCharacter extends BaseTimeEntity {
 		this.expression = expression;
 		this.isMain = isMain;
 	}
+
+	public void updateIsMain(boolean isMain) {
+		this.isMain = isMain;
+	}
 }
