@@ -1,10 +1,14 @@
 package com.ssafy.econimal.global.aop;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import java.util.Arrays;
 
 @Aspect
@@ -26,6 +30,8 @@ public class ServiceTime {
 		String className = fullPathClassName.substring(fullPathClassName.lastIndexOf(".") + 1);
 		String methodName = className + "." + joinPoint.getSignature().getName();
 
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
 		Object[] args = joinPoint.getArgs();
 		long startTime = System.currentTimeMillis();
 
@@ -43,6 +49,7 @@ public class ServiceTime {
 			StringBuilder exceptionLog = new StringBuilder();
 			String exceptionMessage = e.getMessage();
 			exceptionLog.append("\n").append(EXCEPTION_SEPARATOR).append(SERVICE_ERROR_LOG_PREFIX).append(EXCEPTION_SEPARATOR).append("\n")
+				.append("▶ [Request URI]: ").append(request.getRequestURI()).append("\n")
 				.append("▶ [Method]   : ").append(methodName).append("\n")
 				.append("▶ [Exception]: ").append(e.getClass().getSimpleName()).append("\n")
 				.append("▶ [Message]  : ").append(exceptionMessage == null ? "예외 메시지 없음" : exceptionMessage).append("\n")
