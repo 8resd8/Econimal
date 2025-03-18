@@ -6,6 +6,7 @@ export const fetchCharInfo = async (
   userCharacterId: number,
 ): Promise<CharInfoResponse<number>> => {
   try {
+    console.log(`fetchCharInfo 호출 - ID: ${userCharacterId}`);
     const response = await characterListAPI.getCharInfo(userCharacterId);
     return response.data;
   } catch (error) {

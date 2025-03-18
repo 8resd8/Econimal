@@ -5,30 +5,59 @@ import useCharStore from '@/store/useCharStore';
 import { useNavigate } from 'react-router-dom';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
 import { useCharInfo } from './../hooks/useCharInfo';
+import { useEffect, useState } from 'react';
+import { characterConfig } from '@/config/characterConfig';
 const CharacterDetail = ({
   id,
   name,
-  subStory,
-  detailStory,
+  subStory: initialSubStory,
+  detailStory: initialDetailStory,
 }: CharacterDetailProps<number>) => {
   const { myChar, setMyChar } = useCharStore();
-  const { data, isLoading, isError, error } = useCharInfo();
+  const [subStory, setSubStory] = useState(initialSubStory);
+  const [detailStory, setDetailStory] = useState(initialDetailStory);
+  const { data: infoData, isLoading } = useCharInfo();
+
   const { handleFetchMyChar } = useFetchMyChar();
   const nav = useNavigate();
 
-  if (isLoading) {
-    return <div>로딩 중...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>로딩 중...</div>;
+  // }
 
-  if (isError) {
-    return <div>에러 발생</div>;
-  }
+  // if (isError) {
+  //   return <div>에러 발생</div>;
+  // }
+
+  // 서버에서 상세 정보 로드 시 업데이트
+  useEffect(() => {
+    if (infoData?.characters) {
+      const charInfo = infoData.characters.find(
+        (char) => char.userCharacterId === id,
+      );
+
+      if (charInfo) {
+        if (charInfo.summary) setSubStory(charInfo.summary);
+        if (charInfo.description) setDetailStory(charInfo.description);
+      }
+    }
+  }, [infoData, id]);
+
+  // 정보가 없는 경우 config에서 찾기 (백업)
+  useEffect(() => {
+    if (!subStory || !detailStory) {
+      const configItem = characterConfig.find((char) => char.name === name);
+      if (configItem) {
+        if (!subStory && configItem.subStory) setSubStory(configItem.subStory);
+        if (!detailStory && configItem.detailStory)
+          setDetailStory(configItem.detailStory);
+      }
+    }
+  }, [name, subStory, detailStory]);
 
   // 지금 캐릭터 돕기 => 이거 상세 id값이어야함
   const handleHelpChar = () => {
-    if (myChar.name !== name) {
-      return;
-    }
+    if (myChar?.userCharacterId !== id) return; // ID 기반 검증
     handleFetchMyChar();
     nav('/my');
   };

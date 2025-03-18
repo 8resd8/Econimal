@@ -2,9 +2,25 @@ import CharacterCards from './CharacterCards';
 import useCharStore from '@/store/useCharStore';
 import CharacterCardsList from '../../componet/select/CharacterCardsList';
 import CharacterDetail from './CharacterDetail';
-
+import { useCharInfo } from '../hooks/useCharInfo';
+import { useEffect } from 'react';
 const PickChar = () => {
   const { myChar } = useCharStore();
+  const { data: infoData } = useCharInfo();
+
+  // 디버깅용 로그
+  useEffect(() => {
+    if (myChar.id) {
+      console.log('선택된 캐릭터:', myChar);
+    }
+  }, [myChar]);
+
+  useEffect(() => {
+    if (infoData) {
+      console.log('상세 정보 데이터:', infoData);
+    }
+  }, [infoData]);
+
   if (!myChar.name || myChar.id === undefined) {
     return <CharacterCardsList />;
   }

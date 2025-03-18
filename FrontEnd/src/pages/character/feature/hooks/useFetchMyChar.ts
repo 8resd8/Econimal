@@ -23,8 +23,8 @@ export const useFetchMyChar = () => {
   //mutation 외적으로 사용
   const handleFetchMyChar = () => {
     //undefined => 따라서 유효성 로직 하나 더 추가
-    if (myChar.id !== undefined) {
-      mutate(myChar.id);
+    if (myChar?.userCharacterId) {
+      mutate(myChar.userCharacterId); // 올바른 ID 전달
     } else {
       console.log('myChar.id === undefined');
     }

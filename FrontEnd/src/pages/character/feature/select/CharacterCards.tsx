@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 //원래는 card도 card기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
 const CharacterCards = ({
+  id,
+  userCharacterId,
   name,
   description,
   img,
@@ -14,42 +16,54 @@ const CharacterCards = ({
   footImg,
   subStory,
   detailStory,
-  id,
 }: CharacterTypes<number>) => {
-  const { myChar, setMyChar } = useCharStore();
-  console.log(myChar);
-  //상태 유효성 검사 로직
+  const { myChar, setMyChar, resetMyChar } = useCharStore();
 
-  useEffect(() => {}, [myChar]); //myChar이 변경 될때마다 실행 -> 근데 이게 효과가 있음? 내부에서 실행되는게 없는데?
+  // 디버깅을 위한 로그
+  useEffect(() => {
+    console.log(`${name} 카드 렌더링:`, { id, userCharacterId });
+  }, [name, id, userCharacterId]);
 
-  // handle에 console.log 찍어보기
+  // 현재 선택된 캐릭터인지 확인 (서버 ID 기준)
+  const currentId = id || userCharacterId || 0; // 두 ID 중 하나라도 있는 값 사용
+  const isSelected =
+    myChar && (myChar.id === currentId || myChar.userCharacterId === currentId);
+
+  useEffect(() => {
+    console.log(
+      `${name} 선택 상태:`,
+      isSelected,
+      '현재 ID:',
+      currentId,
+      '선택된 ID:',
+      myChar.id,
+    );
+  }, [name, isSelected, currentId, myChar.id]);
+
   const handlePickChar = () => {
-    if (!myChar.name) {
-      // 캐릭터 정보 들어가는 것
-      setMyChar({
+    console.log(`${name} 선택 버튼 클릭. 현재 상태:`, isSelected);
+    console.log('전달할 ID 값:', currentId);
+
+    if (isSelected) {
+      // 이미 선택된 캐릭터면 선택 해제
+      resetMyChar();
+    } else {
+      // 선택되지 않은 캐릭터면 선택
+      const charData: CharacterTypes<number> = {
+        id: currentId,
+        userCharacterId: currentId,
         name,
         description,
         img,
         backImg,
         profileImg,
         footImg,
-        subStory,
-        detailStory,
-        id,
-      });
-    } else {
-      setMyChar({
-        //다시 객체 배열 초기화 상태
-        name: '',
-        description: '',
-        img: '',
-        backImg: '',
-        profileImg: '',
-        footImg: '',
-        subStory: '',
-        detailStory: '',
-        id: undefined, //다시 빈값으로
-      });
+        subStory: subStory || '',
+        detailStory: detailStory || '',
+      };
+
+      console.log('선택할 캐릭터 데이터:', charData);
+      setMyChar(charData);
     }
   };
 
@@ -61,6 +75,7 @@ const CharacterCards = ({
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
+      data-character-id={currentId} // 디버깅 용도로 DOM에 ID 추가
     >
       <div
         className={`rounded-2xl p-12 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
@@ -70,10 +85,7 @@ const CharacterCards = ({
         </div>
         <h3 className='text-xl font-bold text-primary mb-2'>{name}</h3>
         <p className='text-primary/80'>{description}</p>
-        <CharButton
-          handleEvent={handlePickChar}
-          isSelect={myChar.name ? true : false}
-        />
+        <CharButton handleEvent={handlePickChar} isSelect={isSelected} />
       </div>
     </motion.div>
   );

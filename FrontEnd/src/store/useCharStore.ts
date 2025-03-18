@@ -3,22 +3,40 @@ import { CharStore } from '@/pages/character/types/CharStore';
 import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 import { persist } from 'zustand/middleware'; //localstorage 저장장
 
+// 캐릭터 초기 상태
+const initialCharState: CharacterTypes<number> = {
+  id: 0,
+  userCharacterId: 0, // 서버 ID도 명시적으로 저장
+  name: '',
+  description: '',
+  img: '',
+  backImg: '',
+  profileImg: '',
+  footImg: '',
+  subStory: '',
+  detailStory: '',
+};
+
 // zustand Type 설정 => charStore로
 const useCharStore = create(
   persist<CharStore>(
     (set) => ({
-      myChar: {
-        name: '',
-        description: '',
-        img: '',
-        backImg: '',
-        profileImg: '',
-        footImg: '',
-        id: 0, //음.. 숫자로 들어가져야하는 부분이긴 한데
-        subStory: '', // 초기값 설정
-        detailStory: '', // 초기값 설정
+      myChar: initialCharState,
+      // 캐릭터 설정 함수
+      setMyChar: (char) => {
+        console.log('Zustand - 캐릭터 설정:', char);
+        set({ myChar: char });
       },
-      setMyChar: (char: CharacterTypes<number>) => set({ myChar: char }), //캐릭터 자체가 반환하는 내용?
+      //캐릭터 초기화
+      resetMyChar: () => {
+        console.log('Zustand - 캐릭터 초기화');
+        set({ myChar: initialCharState });
+      },
+      // 캐릭터가 선택되었는지 확인하는 함수
+      isCharSelected: () => {
+        const { myChar } = get();
+        return !!(myChar.id || myChar.userCharacterId);
+      },
     }),
     {
       name: 'char-storage',

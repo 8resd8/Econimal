@@ -5,16 +5,23 @@ import { CharInfoResponse } from '../../types/CharInfoRes';
 
 export const useCharInfo = () => {
   const { myChar } = useCharStore();
+
+  // ID를 가져올 때 userCharacterId 또는 id 중 하나를 사용 (0이 아닌 값)
+  const effectiveId = myChar.userCharacterId || myChar.id || 0;
+
+  console.log('useCharInfo 훅 - 현재 ID:', effectiveId, 'myChar:', myChar);
+
   const { data, isLoading, isError, error } = useQuery<
     CharInfoResponse<number>
   >({
-    queryKey: ['charInfo', myChar.id], //키 값으로 전달해서 -> function..?
+    queryKey: ['charInfo', effectiveId],
     queryFn: ({ queryKey }) => {
-      const userCharacterId = queryKey[1] as number; //unkown 추론 대비 type 명시
-      return fetchCharInfo(userCharacterId);
+      const id = queryKey[1] as number;
+      console.log('useCharInfo 쿼리 함수 실행 - ID:', id);
+      return fetchCharInfo(id);
     },
     staleTime: 1000 * 60 * 5,
-    enabled: !!myChar.id, //!!를 통해서 명확한 불리언 값을 전달한다.
+    enabled: effectiveId > 0, // ID가 유효한 경우에만 쿼리 실행
   });
 
   return {

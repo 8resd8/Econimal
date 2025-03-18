@@ -2,6 +2,8 @@ package com.ssafy.econimal.global.filter;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpHeaders;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,11 +21,12 @@ public class OptionsFilter implements Filter {
 		HttpServletResponse httpResponse = (HttpServletResponse)response;
 		HttpServletRequest httpRequest = (HttpServletRequest)request;
 
-		httpResponse.setHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
-		httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-		httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-		httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
-		httpResponse.setHeader("Access-Control-Max-Age", "3600");
+		httpResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, httpRequest.getHeader("Origin"));
+		httpResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+		httpResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "Authorization, Content-Type");
+		httpResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+		httpResponse.setHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "3600");
+		httpResponse.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
 
 		if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
 			httpResponse.setStatus(HttpServletResponse.SC_OK);

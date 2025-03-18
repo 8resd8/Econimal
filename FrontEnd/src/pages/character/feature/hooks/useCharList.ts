@@ -11,6 +11,11 @@ export const useCharList = () => {
     staleTime: 1000 * 60 * 5,
   });
 
+  if (data) {
+    console.log(data); //data는 잘 들어옴
+    //charList 데이터 검증 로직직
+  }
+
   return {
     data,
     isLoading,
