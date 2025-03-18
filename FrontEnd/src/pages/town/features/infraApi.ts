@@ -3,7 +3,7 @@ import { axiosInstance } from '@/api/axiosConfig';
 
 // 퀴즈/선택지 항목
 interface EcoAnswer {
-  ecoQuizId: string;
+  ecoQuizId: number;
   description: string;
 }
 
@@ -17,12 +17,12 @@ interface InfraEventResponse {
 
 // 인프라 이벤트 선택지 제출 응답 확인
 export interface InfraSubmitResponse {
-  carbon: string; // 탄소 변화량 (+) 증가 (-) 감소
-  exp: string; // 경험치
-  coin: string; // 경험치하고 동일값, 재화
+  carbon: number; // 탄소 변화량 (+) 증가 (-) 감소
+  exp: number; // 경험치
+  coin: number; // 경험치하고 동일값, 재화
   expression: 'JOY' | 'SADNESS' | 'NEUTRAL'; // 캐릭터 표정
   isOptimal: boolean; // 최적 답안 여부
-  answerId: string; // 정답 선지 ID
+  answerId: number; // 정답 선지 ID
   message?: string;
 }
 

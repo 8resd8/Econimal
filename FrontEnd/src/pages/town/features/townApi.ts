@@ -1,8 +1,8 @@
 // 마을 전체 api
 import { axiosInstance, ApiResponse } from '@/api/axiosConfig';
 
-interface TownNameData {
-  townId: string;
+export interface TownNameData {
+  townId: number;
   townName: string;
 }
 
@@ -11,16 +11,16 @@ interface TownNameResponse {
 }
 
 // 각 장소에 대한 이벤트
-interface TownEvent {
-  infraId: string;
+export interface TownEvent {
+  infraId: number;
   ecoType: 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
   isClean: string;
-  infraEventId: string;
+  infraEventId: number;
   isActive: boolean; // 이벤트 발생 여부
 }
 
 // 마을 전체 데이터
-interface TownEventsResponse {
+export interface TownEventsResponse {
   events: TownEvent[];
   message?: string;
 }
