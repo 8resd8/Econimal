@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.LoginResponse;
@@ -17,7 +18,6 @@ import com.ssafy.econimal.global.config.JwtProperties;
 import com.ssafy.econimal.global.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -53,6 +53,8 @@ public class LoginService {
 			.sameSite("Strict") // Strict, Lax, None
 			.build();
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+		user.updateLastLoginAt();
 
 		return new LoginResponse(accessToken, jwtUtil.getAccessExpireTime());
 	}

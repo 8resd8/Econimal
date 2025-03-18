@@ -9,6 +9,6 @@ import com.ssafy.econimal.domain.character.entity.Character;
 
 public interface CharacterRepository extends JpaRepository<Character, Long> {
 
-	@Query("select c from Character c where c.is_original = true")
+	@Query("select c from Character c where c.isOriginal = true")
 	List<Character> findByOriginalIsTrue();
 }

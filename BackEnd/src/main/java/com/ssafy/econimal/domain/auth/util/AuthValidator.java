@@ -41,6 +41,10 @@ public class AuthValidator {
 		if (!verifyPassword(request.password(), user.getPassword())) {
 			throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
 		}
+
+		// 유저 캐릭터 있는지 없는지 확인 - 시연을 위해 생략
+		// 실제 서비스라면 회원가입 시 캐릭터 유무로 판단하여 매번 로그인 시 조건검사 안해도 됨
+
 		return user;
 	}
 

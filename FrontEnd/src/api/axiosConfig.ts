@@ -2,8 +2,10 @@ import axios from 'axios';
 import { API } from './apiConfig';
 import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
 import { data } from 'react-router-dom';
+// import.meta.env
 
-const DOMAIN = 'http://localhost:8080'; // 임시 URL
+// const DOMAIN = 'http://localhost:8080'; // 임시 URL
+const DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
