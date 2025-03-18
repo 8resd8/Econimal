@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
+// import.meta.env
 
-const DOMAIN = 'http://localhost:8080'; // 임시 URL
+// const DOMAIN = 'http://localhost:8080'; // 임시 URL
+const DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
@@ -18,12 +20,12 @@ axiosInstance.interceptors.request.use(
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     // Cache-Control 헤더 추가 (API 명세에 필요한 경우)
     if (config.url?.includes('users/login')) {
       config.headers['Cache-Control'] = 'no-store';
     }
-    
+
     return config;
   },
   (error) => {
@@ -41,22 +43,22 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     // 오류 응답 처리
     const originalRequest = error.config;
-    
+
     // 401 오류(토큰 만료)이고, 재시도하지 않은 경우
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // 토큰 갱신 요청
         const response = await axiosInstance.post('/users/token/refresh');
         const newToken = response.data.accessToken;
-        
+
         // 새 토큰 저장
         useAuthStore.getState().setToken(newToken);
-        
+
         // 요청 헤더 업데이트
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-        
+
         // 원래 요청 재시도
         return axiosInstance(originalRequest);
       } catch (refreshError) {
@@ -66,7 +68,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   },
 );
