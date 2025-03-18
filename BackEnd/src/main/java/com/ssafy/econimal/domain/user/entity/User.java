@@ -80,4 +80,12 @@ public class User extends BaseTimeEntity {
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
 	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updatePassword(String encodedPassword) {
+		this.password = encodedPassword;
+	}
 }

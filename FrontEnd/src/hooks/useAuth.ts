@@ -12,6 +12,7 @@ interface User {
 interface LoginResponse {
   accessToken: string;
   expiresIn: number;
+  isFirst: boolean;
 }
 
 // 회원가입 인터페이스 추가
@@ -30,18 +31,24 @@ export const useAuth = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { token, setToken, clearToken } = useAuthStore(); // Zustand 상태 관리
+  const [hasCharacter, setHasCharacter] = useState<boolean>(false); // 캐릭터 존재 여부 상태 추가
+
+  // 토큰 값이 변경될 때마다 콘솔에 출력
+  useEffect(() => {
+    console.log("현재 토큰 값:", token);
+  }, [token]);
 
   // 로그인 함수 - API 명세에 맞게 수정
   const login = async (email: string, password: string) => {
     try {
       // API 명세에 따라 요청 구성
-      const res = await axios.post<LoginResponse>("/api/users/login", {
+      const res = await axios.post<LoginResponse>("/users/login", {
         email,
         password
       }, {
-        headers: {
-          'Cache-Control': 'no-store'
-        },
+        // headers: {
+        //   'Cache-Control': 'no-store'
+        // },
         withCredentials: true // 쿠키 기반 인증을 위해 추가
         // params: {
         //   userId: null
@@ -49,15 +56,24 @@ export const useAuth = () => {
       });
 
       // 응답에서 토큰과 만료 시간 저장
+      console.log("로그인 응답:", res.data);
       setToken(res.data.accessToken);
+      console.log("토큰 설정 후:", useAuthStore.getState().token); // 즉시 스토어 상태 확인
       
-      // 쿠키는 서버에서 자동으로 설정됨 (Set-Cookie 헤더를 통해)
+      // isFirst 값에 따라 캐릭터 존재 여부 설정
+      const characterExists = !res.data.isFirst;
+      setHasCharacter(characterExists);
+      console.log("캐릭터 존재 여부:", characterExists);
       
       // 사용자 정보 가져오기
       await fetchUserData();
       
-      // 로그인 성공 후 홈 페이지로 이동
-      navigate("/");
+      // 캐릭터 존재 여부에 따라 다른 페이지로 이동
+      if (characterExists) {
+        navigate("/"); // 캐릭터가 있으면 홈으로
+      } else {
+        navigate("/charsel"); // 캐릭터가 없으면 캐릭터 생성 페이지로
+      }
       
       return res.data;
     } catch (error) {
@@ -89,7 +105,7 @@ export const useAuth = () => {
       };
       
       // API 요청 보내기
-      await axios.post("/api/users/signup", signupData);
+      await axios.post("/users/signup", signupData);
       
       // 회원가입 성공 후 로그인 페이지로 이동
       navigate("/login");
@@ -133,9 +149,14 @@ export const useAuth = () => {
     try {
       const res = await axios.post<LoginResponse>("/users/token/refresh");
       setToken(res.data.accessToken);
+      return true; // 성공 시 true 반환
     } catch (error) {
       console.error("토큰 갱신 실패", error);
-      logout();
+      // 로그인 페이지에 있지 않은 경우에만 로그아웃
+      if (window.location.pathname !== '/login') {
+        clearToken();
+      }
+      return false; // 실패 시 false 반환
     }
   };
 

@@ -7,6 +7,7 @@ import com.ssafy.econimal.domain.character.dto.UserCharacterDetailResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterMainDto;
 import com.ssafy.econimal.domain.character.dto.UserCharacterMainResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
+import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
@@ -33,11 +34,11 @@ public class UserCharacterService {
 
 	// 메인 페이지 캐릭터 상세 조회
 	public UserCharacterMainResponse getUserCharacterMain(User user) {
-		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow();
+		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new IllegalStateException("메인 캐릭터가 없습니다."));
 		UserCharacterMainDto mainDto = UserCharacterMainDto.builder()
 			.coin(user.getCoin())
-			.exp(mainChar.getTotalExp())
-			.level(mainChar.getLevel())
+			.exp(ExpUtil.getExp(mainChar.getTotalExp(), mainChar))
+			.level(ExpUtil.getLevel(mainChar.getTotalExp(), mainChar))
 			.expression(mainChar.getExpression())
 			.build();
 
