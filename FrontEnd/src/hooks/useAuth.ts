@@ -35,13 +35,13 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       // API 명세에 따라 요청 구성
-      const res = await axios.post<LoginResponse>("/api/users/login", {
+      const res = await axios.post<LoginResponse>("/users/login", {
         email,
         password
       }, {
-        headers: {
-          'Cache-Control': 'no-store'
-        },
+        // headers: {
+        //   'Cache-Control': 'no-store'
+        // },
         withCredentials: true // 쿠키 기반 인증을 위해 추가
         // params: {
         //   userId: null
@@ -89,7 +89,7 @@ export const useAuth = () => {
       };
       
       // API 요청 보내기
-      await axios.post("/api/users/signup", signupData);
+      await axios.post("/users/signup", signupData);
       
       // 회원가입 성공 후 로그인 페이지로 이동
       navigate("/login");
@@ -133,9 +133,14 @@ export const useAuth = () => {
     try {
       const res = await axios.post<LoginResponse>("/users/token/refresh");
       setToken(res.data.accessToken);
+      return true; // 성공 시 true 반환
     } catch (error) {
       console.error("토큰 갱신 실패", error);
-      logout();
+      // 로그인 페이지에 있지 않은 경우에만 로그아웃
+      if (window.location.pathname !== '/login') {
+        clearToken();
+      }
+      return false; // 실패 시 false 반환
     }
   };
 

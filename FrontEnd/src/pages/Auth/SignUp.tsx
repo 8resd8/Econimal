@@ -55,70 +55,76 @@ const Signup = () => {
       <div className="relative bg-white bg-opacity-90 p-8 rounded-lg text-center shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-4">회원가입</h2>
         <div className="flex flex-col space-y-3">
-          {/* 이메일 입력 필드 */}
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 비밀번호 입력 필드 - password1 */}
-          <input
-            type="password"
-            value={password1}
-            onChange={(e) => setPassword1(e.target.value)}
-            placeholder="비밀번호"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 비밀번호 확인 필드 - password2 */}
-          <input
-            type="password"
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
-            placeholder="비밀번호 확인"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 이름 입력 필드 추가 */}
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="이름"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 닉네임 입력 필드 */}
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="닉네임"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 생년월일 입력 필드 - YYYY-MM-DD 형식 */}
-          <input
-            type="date"
-            value={birth}
-            onChange={(e) => setBirth(e.target.value)}
-            placeholder="생년월일"
-            className="p-3 border rounded-lg"
-          />
-          
-          {/* 회원가입 버튼 */}
-          <button
-            onClick={handleSignup}
-            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
-          >
-            회원가입
-          </button>
-          
-          {/* 로그인 페이지 링크 */}
-          <a href="/login" className="text-blue-400 text-sm">
+        {/* form 태그를 비어있게 만들지 말고, 모든 입력 필드를 포함하도록 수정 */}
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSignup();
+          }}>
+            {/* 이메일 입력 필드 */}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="이메일"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 비밀번호 입력 필드 */}
+            <input
+              type="password"
+              value={password1}
+              onChange={(e) => setPassword1(e.target.value)}
+              placeholder="비밀번호"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 비밀번호 확인 필드 */}
+            <input
+              type="password"
+              value={password2}
+              onChange={(e) => setPassword2(e.target.value)}
+              placeholder="비밀번호 확인"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 이름 입력 필드 */}
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="이름"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 닉네임 입력 필드 */}
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="닉네임"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 생년월일 입력 필드 */}
+            <input
+              type="date"
+              value={birth}
+              onChange={(e) => setBirth(e.target.value)}
+              placeholder="생년월일"
+              className="p-3 border rounded-lg"
+            />
+            
+            {/* 회원가입 버튼 - type="submit"으로 변경 */}
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
+            >
+              회원가입
+            </button>
+          </form>
+
+          {/* 로그인 페이지 링크 - form 바깥으로 이동 */}
+          <a href="/login" className="text-blue-400 text-sm mt-3 block">
             이미 회원이신가요? 로그인 하러가기
           </a>
         </div>
