@@ -1,4 +1,4 @@
-package com.ssafy.econimal.global.insertdata;
+package com.ssafy.econimal.insertdata;
 
 import static com.ssafy.econimal.global.common.enums.EcoType.*;
 
