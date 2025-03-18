@@ -8,10 +8,11 @@ import jakarta.validation.constraints.Size;
 public record LoginRequest(
 	@NotBlank(message = "{required}")
 	@Email(message = "{valid}")
+	@Size(max = 255, message = "{max.length}")
 	String email,
 
 	@NotBlank(message = "{required}")
-	@Size(min = 8, message = "{min.length}")
+	@Size(min = 8, max = 255, message = "{length}")
 	@Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).*$", message = "{password}")
 	String password
 ) {
