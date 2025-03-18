@@ -26,8 +26,8 @@ export const usePatchTownName = () => {
   return mutateAsync;
 };
 
-// 마을 전체 이벤트 조회 쿼리
-export const useGetTownEvents = (townId: string) => {
+// 마을 상황 조회 쿼리
+export const useGetTownEvents = (townId: number) => {
   // return 해야하는가
   return useQuery({
     queryKey: ['town-events', townId],

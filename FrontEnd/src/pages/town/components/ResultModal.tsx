@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { InfraSubmitResponse } from '../features/infraApi';
 import {
   AlertDialog,
@@ -12,7 +12,6 @@ import {
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 // import { Button } from '@/components/ui/button';
-import { useGetInfraEvent } from '../features/useInfraQuery';
 import { Button } from '@/components/ui/button';
 
 interface ResultModalProps {

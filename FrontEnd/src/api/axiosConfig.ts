@@ -2,10 +2,10 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
 
 // 이게 맞아?
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-}
+// export interface ApiResponse<T> {
+//   data: T;
+//   message?: string;
+// }
 
 const DOMAIN = 'http://localhost:8080'; // 임시 URL
 

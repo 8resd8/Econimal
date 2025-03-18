@@ -18,12 +18,13 @@ import {
 } from '../features/useInfraQuery';
 import { useTownStore } from '@/store/useTownStore';
 import ResultModal from './ResultModal';
-import { easeElastic } from 'd3';
+
+// import { easeElastic } from 'd3'; // 내가 안했는데
 
 interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  infraEventId: number;
+  infraEventId?: number;
 }
 
 const NormalModal = ({

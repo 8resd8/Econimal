@@ -1,8 +1,8 @@
 // 마을 전체 api
-import { axiosInstance, ApiResponse } from '@/api/axiosConfig';
+import { axiosInstance } from '@/api/axiosConfig';
 
 export interface TownNameData {
-  townId: number;
+  townId: number; // 명세에서 사라짐!?
   townName: string;
 }
 
@@ -14,14 +14,14 @@ interface TownNameResponse {
 export interface TownEvent {
   infraId: number;
   ecoType: 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
-  isClean: string;
+  isClean: boolean;
   infraEventId: number;
   isActive: boolean; // 이벤트 발생 여부
 }
 
 // 마을 전체 데이터
 export interface TownEventsResponse {
-  events: TownEvent[];
+  townStatus: TownEvent[];
   message?: string;
 }
 
@@ -41,8 +41,8 @@ export const patchTownName = async (townData: TownNameData) => {
   return response.data;
 };
 
-// 마을 전체 이벤트 발생(마을 화면 진입 시 호출)
-export const getTownEvents = async (townId: string) => {
+// 마을 상황 조회
+export const getTownEvents = async (townId: number) => {
   const response = await axiosInstance.get<TownEventsResponse>(
     '/towns/events',
     { params: { townId } },
@@ -51,8 +51,8 @@ export const getTownEvents = async (townId: string) => {
   if (!response || !response.data) {
     throw new Error(
       response?.data?.message ||
-        '마을 전체 이벤트 조회 중 요류가 발생했습니다.',
+        '마을 상황 조회 중 요류가 발생했습니다.',
     );
   }
-  return response.data; // 꼭 있어야?
+  return response.data; // 꼭 있어야 함?
 };
