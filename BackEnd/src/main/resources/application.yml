@@ -1,7 +1,7 @@
 spring:
   config:
     import:
-    - classpath:secret.yml
+      - classpath:secret.yml
   product: false
 
   datasource:
@@ -44,3 +44,27 @@ jwt:
     - /api/users/login
     - /api/users/logout
     - /api/users/refresh
+
+cors:
+  allowed-origins:
+    - "http://localhost:5173"
+    - "http://J12a504.p.ssafy.io"
+    - "https://J12a504.p.ssafy.io"
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+
+  exposed-headers:
+    - "Authorization"
+
+  allow-credentials: true
+  max-age: 3600
+
