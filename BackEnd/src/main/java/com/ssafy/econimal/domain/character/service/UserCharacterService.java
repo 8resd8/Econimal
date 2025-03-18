@@ -34,7 +34,7 @@ public class UserCharacterService {
 
 	// 메인 페이지 캐릭터 상세 조회
 	public UserCharacterMainResponse getUserCharacterMain(User user) {
-		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow();
+		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new IllegalStateException("메인 캐릭터가 없습니다."));
 		UserCharacterMainDto mainDto = UserCharacterMainDto.builder()
 			.coin(user.getCoin())
 			.exp(ExpUtil.getExp(mainChar.getTotalExp(), mainChar))
