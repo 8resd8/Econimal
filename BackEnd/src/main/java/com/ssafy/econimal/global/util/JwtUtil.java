@@ -4,12 +4,12 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.ssafy.econimal.domain.auth.exception.JwtException;
 import com.ssafy.econimal.global.common.enums.UserType;
+import com.ssafy.econimal.global.config.JwtProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
@@ -18,18 +18,15 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 @Getter
 public class JwtUtil {
 
-	@Value("${jwt.secret}")
-	private String secretKey;
-
+	private final JwtProperties jwtProperties;
 	private final long accessExpireTime = 1000 * 60 * 30; // 30분
-
-	@Value("${jwt.refresh-expiration}")
-	private long refreshExpiration;
 
 	// 액세스 토큰 생성
 	public String createToken(Long userId, UserType userType) {
@@ -50,7 +47,7 @@ public class JwtUtil {
 	// 리프레시 토큰 생성
 	public String createRefreshToken(Long userId) {
 		Date now = new Date();
-		Date expiration = new Date(now.getTime() + refreshExpiration);
+		Date expiration = new Date(now.getTime() + jwtProperties.getRefreshExpiration());
 
 		return Jwts.builder()
 			.subject(userId.toString())
@@ -109,7 +106,7 @@ public class JwtUtil {
 
 	// 서명 키 생성
 	private SecretKey getSigningKey() {
-		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+		byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
 		if (keyBytes.length < 32) {
 			throw new IllegalArgumentException("키의 길이가 짧은 오류, 256비트 이상이어야 함");
 		}

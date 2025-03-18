@@ -73,9 +73,17 @@ export default defineConfig({
     }
   },
   server: {
-    // https: true,
+    https: undefined,
     host: true,
     port: 5173,
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // 백엔드 서버 주소
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
 });

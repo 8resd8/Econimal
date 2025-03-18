@@ -1,0 +1,23 @@
+services:
+  backend:
+    container_name: econimal-backend
+    build:
+      context: ../BackEnd
+      dockerfile: Dockerfile
+    image: backend:0.0.1
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+  redis:
+    container_name: redis
+    image: redis:latest
+    hostname: redis
+    ports:
+      - 6379:6379
+    environment:
+      TZ: Asia/Seoul
+    volumes:
+      - /home/ubuntu/redis/data:/data
+      - /home/ubuntu/redis/conf/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf

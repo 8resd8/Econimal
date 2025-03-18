@@ -1,0 +1,106 @@
+pipeline{
+    agent any
+    options {
+        gitLabConnection('S12P21A504')
+    }
+    tools {
+        gradle 'gradle'
+        jdk 'jdk17'
+    }
+    environment {
+        JAVA_HOME = "tool jdk17"
+    }
+    stages{
+        stage('gitclone'){
+            steps{
+                git branch: 'develop',
+                credentialsId: 'gitlab-login',
+                url: "https://lab.ssafy.com/s12-bigdata-dist-sub1/S12P21A504.git"
+            }
+        }
+        stage('Add env'){
+            steps{
+                withCredentials([file(credentialsId: 'application-secret', variable: 'secret')]) {
+                    script {
+                        def filePath = "/var/jenkins_home/workspace/econimal/BackEnd/src/main/resources/secret.yml"
+                        def fileExists = sh(script: "test -f ${filePath} && echo true || echo false", returnStdout: true).trim()
+
+                        if (fileExists == 'true') {
+                            sh "rm ${filePath}"
+                        }
+
+                        sh "cp ${secret} ${filePath}"
+                    }
+                }
+            }
+        }
+        stage('Clean and Build'){
+            steps {
+                updateGitlabCommitStatus name: 'build', state: 'pending'
+                dir("/var/jenkins_home/workspace/econimal/BackEnd/"){
+                    sh 'pwd'
+                    sh 'ls -al'
+                    sh 'gradle wrapper'
+                    sh 'chmod +x ./gradlew'
+                    sh 'chmod +x ./gradlew.bat'
+                    sh 'java --version'
+                    sh './gradlew clean build'
+                }
+            }
+            post {
+                success {
+                    updateGitlabCommitStatus name: 'build', state: 'success'
+                }
+                failure {
+                    updateGitlabCommitStatus name: 'build', state: 'failed'
+                }
+            }
+        }
+        stage('Test'){
+            steps {
+                updateGitlabCommitStatus name: 'test', state: 'pending'
+                dir("/var/jenkins_home/workspace/econimal/BackEnd/"){
+                    sh './gradlew test'
+                }
+            }
+            post {
+                success {
+                    updateGitlabCommitStatus name: 'test', state: 'success'
+                }
+                failure {
+                    updateGitlabCommitStatus name: 'test', state: 'failed'
+                }
+            }
+        }
+        stage('Make JAR') {
+            steps {
+                updateGitlabCommitStatus name: 'build (JAR)', state: 'pending'
+                withCredentials([file(credentialsId: 'application-prod', variable: 'secretProd')]) {
+                    script {
+                        def filePath = "/var/jenkins_home/workspace/econimal/BackEnd/src/main/resources/secret.yml"
+                        def fileExists = sh(script: "test -f ${filePath} && echo true || echo false", returnStdout: true).trim()
+
+                        if (fileExists == 'true') {
+                            sh "rm ${filePath}"
+                        }
+
+                        sh "cp ${secretProd} ${filePath}"
+
+                        dir("/var/jenkins_home/workspace/econimal/BackEnd/"){
+                            sh './gradlew clean build -x test'
+                        }
+                    }
+                }
+            }
+            post {
+                success {
+                    updateGitlabCommitStatus name: 'build (JAR)', state: 'success'
+                }
+                failure {
+                    updateGitlabCommitStatus name: 'build (JAR)', state: 'failed'
+                    error "Make JAR failed. Stopping pipeline."
+                }
+            }
+        }
+    }
+}
