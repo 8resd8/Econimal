@@ -1,6 +1,6 @@
 package com.ssafy.econimal.domain.town.service;
 
-import com.ssafy.econimal.domain.data.helper.TestEntityHelper;
+import com.ssafy.econimal.domain.data.TestEntityHelper;
 import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.town.repository.TownRepository;
