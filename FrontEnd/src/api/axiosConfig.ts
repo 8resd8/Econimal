@@ -109,7 +109,18 @@ axiosInstance.interceptors.response.use(
 //직관적으로 매개변수, get/post 요청을 무엇으로 보내는지 알기 위해서
 //한꺼번에 api로 관리하기 위해서 분리하였습니다.
 export const characterListAPI = {
+  //캐릭터 리스트 조회
   getCharList: () => axiosInstance.get(`${DOMAIN}/${API.CHARACTERS.LIST}`),
+
+  //상세 캐릭터 정보
+  getCharInfo: (userCharacterId: number) =>
+    axiosInstance.get(`${DOMAIN}/${API.CHARACTERS.LIST}/${userCharacterId}`),
+
+  //내 캐릭터 정보
+  getMyCharInfo: () =>
+    axiosInstance.get(`${DOMAIN}/${API.CHARACTERS.MAIN_CHAR}`),
+
+  //캐릭터 리스트 중 캐릭터 선택
   patchMyChar: (userCharacterId: number) =>
     axiosInstance.patch(`${DOMAIN}/${API.CHARACTERS.MAIN_CHAR}`, {
       userCharacterId,

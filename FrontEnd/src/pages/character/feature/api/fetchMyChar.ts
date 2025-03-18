@@ -1,9 +1,6 @@
 import { characterListAPI } from '@/api/axiosConfig';
-import { MainCharResponse } from '../../types/MainCharRes';
 
-export const fetchMyChar = async (
-  userCharacterId: number,
-): Promise<MainCharResponse<number>> => {
+export const fetchMyChar = async (userCharacterId: number) => {
   try {
     const response = await characterListAPI.patchMyChar(userCharacterId);
     return response.data;

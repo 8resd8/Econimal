@@ -9,7 +9,7 @@ import CharMenu from '../../../feature/status/CharMenu';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
-  console.log(myChar);
+  
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
       {/* 배경 이미지 */}
