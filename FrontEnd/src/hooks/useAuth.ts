@@ -49,7 +49,10 @@ export const useAuth = () => {
       });
 
       // 응답에서 토큰과 만료 시간 저장
+      console.log("로그인 응답:", res.data);
       setToken(res.data.accessToken);
+      console.log("토큰 설정 후:", useAuthStore.getState().token); // 즉시 스토어 상태 확인
+      
       
       // 쿠키는 서버에서 자동으로 설정됨 (Set-Cookie 헤더를 통해)
       
