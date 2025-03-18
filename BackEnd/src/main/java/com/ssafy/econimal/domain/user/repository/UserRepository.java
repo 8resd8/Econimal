@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("select new com.ssafy.econimal.domain.user.dto.UserInfoDto(c.email, c.name, c.nickname, c.birth, c.coin, c.role, c.lastLoginAt, c.town.name) FROM User c WHERE c.id = :userId")
 	UserInfoDto findUserInfoById(@Param("userId") Long userId);
+
+	// 이메일 존재 여부 확인
+	boolean existsByEmail(String email);
 }

@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.LoginResponse;
+import com.ssafy.econimal.domain.auth.dto.RefreshResponse;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.global.common.enums.UserType;
 import com.ssafy.econimal.global.config.JwtProperties;
 import com.ssafy.econimal.global.util.JwtUtil;
@@ -29,6 +31,7 @@ public class LoginService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final AuthValidator validator;
 	private final JwtProperties jwtProperties;
+	private final UserCharacterRepository userCharacterRepository;
 
 	private static final String REFRESH_TOKEN_PREFIX = "RT:";
 
@@ -56,10 +59,11 @@ public class LoginService {
 
 		user.updateLastLoginAt();
 
-		return new LoginResponse(accessToken, jwtUtil.getAccessExpireTime());
+		return new LoginResponse(accessToken, jwtUtil.getAccessExpireTime(),
+			userCharacterRepository.findByUserAndMainIsTrue(user).isEmpty());
 	}
 
-	public LoginResponse refreshToken(String refreshToken, HttpServletResponse response) {
+	public RefreshResponse refreshToken(String refreshToken, HttpServletResponse response) {
 		Long userId = validator.validateRefreshToken(refreshToken);
 
 		String newAccessToken = jwtUtil.createToken(userId, UserType.USER);
@@ -78,6 +82,6 @@ public class LoginService {
 			.build();
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-		return new LoginResponse(newAccessToken, jwtUtil.getAccessExpireTime());
+		return new RefreshResponse(newAccessToken, jwtUtil.getAccessExpireTime());
 	}
 }

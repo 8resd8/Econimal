@@ -1,5 +1,6 @@
 package com.ssafy.econimal.domain.auth.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -9,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.econimal.domain.auth.dto.EmailDuplicationRequest;
+import com.ssafy.econimal.domain.auth.dto.EmailDuplicationResponse;
 import com.ssafy.econimal.domain.auth.dto.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.LoginResponse;
+import com.ssafy.econimal.domain.auth.dto.RefreshResponse;
 import com.ssafy.econimal.domain.auth.dto.SignupRequest;
 import com.ssafy.econimal.domain.auth.service.LoginService;
 import com.ssafy.econimal.domain.auth.service.LogoutService;
@@ -36,13 +40,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
-		HttpServletResponse response) {
+	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
 		LoginResponse result = loginService.login(request, response);
 
-		return ResponseEntity.ok()
-			.header("Cache-Control", "no-store")
-			.body(result);
+		return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store").body(result);
 	}
 
 	@PostMapping("/logout")
@@ -53,11 +54,14 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh")
-	public ResponseEntity<LoginResponse> refreshToken(@CookieValue(name = "refreshToken") String refreshToken,
+	public ResponseEntity<RefreshResponse> refreshToken(@CookieValue(name = "refreshToken") String refreshToken,
 		HttpServletResponse response) {
-		LoginResponse loginResponse = loginService.refreshToken(refreshToken, response);
-		return ResponseEntity.ok()
-			.header("Cache-Control", "no-store")
-			.body(loginResponse);
+		RefreshResponse loginResponse = loginService.refreshToken(refreshToken, response);
+		return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store").body(loginResponse);
+	}
+
+	@PostMapping("/email-validation")
+	public EmailDuplicationResponse checkDuplicationEmail(@Valid @RequestBody EmailDuplicationRequest request) {
+		return signUpService.checkDuplicationEmail(request);
 	}
 }
