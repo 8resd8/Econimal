@@ -1,8 +1,7 @@
 package com.ssafy.econimal.domain.auth.dto;
 
-public record LoginResponse(
+public record RefreshResponse(
 	String accessToken,
-	long timeToLive,
-	boolean isFirst
+	long timeToLive
 ) {
 }
