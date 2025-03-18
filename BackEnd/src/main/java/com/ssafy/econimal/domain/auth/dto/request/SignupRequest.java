@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.auth.dto;
+package com.ssafy.econimal.domain.auth.dto.request;
 
 import java.time.LocalDate;
 

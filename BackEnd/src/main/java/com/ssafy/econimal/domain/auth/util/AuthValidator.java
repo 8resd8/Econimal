@@ -3,8 +3,8 @@ package com.ssafy.econimal.domain.auth.util;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.ssafy.econimal.domain.auth.dto.LoginRequest;
-import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
+import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.auth.exception.AuthenticationException;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
@@ -76,5 +76,16 @@ public class AuthValidator {
 	// 비밀번호 검증
 	private boolean verifyPassword(String requestPassword, String encodedPassword) {
 		return encoder.matches(requestPassword, encodedPassword);
+	}
+
+	// 비밀번호 변경시 일치하는가 확인
+	public void verifyUpdatePassword(String newPassword1, String newPassword2) {
+		if (!newPassword1.equals(newPassword2)) {
+			throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
+		}
+	}
+
+	public User findUser(Long userId) {
+		return userRepository.findById(userId).orElseThrow(() -> new InvalidArgumentException("해당 유저가 없습니다."));
 	}
 }
