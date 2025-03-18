@@ -1,7 +1,8 @@
 spring:
   config:
     import:
-    - classpath:secret.yml
+      - classpath:secret.yml
+  product: false
 
   datasource:
     url: ${database.url}
@@ -20,6 +21,8 @@ spring:
       ddl-auto: update
     show-sql: true
     properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
       format_sql: true
 
 server:
@@ -34,5 +37,35 @@ logging:
     org.hibernate.type.descriptor.sql: debug
 
 jwt:
-  secret: ${jwt.secret}
+  secret-key: ${jwt.secret}
   refresh-expiration: ${jwt.refresh-expiration}
+  pass-url:
+    - /api/users/signup
+    - /api/users/login
+    - /api/users/logout
+    - /api/users/refresh
+
+cors:
+  allowed-origins:
+    - "http://localhost:5173"
+    - "https://localhost:5173"
+    - "http://j12a504.p.ssafy.io"
+    - "https://j12a504.p.ssafy.io"
+  allowed-methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+
+  allowed-headers:
+    - "Authorization"
+    - "Content-Type"
+
+  exposed-headers:
+    - "Authorization"
+
+  allow-credentials: true
+  max-age: 3600
+

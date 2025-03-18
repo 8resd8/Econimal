@@ -7,12 +7,40 @@ const Login = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async () => {
+    // 입력 검증
+    if (!email) {
+      setError("이메일을 입력해주세요");
+      return;
+    }
+    if (!password) {
+      setError("비밀번호를 입력해주세요");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
     try {
       await login(email, password);
-    } catch (error) {
-      alert("로그인 실패");
+      // 로그인 성공 - useAuth 내부에서 navigate 처리
+    } catch (error: any) {
+      console.error("로그인 오류:", error);
+      // 서버 에러 메시지가 있으면 표시, 없으면 기본 메시지
+      setError(error.response?.data?.message || "로그인에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 엔터 키 처리
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleLogin();
     }
   };
 
@@ -23,26 +51,20 @@ const Login = () => {
     >
       <div className="p-8 rounded-lg text-center">
         <img src={logoImage} alt="에코니멀 로고" className="mx-auto w-32 mb-4" />
-        <div className="flex items-center justify-center
-          flex-col space-y-3
-          p-5 rounded-lg">
+        <div className="flex flex-col space-y-3">
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="아이디"
-            className="pt-2 pb-2 pl-3 border-4 border-white
-             rounded-lg bg-black bg-opacity-25 w-full
-             font-extrabold text-lg"
-             style={{ 
-              color: 'white', 
-              caretColor: 'white'  // 커서 색상도 설정
-            }}
+            className="p-3 border rounded-lg"
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="비밀번호"
             className="pt-2 pb-2 pl-3 border-4 border-white
              rounded-lg bg-black bg-opacity-25 w-full
@@ -51,25 +73,21 @@ const Login = () => {
           />
           <button
             onClick={handleLogin}
-            className="text-indigo font-bold pt-1 pb-1
-             bg-white rounded-lg w-20"
+            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
           >
-            로그인
+            {isLoading ? '...' : '로그인'}
           </button>
           <div className="flex items-center justify-center space-x-2 text-sm">
-            <input type="checkbox" id="rememberMe"
-              className="w-4 h-4 bg-white" />
-            <label htmlFor="rememberMe"
-              className="text-white">자동 로그인</label>
+            <input type="checkbox" id="rememberMe" className="w-4 h-4" />
+            <label htmlFor="rememberMe">자동 로그인</label>
           </div>
-          <a href="/signup" className="text-white
-           text-sm whitespace-pre-wrap">
-            아직 회원이 아니신가요?
-            회원가입 하러가기
+          <a href="/signup" className="text-blue-400 text-sm">
+            아직 회원이 아니신가요? 회원가입 하러가기
           </a>
         </div>
       </div>
     </div>
   );
 };
+
 export default Login;
