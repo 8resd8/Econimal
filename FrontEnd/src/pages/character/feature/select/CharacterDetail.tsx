@@ -13,12 +13,12 @@ const CharacterDetail = ({
   subStory: initialSubStory,
   detailStory: initialDetailStory,
 }: CharacterDetailProps<number>) => {
-  const { myChar, setMyChar } = useCharStore();
+  const { myChar, setMyChar, resetMyChar } = useCharStore();
   const [subStory, setSubStory] = useState(initialSubStory);
   const [detailStory, setDetailStory] = useState(initialDetailStory);
   const { data: infoData, isLoading } = useCharInfo();
 
-  const { handleFetchMyChar } = useFetchMyChar();
+  const { handleFetchMyChar, isPending: isMutating } = useFetchMyChar();
   const nav = useNavigate();
 
   // if (isLoading) {
@@ -30,20 +30,35 @@ const CharacterDetail = ({
   // }
 
   // 서버에서 상세 정보 로드 시 업데이트
+  // 디버깅용 로그
+
+  // Debug log for initial render
+  useEffect(() => {
+    console.log('CharacterDetail 렌더링:', {
+      id,
+      name,
+      myCharId: myChar?.id,
+      myCharUserId: myChar?.userCharacterId,
+    });
+  }, [id, name, myChar]);
+
+  // Update stories from server data when available
   useEffect(() => {
     if (infoData?.characters) {
+      // Check both ID fields to find a match
       const charInfo = infoData.characters.find(
-        (char) => char.userCharacterId === id,
+        (char) => char.userCharacterId === id || char.id === id,
       );
 
       if (charInfo) {
+        console.log('서버에서 받은 상세 정보:', charInfo);
         if (charInfo.summary) setSubStory(charInfo.summary);
         if (charInfo.description) setDetailStory(charInfo.description);
       }
     }
   }, [infoData, id]);
 
-  // 정보가 없는 경우 config에서 찾기 (백업)
+  // Fallback to config data if needed
   useEffect(() => {
     if (!subStory || !detailStory) {
       const configItem = characterConfig.find((char) => char.name === name);
@@ -55,22 +70,43 @@ const CharacterDetail = ({
     }
   }, [name, subStory, detailStory]);
 
-  // 지금 캐릭터 돕기 => 이거 상세 id값이어야함
+  // Handle character selection and navigation
   const handleHelpChar = () => {
-    if (myChar?.userCharacterId !== id) return; // ID 기반 검증
-    handleFetchMyChar();
-    nav('/my');
+    // Use either ID field for comparison
+    const effectiveId = id;
+    const myCharId = myChar?.userCharacterId || myChar?.id;
+
+    console.log('캐릭터 돕기 클릭:', {
+      effectiveId,
+      myCharId,
+    });
+
+    // Check if the current character is selected
+    if (effectiveId && effectiveId === myCharId) {
+      // Register the character with the server and navigate
+      handleFetchMyChar();
+      nav('/my');
+    } else {
+      console.warn('선택된 캐릭터와 현재 캐릭터 ID가 일치하지 않습니다.');
+      console.log('현재 선택된 캐릭터:', myChar);
+      console.log('현재 상세 페이지 캐릭터 ID:', effectiveId);
+    }
   };
 
-  // 다른 캐릭터 돕기
+  // Reset character selection
   const handleHelpAnotherChar = () => {
-    setMyChar({
-      id: '',
-      name: '',
-      description: '',
-      img: '',
-    });
+    console.log('다른 캐릭터 돕기 클릭');
+    resetMyChar();
   };
+
+  // Loading indicator
+  if (isLoading || isMutating) {
+    return (
+      <div className='rounded-2xl p-14 bg-green-50 flex justify-center items-center'>
+        <p className='text-xl text-primary'>로딩 중...</p>
+      </div>
+    );
+  }
 
   // -------------------------------------------------
 

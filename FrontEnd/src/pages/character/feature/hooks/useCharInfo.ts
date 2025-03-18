@@ -7,9 +7,9 @@ export const useCharInfo = () => {
   const { myChar } = useCharStore();
 
   // ID를 가져올 때 userCharacterId 또는 id 중 하나를 사용 (0이 아닌 값)
-  const effectiveId = myChar.userCharacterId || myChar.id || 0;
+  const effectiveId = myChar?.userCharacterId || myChar?.id || 0;
 
-  console.log('useCharInfo 훅 - 현재 ID:', effectiveId, 'myChar:', myChar);
+  console.log('useCharInfo 훅 - 사용할 ID:', effectiveId, 'myChar:', myChar);
 
   const { data, isLoading, isError, error } = useQuery<
     CharInfoResponse<number>
@@ -22,6 +22,7 @@ export const useCharInfo = () => {
     },
     staleTime: 1000 * 60 * 5,
     enabled: effectiveId > 0, // ID가 유효한 경우에만 쿼리 실행
+    retry: 1, // Limit retries for invalid IDs
   });
 
   return {

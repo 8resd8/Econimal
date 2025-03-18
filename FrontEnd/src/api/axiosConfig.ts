@@ -134,11 +134,13 @@ export const characterListAPI = {
   //캐릭터 리스트 중 캐릭터 선택 => 대표 캐릭터 선택택
   //파라미터 오류
   // 캐릭터 선택 => 대표 캐릭터 선택
+  // 대표 캐릭터 선택 - URL에서 마지막 슬래시(/) 제거
   patchMyChar: (userCharacterId: number) => {
     console.log(`대표 캐릭터 선택 요청: ID=${userCharacterId}`);
-    return axiosInstance.patch(API.CHARACTERS.MAIN_CHAR, {
-      userCharacterId, // 요청 본문에 ID 전달
-    });
+    // URL 경로에 ID 추가
+    return axiosInstance.patch(
+      `${API.CHARACTERS.MAIN_CHAR}/${userCharacterId}`,
+    );
   },
 };
 

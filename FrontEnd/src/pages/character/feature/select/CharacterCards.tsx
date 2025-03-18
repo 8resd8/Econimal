@@ -18,40 +18,47 @@ const CharacterCards = ({
   detailStory,
 }: CharacterTypes<number>) => {
   const { myChar, setMyChar, resetMyChar } = useCharStore();
+  const effectiveId = userCharacterId || id || 0;
 
-  // 디버깅을 위한 로그
+  // Log card details when rendered
   useEffect(() => {
-    console.log(`${name} 카드 렌더링:`, { id, userCharacterId });
-  }, [name, id, userCharacterId]);
+    console.log(`${name} 카드 렌더링:`, {
+      id,
+      userCharacterId,
+      effectiveId,
+    });
+  }, [name, id, userCharacterId, effectiveId]);
 
-  // 현재 선택된 캐릭터인지 확인 (서버 ID 기준)
-  const currentId = id || userCharacterId || 0; // 두 ID 중 하나라도 있는 값 사용
+  // Check if this character is currently selected
+  // Important: Only compare using effectiveId for consistency
   const isSelected =
-    myChar && (myChar.id === currentId || myChar.userCharacterId === currentId);
+    myChar &&
+    (myChar.userCharacterId === effectiveId || myChar.id === effectiveId);
 
   useEffect(() => {
     console.log(
       `${name} 선택 상태:`,
       isSelected,
-      '현재 ID:',
-      currentId,
-      '선택된 ID:',
-      myChar.id,
+      '현재 카드 ID:',
+      effectiveId,
+      '선택된 캐릭터 ID:',
+      myChar?.userCharacterId || myChar?.id,
     );
-  }, [name, isSelected, currentId, myChar.id]);
+  }, [name, isSelected, effectiveId, myChar]);
 
   const handlePickChar = () => {
     console.log(`${name} 선택 버튼 클릭. 현재 상태:`, isSelected);
-    console.log('전달할 ID 값:', currentId);
 
     if (isSelected) {
       // 이미 선택된 캐릭터면 선택 해제
       resetMyChar();
     } else {
       // 선택되지 않은 캐릭터면 선택
+      // IMPORTANT: Always store both id and userCharacterId as effectiveId
+      // This ensures consistency when checking selection status
       const charData: CharacterTypes<number> = {
-        id: currentId,
-        userCharacterId: currentId,
+        id: effectiveId,
+        userCharacterId: effectiveId,
         name,
         description,
         img,
@@ -68,14 +75,13 @@ const CharacterCards = ({
   };
 
   return (
-    // motion.div로 감싸면 그 `div` 1번쨰 요소에 애니메이션 효과가 적용됨
     <motion.div
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      data-character-id={currentId} // 디버깅 용도로 DOM에 ID 추가
+      data-character-id={effectiveId}
     >
       <div
         className={`rounded-2xl p-12 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
