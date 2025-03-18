@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.econimal.domain.auth.dto.EmailDuplicationRequest;
-import com.ssafy.econimal.domain.auth.dto.EmailDuplicationResponse;
-import com.ssafy.econimal.domain.auth.dto.LoginRequest;
-import com.ssafy.econimal.domain.auth.dto.LoginResponse;
-import com.ssafy.econimal.domain.auth.dto.RefreshResponse;
-import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.request.EmailDuplicationRequest;
+import com.ssafy.econimal.domain.auth.dto.response.EmailDuplicationResponse;
+import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
+import com.ssafy.econimal.domain.auth.dto.response.LoginResponse;
+import com.ssafy.econimal.domain.auth.dto.response.RefreshResponse;
+import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.auth.service.LoginService;
 import com.ssafy.econimal.domain.auth.service.LogoutService;
 import com.ssafy.econimal.domain.auth.service.SignUpService;

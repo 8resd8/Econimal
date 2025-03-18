@@ -3,8 +3,8 @@ package com.ssafy.econimal.domain.auth.util;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.ssafy.econimal.domain.auth.dto.LoginRequest;
-import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
+import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.auth.exception.AuthenticationException;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
