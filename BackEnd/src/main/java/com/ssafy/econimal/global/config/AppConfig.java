@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.ssafy.econimal.global.filter.CorsFilter;
 import com.ssafy.econimal.global.filter.JwtFilter;
 
 @Configuration
@@ -13,6 +14,13 @@ public class AppConfig {
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public FilterRegistrationBean<CorsFilter> corsFilter() {
+		FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter());
+		bean.setOrder(0);
+		return bean;
 	}
 
 	@Bean
