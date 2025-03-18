@@ -43,7 +43,7 @@ public class JwtFilter implements Filter {
 		}
 
 		if (token == null || !jwtUtil.isTokenValid(token)) {
-			log.debug("유효하지 않은 토큰: {}, 시간: {}", token, LocalDateTime.now());
+			log.debug("요청경로: {}, 유효하지 않은 토큰: {}, 시간: {}", requestURI , token, LocalDateTime.now());
 			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "토큰이 없거나 유효하지 않은 토큰");
 			return;
 		}

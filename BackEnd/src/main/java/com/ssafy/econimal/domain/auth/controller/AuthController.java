@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.econimal.domain.auth.dto.EmailDuplicationRequest;
+import com.ssafy.econimal.domain.auth.dto.EmailDuplicationResponse;
 import com.ssafy.econimal.domain.auth.dto.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.LoginResponse;
 import com.ssafy.econimal.domain.auth.dto.RefreshResponse;
@@ -56,5 +58,10 @@ public class AuthController {
 		HttpServletResponse response) {
 		RefreshResponse loginResponse = loginService.refreshToken(refreshToken, response);
 		return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store").body(loginResponse);
+	}
+
+	@PostMapping("/email-validation")
+	public EmailDuplicationResponse checkDuplicationEmail(@Valid @RequestBody EmailDuplicationRequest request) {
+		return signUpService.checkDuplicationEmail(request);
 	}
 }
