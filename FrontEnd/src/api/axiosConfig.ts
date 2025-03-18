@@ -18,7 +18,9 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 헤더에 토큰 추가
-    const token = useAuthStore.getState().token;
+    // const token = useAuthStore.getState().token;
+    const token =
+      'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMiIsInVzZXJJZCI6MTIsInJvbGUiOiJVU0VSIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzQyMjYzNTg4LCJleHAiOjE3NDIyNjUzODh9._xATmPRxgwDOicQmoxJNpBJWa-6eueIAmcGwMOiSTp3Xzp6e1lHszHCVlKUwhgoRoMn4qF9iOZhhY8_BuWCjUg';
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

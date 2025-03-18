@@ -2,6 +2,7 @@ import useCharStore from '@/store/useCharStore';
 import CharButton from '../../componet/select/CharButton';
 import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 //원래는 card도 card기능이랑 feat 기능 분리해야하는데 현재 상태 유지
 
 const CharacterCards = ({
@@ -18,6 +19,8 @@ const CharacterCards = ({
   const { myChar, setMyChar } = useCharStore();
   console.log(myChar);
   //상태 유효성 검사 로직
+
+  useEffect(() => {}, [myChar]); //myChar이 변경 될때마다 실행 -> 근데 이게 효과가 있음? 내부에서 실행되는게 없는데?
 
   // handle에 console.log 찍어보기
   const handlePickChar = () => {

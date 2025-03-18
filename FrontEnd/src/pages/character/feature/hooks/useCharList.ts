@@ -8,6 +8,7 @@ export const useCharList = () => {
   >({
     queryKey: ['charList'], //캐릭터리스트 조회
     queryFn: fetchCharList,
+    staleTime: 1000 * 60 * 5,
   });
 
   return {
