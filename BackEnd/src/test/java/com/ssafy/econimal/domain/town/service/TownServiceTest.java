@@ -35,7 +35,7 @@ class TownServiceTest {
     @Test
     void 도시_이름_변경() {
         // given
-        String changeName = "도시 이름 변경";
+        String changeName = "변경된 도시 이름";
         TownNameUpdateDto townNameUpdateDto = new TownNameUpdateDto(town.getId(), changeName);
 
         // when

@@ -18,7 +18,7 @@ public class TownService {
     private final TownRepository townRepository;
 
     public void updateTownName(TownNameUpdateDto townNameUpdateDto) {
-        int updatedCount = townRepository.updateTownName(townNameUpdateDto);
+        int updatedCount = townRepository.updateTownName(townNameUpdateDto.townId(), townNameUpdateDto.townName());
         if(updatedCount == 0) {
             throw new InvalidArgumentException("해당하는 마을을 찾을 수 없습니다.");
         }
