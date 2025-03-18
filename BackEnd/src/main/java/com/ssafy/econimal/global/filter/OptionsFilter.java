@@ -24,6 +24,7 @@ public class OptionsFilter implements Filter {
 		httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
 		httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
 		httpResponse.setHeader("Access-Control-Max-Age", "3600");
+		httpResponse.setHeader("Cache-Control", "no-store");
 
 		if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
 			httpResponse.setStatus(HttpServletResponse.SC_OK);
