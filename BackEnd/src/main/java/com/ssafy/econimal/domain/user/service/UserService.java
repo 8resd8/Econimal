@@ -1,13 +1,13 @@
 package com.ssafy.econimal.domain.user.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
+import com.ssafy.econimal.domain.user.dto.UpdateNicknameRequest;
 import com.ssafy.econimal.domain.user.dto.UserInfoDto;
 import com.ssafy.econimal.domain.user.dto.UserInfoResponse;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +18,18 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
-	
+
 	public UserInfoResponse getUserInfo(User user) {
 		UserInfoDto userInfo = userRepository.findUserInfoById(user.getId());
 
 		return new UserInfoResponse(userInfo);
+	}
+
+	public void updateNickname(User user, UpdateNicknameRequest request) {
+		if (user.getNickname().equals(request.updateNickname())) {
+			throw new InvalidArgumentException("이미 존재하는 닉네임입니다.");
+		}
+
+		user.updateNickname(request.updateNickname());
 	}
 }
