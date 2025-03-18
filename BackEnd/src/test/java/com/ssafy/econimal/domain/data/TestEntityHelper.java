@@ -1,17 +1,20 @@
-package com.ssafy.econimal.domain.data.helper;
+package com.ssafy.econimal.domain.data;
 
 import org.springframework.stereotype.Component;
 
 import com.ssafy.econimal.domain.character.entity.Character;
-import com.ssafy.econimal.domain.data.CharacterSample;
-import com.ssafy.econimal.domain.data.ProductSample;
-import com.ssafy.econimal.domain.data.TownSample;
-import com.ssafy.econimal.domain.data.UserCharacterSample;
-import com.ssafy.econimal.domain.data.UserSample;
+import com.ssafy.econimal.domain.checklist.entity.Checklist;
+import com.ssafy.econimal.domain.data.sample.CharacterSample;
+import com.ssafy.econimal.domain.data.sample.ProductSample;
+import com.ssafy.econimal.domain.data.sample.TownSample;
+import com.ssafy.econimal.domain.data.sample.UserCharacterSample;
+import com.ssafy.econimal.domain.data.sample.UserChecklistSample;
+import com.ssafy.econimal.domain.data.sample.UserSample;
 import com.ssafy.econimal.domain.store.entity.Product;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
+import com.ssafy.econimal.domain.user.entity.UserChecklist;
 
 import jakarta.persistence.EntityManager;
 
@@ -52,5 +55,10 @@ public class TestEntityHelper {
 	public UserCharacter createUserCharacter(User user, Character character) {
 		UserCharacter userCharacter = UserCharacterSample.userCharacter(user, character);
 		return persist(userCharacter);
+	}
+
+	public UserChecklist createUserChecklist(User user, Checklist checklist) {
+		UserChecklist userChecklist = UserChecklistSample.userChecklist(user, checklist);
+		return persist(userChecklist);
 	}
 }

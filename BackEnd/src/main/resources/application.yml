@@ -39,33 +39,12 @@ logging:
 jwt:
   secret-key: ${jwt.secret}
   refresh-expiration: ${jwt.refresh-expiration}
-  pass-url:
-    - /api/users/signup
-    - /api/users/login
-    - /api/users/logout
-    - /api/users/refresh
+  pass-url: ${jwt.pass-url}
 
 cors:
-  allowed-origins:
-    - "http://localhost:5173"
-    - "https://localhost:5173"
-    - "http://j12a504.p.ssafy.io"
-    - "https://j12a504.p.ssafy.io"
-  allowed-methods:
-    - "GET"
-    - "POST"
-    - "PUT"
-    - "PATCH"
-    - "DELETE"
-    - "OPTIONS"
-
-  allowed-headers:
-    - "Authorization"
-    - "Content-Type"
-
-  exposed-headers:
-    - "Authorization"
-
-  allow-credentials: true
-  max-age: 3600
-
+  allowed-origins: ${cors.allowed-origins}
+  allowed-methods: ${cors.allowed-methods}
+  allowed-headers: ${cors.allowed-headers}
+  exposed-headers: ${cors.exposed-headers}
+  allow-credentials: ${cors.allow-credentials}
+  max-age: ${cors.max-age}

@@ -1,4 +1,4 @@
-package com.ssafy.econimal.global.insertdata;
+package com.ssafy.econimal.insertdata;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
