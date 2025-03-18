@@ -6,5 +6,5 @@ export interface MyCharInfoRes {
 }
 
 export interface MyCharInfoResponse {
-  useCharacterMain: MyCharInfoRes;
+  userCharacterMain: MyCharInfoRes;
 }

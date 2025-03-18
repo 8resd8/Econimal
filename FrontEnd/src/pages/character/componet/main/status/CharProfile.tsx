@@ -1,5 +1,5 @@
-const CharProfile = () => {
-  // const CharProfile = ({level} : {level : number}) => {
+// const CharProfile = () => {
+  const CharProfile = ({level} : {level : number}) => {
   return (
     <div className='relative'>
       <div className='absolute -left-3 -top-3 bg-gradient-to-r from-yellow-400 to-yellow-300 text-white font-bold text-base px-4 py-1 rounded-lg z-20 shadow-md border-2 border-white'>

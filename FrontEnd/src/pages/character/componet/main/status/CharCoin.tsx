@@ -1,5 +1,5 @@
-// const CharCoin = ({ coin }: { coin: number }) => {
-const CharCoin = () => {
+const CharCoin = ({ coin }: { coin: number }) => {
+  // const CharCoin = () => {
   return (
     <div className='flex items-center bg-gradient-to-r from-yellow-100 to-yellow-50 px-5 py-3 rounded-full shadow-md border-2 border-yellow-300'>
       <svg
@@ -26,8 +26,8 @@ const CharCoin = () => {
           strokeLinecap='round'
         />
       </svg>
-      <span className='font-bold text-lg text-yellow-800'>2350</span>
-      {/* <span className='font-bold text-lg text-yellow-800'>{coin }</span> */}
+      {/* <span className='font-bold text-lg text-yellow-800'>2350</span> */}
+      <span className='font-bold text-lg text-yellow-800'>{coin}</span>
     </div>
   );
 };

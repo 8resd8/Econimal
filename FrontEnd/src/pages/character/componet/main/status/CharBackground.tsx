@@ -7,14 +7,23 @@ import EarthIcon from '../moveicon/EarthIcon';
 import ShopIcon from '../moveicon/ShopIcon';
 import CharMenu from '../../../feature/status/CharMenu';
 import { useMyCharInfo } from '@/pages/character/feature/hooks/useMyCharInfo';
+import { useEffect } from 'react';
 
 const CharBackground = () => {
+  // 1. 모든 Hook을 최상단에서 호출
   const { myChar } = useCharStore();
-  const { data, isLoading } = useMyCharInfo(); //여기서 level, exp, coin, express
+  const { data, isLoading, isError } = useMyCharInfo();
 
-  if (isLoading) {
-    return <div>...로딩중</div>;
-  }
+  // 2. useEffect는 조건문 이전에 위치
+  useEffect(() => {
+    console.log(data);
+    if (data) console.log(data.level);
+  }, [data]);
+
+  // 3. 조건부 렌더링은 Hook 호출 이후에
+  if (isLoading) return <div>...로딩중</div>;
+  if (isError) return <div>데이터 불러오기 실패</div>;
+  if (!data || !data.level) return <div>필수 데이터 없음</div>;
 
   //data 로딩되는게 위에서 확인되면 -> 이제 밑에서 하나씩 생길 것
 

@@ -9,8 +9,12 @@ export const useMyCharInfo = () => {
     staleTime: 1000 * 60 * 5,
   });
 
+  if (data) {
+    console.log(data, '서버 데이터 받아왔나? 경험치');
+  }
+
   return {
-    data: data?.useCharacterMain, //이제 내부 속성값만 사용하는 것
+    data: data?.userCharacterMain, //이제 내부 속성값만 사용하는 것
     isError,
     isLoading,
     error,
