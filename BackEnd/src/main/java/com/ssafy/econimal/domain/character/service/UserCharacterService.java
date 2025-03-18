@@ -7,6 +7,7 @@ import com.ssafy.econimal.domain.character.dto.UserCharacterDetailResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterMainDto;
 import com.ssafy.econimal.domain.character.dto.UserCharacterMainResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
+import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
@@ -36,8 +37,8 @@ public class UserCharacterService {
 		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow();
 		UserCharacterMainDto mainDto = UserCharacterMainDto.builder()
 			.coin(user.getCoin())
-			.exp(mainChar.getTotalExp())
-			.level(mainChar.getLevel())
+			.exp(ExpUtil.getExp(mainChar.getTotalExp(), mainChar))
+			.level(ExpUtil.getLevel(mainChar.getTotalExp(), mainChar))
 			.expression(mainChar.getExpression())
 			.build();
 
