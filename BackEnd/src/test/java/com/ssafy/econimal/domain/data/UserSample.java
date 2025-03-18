@@ -13,7 +13,7 @@ public class UserSample {
 	public static User user(Town town) {
 		return User.builder()
 			.town(town)
-			.email("test@naverc.com")
+			.email("test@naver.com")
 			.name("테스트이름")
 			.birth(LocalDate.from(LocalDateTime.now()))
 			.password("!11112222")
