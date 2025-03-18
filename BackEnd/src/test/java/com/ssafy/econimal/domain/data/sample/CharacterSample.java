@@ -1,12 +1,8 @@
-package com.ssafy.econimal.domain.data;
+package com.ssafy.econimal.domain.data.sample;
 
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.store.entity.Product;
-import com.ssafy.econimal.domain.user.entity.User;
-import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.global.common.enums.CharacterType;
-import com.ssafy.econimal.global.common.enums.ExpressionType;
-import com.ssafy.econimal.global.common.enums.ProductType;
 
 public class CharacterSample {
 	public static Character character(Product product) {

@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.data.helper.TestEntityHelper;
+import com.ssafy.econimal.domain.data.TestEntityHelper;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.dto.UpdateNicknameRequest;
 import com.ssafy.econimal.domain.user.dto.UserInfoResponse;
 import com.ssafy.econimal.domain.user.entity.User;
-import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 @SpringBootTest
