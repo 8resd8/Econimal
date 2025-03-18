@@ -28,7 +28,7 @@ interface TownState
 export const useTownStore = create<TownState>((set) => ({
   // TownNameData
   townId: 0,
-  townName: '기본 마을',
+  townName: '기본',
 
   // InfraSubmitResponse
   carbon: 0,

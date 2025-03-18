@@ -12,21 +12,25 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { usePatchTownName } from '../features/useTownQuery';
 // import { X } from 'lucide-react';
 
 interface TownNameEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currentTownName: string;
+  townId: number;
 }
 
 export const TownNameEditModal = ({
   open,
   onOpenChange,
   currentTownName,
+  townId,
 }: TownNameEditModalProps) => {
   const [townName, setTownName] = useState(currentTownName); // currentTownName이 townName의 초기값
-  // const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const patchTownName = usePatchTownName();
 
   // 모달이 열릴 때 마다 현재 마을 이름을 상태에 반영
   useEffect(() => {
@@ -37,12 +41,17 @@ export const TownNameEditModal = ({
   }, [open, currentTownName]);
 
   // 변경된 마을 이름 저장(제출) 함수
-  // const handleSave = async() => {
-  //   try {
-  //     setIsLoading(true)
-  //     await
-  //   }
-  // }
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      // api 호출
+      await patchTownName({ townId, townName });
+      // 성공 시 모달 닫기
+      onOpenChange(false);
+    } catch (error) {
+      console.log('마을 이름 변경 중 오류:', error);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -7,7 +7,8 @@ interface EcoAnswer {
   description: string;
 }
 
-interface InfraEventResponse {
+// 퀴즈/선택지 2 ~ 4지선다
+export interface InfraEventResponse {
   ecoQuiz: {
     quizDescription: string;
   };

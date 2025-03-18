@@ -1,37 +1,18 @@
 import { useState } from 'react';
-import { create } from 'zustand';
+import { useTownStore } from '@/store/useTownStore';
 // import { usePatchTownName } from '../features/useTownQuery';
 // import { Button } from '@/components/ui/button';
 import { FilePenLine } from 'lucide-react';
 import { TownNameEditModal } from './TownNameEditModal';
 
-// 주스탄드가 필요한가
-export const useUserStore = create((set) => ({
-  user: {
-    townName: '',
-  },
-}));
-
 const TownName = () => {
-  // 임시 데이터
-  const [userData, setUserData] = useState({
-    townName: '',
-  });
-
+  const { townName, townId } = useTownStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // const { data } = usePatchTownName();
-  // const { townname } = data || { townname: '기본값' };
-
-  const handleSaveTownName = (newName: string) => {
-    setUserData({ townName: newName });
-    // patchTownName(newName) // 탠스택쿼리 쓰면 탠스택쿼리로 해야될 것 같은데...
-  };
 
   return (
     <div>
       <div className='flex items-center p-2 gap-2'>
-        {userData.townName ? `${userData.townName} 마을` : '기본 마을'}
+        {townName ? `${townName} 마을` : '기본 마을'}
         <div
           className='cursor-pointer hover:bg-gray-200'
           onClick={() => setIsModalOpen(true)}
@@ -42,7 +23,8 @@ const TownName = () => {
       <TownNameEditModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        currentTownName={userData.townName}
+        currentTownName={townName}
+        townId={townId}
       />
     </div>
   );
