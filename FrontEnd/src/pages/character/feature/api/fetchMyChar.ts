@@ -6,7 +6,6 @@ export const fetchMyChar = async (userCharacterId: number) => {
     return response.data;
   } catch (error) {
     console.log('캐릭터 등록 fetch 과정에서 에러');
-
     throw Error;
   }
 };

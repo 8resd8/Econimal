@@ -120,7 +120,6 @@ axiosInstance.interceptors.response.use(
 //직관적으로 매개변수, get/post 요청을 무엇으로 보내는지 알기 위해서
 //한꺼번에 api로 관리하기 위해서 분리하였습니다.
 //domain interceptor로 했기 때문에 중복 요청X
-
 export const characterListAPI = {
   //캐릭터 리스트 조회 -> 보유한 캐릭터 목록 조회
   getCharList: () => axiosInstance.get(API.CHARACTERS.LIST),

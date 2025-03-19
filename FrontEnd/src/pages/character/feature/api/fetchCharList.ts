@@ -1,7 +1,5 @@
 import { characterListAPI } from '@/api/axiosConfig';
 import { CharacterListResponse } from '../../types/CharacterListRes';
-//근데 이부분들은 zustand를 사용하지 않아도 되지 않을까?
-//그냥 있는 데이터만 뿌릴 것 => 가공X
 
 // const fetchCarList = async () => {
 //   // 주소값 => 요청할 파라미터는 없긴 함

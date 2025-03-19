@@ -6,15 +6,11 @@ export const useCharList = () => {
   const { data, isLoading, error, isError } = useQuery<
     CharacterListResponse<number>
   >({
-    queryKey: ['charList'], //캐릭터리스트 조회
-    queryFn: fetchCharList,
+    queryKey: ['charList'],
+    queryFn: fetchCharList, //캐릭터 전체 리스트 조회, 캐릭터 선택을 위함
     staleTime: 1000 * 60 * 5,
+    retry: 3, // 재시도 요청 3번
   });
-
-  if (data) {
-    console.log(data); //data는 잘 들어옴
-    //charList 데이터 검증 로직직
-  }
 
   return {
     data,

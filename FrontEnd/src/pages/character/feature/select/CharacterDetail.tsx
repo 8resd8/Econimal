@@ -21,7 +21,7 @@ const CharacterDetail = ({
   const [detailStory] = useState(initialDetailStory);
 
   //높은 확률로 현재 서버 패칭 데이터가 들어가있지 않은 myChar에 넣어질 data
-  const { data, isLoading } = useCharInfo(); //캐릭터 상세정보 조회
+  const { isLoading } = useCharInfo(); //캐릭터 상세정보 조회
 
   const { handleFetchMyChar, isPending } = useFetchMyChar(); //추후 서버에 id값을 보내기 위해 사용될 탠스택
   const nav = useNavigate();

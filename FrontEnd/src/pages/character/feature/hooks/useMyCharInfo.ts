@@ -5,16 +5,13 @@ import { fetchMyCharInfo } from '../api/fetchMyCharInfo';
 export const useMyCharInfo = () => {
   const { data, isError, isLoading, error } = useQuery<MyCharInfoResponse>({
     queryKey: ['myCharInfo'],
-    queryFn: fetchMyCharInfo,
+    queryFn: fetchMyCharInfo, //경험치/코인/레벨 정보 가져오기
     staleTime: 1000 * 60 * 5,
+    retry: 3, // 재시도 요청 3번
   });
 
-  if (data) {
-    console.log(data, '서버 데이터 받아왔나? 경험치');
-  }
-
   return {
-    data: data?.userCharacterMain, //이제 내부 속성값만 사용하는 것
+    data: data?.userCharacterMain, //infoData를 적극적으로 활용하기 위해서 1차 속성값까지 접근해서 반환
     isError,
     isLoading,
     error,

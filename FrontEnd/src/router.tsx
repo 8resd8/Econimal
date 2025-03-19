@@ -10,7 +10,8 @@ import Earth from './pages/earth/Earth';
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
+    // element: <Home />,
+    element: <MyCharacter />,
   },
   {
     path: '/town',
@@ -20,10 +21,10 @@ export const router = createBrowserRouter([
     path: '/charsel',
     element: <CharacterSelect />,
   },
-  {
-    path: '/my',
-    element: <MyCharacter />,
-  },
+  // {
+  //   path: '/my',
+  //   element: <MyCharacter />,
+  // },
   {
     path: '/login',
     element: <Login />,
@@ -34,6 +35,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '/earth',
-    element: <Earth />
+    element: <Earth />,
   },
 ]);
