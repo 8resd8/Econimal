@@ -3,6 +3,7 @@ package com.ssafy.econimal.domain.auth.util;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.ssafy.econimal.domain.auth.dto.request.EmailAuthRequest;
 import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.auth.exception.AuthenticationException;
@@ -12,9 +13,11 @@ import com.ssafy.econimal.global.exception.InvalidArgumentException;
 import com.ssafy.econimal.global.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuthValidator {
 
 	private final UserRepository userRepository;
@@ -87,5 +90,12 @@ public class AuthValidator {
 
 	public User findUser(Long userId) {
 		return userRepository.findById(userId).orElseThrow(() -> new InvalidArgumentException("해당 유저가 없습니다."));
+	}
+
+	public void verifyAuthCode(EmailAuthRequest request, String authCode) {
+		if (authCode == null || !authCode.equals(request.authCode())) {
+			log.debug("인증 실패: 이메일: {}, 저장된 코드: {}, 입력된 코드: {}", request.email(), authCode, request.authCode());
+			throw new InvalidArgumentException("이메일 인증 실패");
+		}
 	}
 }
