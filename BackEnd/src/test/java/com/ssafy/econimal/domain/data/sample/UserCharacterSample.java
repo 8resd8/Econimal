@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.data;
+package com.ssafy.econimal.domain.data.sample;
 
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;

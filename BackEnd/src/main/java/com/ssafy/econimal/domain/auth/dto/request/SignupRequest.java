@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.auth.dto;
+package com.ssafy.econimal.domain.auth.dto.request;
 
 import java.time.LocalDate;
 
@@ -14,14 +14,16 @@ import jakarta.validation.constraints.Size;
 public record SignupRequest(
 	@NotBlank(message = "{required}")
 	@Email(message = "{valid}")
+	@Size(max = 255, message = "{max.length}")
 	String email,
 
 	@NotBlank(message = "{required}")
-	@Size(min = 8, message = "{min.length}")
+	@Size(min = 8, max = 255, message = "{length}")
 	@Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).*$", message = "{password}")
 	String password1,
 
 	@NotBlank(message = "{required}")
+	@Size(min = 8, max = 255, message = "{length}")
 	String password2,
 
 	@NotBlank(message = "{required}")

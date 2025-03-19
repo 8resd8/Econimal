@@ -1,14 +1,39 @@
 services:
-  backend:
-    container_name: econimal-backend
+  backend-blue:
+    container_name: backend-blue
     build:
       context: ../BackEnd
       dockerfile: Dockerfile
     image: backend:0.0.1
     ports:
-      - 8080:8080
-    depends_on:
-      - redis
+      - ${BLUE_PORT}:8080
+    networks:
+      - econimal-network
+
+  backend-green:
+    container_name: backend-green
+    build:
+      context: ../BackEnd
+      dockerfile: Dockerfile
+    image: backend:0.0.1
+    ports:
+      - ${GREEN_PORT}:8080
+    networks:
+      - econimal-network
+  
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    ports:
+      - ${MYSQL_PORT}:3306
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${MYSQL_DATA_PATH}:/var/lib/mysql
+    networks:
+      - econimal-network
+  
   redis:
     container_name: redis
     image: redis:latest
@@ -18,6 +43,11 @@ services:
     environment:
       TZ: Asia/Seoul
     volumes:
-      - /home/ubuntu/redis/data:/data
-      - /home/ubuntu/redis/conf/redis.conf:/etc/redis/redis.conf
+      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
     command: redis-server /etc/redis/redis.conf
+    networks:
+      - econimal-network
+networks:
+  econimal-network:
+    external: true
