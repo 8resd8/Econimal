@@ -1,6 +1,19 @@
-const TownIcon = () => {
+import { MouseEventHandler } from 'react';
+
+// 버튼 타입
+const TownIcon = ({
+  onClick,
+}: {
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}) => {
   return (
-    <button className='group w-28 h-28 bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-300 shadow-xl hover:from-blue-200 hover:to-blue-100 transition-colors'>
+    <button
+      className='group w-28 h-28 bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-300 shadow-xl hover:from-blue-200 hover:to-blue-100 transition-colors'
+      onClick={(e) => {
+        console.log('Button clicked');
+        if (onClick) onClick(e);
+      }}
+    >
       <div className='w-16 h-16 flex items-center justify-center'>
         <svg
           width='56'
