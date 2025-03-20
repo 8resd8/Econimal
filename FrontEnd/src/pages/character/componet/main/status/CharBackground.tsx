@@ -7,12 +7,13 @@ import EarthIcon from '../moveicon/EarthIcon';
 import ShopIcon from '../moveicon/ShopIcon';
 import CharMenu from '../../../feature/status/CharMenu';
 import { useMyCharInfo } from '@/pages/character/feature/hooks/useMyCharInfo';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { myCharInfoConfig } from '@/config/myCharInfoConfig';
 
 const CharBackground = () => {
-  // 1. 모든 Hook을 최상단에서 호출
   const { myChar } = useCharStore();
   const { data, isLoading, isError } = useMyCharInfo();
+  const [faceImg, setFaceImg] = useState('');
 
   // 2. useEffect는 조건문 이전에 위치
   useEffect(() => {
@@ -20,12 +21,36 @@ const CharBackground = () => {
     if (data) console.log(data.level);
   }, [data]);
 
+  //일단 현재 캐릭터의 감정 확인하기
+  useEffect(() => {
+    //감정 fetching에 따라서 이미지 상태가 계속 바뀌는 것
+    if (data && data.expression) {
+      //expression 값에 따른 변경
+      const serverExpression = data.expression;
+      const charInfo = myCharInfoConfig.find(
+        (item) => item.name === myChar.name,
+      );
+      // console.log(charInfo);
+      const charExpression = charInfo?.expression.find(
+        (item) => item.face === serverExpression,
+      );
+      console.log(charExpression);
+      setFaceImg(charExpression?.faceImg);
+
+      // myCharInfoConfig.forEach((char) => {
+      //   charExpression = char.expression.find(
+      //     (item) => item.face === serverExpression && ,
+      //   );
+      // });
+      // setFaceImg(charExpression);
+      // console.log(charExpression, 'charExpression');
+    }
+  }, [data]);
+
   // 3. 조건부 렌더링은 Hook 호출 이후에
   if (isLoading) return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
   if (!data || !data.level) return <div>필수 데이터 없음</div>;
-
-  //data 로딩되는게 위에서 확인되면 -> 이제 밑에서 하나씩 생길 것
 
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
@@ -42,17 +67,14 @@ const CharBackground = () => {
         <div className='flex items-center justify-between p-6'>
           {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
           <div className='flex items-center gap-4'>
-            {/* profile은 myChar에 있는 profile이미지를 가져오게 되고,  
-            data의 level과  */}
             <CharProfile level={data.level} />
-            {/* ExpBar은 data의 경험치 */}
             <ExpBar current={data.exp} max={100} />
           </div>
 
           {/* 오른쪽: 금 정보 + 햄버거 메뉴 */}
           <div className='flex items-center gap-4'>
-            {/* data의 coin의 정보 */}
             <CharCoin coin={data.coin} />
+
             <CharMenu />
           </div>
         </div>
@@ -76,7 +98,8 @@ const CharBackground = () => {
           />
           {/* 캐릭터 이미지 */}
           <img
-            src={myChar.img}
+            // src={myChar.img}
+            src={faceImg}
             alt='캐릭터'
             className='absolute bottom-[30px] left-[50%] -translate-x-1/2 w-full h-auto z-[2]'
           />

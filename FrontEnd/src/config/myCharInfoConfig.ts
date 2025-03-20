@@ -28,9 +28,9 @@ export const myCharInfoConfig = [
     userCharacterId: 757,
     name: '부기부기',
     expression: [
-      { face: 'JOY', turtleImg: tur_happy },
-      { face: 'SADNESS', turtleImg: tur_sad },
-      { face: 'NEUTRAL', turtleImg: tur_basic },
+      { face: 'JOY', faceImg: tur_happy },
+      { face: 'SADNESS', faceImg: tur_sad },
+      { face: 'NEUTRAL', faceImg: tur_basic },
     ],
     level: [
       { num: 1, footImg: tur_1 },
@@ -42,9 +42,9 @@ export const myCharInfoConfig = [
     userCharacterId: 758,
     name: '팽글링스',
     expression: [
-      { face: 'JOY', turtleImg: peng_happy },
-      { face: 'SADNESS', turtleImg: peng_sad },
-      { face: 'NEUTRAL', turtleImg: peng_basic },
+      { face: 'JOY', faceImg: peng_happy },
+      { face: 'SADNESS', faceImg: peng_sad },
+      { face: 'NEUTRAL', faceImg: peng_basic },
     ],
     level: [
       { num: 1, footImg: peng_1 },
@@ -56,9 +56,9 @@ export const myCharInfoConfig = [
     userCharacterId: 759,
     name: '호랭이',
     expression: [
-      { face: 'JOY', turtleImg: horang_happy },
-      { face: 'SADNESS', turtleImg: horang_sad },
-      { face: 'NEUTRAL', turtleImg: horang_basic },
+      { face: 'JOY', faceImg: horang_happy },
+      { face: 'SADNESS', faceImg: horang_sad },
+      { face: 'NEUTRAL', faceImg: horang_basic },
     ],
     level: [
       { num: 1, footImg: horang_1 },
