@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 
 interface CharState {
   myChar: CharacterTypes<number>;

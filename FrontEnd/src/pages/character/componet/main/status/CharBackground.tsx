@@ -44,17 +44,14 @@ const CharBackground = () => {
           <div className='flex items-center gap-4'>
             {/* profile은 myChar에 있는 profile이미지를 가져오게 되고,  
             data의 level과  */}
-            {/* <CharProfile /> */}
             <CharProfile level={data.level} />
             {/* ExpBar은 data의 경험치 */}
-            {/* <ExpBar current={85} max={100} /> */}
             <ExpBar current={data.exp} max={100} />
           </div>
 
           {/* 오른쪽: 금 정보 + 햄버거 메뉴 */}
           <div className='flex items-center gap-4'>
             {/* data의 coin의 정보 */}
-            {/* <CharCoin /> */}
             <CharCoin coin={data.coin} />
             <CharMenu />
           </div>
