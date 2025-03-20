@@ -34,7 +34,7 @@ const CharacterDetail = ({
     //모두 일치하다면 구하기
     if (effectiveId && effectiveId === myCharId) {
       handleFetchMyChar(); //탠스택 쿼리에서 사용될 데이터
-      nav('/my');
+      nav('/');
     } else {
       console.warn('선택된 캐릭터와 현재 캐릭터 ID가 일치하지 않습니다.');
     }
