@@ -25,6 +25,18 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
       format_sql: true
 
+  mail:
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: ${mail.properties.mail.smtp.auth}
+          starttls:
+            enable: ${mail.properties.mail.smtp.starttls.enable}
+
 server:
   servlet:
     context-path: /api
