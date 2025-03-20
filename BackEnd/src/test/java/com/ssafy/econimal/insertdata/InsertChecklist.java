@@ -45,7 +45,7 @@ public class InsertChecklist {
 		insertChecklistsForEcoType(COURT);
 	}
 
-	private void insertChecklistsForEcoType(EcoType ecoType) {
+	private void insertCheklistsForEcoType(EcoType ecoType) {
 		List<ChecklistItem> checklistItems = switch (ecoType) {
 			case ELECTRICITY -> getElectricityChecklist();
 			case WATER -> getWaterChecklist();
