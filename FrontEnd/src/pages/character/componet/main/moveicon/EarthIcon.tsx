@@ -1,6 +1,17 @@
-const EarthIcon = () => {
+import { MouseEventHandler } from 'react';
+
+const EarthIcon = ({
+  onClick,
+}: {
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}) => {
   return (
-    <button className='group w-28 h-28 bg-gradient-to-b from-green-100 to-green-50 rounded-3xl flex flex-col items-center justify-center border-4 border-green-300 shadow-xl hover:from-green-200 hover:to-green-100 transition-colors'>
+    <button
+      className='group w-28 h-28 bg-gradient-to-b from-green-100 to-green-50 rounded-3xl flex flex-col items-center justify-center border-4 border-green-300 shadow-xl hover:from-green-200 hover:to-green-100 transition-colors'
+      onClick={(e) => {
+        if (onClick) onClick(e);
+      }}
+    >
       <div className='w-16 h-16 flex items-center justify-center'>
         <svg
           width='56'

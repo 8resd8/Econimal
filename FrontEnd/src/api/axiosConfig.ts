@@ -119,25 +119,21 @@ axiosInstance.interceptors.response.use(
 //캐릭터 api
 //직관적으로 매개변수, get/post 요청을 무엇으로 보내는지 알기 위해서
 //한꺼번에 api로 관리하기 위해서 분리하였습니다.
+//domain interceptor로 했기 때문에 중복 요청X
 export const characterListAPI = {
   //캐릭터 리스트 조회 -> 보유한 캐릭터 목록 조회
   getCharList: () => axiosInstance.get(API.CHARACTERS.LIST),
 
   // 상세 캐릭터 정보 -> 캐릭터 상세 조회
   getCharInfo: (userCharacterId: number) => {
-    console.log(`캐릭터 상세 정보 요청: ID=${userCharacterId}`);
     return axiosInstance.get(`${API.CHARACTERS.LIST}/${userCharacterId}`);
   },
   //내 캐릭터 정보 -> 유저 캐릭터 정보 조회 (경험치 관련)
   getMyCharInfo: () => axiosInstance.get(API.CHARACTERS.MAIN_CHAR),
 
   //캐릭터 리스트 중 캐릭터 선택 => 대표 캐릭터 선택택
-  //파라미터 오류
   // 캐릭터 선택 => 대표 캐릭터 선택
-  // 대표 캐릭터 선택 - URL에서 마지막 슬래시(/) 제거
   patchMyChar: (userCharacterId: number) => {
-    console.log(`대표 캐릭터 선택 요청: ID=${userCharacterId}`);
-    // URL 경로에 ID 추가
     return axiosInstance.patch(
       `${API.CHARACTERS.MAIN_CHAR}/${userCharacterId}`,
     );
