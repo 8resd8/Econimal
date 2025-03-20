@@ -21,11 +21,10 @@ const CharBackground = () => {
     myChar: myChar,
   });
   const nav = useNavigate();
-
   //data가 없을때도 로딩중
   if (isLoading || isEmotionLoading || !data) return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
-  if (!data || !data.level) return <div>필수 데이터 없음</div>;
+  if (!data || !data.level || !myChar) return <div>필수 데이터 없음</div>;
 
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
@@ -42,7 +41,7 @@ const CharBackground = () => {
         <div className='flex items-center justify-between p-6'>
           {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
           <div className='flex items-center gap-4'>
-            <CharProfile level={data.level} />
+            <CharProfile level={data.level} profileImg={myChar.profileImg} />
             <ExpBar current={data.exp} max={100} />
           </div>
 
@@ -56,8 +55,9 @@ const CharBackground = () => {
 
       {/* 아이콘들 */}
       <div className='absolute left-12 sm:left-16 md:left-24 top-[60%] -translate-y-1/2 flex flex-col gap-8 z-[100]'>
-        <TownIcon onClick={() => nav('/town')} />
-        <EarthIcon onClick={() => nav('/earth')} />
+        {/* mouseEventHandler 기준 준수를 위해 e 사용 */}
+        <TownIcon onClick={(e) => nav('/town')} />
+        <EarthIcon onClick={(e) => nav('/earth')} />
         <ShopIcon />
       </div>
 
