@@ -3,6 +3,7 @@ import ChecklistPanel from './ChecklistPanel';
 
 const CharChecklist = () => {
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
+  const [expLevel, setExpLevel] = useState(75); // 경험치 상태
   const [dailyItems] = useState([
     {
       id: '1',
@@ -18,6 +19,20 @@ const CharChecklist = () => {
       points: 15,
       completed: false,
     },
+    {
+      id: '3',
+      title: '전기 절약하기',
+      description: '사용하지 않는 전등을 끄고 에너지를 절약해보세요!',
+      points: 10,
+      completed: false,
+    },
+    {
+      id: '4',
+      title: '식물 돌보기',
+      description: '집에 있는 식물에게 물을 주고 돌봐주세요!',
+      points: 20,
+      completed: false,
+    },
   ]);
   const [customItems, setCustomItems] = useState([]);
 
@@ -26,52 +41,61 @@ const CharChecklist = () => {
     setCustomItems([...customItems, newItem]);
   };
 
-  // 커스텀 미션 수정
-  const handleEditCustomItem = (id, newTitle) => {
-    setCustomItems(
-      customItems.map((item) =>
-        item.id === id ? { ...item, title: newTitle } : item,
-      ),
-    );
-  };
-
-  // 커스텀 미션 삭제
-  const handleDeleteCustomItem = (id) => {
-    setCustomItems(customItems.filter((item) => item.id !== id));
+  // 완료 시 경험치 증가
+  const handleCompleteItem = (id, isDaily) => {
+    if (isDaily) {
+      dailyItems.map((item) =>
+        item.id === id ? { ...item, completed: true } : item,
+      );
+    } else {
+      setCustomItems(
+        customItems.map((item) =>
+          item.id === id ? { ...item, completed: true } : item,
+        ),
+      );
+    }
+    setExpLevel((prev) => Math.min(prev + 10, 100));
   };
 
   return (
     <div>
       {/* 탭 전환 버튼 */}
-      <div className='flex mb-4'>
+      <div className='flex mb-4 space-x-4'>
         <button
-          className={`mr-2 px-4 py-2 rounded ${
-            activeTab === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          className={`px-4 py-2 rounded-full font-bold ${
+            activeTab === 'daily'
+              ? 'bg-purple-500 text-white'
+              : 'bg-gray-200 text-gray-600'
           }`}
           onClick={() => setActiveTab('daily')}
         >
-          일일 미션
+          오늘의 체크리스트
         </button>
         <button
-          className={`px-4 py-2 rounded ${
-            activeTab === 'custom' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          className={`px-4 py-2 rounded-full font-bold ${
+            activeTab === 'custom'
+              ? 'bg-purple-500 text-white'
+              : 'bg-gray-200 text-gray-600'
           }`}
           onClick={() => setActiveTab('custom')}
         >
-          커스텀 미션
+          나만의 체크리스트
         </button>
       </div>
 
       {/* 체크리스트 패널 */}
       {activeTab === 'daily' ? (
-        <ChecklistPanel items={dailyItems} isEditable={false} />
+        <ChecklistPanel
+          items={dailyItems}
+          isEditable={false}
+          onCompleteItem={(id) => handleCompleteItem(id, true)}
+        />
       ) : (
         <ChecklistPanel
           items={customItems}
           isEditable={true}
           onAddItem={handleAddCustomItem}
-          onEditItem={handleEditCustomItem}
-          onDeleteItem={handleDeleteCustomItem}
+          onCompleteItem={(id) => handleCompleteItem(id, false)}
         />
       )}
     </div>
