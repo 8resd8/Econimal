@@ -12,12 +12,12 @@ interface TownState
   // 이게 전부 필요할까?
   setTownId: (id: number) => void;
   setTownName: (name: string) => void;
-  setCarbon: (carbon: number) => void;
-  addCarbon: (carbon: number) => void;
-  setExp: (exp: number) => void;
-  addExp: (exp: number) => void;
-  setCoin: (coin: number) => void;
-  addCoin: (coin: number) => void;
+  // setCarbon: (carbon: number) => void;
+  // addCarbon: (carbon: number) => void;
+  // setExp: (exp: number) => void;
+  // addExp: (exp: number) => void;
+  // setCoin: (coin: number) => void;
+  // addCoin: (coin: number) => void;
   setExpression: (expression: TownState['expression']) => void;
   setActiveEvents: (eventIds: number[]) => void; //특정 이벤트를 제거
   addActiveEvent: (eventId: number) => void; // 특정 이벤트를 추가
@@ -42,12 +42,12 @@ export const useTownStore = create<TownState>((set) => ({
   // 액션 구현
   setTownId: (id) => set({ townId: id }),
   setTownName: (name) => set({ townName: name }),
-  setCarbon: (carbon) => set({ carbon }),
-  addCarbon: (amount) => set((state) => ({ carbon: state.carbon + amount })),
-  setExp: (exp) => set({ exp }),
-  addExp: (amount) => set((state) => ({ exp: state.exp + amount })),
-  setCoin: (coin) => set({ coin }),
-  addCoin: (amount) => set((state) => ({ coin: state.coin + amount })),
+  // setCarbon: (carbon) => set({ carbon }),
+  // addCarbon: (amount) => set((state) => ({ carbon: state.carbon + amount })),
+  // setExp: (exp) => set({ exp }),
+  // addExp: (amount) => set((state) => ({ exp: state.exp + amount })),
+  // setCoin: (coin) => set({ coin }),
+  // addCoin: (amount) => set((state) => ({ coin: state.coin + amount })),
   setExpression: (expression) => set({ expression }),
   setActiveEvents: (eventIds) => set({ activeEvents: eventIds }),
   addActiveEvent: (eventId) =>

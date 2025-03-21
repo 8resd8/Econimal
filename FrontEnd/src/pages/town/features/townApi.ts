@@ -50,8 +50,7 @@ export const getTownEvents = async (townId: number) => {
 
   if (!response || !response.data) {
     throw new Error(
-      response?.data?.message ||
-        '마을 상황 조회 중 요류가 발생했습니다.',
+      response?.data?.message || '마을 상황 조회 중 요류가 발생했습니다.',
     );
   }
   return response.data; // 꼭 있어야 함?

@@ -37,11 +37,12 @@ const NormalModal = ({
   const [result, setResult] = useState<InfraSubmitResponse | null>(null); // api 응답 받을때 검증한거 아닌가... 왜 또 해야하지
 
   // useTownStore에서 액션을 가져오는 로직으로 구현한다면
-  const { addCarbon, addExp, addCoin, setExpression } = useTownStore();
+  // const { addCarbon, addExp, addCoin, setExpression } = useTownStore();
+  // -> 스토어 말고 백에서 api 응답 받은 값으로 처리
 
   // 인프라 이벤트 상세 조회 쿼리
   // const { data: eventData, isLoading, error } = useGetInfraEvent(infraEventId);
-  const { data: eventData } = useGetInfraEvent(infraEventId);
+  const { data: eventData } = useGetInfraEvent(infraEventId || 0);
 
   // 인프라 이벤트 선택지 제출 뮤테이션
   const submitInfraResult = useSubmitInfraResult();
@@ -54,12 +55,13 @@ const NormalModal = ({
           setResult(data); // data가 있는 경우에만 실행
 
           // useTownStore 업데이트
-          addCarbon(data.carbon);
-          addExp(data.exp);
-          addCoin(data.coin);
-          setExpression(data.expression);
+          // addCarbon(data.carbon);
+          // addExp(data.exp);
+          // addCoin(data.coin);
+          // setExpression(data.expression);
 
-          // 결과 모달 표시
+          // 선택지 모달 닫고 결과 모달 표시
+          onOpenChange(false);
           setShowResult(true);
         }
       },

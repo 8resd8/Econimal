@@ -83,7 +83,7 @@ export const TownNameEditModal = ({
           </div>
         </div>
         <DialogFooter>
-          <Button type='submit' onClick={() => onOpenChange(false)}>
+          <Button type='submit' onClick={handleSave}>
             저장
           </Button>
           {/* 저장 버튼 클릭 시 api 요청 후 모달 닫히기 */}

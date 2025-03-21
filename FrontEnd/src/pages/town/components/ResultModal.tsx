@@ -26,10 +26,28 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
   // 결과 모달이 열릴 때 탄소가 감소했으면 효과 표시
   useEffect(() => {
     if (open && result && result.carbon < 0) {
-      // 탄소가 감소했을 때 콘페티?
+      // 탄소가 감소했을 때 콘페티? 긍정적 애니메이션 효과
+    } else if (open && result && result.carbon > 0) {
+      // 부정적 애니메이션 효과
     }
-    // 탄소가 증가했을 때 무언가의 애니메이션
+    // 0일땐 아무것도 안할래
   }, [open, result]);
+
+  const getResultMessage = () => {
+    if (result.isOptimal) {
+      return '최적의 선택이었어요 😊';
+    } else {
+      return '더 좋은 선택이 있었어요 😓';
+    }
+  };
+
+  const getAnswerMessage = () => {
+    // 법원인 경우 표시하기
+    if (result.answerId) {
+      return `정답은 ${result.answerId}번이에요.`;
+    }
+    return ''; // 이건
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -41,9 +59,8 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
 
         <AlertDialogHeader>
           <AlertDialogTitle className='text-4xl m-6'>
-            {result.isOptimal
-              ? '최적의 선택이었어요 😗'
-              : '더 좋은 선택이 있었어요 😓'}
+            {/* 가장좋은 답변이에요 / 더 최적인 답안이 있어요 */}
+            {getResultMessage()}
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className='space-y-4'>
@@ -54,8 +71,11 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
               탄소가{Math.abs(result.carbon)}%{' '}
               {result?.carbon < 0 ? '감소' : '증가'}했어요
             </p>
-            {/* 가장좋은 답변이에요 / 더 최적인 답안이 있어요 */}
-            <p>{result?.isOptimal}</p>
+
+            {/* 경험치 증가는 토스트 창이 낫지 않을까 */}
+
+            {/* 정답은 x번이에요.(법원) */}
+            {getAnswerMessage() && <p>{getAnswerMessage()}</p>}
           </div>
         </AlertDialogDescription>
 

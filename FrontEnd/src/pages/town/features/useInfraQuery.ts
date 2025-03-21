@@ -18,9 +18,15 @@ export const useSubmitInfraResult = () => {
   const { mutate } = useMutation({
     mutationFn: (ecoAnswerId: number) => submitInfraResult(ecoAnswerId), // ecoAnswerId 전달
     // 무효화 언제 사용하는지
-    onSuccess: () => {
+    onSuccess: (data) => {
       // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
       queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 선택지 제출 후 데이터 새로고침
+
+      // 마을 정보도 함께 갱신
+      queryClient.invalidateQueries({ queryKey: ['town-info'] });
+
+      // 데이터는 콜백으로 직접 전달됨 ???
+      return data;
     },
     onError: (error) => {
       console.log(error.message || '선택지 제출 중 오류가 발생했습니다.');
