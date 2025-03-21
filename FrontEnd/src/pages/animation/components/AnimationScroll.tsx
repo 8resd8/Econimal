@@ -75,70 +75,6 @@ const AnimationContainer = styled.div`
   background-color: #121212;
 `;
 
-// const Earth = styled.div<{ progress: number }>`
-//   width: 200px;
-//   height: 200px;
-//   background: linear-gradient(135deg, #429EBD, #1e6b87);
-//   border-radius: ${props => 50 - props.progress * 20}%;
-//   position: relative;
-//   z-index: 2;
-//   transform: translateY(${props => props.progress * 80}px) scale(${props => 1 - props.progress * 0.1});
-//   box-shadow: 0 0 ${props => 30 - props.progress * 15}px ${props => 5 - props.progress * 3}px rgba(0, 255, 255, ${props => 0.3 - props.progress * 0.2});
-  
-//   /* 대륙 모양 */
-//   &::before {
-//     content: '';
-//     position: absolute;
-//     width: 60%;
-//     height: 60%;
-//     top: 20%;
-//     left: 20%;
-//     background: radial-gradient(
-//       circle at center,
-//       rgba(76, 175, 80, 0.7) 10%,
-//       rgba(76, 175, 80, 0.4) 60%,
-//       transparent 100%
-//     );
-//     clip-path: polygon(30% 0%, 60% 0%, 80% 30%, 95% 60%, 70% 85%, 40% 90%, 10% 70%, 5% 40%);
-//     border-radius: 50%;
-//     transform: rotate(${props => props.progress * 20}deg);
-//     opacity: ${props => 1 - props.progress * 0.5};
-//   }
-// `;
-
-// const IceCreamCone = styled.div<{ progress: number }>`
-//   width: 100px;
-//   height: 150px;
-//   background: linear-gradient(135deg, #d4a76a, #b3712c);
-//   clip-path: polygon(0% 30%, 50% 100%, 100% 30%);
-//   margin-top: -50px;
-//   position: relative;
-//   z-index: 1;
-//   opacity: ${props => props.progress};
-//   transform: translateY(${props => (1 - props.progress) * 50}px);
-
-//   /* 콘의 격자 패턴 */
-//   &::before {
-//     content: '';
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     right: 0;
-//     bottom: 0;
-//     background-image: linear-gradient(
-//       45deg,
-//       rgba(0, 0, 0, 0.1) 25%,
-//       transparent 25%,
-//       transparent 50%,
-//       rgba(0, 0, 0, 0.1) 50%,
-//       rgba(0, 0, 0, 0.1) 75%,
-//       transparent 75%
-//     );
-//     background-size: 10px 10px;
-//     clip-path: polygon(0% 30%, 50% 100%, 100% 30%);
-//   }
-// `;
-
 const MessageContainer = styled.div`
   position: absolute;
   top: 20%;
@@ -267,6 +203,9 @@ const ScrollArrow = styled.div`
     }
   }
 `;
+
+// 스킵 표시
+const Skip  = styled.div
 
 interface MessageVisibility {
     opacity: number;
@@ -410,8 +349,6 @@ const AnimationScroll: React.FC = () => {
             
             <Moon progress={scrollProgress} />
             <Clouds progress={scrollProgress} />
-            {/* <Earth progress={scrollProgress} />
-            <IceCreamCone progress={scrollProgress} /> */}
             <Puddle progress={scrollProgress} />
             <Drips progress={scrollProgress} />
             

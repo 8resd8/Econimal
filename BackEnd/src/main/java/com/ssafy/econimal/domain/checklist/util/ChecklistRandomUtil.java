@@ -17,9 +17,9 @@ import lombok.RequiredArgsConstructor;
 public class ChecklistRandomUtil {
 
 	private final ChecklistRepository checklistRepository;
+
 	/**
-	 * 주어진 Checklist 리스트에서 랜덤하게 3개의 Checklist를 반환하는 메서드
-	 * 리스트의 크기가 3보다 작거나 같으면 전체 리스트를 반환.
+	 * Checklist 랜덤 3개의 선택하는 메서드
 	 */
 	public List<Checklist> getRandomChecklistPerDifficulty() {
 		List<Checklist> result = new ArrayList<>();
