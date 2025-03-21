@@ -4,4 +4,7 @@ export const API = {
     LIST: 'characters/users',
     MAIN_CHAR: 'characters/users/main',
   },
+  CHECKLIST: {
+    LIST: 'checklists',
+  },
 };

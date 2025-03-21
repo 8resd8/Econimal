@@ -140,5 +140,9 @@ export const characterListAPI = {
   },
 };
 
+export const checklistAPI = {
+  getCheckList: () => axiosInstance.get(`${API.CHECKLIST}`),
+};
+
 // axiosInstance를 기본 내보내기로 설정
 export default axiosInstance;
