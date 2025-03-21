@@ -1,0 +1,30 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--web.enable-lifecycle'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+      - ${PROMETHEUS_DATA_PATH}:/prometheus
+      - ${PROMETHEUS_YML_PATH}:/etc/prometheus/prometheus.yml
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    env_file:
+      - ../.env
+  grafana:
+    user: "root"
+    container_name: grafana
+    image: grafana/grafana:latest
+    volumes:
+      - ${GRAFANA_DATA_PATH}:/var/lib/grafana
+      - ${GRAFANA_PROVISIONING}:/etc/grafana/provisioning
+    ports:
+      - ${GRAFANA_PORT}:3000
+    depends_on:
+      - prometheus
+    networks:
+      - prometheus-network
+networks:
+  prometheus-network:
+    driver: bridge
