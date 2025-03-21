@@ -11,8 +11,6 @@ services:
       - ${PROMETHEUS_YML_PATH}:/etc/prometheus/prometheus.yml
     ports:
       - ${PROMETHEUS_PORT}:9090
-    env_file:
-      - ../.env
     networks:
       - prometheus-network
   grafana:
