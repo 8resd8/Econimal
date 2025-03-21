@@ -10,7 +10,7 @@
     </appender>
 
     <!-- 개발환경: 콘솔로그만 사용-->
-    <springProfile name="default">
+    <springProfile name="default, local">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
