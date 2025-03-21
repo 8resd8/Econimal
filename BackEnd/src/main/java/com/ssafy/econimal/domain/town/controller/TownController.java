@@ -21,7 +21,7 @@ public class TownController {
 
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateTownName(@Login User user, TownNameUpdateRequest townNameUpdateRequest) {
+    public void updateTownName(@Login User user, @RequestBody TownNameUpdateRequest townNameUpdateRequest) {
         townService.updateTownName(user, townNameUpdateRequest);
     }
 
