@@ -25,7 +25,7 @@ public class TownController {
         townService.updateTownName(user, townNameUpdateRequest);
     }
 
-    @GetMapping("/events/{townId}")
+    @GetMapping("/events")
     public TownStatusResponse getTownStatus(@Login User user) {
         return townService.getTownStatus(user);
     }
