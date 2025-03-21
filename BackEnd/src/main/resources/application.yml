@@ -60,3 +60,12 @@ cors:
   exposed-headers: ${cors.exposed-headers}
   allow-credentials: ${cors.allow-credentials}
   max-age: ${cors.max-age}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers,prometheus
+  endpoint:
+    health:
+      show-details: always
