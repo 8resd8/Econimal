@@ -27,7 +27,7 @@ public class Product extends BaseTimeEntity {
 	@Column(name = "product_id")
 	private Long id;
 
-	@Column(name = "character_type")
+	@Column(name = "product_type")
 	@Enumerated(EnumType.STRING)
 	private ProductType type;
 
