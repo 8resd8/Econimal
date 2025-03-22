@@ -14,10 +14,10 @@ export function CharButton({
 }: CharButtonProps) {
   const baseStyles = 'font-medium transition-colors rounded-md';
   const variantStyles = {
-    default: 'bg-purple-500 text-white hover:bg-purple-600',
+    default: 'bg-cyan-300 text-white hover:bg-purple-600',
     outline: 'border border-gray-300 hover:bg-gray-100',
     ghost: 'hover:bg-gray-100',
-    link: 'text-purple-500 hover:underline',
+    link: 'text-cyan-300 hover:underline',
   };
   const sizeStyles = {
     default: 'px-4 py-2',
