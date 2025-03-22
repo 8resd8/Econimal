@@ -142,6 +142,10 @@ export const characterListAPI = {
 
 export const checklistAPI = {
   getCheckList: () => axiosInstance.get(`${API.CHECKLIST}`),
+  postCheckList: (checklistId: number) =>
+    axiosInstance.post(`${API.CHECKLIST.DONE}`, {
+      checklistId,
+    }),
 };
 
 // axiosInstance를 기본 내보내기로 설정

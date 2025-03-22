@@ -1,11 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ChecklistPanel from './ChecklistPanel';
 import ProgressBar from './ProgressBar';
+import { useChecklist } from '@/pages/character/feature/hooks/useChecklist';
+import { usePostChecklist } from '@/pages/character/feature/hooks/usePostChecklist';
 
+//useChecklist의 data활용해서
 const CharChecklist = () => {
-  const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
+  // const {data, isLoading, isError, error} = useChecklist()
   const [dailyProgress, setDailyProgress] = useState(40); // 오늘의 체크리스트 진행률
   const [customProgress, setCustomProgress] = useState(20); // 나만의 체크리스트 진행률
+  const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
+  // const {handleChecklistToServer} = usePostChecklist()
+
+  //daily 진척률 값 계산
+  // useEffect(()=> {
+  /*  
+    const daily = data.checklist.daily
+    const dailyProgress = daily.done / daily.total
+    setDailyProgress(dailyProgress)
+  */
+  // }, [data])
+
+  //custom 진척률 값 계산
+  /*
+  useEffect(()=>{
+    const custom = data.checklist.custom
+    const customProgress = custom.done / custom.total
+    setCustomProgress(customProgress)
+  },[data])
+  */
+
+  //-------------
+
+  //계산 로직이다보니 memo를 써야할 것 같음
+  /*
+  const dailyCheckProgress = useMemo(()=>{
+    const daily = data.checklists.daily
+    const dailyProgress = daily.done / daily.total
+  },[data])  
+  */
+
+  /*
+  const customCheckProgress = useMemo(()=>{
+    const custom = data.checklists.custom
+    const customProgress = custom.done / custom.total
+  },[data])
+  */
 
   const [dailyItems] = useState([
     {
@@ -37,6 +77,16 @@ const CharChecklist = () => {
       completed: false,
     },
   ]);
+  //state로 관리할 필요가 있을까? -> 짜피 캐싱해주고 상태관리를,,? 그냥 있는거 그대로 받아서 사용
+  //dailyItems 관련
+  /*
+  const dailyItems = data.checklists.daily.checklist //이거 자체
+  */
+
+  //customItems 관련
+  /*
+  const customItems = data.checklists.custom.checklist
+  */
 
   const [customItems] = useState([
     {
@@ -47,6 +97,12 @@ const CharChecklist = () => {
       completed: false,
     },
   ]);
+
+  const onCompletedItem = (checklistId: number) => {
+    // 서버에 fetching 보내줄 것
+    //여기서 나중에 경고 메세지
+    // handleChecklistToServer(checklistId)
+  };
 
   return (
     <div>

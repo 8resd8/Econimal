@@ -6,5 +6,6 @@ export const API = {
   },
   CHECKLIST: {
     LIST: 'checklists',
+    DONE: 'checklists/complete',
   },
 };
