@@ -11,7 +11,7 @@ const TownName = () => {
 
   return (
     <div>
-      <div className='flex items-center p-2 gap-2'>
+      <div className='flex justify-center items-center p-2 gap-2'>
         {townName ? `${townName} 마을` : '기본 마을'}
         <div
           className='cursor-pointer hover:bg-gray-200'

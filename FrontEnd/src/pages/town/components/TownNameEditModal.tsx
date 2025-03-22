@@ -79,6 +79,7 @@ export const TownNameEditModal = ({
               // 이 값이 다시 value={townName}으로 적용돼서 실시간으로 입력 필드에 반영
               onChange={(e) => setTownName(e.target.value)}
               className='col-span-3'
+              autoComplete='off'
             />
           </div>
         </div>

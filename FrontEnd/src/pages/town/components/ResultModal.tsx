@@ -33,6 +33,7 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
     // 0일땐 아무것도 안할래
   }, [open, result]);
 
+  // 법원 아닌경우만 표시하고 싶은데
   const getResultMessage = () => {
     if (result.isOptimal) {
       return '최적의 선택이었어요 😊';
@@ -42,11 +43,11 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
   };
 
   const getAnswerMessage = () => {
-    // 법원인 경우 표시하기
+    // 법원인 경우만 표시하고 싶은데 이렇게 하면
     if (result.answerId) {
       return `정답은 ${result.answerId}번이에요.`;
     }
-    return ''; // 이건
+    return '';
   };
 
   return (

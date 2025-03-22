@@ -2,7 +2,7 @@
 import { axiosInstance } from '@/api/axiosConfig';
 
 export interface TownNameData {
-  townId: number; // 명세에서 사라짐!?
+  townId: number; // 명세에서 사라짐!? 스토어에서 사용해서 있긴해야함
   townName: string;
 }
 
@@ -42,11 +42,8 @@ export const patchTownName = async (townData: TownNameData) => {
 };
 
 // 마을 상황 조회
-export const getTownEvents = async (townId: number) => {
-  const response = await axiosInstance.get<TownEventsResponse>(
-    '/towns/events',
-    { params: { townId } },
-  );
+export const getTownEvents = async () => {
+  const response = await axiosInstance.get<TownEventsResponse>('/towns/events');
 
   if (!response || !response.data) {
     throw new Error(

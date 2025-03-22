@@ -71,7 +71,7 @@ const NormalModal = ({
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false); // 원래 모달도 닫기
+    onOpenChange(false); // 원래 모달도 닫기? 이미 닫혀있는데?
   };
 
   // // 로딩 중이거나 에러 발생 시 처리
@@ -101,6 +101,8 @@ const NormalModal = ({
                   className='flex-1 py-8 text-2xl'
                   onClick={() => handleSubmit(answer.ecoQuizId)}
                 >
+                  {/* 선지 번호 */}
+                  {answer.ecoQuizId}. 
                   {/* 선지 내용 */}
                   {answer.description}
                 </Button>
@@ -109,8 +111,6 @@ const NormalModal = ({
           </AlertDialogDescription>
 
           <AlertDialogFooter>
-            {/* 컨티뉴 버튼이 필요할까? */}
-            {/* <AlertDialogAction>Continue</AlertDialogAction> */}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

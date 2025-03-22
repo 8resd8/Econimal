@@ -27,11 +27,11 @@ export const usePatchTownName = () => {
 };
 
 // 마을 상황 조회 쿼리
-export const useGetTownEvents = (townId: number) => {
+export const useGetTownEvents = () => {
   // return 해야하는가
   return useQuery({
-    queryKey: ['town-events', townId],
-    queryFn: () => getTownEvents(townId),
+    queryKey: ['town-events'],
+    queryFn: () => getTownEvents(),
     // staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 };

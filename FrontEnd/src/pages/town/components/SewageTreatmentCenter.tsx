@@ -5,15 +5,15 @@ import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import sewageImg from '@/assets/sewage-treatment-center.png';
 
-const SewageTreatmentCenter = ({ infraEventId }: TownProps) => {
+const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
 
   return (
-    <div className={`${isActive ? 'animate-puslse' : ''}`}>
+    <div className={`${className || ''} ${isActive ? 'animate-puslse' : ''}`}>
       <img
-        className='size-4/12 cursor-pointer'
+        className='w-full h-auto cursor-pointer'
         src={sewageImg}
         alt='하수처리장'
         onClick={() => infraEventId && setIsModalOpen(true)}
