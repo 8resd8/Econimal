@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.dto.UserChecklistResponse;
 import com.ssafy.econimal.domain.checklist.service.ChecklistService;
@@ -29,6 +30,11 @@ public class ChecklistController {
 	@GetMapping()
 	public UserChecklistResponse getUserChecklist(@Login User user) {
 		return checklistService.getUserChecklist(user);
+	}
+
+	@PostMapping("/complete")
+	public void completeChecklist(@Login User user, @RequestBody ChecklistCompleteRequest request) {
+		checklistService.completeChecklist(user, request);
 	}
 
 	@PostMapping("/custom")
