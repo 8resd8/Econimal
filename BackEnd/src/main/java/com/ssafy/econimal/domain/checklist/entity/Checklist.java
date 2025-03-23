@@ -2,6 +2,7 @@ package com.ssafy.econimal.domain.checklist.entity;
 
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 import com.ssafy.econimal.global.common.enums.DifficultyType;
+import com.ssafy.econimal.global.common.enums.EcoType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +33,8 @@ public class Checklist extends BaseTimeEntity {
 	private DifficultyType difficulty;
 
 	@Column(name = "eco_type")
-	private String ecoType;
+	@Enumerated(EnumType.STRING)
+	private EcoType ecoType;
 
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;
@@ -41,7 +43,7 @@ public class Checklist extends BaseTimeEntity {
 	private int exp = 30;
 
 	@Builder
-	public Checklist(DifficultyType difficulty, String ecoType, String description) {
+	public Checklist(DifficultyType difficulty, EcoType ecoType, String description) {
 		this.difficulty = difficulty;
 		this.ecoType = ecoType;
 		this.description = description;
