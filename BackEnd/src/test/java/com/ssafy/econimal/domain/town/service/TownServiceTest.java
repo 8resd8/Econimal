@@ -39,10 +39,10 @@ class TownServiceTest {
     void setUp() {
         town = helper.createTown();
         user = helper.createUser(town);
-        Facility facility = helper.createFacility();
-        EcoQuiz ecoQuiz = helper.createEcoQuiz(facility);
-        Infrastructure infrastructure = helper.createInfrastructure(town, facility, true);
-        InfrastructureEvent infrastructureEvent = helper.createInfrastructureEvent(infrastructure, ecoQuiz, true);
+        facility = helper.createFacility();
+        ecoQuiz = helper.createEcoQuiz(facility);
+        infrastructure = helper.createInfrastructure(town, facility, true);
+        infrastructureEvent = helper.createInfrastructureEvent(infrastructure, ecoQuiz, true);
     }
 
     @Test
