@@ -2,25 +2,24 @@ package com.ssafy.econimal.domain.town.service;
 
 import com.ssafy.econimal.domain.data.TestEntityHelper;
 import com.ssafy.econimal.domain.town.dto.InfrastructureEventResponse;
-import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
 import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
 import com.ssafy.econimal.domain.town.entity.*;
 import com.ssafy.econimal.domain.town.repository.TownRepository;
 import com.ssafy.econimal.domain.user.entity.User;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class TownServiceTest {
+class InfrastructureEventServiceTest {
 
     @Autowired
-    private TownService townService;
+    private InfrastructureEventService infrastructureEventService;
 
     @Autowired
     private TestEntityHelper helper;
@@ -46,17 +45,16 @@ class TownServiceTest {
     }
 
     @Test
-    void 도시_이름_변경() {
-        // given
-        String changeName = "변경된 도시 이름";
-        TownNameUpdateRequest townNameUpdateRequest = new TownNameUpdateRequest(changeName);
+    void 도시_상태_조회() {
+        TownStatusResponse response = infrastructureEventService.getTownStatus(user);
+        assertNotNull(response);
+        assertEquals(1, response.townStatus().size());
 
-        // when
-        townService.updateTownName(user, townNameUpdateRequest);
-
-        // then
-        Town newTown = townRepository.findById(town.getId()).orElse(null);
-        assertNotNull(newTown);
-        assertEquals(changeName, newTown.getName());
+        InfrastructureEventResponse eventResponse = response.townStatus().get(0);
+        assertEquals(infrastructure.getId(), eventResponse.infraId());
+        assertEquals(facility.getEcoType(), eventResponse.ecoType());
+        assertEquals(infrastructure.isClean(), eventResponse.isClean());
+        assertEquals(infrastructureEvent.getId(), eventResponse.infraEventId());
+        assertEquals(infrastructureEvent.isActive(), eventResponse.isActive());
     }
 }
