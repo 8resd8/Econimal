@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDto;
@@ -43,6 +44,15 @@ public class ChecklistService {
 			.map(DailyUserChecklistDetailDto::of)
 			.toList();
 		return DailyUserChecklistDto.of(details);
+	}
+
+	public void completeChecklist(User user, ChecklistCompleteRequest request) {
+		String checklistId = request.checklistId();
+		if (request.type().equals("DAILY")) {
+			completeDailyChecklist(user, Long.parseLong(checklistId));
+		} else {
+			completeCustomChecklist(user, checklistId);
+		}
 	}
 
 	public void addCustomChecklist(User user, CustomChecklistRequest request) {
@@ -129,5 +139,24 @@ public class ChecklistService {
 		if (oldDesc != null) {
 			redisTemplate.opsForSet().remove(descKey, oldDesc);
 		}
+	}
+
+	private void completeDailyChecklist(User user, Long checklistId) {
+		UserChecklist userChecklist = userChecklistRepository.findByUserAndChecklistId(user, checklistId)
+			.orElseThrow(() -> new IllegalArgumentException("ddd"));
+		userChecklistRepository.completeChecklist(userChecklist.getId());
+	}
+
+	private void completeCustomChecklist(User user, String checklistId) {
+		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
+		
+		Boolean isExist = redisTemplate.hasKey(hashKey);
+		CustomChecklistUtil.assertChecklistExists(isExist);
+
+		// 완료한 체크리스트일 경우 예외
+		String isCompleteStr = (String)redisTemplate.opsForHash().get(hashKey, "isComplete");
+		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
+
+		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
 	}
 }
