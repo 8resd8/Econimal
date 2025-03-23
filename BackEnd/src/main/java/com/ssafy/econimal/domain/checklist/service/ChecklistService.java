@@ -2,6 +2,7 @@ package com.ssafy.econimal.domain.checklist.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -84,6 +85,12 @@ public class ChecklistService {
 		long score = System.currentTimeMillis();
 		redisTemplate.opsForZSet().add(userKey, uuid, score);
 		redisTemplate.opsForSet().add(descKey, description);
+
+		// 유효기간 설정
+		long ttl = CustomChecklistUtil.calcExpireSeconds();
+		redisTemplate.expire(userKey, ttl, TimeUnit.SECONDS);
+		redisTemplate.expire(descKey, ttl, TimeUnit.SECONDS);
+		redisTemplate.expire(hashKey, ttl, TimeUnit.SECONDS);
 	}
 
 	public void updateCustomChecklist(User user, String checklistId, CustomChecklistRequest request) {
@@ -149,7 +156,7 @@ public class ChecklistService {
 
 	private void completeCustomChecklist(User user, String checklistId) {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
-		
+
 		Boolean isExist = redisTemplate.hasKey(hashKey);
 		CustomChecklistUtil.assertChecklistExists(isExist);
 

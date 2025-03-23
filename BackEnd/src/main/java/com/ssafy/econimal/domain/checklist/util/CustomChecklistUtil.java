@@ -1,5 +1,8 @@
 package com.ssafy.econimal.domain.checklist.util;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
@@ -57,5 +60,12 @@ public class CustomChecklistUtil {
 		if (Boolean.parseBoolean(isCompleteStr)) {
 			throw new InvalidArgumentException("이미 완료된 체크리스트입니다.");
 		}
+	}
+
+	public static long calcExpireSeconds() {
+		return ChronoUnit.SECONDS.between(
+			LocalDateTime.now(),
+			LocalDateTime.now().toLocalDate().plusDays(1).atStartOfDay()
+		);
 	}
 }
