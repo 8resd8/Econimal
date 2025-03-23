@@ -5,7 +5,7 @@ import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import houseImg from '@/assets/my-house.png';
 
-const MyHouse = ({infraEventId}: TownProps) => {
+const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   // activeEvents : 현재 마을에서 활성화된 이벤트의 ID 목록을 저장하는 배열
@@ -16,14 +16,16 @@ const MyHouse = ({infraEventId}: TownProps) => {
   // includes() : 배열에서 특정 요소가 존재하는지 확인하는 메서드
 
   return (
-    <div className='relative'>
+    // 외부에서 전달받은 className이 있으면 적용, 없으면 기본값 사용
+    <div className={`relative ${className || ''}`}>
       <img
-        className={`size-4/12 cursor-pointer ${
+        className={`w-full h-auto cursor-pointer ${
           isActive ? 'animate-pulse' : ''
         }`} // 이벤트 발생한 건물 깜빡이기
         src={houseImg}
         alt='가정'
-        onClick={() => infraEventId && setIsModalOpen(true)}
+        // onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)}  // 이벤트 발생하지 않아도 모달 오픈
       />
       <NormalModal
         open={isModalOpen}

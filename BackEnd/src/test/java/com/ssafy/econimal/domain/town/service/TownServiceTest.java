@@ -1,8 +1,10 @@
 package com.ssafy.econimal.domain.town.service;
 
 import com.ssafy.econimal.domain.data.TestEntityHelper;
+import com.ssafy.econimal.domain.town.dto.InfrastructureEventResponse;
 import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
-import com.ssafy.econimal.domain.town.entity.Town;
+import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
+import com.ssafy.econimal.domain.town.entity.*;
 import com.ssafy.econimal.domain.town.repository.TownRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import jakarta.transaction.Transactional;
@@ -28,11 +30,19 @@ class TownServiceTest {
 
     private Town town;
     private User user;
+    private Facility facility;
+    private EcoQuiz ecoQuiz;
+    private Infrastructure infrastructure;
+    private InfrastructureEvent infrastructureEvent;
 
     @BeforeEach
     void setUp() {
         town = helper.createTown();
         user = helper.createUser(town);
+        facility = helper.createFacility();
+        ecoQuiz = helper.createEcoQuiz(facility);
+        infrastructure = helper.createInfrastructure(town, facility, true);
+        infrastructureEvent = helper.createInfrastructureEvent(infrastructure, ecoQuiz, true);
     }
 
     @Test

@@ -17,7 +17,6 @@ import {
 } from '../features/useInfraQuery';
 import ResultModal from './ResultModal';
 import { InfraSubmitResponse } from '../features/infraApi';
-import { useTownStore } from '@/store/useTownStore';
 
 interface CourtModalProps {
   open: boolean;
@@ -46,10 +45,11 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
 
           // useTownStore 업데이트?
           // 퀴즈 결과가 스토어에 있던가
-          // 현재 모달 닫히면서
+
+          onOpenChange(false); // 현재 모달 닫히면서
           // 약간의 애니메이션 효과를 줄까?
-          // 결과 모달 표시
-          setShowResult(true);
+
+          setShowResult(true); // 결과 모달 표시
         }
       },
     });
@@ -58,8 +58,19 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false);
   };
+
+  const fallbackAnswers = [
+    { ecoQuizId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoQuizId: 2, description: '잠시 후 다시 시도해 주세요1' },
+    { ecoQuizId: 3, description: '선택지 길이 어떻게 하지2' },
+    { ecoQuizId: 4, description: '배치 어떻게 할까3' },
+  ];
+
+  const answers =
+    eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
+      ? eventData.ecoAnswer
+      : fallbackAnswers;
 
   return (
     <>
@@ -77,13 +88,16 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription className='space-y-4'>
-            <div className='flex w-full gap-4'>
-              {eventData?.ecoAnswer?.map((answer) => (
-                <Button key={answer.ecoQuizId} className='flex-1 py-8 text-2xl'>
+            <div className='flex flex-col w-full gap-4'>
+              {answers.map((answer) => (
+                <Button
+                  key={answer.ecoQuizId}
+                  className='flex-1 py-3 text-2xl'
+                  onClick={() => handleSubmit(answer.ecoQuizId)}
+                >
                   {/* 결과 모달에서 몇번이 정답인지 알려주려면 
                   선택 모달에서 선택지 내용뿐만이 아니라 번호도 알려줘야함 */}
-                  {answer.ecoQuizId}
-                  {answer.description}
+                  {answer.ecoQuizId}. {answer.description}
                 </Button>
               ))}
             </div>

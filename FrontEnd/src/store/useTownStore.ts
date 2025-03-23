@@ -2,11 +2,16 @@ import { create } from 'zustand';
 import { InfraSubmitResponse } from '@/pages/town/features/infraApi';
 import { TownNameData } from '@/pages/town/features/townApi';
 
+type SewageStatus = 'clean' | 'polluted';
+
 // 마을 스토어 타입 정의 - 두 타입 모두 확장
 interface TownState
   extends TownNameData,
     Pick<InfraSubmitResponse, 'carbon' | 'exp' | 'coin' | 'expression'> {
   activeEvents: number[]; // 활성화된 이벤트 ID 목록
+
+  sewageStatus: SewageStatus;
+  setSewageStatus: (status: SewageStatus) => void;
 
   // 액션
   // 이게 전부 필요할까?
@@ -29,6 +34,10 @@ export const useTownStore = create<TownState>((set) => ({
   // TownNameData
   townId: 0,
   townName: '기본',
+
+  // 하수처리장
+  sewageStatus: 'polluted',
+  setSewageStatus: (status) => set({ sewageStatus: status }),
 
   // InfraSubmitResponse
   carbon: 0,

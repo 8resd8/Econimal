@@ -16,7 +16,7 @@ import {
   useGetInfraEvent,
   useSubmitInfraResult,
 } from '../features/useInfraQuery';
-import { useTownStore } from '@/store/useTownStore';
+// import { useTownStore } from '@/store/useTownStore';
 import ResultModal from './ResultModal';
 
 // import { easeElastic } from 'd3'; // 내가 안했는데
@@ -71,18 +71,30 @@ const NormalModal = ({
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false); // 원래 모달도 닫기
+    onOpenChange(false); // 원래 모달도 닫기? 이미 닫혀있는데?
   };
 
   // // 로딩 중이거나 에러 발생 시 처리
   // if (isEventLoading) return <div>로딩 중...</div>;
   // if (eventError) return <div>오류가 발생했습니다.</div>;
 
+  // fallback 선택지: 문제가 없어도 버튼 뜨게 만들기
+  const fallbackAnswers = [
+    { ecoQuizId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoQuizId: 2, description: '잠시 후 다시 시도해 주세요.' },
+  ];
+
+  // 실제 선택지 데이터가 없을 경우 fallback 사용
+  const answers =
+    eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
+      ? eventData.ecoAnswer
+      : fallbackAnswers;
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger></AlertDialogTrigger> */}
-        <AlertDialogContent className='p-10'>
+        <AlertDialogContent className='p-10 z-50'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
             X
           </AlertDialogCancel>
@@ -94,24 +106,21 @@ const NormalModal = ({
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription className='space-y-4'>
-            <div className='flex w-full gap-4'>
-              {eventData?.ecoAnswer?.map((answer) => (
+            <div className='flex flex-col w-full gap-4'>
+              {answers.map((answer) => (
                 <Button
                   key={answer.ecoQuizId}
-                  className='flex-1 py-8 text-2xl'
+                  className='flex-1 py-5 text-2xl'
                   onClick={() => handleSubmit(answer.ecoQuizId)}
                 >
-                  {/* 선지 내용 */}
-                  {answer.description}
+                  {/* 선지 번호, 내용 */}
+                  {answer.ecoQuizId}. {answer.description}
                 </Button>
               ))}
             </div>
           </AlertDialogDescription>
 
-          <AlertDialogFooter>
-            {/* 컨티뉴 버튼이 필요할까? */}
-            {/* <AlertDialogAction>Continue</AlertDialogAction> */}
-          </AlertDialogFooter>
+          <AlertDialogFooter></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 

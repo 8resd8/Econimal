@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     image: backend-blue:0.0.1
     ports:
-      - ${BLUE_PORT}:8080
+      - 127.0.0.1:${BLUE_PORT}:8080
     networks:
       - econimal-network
 
@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     image: backend-green:0.0.1
     ports:
-      - ${GREEN_PORT}:8080
+      - 127.0.0.1:${GREEN_PORT}:8080
     networks:
       - econimal-network
   

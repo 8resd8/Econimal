@@ -47,26 +47,34 @@ const Signup = () => {
       <img
         src={logoImage}
         alt="로고"
-        className="absolute w-72 opacity-20"
+        className="absolute w-100 opacity-80"
         style={{ top: "20%", left: "50%", transform: "translateX(-50%)" }}
       />
 
       {/* 회원가입 폼 */}
-      <div className="relative bg-white bg-opacity-90 p-8 rounded-lg text-center shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">회원가입</h2>
+      <div className="relative p-8 text-center w-96">
+        <h2 className="text-2xl font-bold mb-4 text-white">회원가입</h2>
         <div className="flex flex-col space-y-3">
         {/* form 태그를 비어있게 만들지 말고, 모든 입력 필드를 포함하도록 수정 */}
           <form onSubmit={(e) => {
             e.preventDefault();
             handleSignup();
-          }}>
+          }}
+          className="flex flex-col space-y-4 p-4"
+          >
             {/* 이메일 입력 필드 */}
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="이메일"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 비밀번호 입력 필드 */}
@@ -75,7 +83,13 @@ const Signup = () => {
               value={password1}
               onChange={(e) => setPassword1(e.target.value)}
               placeholder="비밀번호"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 비밀번호 확인 필드 */}
@@ -84,7 +98,13 @@ const Signup = () => {
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
               placeholder="비밀번호 확인"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 이름 입력 필드 */}
@@ -93,7 +113,13 @@ const Signup = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="이름"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 닉네임 입력 필드 */}
@@ -102,7 +128,13 @@ const Signup = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="닉네임"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 생년월일 입력 필드 */}
@@ -111,20 +143,27 @@ const Signup = () => {
               value={birth}
               onChange={(e) => setBirth(e.target.value)}
               placeholder="생년월일"
-              className="p-3 border rounded-lg"
+              className="pt-2 pb-2 pl-3 border-4 border-white
+              rounded-lg bg-black bg-opacity-25 w-full
+              font-extrabold text-lg"
+              style={{ 
+                color: 'white', 
+                caretColor: 'white'
+              }}
             />
             
             {/* 회원가입 버튼 - type="submit"으로 변경 */}
             <button
               type="submit"
-              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
+              className="bg-slate-500 text-white
+              p-3 rounded-lg mt-4 w-40"
             >
               회원가입
             </button>
           </form>
 
           {/* 로그인 페이지 링크 - form 바깥으로 이동 */}
-          <a href="/login" className="text-blue-400 text-sm mt-3 block">
+          <a href="/login" className="text-white text-sm mt-3 block">
             이미 회원이신가요? 로그인 하러가기
           </a>
         </div>
