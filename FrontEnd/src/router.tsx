@@ -7,6 +7,7 @@ import Signup from './pages/Auth/SignUp';
 import MyPage from './pages/Auth/UserInfo';
 import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
+import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
 
 export const router = createBrowserRouter([
@@ -41,10 +42,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/animation',
-    element: <Animation />
+    element: <Animation />,
   },
   {
     path: '/edit-profile',
-    element: <Edit />
+    element: <Edit />,
   },
 ]);
