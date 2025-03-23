@@ -1,10 +1,20 @@
 // 분리수거장
+import { useState } from 'react';
+import NormalModal from './NormalModal';
 import recyclingImg from '@/assets/recycling-center.png';
 
 const RecyclingCenter = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div>
-      <img className='size-4/12' src={recyclingImg} alt='분리수거장' />
+      <img
+        className='size-4/12 cursor-pointer'
+        src={recyclingImg}
+        alt='분리수거장'
+        onClick={() => setIsModalOpen(true)}
+      />
+      <NormalModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 };
