@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;

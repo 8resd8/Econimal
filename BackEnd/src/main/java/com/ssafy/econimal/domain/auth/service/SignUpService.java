@@ -5,11 +5,10 @@ import java.util.List;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import com.ssafy.econimal.domain.auth.dto.EmailDuplicationRequest;
-import com.ssafy.econimal.domain.auth.dto.EmailDuplicationResponse;
-import com.ssafy.econimal.domain.auth.dto.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.request.EmailDuplicationRequest;
+import com.ssafy.econimal.domain.auth.dto.response.EmailDuplicationResponse;
+import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
@@ -29,7 +28,6 @@ import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.common.enums.ExpressionType;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service

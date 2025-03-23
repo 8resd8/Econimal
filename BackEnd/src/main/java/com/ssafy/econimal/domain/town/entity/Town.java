@@ -31,4 +31,8 @@ public class Town extends BaseTimeEntity {
 	public Town(String name) {
 		this.name = name;
 	}
+
+	public void updateTownName(String townName) {
+		this.name = townName;
+	}
 }

@@ -51,29 +51,14 @@ const Login = () => {
     >
       <div className="p-8 rounded-lg text-center">
         <img src={logoImage} alt="에코니멀 로고" className="mx-auto w-32 mb-4" />
-        <div className="flex items-center justify-center
-          flex-col space-y-3
-          p-5 rounded-lg">
-
-          {error && (
-            <div className="bg-red-500 bg-opacity-70 text-white p-2 rounded-md w-full text-sm mb-2">
-              {error}
-            </div>
-          )}
-
+        <div className="flex flex-col space-y-3">
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="아이디"
-            className="pt-2 pb-2 pl-3 border-4 border-white
-             rounded-lg bg-black bg-opacity-25 w-full
-             font-extrabold text-lg"
-            style={{ 
-              color: 'white', 
-              caretColor: 'white'
-            }}
+            className="p-3 border rounded-lg"
           />
           <input
             type="password"
@@ -88,25 +73,16 @@ const Login = () => {
           />
           <button
             onClick={handleLogin}
-            disabled={isLoading}
-            className="text-indigo font-bold pt-1 pb-1
-             bg-white rounded-lg w-20"
+            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
           >
             {isLoading ? '...' : '로그인'}
           </button>
           <div className="flex items-center justify-center space-x-2 text-sm">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 text-white" />
-            <label htmlFor="rememberMe"
-              className="text-white">자동 로그인</label>
+            <input type="checkbox" id="rememberMe" className="w-4 h-4" />
+            <label htmlFor="rememberMe">자동 로그인</label>
           </div>
-          <a href="/signup" className="text-white text-sm">
-            아직 회원이 아니신가요?
-            회원가입 하러가기
+          <a href="/signup" className="text-blue-400 text-sm">
+            아직 회원이 아니신가요? 회원가입 하러가기
           </a>
         </div>
       </div>

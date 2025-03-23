@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 // Components
 import WorldMap from './components/WorldMap';
-import AnimationScroll from './components/AnimationScroll';
 // import ExtinctionCardGame from './components/ExtinctionCardGame';
 // import AnalyticsGraph from './components/AnalyticsGraph';
 // import EnvironmentContribution from './components/EnvironmentContribution';
@@ -98,11 +97,6 @@ const Earth: React.FC = () => {
             onRegionSelect={handleRegionSelect} 
           />
           {selectedRegion && <RegionInfo data={regionInfo} />}
-        </Section>
-        
-        {/* 스크롤에 따른 애니메이션 섹션 */}
-        <Section>
-          <AnimationScroll />
         </Section>
         
         {/* 멸종위기종 돌봄 카드 짝 맞추기 게임 */}

@@ -59,7 +59,7 @@ axiosInstance.interceptors.response.use(
         
         // 원래 요청 헤더 업데이트
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-        
+
         // 원래 요청 재시도
         return axiosInstance(originalRequest);
       } catch (refreshError) {
@@ -71,7 +71,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
