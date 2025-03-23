@@ -4,15 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/store"; // Zustand 사용 시
 
 interface User {
-  id: string;
   email: string;
+  name: string;
   nickname: string;
+  birth: string;
+  coin: number;
+  role: string;
+  lastLoginAt: string;
+  townName: string;
 }
 
 interface LoginResponse {
   accessToken: string;
   expiresIn: number;
   isFirst: boolean;
+  timeToLive: number; // 만료 시간 (900000 밀리초 = 15분)
 }
 
 // 회원가입 인터페이스 추가
@@ -32,6 +38,8 @@ export const useAuth = () => {
   const navigate = useNavigate();
   const { token, setToken, clearToken } = useAuthStore(); // Zustand 상태 관리
   const [hasCharacter, setHasCharacter] = useState<boolean>(false); // 캐릭터 존재 여부 상태 추가
+  // 타이머 ID 저장을 위한 상태 추가
+const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null);
 
   // 토큰 값이 변경될 때마다 콘솔에 출력
   useEffect(() => {
@@ -121,6 +129,13 @@ export const useAuth = () => {
   const logout = async () => {
     try {
       await axios.post("/users/logout");
+
+      // 예약된 갱신 타이머가 있다면 제거
+    if (refreshTimerId) {
+      clearTimeout(refreshTimerId);
+      setRefreshTimerId(null);
+    }
+
       clearToken();
       setUser(null);
       navigate("/login");
@@ -136,7 +151,12 @@ export const useAuth = () => {
       const res = await axios.get("/users/info", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUser(res.data);
+      // API 응답에서 userInfo 객체 추출
+      const userData = res.data.userInfo; // 이 부분 확인 필요
+      setUser(userData);
+      return userData;
+      // setUser(res.data);
+
     } catch (error) {
       console.error("유저 정보 가져오기 실패", error);
     } finally {
@@ -147,8 +167,18 @@ export const useAuth = () => {
   // AccessToken 갱신 (refreshToken은 쿠키에 있으므로 자동으로 전송됨)
   const refreshToken = async () => {
     try {
-      const res = await axios.post<LoginResponse>("/users/token/refresh");
+      const res = await axios.post<LoginResponse>("/users/refresh");
       setToken(res.data.accessToken);
+      
+      const expiresIn = res.data.timeToLive;
+      // 만료 시간 5분 전에 자동 갱신 예약
+    const refreshTimeoutId = setTimeout(() => {
+      refreshToken();
+    }, expiresIn - 300000); // 5분(300000ms)을 빼서 만료 직전에 갱신
+    
+    // 타이머 ID 저장 (로그아웃 시 타이머 제거를 위해)
+    setRefreshTimerId(refreshTimeoutId);
+
       return true; // 성공 시 true 반환
     } catch (error) {
       console.error("토큰 갱신 실패", error);
