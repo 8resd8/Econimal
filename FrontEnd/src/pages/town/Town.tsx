@@ -7,6 +7,8 @@ import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
 import { TownEvent } from './features/townApi'; // TownEvent 타입 임포트 추가
+import pollutedImg from '@/assets/polluted-river.png';
+
 // import RecyclingCenter from './components/RecyclingCenter';
 // import Vehicle from './components/Vehicle';
 
@@ -14,7 +16,7 @@ import { TownEvent } from './features/townApi'; // TownEvent 타입 임포트 �
 export interface TownProps {
   infraEventId?: number;
   className?: string; // className 속성 추가하여 스타일 전달 가능하게 함
-  onClick?: () =>void
+  onClick?: () => void;
 }
 
 const Town = () => {
@@ -98,19 +100,28 @@ const Town = () => {
           {/* 4. 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
           <div className='absolute inset-0'>
             {/* 5. 마을 이름 - 항상 상단 중앙에 위치 */}
-            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg text-xl w-[18%] z-20'>
+            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg text-xl w-[18%] z-30'>
               <TownName />
             </div>
 
             {/* 6. 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
-            <div className='absolute top-[14%] left-[44%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-10'>
+            <div className='absolute top-[34%] left-[80%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
               <MyHouse infraEventId={getInfraEventId('ELECTRICITY')} />
             </div>
 
             {/* 7. 하수처리장 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
-            <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-10'>
+            <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-20'>
               <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
             </div>
+
+            {/* ✅ 오염된 강물 오버레이 */}
+            {useTownStore.getState().sewageStatus === 'polluted' && (
+              <img
+                src={pollutedImg}
+                alt='오염된 강물'
+                className='absolute top-0 left-0 max-w-full max-h-screen object-contain z-10 pointer-events-none'
+              />
+            )}
 
             {/* 8. 법원 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[85%] left-[18%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-10'>

@@ -92,7 +92,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoQuizId}
-                  className='flex-1 py-8 text-2xl'
+                  className='flex-1 py-3 text-2xl'
                   onClick={() => handleSubmit(answer.ecoQuizId)}
                 >
                   {/* 결과 모달에서 몇번이 정답인지 알려주려면 

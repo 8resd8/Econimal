@@ -9,9 +9,16 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
+  // const sewageStatus = useTownStore((state) => state.sewageStatus);
+
+  // const showImage = sewageStatus === 'polluted' ? pollutedImg : sewageImg;
 
   return (
-    <div className={`${className || ''} ${isActive ? 'animate-pulse' : ''}`}>
+    <div
+      className={`relative ${className || ''} ${
+        isActive ? 'animate-pulse' : ''
+      }`}
+    >
       <img
         className='w-full h-auto cursor-pointer'
         src={sewageImg}
