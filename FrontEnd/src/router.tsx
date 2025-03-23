@@ -41,6 +41,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/animation',
-    element: <Animation />,
+    element: <Animation />
+  },
+  {
+    path: '/edit-profile',
+    element: <Edit />
   },
 ]);
