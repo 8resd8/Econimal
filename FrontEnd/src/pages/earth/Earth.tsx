@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 // Components
 import WorldMap from './components/WorldMap';
-// import AnimationScroll from './components/AnimationScroll';
 // import ExtinctionCardGame from './components/ExtinctionCardGame';
 // import AnalyticsGraph from './components/AnalyticsGraph';
 // import EnvironmentContribution from './components/EnvironmentContribution';
@@ -89,36 +88,33 @@ const Earth: React.FC = () => {
   };
   
   return (
-    <EarthContainer>
-      {/* 세계지도 구현 섹션 */}
-      <Section>
-        <WorldMap 
-          data={worldData} 
-          onRegionSelect={handleRegionSelect} 
-        />
-        {selectedRegion && <RegionInfo data={regionInfo} />}
-      </Section>
-      
-      {/* 스크롤에 따른 애니메이션 섹션 */}
-      {/* <Section>
-        <AnimationScroll />
-      </Section> */}
-      
-      {/* 멸종위기종 돌봄 카드 짝 맞추기 게임 */}
-      {/* <Section>
-        <ExtinctionCardGame />
-      </Section> */}
-      
-      {/* AI 분석 그래프 구현 */}
-      {/* <Section>
-        <AnalyticsGraph data={analyticsData} />
-      </Section> */}
-      
-      {/* 내 환경 기여도 표시 */}
-      {/* <Section>
-        <EnvironmentContribution data={userContribution} />
-      </Section> */}
-    </EarthContainer>
+    <div className='bg-slate-500'>
+      <EarthContainer>
+        {/* 세계지도 구현 섹션 */}
+        <Section>
+          <WorldMap 
+            data={worldData} 
+            onRegionSelect={handleRegionSelect} 
+          />
+          {selectedRegion && <RegionInfo data={regionInfo} />}
+        </Section>
+        
+        {/* 멸종위기종 돌봄 카드 짝 맞추기 게임 */}
+        {/* <Section>
+          <ExtinctionCardGame />
+        </Section> */}
+        
+        {/* AI 분석 그래프 구현 */}
+        {/* <Section>
+          <AnalyticsGraph data={analyticsData} />
+        </Section> */}
+        
+        {/* 내 환경 기여도 표시 */}
+        {/* <Section>
+          <EnvironmentContribution data={userContribution} />
+        </Section> */}
+      </EarthContainer>
+    </div>
   );
 };
 

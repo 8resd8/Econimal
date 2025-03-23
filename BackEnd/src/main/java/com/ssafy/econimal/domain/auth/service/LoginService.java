@@ -9,9 +9,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.auth.dto.LoginRequest;
-import com.ssafy.econimal.domain.auth.dto.LoginResponse;
-import com.ssafy.econimal.domain.auth.dto.RefreshResponse;
+import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
+import com.ssafy.econimal.domain.auth.dto.response.LoginResponse;
+import com.ssafy.econimal.domain.auth.dto.response.RefreshResponse;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;

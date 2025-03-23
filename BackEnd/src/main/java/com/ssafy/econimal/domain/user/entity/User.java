@@ -22,11 +22,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
+@ToString(of = {"id", "email", "name", "nickname", "coin", "birth", "role", "lastLoginAt"})
 public class User extends BaseTimeEntity {
 
 	@Id
@@ -79,5 +81,13 @@ public class User extends BaseTimeEntity {
 
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
+	}
+
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void updatePassword(String encodedPassword) {
+		this.password = encodedPassword;
 	}
 }

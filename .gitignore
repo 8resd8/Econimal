@@ -42,6 +42,7 @@ atlassian-ide-plugin.xml
 **/application-secret.yml
 **/application-prod.yml
 **/secret.yml
+**/secret-test.yml
 **/secret.properties
 *.pem
 *.p12
