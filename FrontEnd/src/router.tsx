@@ -4,9 +4,10 @@ import Town from './pages/town/Town';
 import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/SignUp';
-import MyCharacter from './pages/character/MyCharacter';
+import MyPage from './pages/Auth/UserInfo';
 import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
+import MyCharacter from './pages/character/MyCharacter';
 
 export const router = createBrowserRouter([
   {
@@ -22,10 +23,10 @@ export const router = createBrowserRouter([
     path: '/charsel',
     element: <CharacterSelect />,
   },
-  // {
-  //   path: '/my',
-  //   element: <MyCharacter />,
-  // },
+  {
+    path: '/my',
+    element: <MyPage />,
+  },
   {
     path: '/login',
     element: <Login />,
@@ -40,6 +41,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '/animation',
-    element: <Animation />
-  }
+    element: <Animation />,
+  },
 ]);
