@@ -58,7 +58,7 @@ public class InsertChecklist {
 				Checklist checklist = Checklist.builder()
 					.description(item.getText())
 					.difficulty(item.getDifficultyType())
-					.ecoType(ecoType.name())
+					.ecoType(ecoType)
 					.build();
 
 				checklistRepository.save(checklist);
