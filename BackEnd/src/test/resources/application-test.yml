@@ -1,0 +1,59 @@
+spring:
+  config:
+    import:
+      - classpath:secret-test.yml
+  product: false
+
+  datasource:
+    url: ${test.database.url}
+    username: ${test.database.name}
+    password: ${test.database.password}
+    driver-class-name: ${test.database.driver-class-name}
+
+  data:
+    redis:
+      host: ${test.redis.host}
+      port: ${test.redis.port}
+      password: ${test.redis.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+      format_sql: true
+
+server:
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: info
+    com.ssafy.econimal: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace  # SQL 파라미터까지 추적 가능
+
+jwt:
+  secret-key: ${test.jwt.secret}
+  refresh-expiration: ${test.jwt.refresh-expiration}
+  pass-url: ${test.jwt.pass-url}
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
