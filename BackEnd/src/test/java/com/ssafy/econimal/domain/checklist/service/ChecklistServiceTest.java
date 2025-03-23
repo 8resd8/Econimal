@@ -73,4 +73,22 @@ public class ChecklistServiceTest {
 			assertEquals("형광등 전원 끄기", actualDescription);
 		});
 	}
+
+	@Test
+	void 커스텀체크리스트삭제() {
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		checklistService.addCustomChecklist(user, request);
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+		
+		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
+		assertNotNull(uuids);
+		assertEquals(1, uuids.size());
+
+		uuids.forEach(uuid -> {
+			checklistService.deleteChecklist(user, uuid);
+		});
+
+		uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
+		assertEquals(0, uuids.size());
+	}
 }
