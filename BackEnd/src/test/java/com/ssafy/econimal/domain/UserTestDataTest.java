@@ -48,6 +48,10 @@ class UserTestDataTest {
 	@Test
 	void 전체캐릭터수() {
 		List<Character> characters = characterRepository.findAll();
+		for (Character character : characters) {
+			System.out.println("character.getId() = " + character.getId());
+			System.out.println("character.getProduct().getId() = " + character.getProduct().getId());
+		}
 		assertThat(characters.size()).isEqualTo(4);
 	}
 
