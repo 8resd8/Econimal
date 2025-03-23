@@ -1,16 +1,23 @@
 package com.ssafy.econimal.domain.checklist.service;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.UserChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.UserChecklistResponse;
+import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +27,11 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ChecklistService {
 
+	private final RedisTemplate<String, String> redisTemplate;
 	private final UserChecklistRepository userChecklistRepository;
+
+	private static final int MAX_CHECKLIST_PER_DAY = 5;
+	private static final String CHECKLIST_PREFIX = "CC:";
 
 	public UserChecklistResponse getUserChecklist(User user) {
 		DailyUserChecklistDto dailyUserChecklistDto = getDailyUserChecklist(user);
@@ -34,5 +45,125 @@ public class ChecklistService {
 			.map(DailyUserChecklistDetailDto::of)
 			.toList();
 		return DailyUserChecklistDto.of(details);
+	}
+
+	public void completeChecklist(User user, ChecklistCompleteRequest request) {
+		String checklistId = request.checklistId();
+		if (request.type().equals("DAILY")) {
+			completeDailyChecklist(user, Long.parseLong(checklistId));
+		} else {
+			completeCustomChecklist(user, checklistId);
+		}
+	}
+
+	public void addCustomChecklist(User user, CustomChecklistRequest request) {
+		// 입력 순서 보장을 위한 zset
+		// 체크리스트 상세(isComplete 등)을 담을 hash(map)
+		// 중복 없는 체크리스트 내용을 담을 set
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+		String descKey = CustomChecklistUtil.buildDescKey(user);
+
+		// 최대 체크리스트 개수 초과 여부 검사
+		Long count = redisTemplate.opsForZSet().size(userKey);
+		CustomChecklistUtil.assertChecklistLimitNotExceeded(count, MAX_CHECKLIST_PER_DAY);
+
+		// 체크리스트 내용 중복 여부 체크
+		String description = request.description();
+		Boolean isMember = redisTemplate.opsForSet().isMember(descKey, description);
+		CustomChecklistUtil.assertDescriptionUnique(isMember);
+
+		// 고유 값을 키로 해서 체크리스트 저장
+		String uuid = UUID.randomUUID().toString();
+		String hashKey = CHECKLIST_PREFIX + uuid;
+
+		redisTemplate.opsForHash().put(hashKey, "userId", user.getId().toString());
+		redisTemplate.opsForHash().put(hashKey, "description", description);
+		redisTemplate.opsForHash().put(hashKey, "isComplete", "false");
+		redisTemplate.opsForHash().put(hashKey, "exp", "30");
+
+		// 체크리스트 입력 순서
+		long score = System.currentTimeMillis();
+		redisTemplate.opsForZSet().add(userKey, uuid, score);
+		redisTemplate.opsForSet().add(descKey, description);
+
+		// 유효기간 설정
+		long ttl = CustomChecklistUtil.calcExpireSeconds();
+		redisTemplate.expire(userKey, ttl, TimeUnit.SECONDS);
+		redisTemplate.expire(descKey, ttl, TimeUnit.SECONDS);
+		redisTemplate.expire(hashKey, ttl, TimeUnit.SECONDS);
+	}
+
+	public void updateCustomChecklist(User user, String checklistId, CustomChecklistRequest request) {
+		// checklistId : UUID
+		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
+		String descKey = CustomChecklistUtil.buildDescKey(user);
+
+		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
+		checkCompleteAndDelete(hashKey, descKey);
+
+		String newDesc = request.description();
+		Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
+		try {
+			// 변경하려는 체크리스트가 중복이 아닌 경우
+			CustomChecklistUtil.assertDescriptionUnique(isExist);
+			redisTemplate.opsForHash().put(hashKey, "description", newDesc);
+			redisTemplate.opsForSet().add(descKey, newDesc);
+		} catch (InvalidArgumentException e) {
+			// 변경하려는 체크리스트가 다른 것과 동일한 경우 롤백
+			rollbackDescription(descKey, oldDesc);
+		}
+	}
+
+	private void rollbackDescription(String descKey, String oldDesc) {
+		if (oldDesc != null) {
+			redisTemplate.opsForSet().add(descKey, oldDesc);
+		}
+	}
+
+	public void deleteCustomChecklist(User user, String checklistId) {
+		// checklistId: UUID
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
+		String descKey = CustomChecklistUtil.buildDescKey(user);
+
+		// 완료되지 않았으면 체크리스트 set에서 삭제
+		checkCompleteAndDelete(hashKey, descKey);
+
+		// UUID에 해당하는 체크리스트 삭제
+		redisTemplate.opsForZSet().remove(userKey, checklistId);
+		redisTemplate.delete(hashKey);
+	}
+
+	private void checkCompleteAndDelete(String hashKey, String descKey) {
+		Boolean isExist = redisTemplate.hasKey(hashKey);
+		CustomChecklistUtil.assertChecklistExists(isExist);
+
+		// 완료한 체크리스트일 경우 예외
+		String isCompleteStr = (String)redisTemplate.opsForHash().get(hashKey, "isComplete");
+		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
+
+		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
+		if (oldDesc != null) {
+			redisTemplate.opsForSet().remove(descKey, oldDesc);
+		}
+	}
+
+	private void completeDailyChecklist(User user, Long checklistId) {
+		UserChecklist userChecklist = userChecklistRepository.findByUserAndChecklistId(user, checklistId)
+			.orElseThrow(() -> new IllegalArgumentException("ddd"));
+		userChecklistRepository.completeChecklist(userChecklist.getId());
+	}
+
+	private void completeCustomChecklist(User user, String checklistId) {
+		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
+
+		Boolean isExist = redisTemplate.hasKey(hashKey);
+		CustomChecklistUtil.assertChecklistExists(isExist);
+
+		// 완료한 체크리스트일 경우 예외
+		String isCompleteStr = (String)redisTemplate.opsForHash().get(hashKey, "isComplete");
+		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
+
+		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
 	}
 }
