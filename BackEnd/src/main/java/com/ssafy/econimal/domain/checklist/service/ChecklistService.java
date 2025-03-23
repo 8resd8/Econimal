@@ -15,6 +15,7 @@ import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +76,33 @@ public class ChecklistService {
 		redisTemplate.opsForSet().add(descKey, description);
 	}
 
+	public void updateCustomChecklist(User user, String checklistId, CustomChecklistRequest request) {
+		// checklistId : UUID
+		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
+		String descKey = CustomChecklistUtil.buildDescKey(user);
+
+		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
+		checkCompleteAndDelete(hashKey, descKey);
+
+		String newDesc = request.description();
+		Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
+		try {
+			// 변경하려는 체크리스트가 중복이 아닌 경우
+			CustomChecklistUtil.assertDescriptionUnique(isExist);
+			redisTemplate.opsForHash().put(hashKey, "description", newDesc);
+			redisTemplate.opsForSet().add(descKey, newDesc);
+		} catch (InvalidArgumentException e) {
+			// 변경하려는 체크리스트가 다른 것과 동일한 경우 롤백
+			rollbackDescription(descKey, oldDesc);
+		}
+	}
+
+	private void rollbackDescription(String descKey, String oldDesc) {
+		if (oldDesc != null) {
+			redisTemplate.opsForSet().add(descKey, oldDesc);
+		}
+	}
+
 	public void deleteCustomChecklist(User user, String checklistId) {
 		// checklistId: UUID
 		String userKey = CustomChecklistUtil.buildUserKey(user);
@@ -88,7 +116,7 @@ public class ChecklistService {
 		redisTemplate.opsForZSet().remove(userKey, checklistId);
 		redisTemplate.delete(hashKey);
 	}
-	
+
 	private void checkCompleteAndDelete(String hashKey, String descKey) {
 		Boolean isExist = redisTemplate.hasKey(hashKey);
 		CustomChecklistUtil.assertChecklistExists(isExist);
