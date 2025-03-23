@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/store"; // Zustand 사용 시
 
 interface User {
+  id: number;
   email: string;
   name: string;
   nickname: string;
@@ -190,13 +191,27 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     }
   };
 
-  // 닉네임 변경
-  const changeNickname = async (nickname: string) => {
+  // 닉네임 변경 - API 명세에 맞게 수정
+  const changeNickname = async (updateNickname: string) => {
     try {
-      await axios.patch("/users/nickname", { nickname });
-      setUser((prev) => prev && { ...prev, nickname });
-    } catch (error) {
+      // 현재 닉네임과 동일한지 체크
+      if (user?.nickname === updateNickname) {
+        throw new Error("현재 닉네임과 동일합니다.");
+      }
+
+      // API 명세에 맞게 필드명 수정
+      await axios.patch("/users/nickname", { updateNickname });
+      
+      // 성공 시 사용자 정보 업데이트
+      setUser(prev => prev ? { ...prev, nickname: updateNickname } : null);
+      
+      return { success: true, message: "닉네임이 성공적으로 변경되었습니다." };
+    } catch (error: any) {
       console.error("닉네임 변경 실패", error);
+      return { 
+        success: false, 
+        message: error.message || "닉네임 변경에 실패했습니다."
+      };
     }
   };
 
@@ -209,11 +224,31 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     }
   };
 
-  const confirmPasswordReset = async (token: string, newPassword: string) => {
+  // 비밀번호 변경 함수 추가
+  const changePassword = async (newPassword1: string, newPassword2: string) => {
     try {
-      await axios.post("/users/password/reset/confirm", { token, newPassword });
-    } catch (error) {
+      // 비밀번호 일치 여부 확인
+      if (newPassword1 !== newPassword2) {
+        throw new Error("비밀번호가 일치하지 않습니다.");
+      }
+
+      // API 명세에 맞게 요청 구성
+      // userId는 서버에서 토큰으로 식별할 수도 있지만, API 명세에 있으므로 포함
+      const userId = user?.id || ""; // 사용자 ID가 없는 경우 빈 문자열
+      
+      await axios.patch("/users/password", {
+        userId,
+        newPassword1,
+        newPassword2
+      });
+      
+      return { success: true, message: "비밀번호가 성공적으로 변경되었습니다." };
+    } catch (error: any) {
       console.error("비밀번호 변경 실패", error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || error.message || "비밀번호 변경에 실패했습니다."
+      };
     }
   };
 
@@ -235,6 +270,6 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     refreshToken,
     changeNickname,
     requestPasswordReset,
-    confirmPasswordReset,
+    changePassword
   };
 };

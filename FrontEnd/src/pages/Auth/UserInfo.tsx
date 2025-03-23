@@ -29,64 +29,66 @@ const UserInfo = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-      <div className="md:flex">
-        <div className="p-8 w-full">
-          <div className="flex justify-between items-center">
-            <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-md mx-auto pt-10 pb-10">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="p-8 w-full">
+            <div className="flex justify-between items-center">
+              <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
               프로필 정보
-            </div>
-            <div className="text-gray-500 text-sm">
+              </div>
+              <div className="text-gray-500 text-sm">
               마지막 로그인: {new Date(user.lastLoginAt).toLocaleString()}
+              </div>
             </div>
-          </div>
-          
-          <h1 className="mt-2 text-2xl font-bold text-gray-800">{user.nickname}</h1>
-          <p className="text-gray-600">{user.name}</p>
+            
+            <h1 className="mt-2 text-2xl font-bold text-gray-800">{user.nickname}</h1>
+            <p className="text-gray-600">{user.name}</p>
 
-          <div className="mt-6 border-t border-gray-200 pt-4">
-            <div className="flex justify-between items-center mb-2">
+            <div className="mt-6 border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">이메일</span>
               <span className="font-medium">{user.email}</span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
+              </div>
+              <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">생년월일</span>
               <span className="font-medium">{user.birth}</span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
+              </div>
+              <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">보유 코인</span>
               <span className="font-medium text-yellow-600">{user.coin.toLocaleString()} 코인</span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
+              </div>
+              <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">사용자 유형</span>
               <span className="font-medium">{user.role}</span>
-            </div>
-            <div className="flex justify-between items-center">
+              </div>
+              <div className="flex justify-between items-center">
               <span className="text-gray-500">마을 이름</span>
               <span className="font-medium text-green-600">{user.townName}</span>
+              </div>
             </div>
-          </div>
 
-          <div className="mt-6 flex justify-center">
-            <button 
+            <div className="mt-6 flex justify-center">
+              <button 
               onClick={() => window.location.href = '/'}
               className="mx-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-            >
+              >
               메인으로
-            </button>
-            <button 
+              </button>
+              <button 
               onClick={() => window.location.href = '/edit-profile'}
               className="mx-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            >
+              >
               프로필 수정
-            </button>
-            <button 
-                onClick={logout}
-                className='bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg 
-                        transition-colors duration-300 font-semibold shadow-md'
-            >
-                로그아웃
-            </button>
+              </button>
+              <button 
+                  onClick={logout}
+                  className='bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg 
+                          transition-colors duration-300 font-semibold shadow-md'
+              >
+                  로그아웃
+              </button>
+            </div>
           </div>
         </div>
       </div>
