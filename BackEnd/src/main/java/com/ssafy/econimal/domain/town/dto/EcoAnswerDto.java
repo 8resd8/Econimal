@@ -1,6 +1,6 @@
 package com.ssafy.econimal.domain.town.dto;
 
-public record EcoAnswerResponse(
+public record EcoAnswerDto(
         Long ecoQuizId,
         String description
 ) {
