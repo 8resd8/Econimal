@@ -29,10 +29,8 @@ public class TownService {
     @Transactional(readOnly = true)
     public TownStatusResponse getTownStatus(User user) {
         Long townId = user.getTown().getId();
-        // townId를 이용하여 해당 마을의 인프라 이벤트들을 조회
-        List<InfrastructureEvent> events = townRepository.findInfrastructureEventsById(townId);
+        List<InfrastructureEvent> events = townRepository.findAllByTownId(townId);
 
-        // 조회한 이벤트들을 InfrastructureEventResponse dto로 변환
         List<InfrastructureEventResponse> responseList = events.stream()
                 .map(event -> new InfrastructureEventResponse(
                         event.getInfrastructure().getId(),
@@ -43,7 +41,6 @@ public class TownService {
                 ))
                 .collect(Collectors.toList());
 
-        // 변환된 결과를 TownStatusResponse에 담아 반환
         return new TownStatusResponse(responseList);
     }
 

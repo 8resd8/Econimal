@@ -12,5 +12,5 @@ public interface TownRepository extends JpaRepository<Town, Long> {
 
     Optional<Town> findById(Long townId);
 
-    List<InfrastructureEvent> findInfrastructureEventsById(Long townId);
+    List<InfrastructureEvent> findAllByTownId(Long townId);
 }
