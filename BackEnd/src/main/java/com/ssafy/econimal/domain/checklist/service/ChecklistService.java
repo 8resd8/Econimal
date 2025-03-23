@@ -1,6 +1,10 @@
 package com.ssafy.econimal.domain.checklist.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +12,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDetailDto;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDto;
@@ -35,7 +41,8 @@ public class ChecklistService {
 
 	public UserChecklistResponse getUserChecklist(User user) {
 		DailyUserChecklistDto dailyUserChecklistDto = getDailyUserChecklist(user);
-		UserChecklistDto checklists = new UserChecklistDto(dailyUserChecklistDto);
+		CustomChecklistDto customChecklistDto = getCustomChecklist(user);
+		UserChecklistDto checklists = new UserChecklistDto(dailyUserChecklistDto, customChecklistDto);
 		return new UserChecklistResponse(checklists);
 	}
 
@@ -45,6 +52,26 @@ public class ChecklistService {
 			.map(DailyUserChecklistDetailDto::of)
 			.toList();
 		return DailyUserChecklistDto.of(details);
+	}
+
+	private CustomChecklistDto getCustomChecklist(User user) {
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+
+		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
+		if (uuids == null || uuids.isEmpty()) {
+			return CustomChecklistDto.of(Collections.emptyList());
+		}
+
+		// User에 해당하는 모든 UUID (checklistId)
+		List<CustomChecklistDetailDto> details = uuids.stream()
+			.map(uuid -> Optional.of(redisTemplate.opsForHash().entries(CHECKLIST_PREFIX + uuid))
+				.filter(data -> !data.isEmpty())
+				.map(data -> CustomChecklistDetailDto.of(uuid, data)) // checklist 상세 조회
+				.orElse(null))
+			.filter(Objects::nonNull)
+			.toList();
+
+		return CustomChecklistDto.of(details); // checklist 완료 개수 등 계산
 	}
 
 	public void completeChecklist(User user, ChecklistCompleteRequest request) {
