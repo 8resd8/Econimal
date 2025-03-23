@@ -40,7 +40,7 @@ export const useAuth = () => {
   const { token, setToken, clearToken } = useAuthStore(); // Zustand 상태 관리
   const [hasCharacter, setHasCharacter] = useState<boolean>(false); // 캐릭터 존재 여부 상태 추가
   // 타이머 ID 저장을 위한 상태 추가
-const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null);
 
   // 토큰 값이 변경될 때마다 콘솔에 출력
   useEffect(() => {
@@ -261,6 +261,28 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     }
   }, [token]);
 
+  // 이메일 중복 확인
+  const validateEmail = async (email: string) => {
+    try {
+      const response = await axios.post("/users/email-validation", { email });
+      console.log("이메일 검증 응답:", response.data);
+      
+      // 응답 구조에 따라 조건문 추가 
+      // 만약 응답에 중복 여부가 포함되어 있다면:
+      if (response.data.isDuplicate) {
+        return { isValid: false, message: "이미 사용 중인 이메일입니다." };
+      }
+      
+      return { isValid: true, message: "사용 가능한 이메일입니다." };
+    } catch (error: any) {
+      console.error("이메일 중복 확인 실패", error);
+      return { 
+        isValid: false, 
+        message: error.response?.data?.message || "이메일 검증에 실패했습니다." 
+      };
+    }
+  };
+
   return {
     user,
     loading,
@@ -270,6 +292,7 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     refreshToken,
     changeNickname,
     requestPasswordReset,
-    changePassword
+    changePassword,
+    validateEmail,
   };
 };
