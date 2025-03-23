@@ -1,6 +1,8 @@
 package com.ssafy.econimal.domain.checklist.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +31,10 @@ public class ChecklistController {
 	@PostMapping("/custom")
 	public void addCustomChecklist(@Login User user, @RequestBody CustomChecklistRequest request) {
 		checklistService.addCustomChecklist(user, request);
+	}
+
+	@DeleteMapping("/custom/{checklistId}")
+	public void deleteCustomChecklist(@Login User user, @PathVariable("checklistId") String checklistId) {
+		checklistService.deleteCustomChecklist(user, checklistId);
 	}
 }

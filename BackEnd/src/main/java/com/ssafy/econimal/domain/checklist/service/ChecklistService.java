@@ -75,7 +75,7 @@ public class ChecklistService {
 		redisTemplate.opsForSet().add(descKey, description);
 	}
 
-	public void deleteChecklist(User user, String checklistId) {
+	public void deleteCustomChecklist(User user, String checklistId) {
 		// checklistId: UUID
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
@@ -88,7 +88,7 @@ public class ChecklistService {
 		redisTemplate.opsForZSet().remove(userKey, checklistId);
 		redisTemplate.delete(hashKey);
 	}
-
+	
 	private void checkCompleteAndDelete(String hashKey, String descKey) {
 		Boolean isExist = redisTemplate.hasKey(hashKey);
 		CustomChecklistUtil.assertChecklistExists(isExist);
