@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -68,14 +67,8 @@ public class InfrastructureEventService {
         List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(townId);
 
         List<InfrastructureEventResponse> responseList = events.stream()
-                .map(event -> new InfrastructureEventResponse(
-                        event.getInfrastructure().getId(),
-                        event.getInfrastructure().getFacility().getEcoType(),
-                        event.getInfrastructure().isClean(),
-                        event.getId(),
-                        event.isActive()
-                ))
-                .collect(Collectors.toList());
+                .map(InfrastructureEventResponse::from)
+                .toList();
 
         return new TownStatusResponse(user.getTown().getName(), responseList);
     }
