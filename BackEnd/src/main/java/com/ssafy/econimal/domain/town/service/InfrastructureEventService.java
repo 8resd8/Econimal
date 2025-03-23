@@ -35,6 +35,6 @@ public class InfrastructureEventService {
                 ))
                 .collect(Collectors.toList());
 
-        return new TownStatusResponse(responseList);
+        return new TownStatusResponse(user.getTown().getName(), responseList);
     }
 }
