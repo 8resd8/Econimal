@@ -41,4 +41,21 @@ public class CustomChecklistUtil {
 			throw new InvalidArgumentException("동일한 체크리스트가 존재합니다.");
 		}
 	}
+
+	// 체크리스트 존재 여부 검사
+	public static void assertChecklistExists(Boolean isExist) {
+		if (Boolean.FALSE.equals(isExist)) {
+			throw new InvalidArgumentException("해당 체크리스트가 존재하지 않습니다.");
+		}
+	}
+
+	// 체크리스트 완료 여부 검사
+	public static void assertNotCompleted(String isCompleteStr) {
+		if (isCompleteStr == null) {
+			throw new IllegalArgumentException("잘못된 체크리스트 데이터입니다.");
+		}
+		if (Boolean.parseBoolean(isCompleteStr)) {
+			throw new InvalidArgumentException("이미 완료된 체크리스트입니다.");
+		}
+	}
 }
