@@ -11,12 +11,13 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
 
   return (
-    <div className={`${className || ''} ${isActive ? 'animate-puslse' : ''}`}>
+    <div className={`${className || ''} ${isActive ? 'animate-pulse' : ''}`}>
       <img
         className='w-full h-auto cursor-pointer'
         src={sewageImg}
         alt='하수처리장'
-        onClick={() => infraEventId && setIsModalOpen(true)}
+        // onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)} // 이벤트 발생하지 않아도 모달 오픈
       />
       <NormalModal
         open={isModalOpen}

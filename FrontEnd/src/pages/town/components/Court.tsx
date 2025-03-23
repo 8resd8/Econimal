@@ -17,7 +17,8 @@ const Court = ({ infraEventId, className }: TownProps) => {
         className='w-full h-auto cursor-pointer'
         src={courtImg}
         alt='법원'
-        onClick={() => infraEventId && setIsModalOpen(true)}
+        // onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)} // 이벤트 발생하지 않아도 모달 오픈
       />
       <CourtModal
         open={isModalOpen}

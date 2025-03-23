@@ -5,7 +5,7 @@ import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import houseImg from '@/assets/my-house.png';
 
-const MyHouse = ({infraEventId, className}: TownProps) => {
+const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   // activeEvents : 현재 마을에서 활성화된 이벤트의 ID 목록을 저장하는 배열
@@ -24,7 +24,8 @@ const MyHouse = ({infraEventId, className}: TownProps) => {
         }`} // 이벤트 발생한 건물 깜빡이기
         src={houseImg}
         alt='가정'
-        onClick={() => infraEventId && setIsModalOpen(true)}
+        // onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)}  // 이벤트 발생하지 않아도 모달 오픈
       />
       <NormalModal
         open={isModalOpen}

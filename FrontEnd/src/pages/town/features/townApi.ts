@@ -6,6 +6,7 @@ export interface TownNameData {
   townName: string;
 }
 
+// 마을 수정후 응답이 없긴해
 interface TownNameResponse {
   message?: string;
 }
@@ -21,6 +22,7 @@ export interface TownEvent {
 
 // 마을 전체 데이터
 export interface TownEventsResponse {
+  townName: string;
   townStatus: TownEvent[];
   message?: string;
 }
@@ -50,5 +52,19 @@ export const getTownEvents = async () => {
       response?.data?.message || '마을 상황 조회 중 요류가 발생했습니다.',
     );
   }
-  return response.data; // 꼭 있어야 함?
+  return response.data // 꼭 있어야 함?
 };
+
+
+
+// 마을 상황 조회 API에서 마을 이름 가져오기
+// export const getTownName = async () => {
+//   const response = await axiosInstance.get('/towns/events');
+
+//   if (!response || !response.data) {
+//     throw new Error(
+//       response?.data?.message || '마을 이름 조회 중 오류가 발생했습니다.',
+//     );
+//   }
+//   return response.data;
+// };
