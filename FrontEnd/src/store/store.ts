@@ -12,7 +12,7 @@
 //   clearToken: () => set({ token: null }),
 // }));
 
-// 테스팅을 위한 로컬스토리지에 토큰 저장하는 로직...
+// 테스팅을 위한 로컬스토리지에 토큰 저장하는 로직
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 

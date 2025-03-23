@@ -11,6 +11,7 @@ import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,7 +35,7 @@ public class UserCharacterService {
 
 	// 메인 페이지 캐릭터 상세 조회
 	public UserCharacterMainResponse getUserCharacterMain(User user) {
-		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new IllegalStateException("메인 캐릭터가 없습니다."));
+		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		UserCharacterMainDto mainDto = UserCharacterMainDto.builder()
 			.coin(user.getCoin())
 			.exp(ExpUtil.getExp(mainChar.getTotalExp(), mainChar))
