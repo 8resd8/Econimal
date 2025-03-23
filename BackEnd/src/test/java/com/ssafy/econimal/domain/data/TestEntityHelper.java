@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.data.sample.CharacterSample;
+import com.ssafy.econimal.domain.data.sample.ChecklistSample;
 import com.ssafy.econimal.domain.data.sample.ProductSample;
 import com.ssafy.econimal.domain.data.sample.TownSample;
 import com.ssafy.econimal.domain.data.sample.UserCharacterSample;
@@ -15,6 +16,8 @@ import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
+import com.ssafy.econimal.global.common.enums.DifficultyType;
+import com.ssafy.econimal.global.common.enums.EcoType;
 
 import jakarta.persistence.EntityManager;
 
@@ -57,6 +60,11 @@ public class TestEntityHelper {
 		return persist(userCharacter);
 	}
 
+	public Checklist createChecklist(DifficultyType difficulty, EcoType ecoType) {
+		Checklist checklist = ChecklistSample.checklist(difficulty, ecoType);
+		return persist(checklist);
+	}
+	
 	public UserChecklist createUserChecklist(User user, Checklist checklist) {
 		UserChecklist userChecklist = UserChecklistSample.userChecklist(user, checklist);
 		return persist(userChecklist);
