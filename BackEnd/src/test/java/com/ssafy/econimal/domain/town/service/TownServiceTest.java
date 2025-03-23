@@ -64,9 +64,9 @@ class TownServiceTest {
     void 도시_상태_조회() {
         TownStatusResponse response = townService.getTownStatus(user);
         assertNotNull(response);
-        assertEquals(1, response.town().size());
+        assertEquals(1, response.townStatus().size());
 
-        InfrastructureEventResponse eventResponse = response.town().get(0);
+        InfrastructureEventResponse eventResponse = response.townStatus().get(0);
         assertEquals(infrastructure.getId(), eventResponse.infraId());
         assertEquals(facility.getEcoType(), eventResponse.ecoType());
         assertEquals(infrastructure.isClean(), eventResponse.isClean());
