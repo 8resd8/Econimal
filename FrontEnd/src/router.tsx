@@ -4,7 +4,7 @@ import Town from './pages/town/Town';
 import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/SignUp';
-import MyCharacter from './pages/character/MyCharacter';
+import MyPage from './pages/Auth/UserInfo';
 import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
 
@@ -23,7 +23,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/my',
-    element: <MyCharacter />,
+    element: <MyPage />,
   },
   {
     path: '/login',
