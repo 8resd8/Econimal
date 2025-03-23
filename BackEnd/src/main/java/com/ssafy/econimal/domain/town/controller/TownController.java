@@ -2,6 +2,7 @@ package com.ssafy.econimal.domain.town.controller;
 
 import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
 import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
+import com.ssafy.econimal.domain.town.service.InfrastructureEventService;
 import com.ssafy.econimal.domain.town.service.TownService;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.annotation.Login;
@@ -18,6 +19,7 @@ import java.util.List;
 public class TownController {
 
     private final TownService townService;
+    private final InfrastructureEventService infrastructureEventService;
 
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -27,6 +29,11 @@ public class TownController {
 
     @GetMapping("/events")
     public TownStatusResponse getTownStatus(@Login User user) {
-        return townService.getTownStatus(user);
+        return infrastructureEventService.getTownStatus(user);
+    }
+
+    @GetMapping("/events/{infraEventId}")
+    public void getInfraEvent(@Login User user) {
+
     }
 }
