@@ -79,16 +79,42 @@ public class ChecklistServiceTest {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
-		
+
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
 		assertNotNull(uuids);
 		assertEquals(1, uuids.size());
 
 		uuids.forEach(uuid -> {
-			checklistService.deleteChecklist(user, uuid);
+			checklistService.deleteCustomChecklist(user, uuid);
 		});
 
 		uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
 		assertEquals(0, uuids.size());
+	}
+
+	@Test
+	void 커스텀체크리스트수정() {
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		checklistService.addCustomChecklist(user, request);
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+
+		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
+		uuids.forEach(uuid -> {
+			Map<Object, Object> data = redisTemplate.opsForHash().entries(CHECKLIST_PREFIX + uuid);
+			String actualDescription = (String)data.get("description");
+			assertEquals("형광등 전원 끄기", actualDescription);
+		});
+
+		CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기");
+		uuids.forEach(uuid -> {
+			checklistService.updateCustomChecklist(user, uuid, newRequest);
+		});
+
+		assertEquals(1, uuids.size());
+		uuids.forEach(uuid -> {
+			Map<Object, Object> data = redisTemplate.opsForHash().entries(CHECKLIST_PREFIX + uuid);
+			String actualDescription = (String)data.get("description");
+			assertEquals("수도꼭지 잠그기", actualDescription);
+		});
 	}
 }
