@@ -13,6 +13,7 @@ import MyCharacter from './pages/character/MyCharacter';
 export const router = createBrowserRouter([
   {
     path: '/',
+    // element: <Home />,
     element: <MyCharacter />,
   },
   {
