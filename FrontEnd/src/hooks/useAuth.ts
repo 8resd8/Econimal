@@ -283,6 +283,34 @@ export const useAuth = () => {
     }
   };
 
+  // 이메일 인증 코드 전송 함수
+  const sendEmailVerification = async (email: string) => {
+    try {
+      await axios.post("/users/email/password/reset/request", { email });
+      return { success: true, message: "인증 코드가 이메일로 전송되었습니다." };
+    } catch (error: any) {
+      console.error("이메일 인증 코드 전송 실패", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "인증 코드 전송에 실패했습니다."
+      };
+    }
+  };
+
+  // 이메일 인증 코드 확인 함수
+  const verifyEmailCode = async (email: string, authCode: string) => {
+    try {
+      await axios.post("/users/email/password/reset/confirm", { email, authCode });
+      return { success: true, message: "이메일이 성공적으로 인증되었습니다." };
+    } catch (error: any) {
+      console.error("이메일 인증 코드 확인 실패", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "인증 코드가 올바르지 않습니다."
+      };
+    }
+  };
+
   return {
     user,
     loading,
@@ -294,5 +322,7 @@ export const useAuth = () => {
     requestPasswordReset,
     changePassword,
     validateEmail,
+    sendEmailVerification,
+    verifyEmailCode,
   };
 };

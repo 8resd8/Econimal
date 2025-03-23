@@ -22,6 +22,14 @@ const Signup = () => {
   const [emailMessage, setEmailMessage] = useState("");
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   
+  // 이메일 인증 상태 추가
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+
   // useAuth 훅 사용
   const auth = useAuth();
 
@@ -47,6 +55,11 @@ const Signup = () => {
       const result = await auth.validateEmail(email);
       setEmailValidated(result.isValid);
       setEmailMessage(result.message);
+
+      // 이메일이 유효하면 인증 단계 표시
+      if (result.isValid) {
+      setShowVerification(true);
+      }
     } catch (error) {
       setEmailValidated(false);
       setEmailMessage("이메일 중복 확인 중 오류가 발생했습니다.");
@@ -62,6 +75,47 @@ const Signup = () => {
     setEmailMessage("");
   };
 
+  // 이메일 인증 코드 전송
+  const handleSendVerification = async () => {
+    if (!emailValidated) {
+      setVerificationMessage("먼저 이메일 중복 확인을 해주세요.");
+      return;
+    }
+    
+    setIsSendingCode(true);
+    setVerificationMessage("");
+    
+    try {
+      const result = await auth.sendEmailVerification(email);
+      setVerificationMessage(result.message);
+    } catch (error) {
+      setVerificationMessage("인증 코드 전송 중 오류가 발생했습니다.");
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  // 이메일 인증 코드 확인
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) {
+      setVerificationMessage("인증 코드를 입력해주세요.");
+      return;
+    }
+    
+    setIsVerifyingCode(true);
+    
+    try {
+      const result = await auth.verifyEmailCode(email, verificationCode);
+      setEmailVerified(result.success);
+      setVerificationMessage(result.message);
+    } catch (error) {
+      setVerificationMessage("인증 코드 확인 중 오류가 발생했습니다.");
+      setEmailVerified(false);
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  };
+
   // 회원가입 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +123,12 @@ const Signup = () => {
     // 이메일 중복 확인 여부 체크
     if (!emailValidated) {
       alert("이메일 중복 확인을 해주세요.");
+      return;
+    }
+
+    // 이메일 인증 여부 체크
+    if (!emailVerified) {
+      alert("이메일 인증을 완료해주세요.");
       return;
     }
     
@@ -147,6 +207,58 @@ const Signup = () => {
             {emailMessage && (
               <div className={`text-sm ${emailValidated ? 'text-green-400' : 'text-red-400'} text-left`}>
                 {emailMessage}
+              </div>
+            )}
+
+            {/* 이메일 인증 코드 요청 - 이메일 중복 확인 후 표시 */}
+            {showVerification && (
+              <div className="mt-2">
+                <div className="flex">
+                  <button
+                    type="button"
+                    onClick={handleSendVerification}
+                    disabled={isSendingCode || !emailValidated}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors w-full disabled:opacity-50"
+                  >
+                    {isSendingCode ? "전송 중..." : "인증 코드 전송"}
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* 인증 코드 입력 필드 - 인증 코드 전송 후 표시 */}
+            {verificationMessage && verificationMessage.includes("전송") && (
+              <div className="mt-2">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    placeholder="인증 코드 입력"
+                    className={`pt-2 pb-2 pl-3 border-4 border-white
+                    rounded-lg bg-black bg-opacity-25 flex-grow
+                    font-extrabold text-lg ${emailVerified ? 'border-green-400' : ''}`}
+                    style={{ 
+                      color: 'white', 
+                      caretColor: 'white'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyCode}
+                    disabled={isVerifyingCode || !verificationCode}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    확인
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* 인증 결과 메시지 */}
+            {verificationMessage && (
+              <div className={`text-sm ${emailVerified ? 'text-green-400' : 'text-yellow-400'} text-left`}>
+                {verificationMessage}
               </div>
             )}
             
