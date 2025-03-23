@@ -9,8 +9,4 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TownRepository extends JpaRepository<Town, Long> {
-
-    Optional<Town> findById(Long townId);
-
-    List<InfrastructureEvent> findInfrastructureEventsById(Long townId);
 }
