@@ -6,12 +6,12 @@ import { FilePenLine } from 'lucide-react';
 import { TownNameEditModal } from './TownNameEditModal';
 
 const TownName = () => {
-  const { townName, townId } = useTownStore();
+  const { townName } = useTownStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div>
-      <div className='flex justify-center items-center p-2 gap-2'>
+    <div className='w-full'>
+      <div className='flex justify-center items-center p-2 gap-2 w-full'>
         {townName ? `${townName} 마을` : '기본 마을'}
         <div
           className='cursor-pointer hover:bg-gray-200'
@@ -24,7 +24,6 @@ const TownName = () => {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         currentTownName={townName}
-        townId={townId}
       />
     </div>
   );

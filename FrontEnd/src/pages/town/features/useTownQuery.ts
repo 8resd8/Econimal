@@ -13,7 +13,9 @@ export const usePatchTownName = () => {
   const { mutateAsync } = useMutation({
     // mutate? mutateAysnc?
     mutationFn: patchTownName,
-    onSuccess: (data, townData) => {
+
+    // onSuccess 콜백은 (data, variables, context) => void 형태의 파라미터를 가짐
+    onSuccess: (_,townData) => {
       // 필요한 쿼리 무효화?(마을 이름 표시 되는 곳?)
       queryClient.invalidateQueries({ queryKey: ['town-info'] });
       // 성공시 store 업데이트
