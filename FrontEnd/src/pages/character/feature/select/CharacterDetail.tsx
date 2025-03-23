@@ -1,68 +1,68 @@
-import { CharacterDetailProps } from '@/types/CharacterDetailProps';
-import { motion } from 'framer-motion';
-import CharNextChap from '../../componet/select/CharNextChap';
 import useCharStore from '@/store/useCharStore';
+import { CharacterDetailProps } from '@/pages/character/types/CharacterDetailProps';
 import { useNavigate } from 'react-router-dom';
-import MyCharacter from '../../MyCharacter';
+import { useFetchMyChar } from '../hooks/useFetchMyChar';
+import { useCharInfo } from './../hooks/useCharInfo';
+import { useState } from 'react';
+import CharacterDetailUI from '../../componet/select/CharacterDetailUI';
 
-// 디테일 사이즈 수정
+// 이제 필수인 id값, 그리고 작은 설명, 자세한 설명
 const CharacterDetail = ({
+  id,
   name,
-  subStory,
-  detailStory,
-}: CharacterDetailProps) => {
-  const { myChar, setMyChar } = useCharStore();
+  subStory: initialSubStory,
+  detailStory: initialDetailStory,
+}: CharacterDetailProps<number>) => {
+  const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
+
+  //각 story들을 useState에 담은 이유는 캐릭터를 선택할 때 마다 스토리가 바뀌기 떄문
+  //Q. 서버에서 바로 패칭되어서 받아오는 작업인데 상태를 관리할 필요가 있을지 의문인 부분
+  const [subStory] = useState(initialSubStory);
+  const [detailStory] = useState(initialDetailStory);
+
+  //높은 확률로 현재 서버 패칭 데이터가 들어가있지 않은 myChar에 넣어질 data
+  const { isLoading } = useCharInfo(); //캐릭터 상세정보 조회
+
+  const { handleFetchMyChar, isPending } = useFetchMyChar(); //추후 서버에 id값을 보내기 위해 사용될 탠스택
   const nav = useNavigate();
 
-  // 지금 캐릭터 돕기기
+  //해당 캐릭터 구하기
   const handleHelpChar = () => {
-    if (myChar.name !== name) {
-      return;
+    const effectiveId = id; //zustand에 담긴 서버의 charId값
+    const myCharId = myChar?.userCharacterId || myChar?.id;
+
+    //모두 일치하다면 구하기
+    if (effectiveId && effectiveId === myCharId) {
+      handleFetchMyChar(); //탠스택 쿼리에서 사용될 데이터
+      nav('/');
+    } else {
+      console.warn('선택된 캐릭터와 현재 캐릭터 ID가 일치하지 않습니다.');
     }
-    nav('/my');
-    //추후 여기서 서버에 나의 캐릭터 정보를 보내줘야하지 않을까?라는 생각
   };
 
-  // 다른 캐릭터 돕기
+  //다른 캐릭터를 선택하면 zustand에 담긴 모든 데이터 날리기
   const handleHelpAnotherChar = () => {
-    setMyChar({
-      name: '',
-      description: '',
-      img: '',
-    });
+    resetMyChar();
   };
 
-  // -------------------------------------------------
+  // 데이터가 로딩중일 때
+  if (isLoading || isPending) {
+    return (
+      <div className='rounded-2xl p-14 bg-green-50 flex justify-center items-center'>
+        <p className='text-xl text-primary'>로딩 중...</p>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <div
-        className={`rounded-2xl p-14 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
-      >
-        <h3 className='text-2xl font-bold text-primary mb-8'>"{subStory}"</h3>
-        {detailStory.split('.').map((text: string) => (
-          <p
-            className='text-xl text-wrap text-primary/80 whitespace-pre-wrap'
-            key={text}
-          >
-            {text}
-          </p>
-        ))}
-        <div className='mt-5 flex items-stretch justify-between gap-2'>
-          <CharNextChap text={`${name} 돕기`} handleChar={handleHelpChar} />
-          <CharNextChap
-            text={'다른 친구 돕기'}
-            handleChar={handleHelpAnotherChar}
-          />
-        </div>
-      </div>
-    </motion.div>
+    <CharacterDetailUI
+      id={id}
+      name={name}
+      subStory={subStory}
+      detailStory={detailStory}
+      handleHelpChar={handleHelpChar}
+      handleHelpAnotherChar={handleHelpAnotherChar}
+    />
   );
 };
 
