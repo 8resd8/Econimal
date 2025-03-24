@@ -6,9 +6,15 @@ export const usePostChecklist = () => {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: (checklistId: number) => {
-      console.log(`서버에 나의 checklist 완료 활동 전송 : ${checklistId}`);
-      return fetchDoneChecklist(checklistId);
+    mutationFn: ({
+      checklistId,
+      type,
+    }: {
+      checklistId: string;
+      type: string;
+    }) => {
+      console.log('[3] 뮤테이션 시작', checklistId);
+      return fetchDoneChecklist(checklistId, type);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist'] });
@@ -20,8 +26,8 @@ export const usePostChecklist = () => {
   });
 
   //mutate에 값 전달
-  const handleChecklistToServer = (checklistId: number) => {
-    mutate(checklistId); //호출
+  const handleChecklistToServer = (checklistId: string, type: string) => {
+    mutate({ checklistId, type });
   };
 
   return {

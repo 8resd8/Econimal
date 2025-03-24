@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import {
-  ChecklistTypes,
-  ChecklistPanelTypes,
+  // ChecklistPanel,
+  ChecklistPanelProps,
 } from '@/pages/character/types/checklist/ChecklistPanelTypes';
 import CustomChecklistModal from './CustomChecklistModal';
 import CustomChecklistAdvice from './CustomChecklistAdvice';
 import ChecklistItem from './ChecklistItem';
 
-const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
+const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   items,
   isEditable = false,
+  activateTab,
   onAddItem,
   onCompleteItem,
   onEditItem,
@@ -27,7 +28,7 @@ const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
         <div
           key={item.checklistId}
           className={`p-4 border rounded-lg ${
-            item.is_complete ? 'bg-green-100' : 'bg-white'
+            item.isComplete ? 'bg-green-100' : 'bg-white'
           }`}
         >
           <div className='flex justify-between items-center'>
@@ -55,13 +56,18 @@ const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
           </div>
 
           {/* 완료 버튼 */}
-          {!item.is_complete && (
+          {!item.isComplete && (
             <button
-              onClick={() => onCompleteItem?.(item.checklistId)}
-              className='mt-2 px-4 py-2 bg-green-500 text-white rounded-lg'
+              onClick={(e) => {
+                e.stopPropagation(); // 이벤트 버블링 방지
+                console.log('[DEBUG] 버튼 클릭됨', item.checklistId); // 추가
+                console.log('onCompleteItem 존재:', !!onCompleteItem); // 추가
+
+                onCompleteItem?.(item.checklistId, activateTab);
+              }}
+              className='mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 z-50'
             >
               완료하기
-              {/* 완료하기 취소  */}
             </button>
           )}
 

@@ -40,7 +40,7 @@ public class InsertInfrastructure {
 		townRepository.save(town);
 
 		Facility facility = Facility.builder()
-			.ecoType(EcoType.GAS.name())
+			.ecoType(EcoType.GAS)
 			.facilityName(FacilityType.GAS.name())
 			.build();
 
@@ -60,7 +60,7 @@ public class InsertInfrastructure {
 		townRepository.save(town);
 
 		Facility facility = Facility.builder()
-			.ecoType(EcoType.COURT.name())
+			.ecoType(EcoType.COURT)
 			.facilityName(FacilityType.COURT.name())
 			.build();
 
@@ -80,7 +80,7 @@ public class InsertInfrastructure {
 		townRepository.save(town);
 
 		Facility facility = Facility.builder()
-			.ecoType(EcoType.ELECTRICITY.name())
+			.ecoType(EcoType.ELECTRICITY)
 			.facilityName(FacilityType.ELECTRICITY.name())
 			.build();
 
@@ -100,7 +100,7 @@ public class InsertInfrastructure {
 		townRepository.save(town);
 
 		Facility facility = Facility.builder()
-			.ecoType(EcoType.WATER.name())
+			.ecoType(EcoType.WATER)
 			.facilityName(FacilityType.WATER.name())
 			.build();
 

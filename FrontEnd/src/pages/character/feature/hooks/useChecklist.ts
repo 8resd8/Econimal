@@ -2,11 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchChecklist } from '../api/fetchChecklist';
 
 export const useChecklist = () => {
-  //total / done / todo / 
+  //total / done / todo /
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ['checklist'],
     queryFn: fetchChecklist,
   });
+
+  if (data) {
+    console.log(data);
+    console.log(data, 'data 왜 안됨');
+  }
 
   return {
     data,
