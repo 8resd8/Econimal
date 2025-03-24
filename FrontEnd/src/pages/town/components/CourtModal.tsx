@@ -61,10 +61,10 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   };
 
   const fallbackAnswers = [
-    { ecoQuizId: 1, description: '아직 문제가 준비 중이에요.' },
-    { ecoQuizId: 2, description: '잠시 후 다시 시도해 주세요1' },
-    { ecoQuizId: 3, description: '선택지 길이 어떻게 하지2' },
-    { ecoQuizId: 4, description: '배치 어떻게 할까3' },
+    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요1' },
+    { ecoAnswerId: 3, description: '선택지 길이 어떻게 하지2' },
+    { ecoAnswerId: 4, description: '배치 어떻게 할까3' },
   ];
 
   const answers =
@@ -91,13 +91,14 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
             <div className='flex flex-col w-full gap-4'>
               {answers.map((answer) => (
                 <Button
-                  key={answer.ecoQuizId}
+                  key={answer.ecoAnswerId}
                   className='flex-1 py-3 text-2xl'
-                  onClick={() => handleSubmit(answer.ecoQuizId)}
+                  onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
                   {/* 결과 모달에서 몇번이 정답인지 알려주려면 
                   선택 모달에서 선택지 내용뿐만이 아니라 번호도 알려줘야함 */}
-                  {answer.ecoQuizId}. {answer.description}
+                  {/* {answer.ecoAnswerId}. */}
+                  {answer.description}
                 </Button>
               ))}
             </div>

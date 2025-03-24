@@ -122,7 +122,7 @@ const Town = () => {
             </div>
 
             {/* 오염된 강물 오버레이 */}
-            {useTownStore.getState().sewageStatus === 'polluted' && (
+            {useTownStore.getState().sewageStatus === 'clean' && (
               <img
                 src={pollutedImg}
                 alt='오염된 강물'

@@ -19,8 +19,6 @@ import {
 // import { useTownStore } from '@/store/useTownStore';
 import ResultModal from './ResultModal';
 
-// import { easeElastic } from 'd3'; // 내가 안했는데
-
 interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -80,8 +78,8 @@ const NormalModal = ({
 
   // fallback 선택지: 문제가 없어도 버튼 뜨게 만들기
   const fallbackAnswers = [
-    { ecoQuizId: 1, description: '아직 문제가 준비 중이에요.' },
-    { ecoQuizId: 2, description: '잠시 후 다시 시도해 주세요.' },
+    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요.' },
   ];
 
   // 실제 선택지 데이터가 없을 경우 fallback 사용
@@ -100,7 +98,8 @@ const NormalModal = ({
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-4xl m-6'>
+            <AlertDialogTitle className='text-4xl m-6 break-keep'>
+              {/* <AlertDialogTitle className='text-4xl m-6'> */}
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
@@ -109,12 +108,13 @@ const NormalModal = ({
             <div className='flex flex-col w-full gap-4'>
               {answers.map((answer) => (
                 <Button
-                  key={answer.ecoQuizId}
+                  key={answer.ecoAnswerId}
                   className='flex-1 py-5 text-2xl'
-                  onClick={() => handleSubmit(answer.ecoQuizId)}
+                  onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
                   {/* 선지 번호, 내용 */}
-                  {answer.ecoQuizId}. {answer.description}
+                  {/* {answer.ecoAnswerId}. */}
+                  {answer.description}
                 </Button>
               ))}
             </div>
