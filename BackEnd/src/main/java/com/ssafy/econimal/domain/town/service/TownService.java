@@ -84,8 +84,9 @@ public class TownService {
         LocalDateTime now = LocalDateTime.now();
         events.forEach(event -> {
             System.out.println(event.getUpdatedAt());
+            // 활성화 되어 있지 않고 1분이 넘었을 경우 활성화, 배경은 그대로
             if (!event.isActive() && event.getUpdatedAt().isBefore(now.minusMinutes(1))) {
-                event.updateActive(false, true);
+                event.updateActive(event.getInfrastructure().isClean(), true);
             }
         });
     }
@@ -150,8 +151,11 @@ public class TownService {
         updateCharacter(userCharacter, response);
         InfrastructureEvent event = getEventForAnswer(user, answer);
 
+        // 정답 여부에 따른 배경 변경
         if (response.isOptimal()) {
             event.getInfrastructure().setClean(true);
+        } else {
+            event.getInfrastructure().setClean(false);
         }
 
         event.deactivate();
