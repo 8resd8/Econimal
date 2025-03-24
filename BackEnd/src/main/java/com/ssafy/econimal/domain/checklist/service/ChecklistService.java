@@ -124,9 +124,16 @@ public class ChecklistService {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
 		String descKey = CustomChecklistUtil.buildDescKey(user);
 
+		// 완료한 체크리스트일 경우 예외
+		String isCompleteStr = (String)redisTemplate.opsForHash().get(hashKey, "isComplete");
+		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
+
 		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
 		String newDesc = request.description();
+
+		// 기존 체크리스트와 동일하지 않으면 업데이트
 		if (!Objects.equals(oldDesc, newDesc)) {
+			// 체크리스트 내용 중복 여부 체크
 			Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
 			CustomChecklistUtil.assertDescriptionUnique(isExist);
 

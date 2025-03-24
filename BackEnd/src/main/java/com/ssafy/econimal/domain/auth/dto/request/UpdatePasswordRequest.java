@@ -1,11 +1,12 @@
 package com.ssafy.econimal.domain.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UpdatePasswordRequest(
-	@NotBlank(message = "{required}")
+	@NotNull(message = "{required}")
 	Long userId,
 
 	@NotBlank(message = "{required}")
