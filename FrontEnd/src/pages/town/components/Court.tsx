@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import CourtModal from './CourtModal';
-import courtImg from '@/assets/court.png';
+import courtImg from '@/assets/town/court.png';
 
 const Court = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

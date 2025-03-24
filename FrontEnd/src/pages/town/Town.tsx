@@ -2,12 +2,14 @@ import Court from './components/Court';
 import MyHouse from './components/MyHouse';
 import SewageTreatmentCenter from './components/SewageTreatmentCenter';
 import TownName from './components/TownName';
-import town from '@/assets/baisc-town.png'; // 배경
+import Factory from './components/Factory';
+import town from '@/assets/town/baisc-town.png'; // 배경
+import GoMainBtn from './components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
 import { TownEvent } from './features/townApi'; // TownEvent 타입 임포트 추가
-import pollutedImg from '@/assets/polluted-river.png';
+import pollutedImg from '@/assets/town/polluted-river.png';
 
 // import RecyclingCenter from './components/RecyclingCenter';
 // import Vehicle from './components/Vehicle';
@@ -99,39 +101,42 @@ const Town = () => {
 
           {/* 4. 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
           <div className='absolute inset-0'>
+            {/* 홈으로 가는 버튼 */}
+            <div className='absolute top-4 left-4 z-30'>
+              <GoMainBtn />
+            </div>
             {/* 5. 마을 이름 - 항상 상단 중앙에 위치 */}
             <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg text-xl w-[18%] z-30'>
               <TownName />
             </div>
-
             {/* 6. 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
-            <div className='absolute top-[34%] left-[80%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
+            <div className='absolute top-[15%] left-[44%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
               <MyHouse infraEventId={getInfraEventId('ELECTRICITY')} />
             </div>
-
             {/* 7. 하수처리장 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-20'>
               <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
             </div>
 
-            {/* ✅ 오염된 강물 오버레이 */}
-            {useTownStore.getState().sewageStatus === 'polluted' && (
+            {/* 오염된 강물 오버레이 - 하수처리장이 오염 상태일 때만 표시 */}
+            {!useTownStore.getState().infraStatus.WATER && (
               <img
                 src={pollutedImg}
                 alt='오염된 강물'
                 className='absolute top-0 left-0 max-w-full max-h-screen object-contain z-10 pointer-events-none'
               />
             )}
-
+            {/* 공장 */}
+            <div className='absolute top-[30%] left-[78%] transform -translate-x-1/2 -translate-y-1/2 w-[20%] z-20'>
+              <Factory infraEventId={getInfraEventId('GAS')} />
+            </div>
             {/* 8. 법원 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
-            <div className='absolute top-[85%] left-[18%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-10'>
+            <div className='absolute top-[84%] left-[19%] transform -translate-x-1/2 -translate-y-1/2 w-[14%] z-20'>
               <Court infraEventId={getInfraEventId('COURT')} />
             </div>
-
             {/* <div className="absolute top-[20%] right-[5%] transform -translate-y-1/2 w-[12%] z-10">
               <RecyclingCenter />
             </div> */}
-
             {/* <div className="absolute bottom-[25%] right-[30%] transform -translate-x-1/2 w-[12%] z-10">
               <Vehicle />
             </div> */}

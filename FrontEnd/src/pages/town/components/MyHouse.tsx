@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
-import houseImg from '@/assets/my-house.png';
+import houseImg from '@/assets/town/my-house.png';
 
 const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +25,7 @@ const MyHouse = ({ infraEventId, className }: TownProps) => {
         src={houseImg}
         alt='가정'
         // onClick={() => infraEventId && setIsModalOpen(true)}
-        onClick={() => setIsModalOpen(true)}  // 이벤트 발생하지 않아도 모달 오픈
+        onClick={() => setIsModalOpen(true)} // 이벤트 발생하지 않아도 모달 오픈
       />
       <NormalModal
         open={isModalOpen}

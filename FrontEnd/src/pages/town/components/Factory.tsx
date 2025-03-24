@@ -1,16 +1,17 @@
-// 하수처리장
+// 공장
 import { useState } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
-import sewageImg from '@/assets/town/sewage-treatment-center.png';
+import factoryImg from '@/assets/town/factory.png';
 
-const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
+const Factory = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
-  // 해당 인프라(WATER)의 상태 가져오기
-  const isOptimal = useTownStore((state) => state.infraStatus.WATER);
+  // const sewageStatus = useTownStore((state) => state.sewageStatus);
+
+  // const showImage = sewageStatus === 'polluted' ? pollutedImg : sewageImg;
 
   return (
     <div
@@ -19,20 +20,18 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
       }`}
     >
       <img
-        className={`w-full h-auto cursor-pointer ${
-          !isOptimal ? 'opacity-70' : '' // 오염 상태(false)일 때 이미지를 약간 흐리게 표시
-        }`}
-        src={sewageImg}
-        alt='하수처리장'
-        onClick={() => setIsModalOpen(true)}
+        className='w-full h-auto cursor-pointer'
+        src={factoryImg}
+        alt='공장'
+        // onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)} // 이벤트 발생하지 않아도 모달 오픈
       />
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         infraEventId={infraEventId}
-        ecoType='WATER'
       />
     </div>
   );
 };
-export default SewageTreatmentCenter;
+export default Factory;

@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/alert-dialog';
 // import { Button } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
+import { useTownStore } from '@/store/useTownStore';
 
 interface ResultModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   result: InfraSubmitResponse;
+  // ecoType?: string; // 추가: 이벤트 타입을 받아 법원인지 확인하기 위함
 }
 
 // props가 필요없지 않나
@@ -42,13 +44,13 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
     }
   };
 
-  const getAnswerMessage = () => {
-    // 법원인 경우만 표시하고 싶은데 이렇게 하면
-    if (result.answerId) {
-      return `정답은 ${result.answerId}번이에요.`;
-    }
-    return '';
-  };
+  // const getAnswerMessage = () => {
+  //   // 법원인 경우만 표시하고 싶은데 이렇게 하면
+  //   if (result.answerId) {
+  //     return `정답은 ${result.answerId}번이에요.`;  // 번호가 1~4로 유지되는 것이 아니라면 정답 번호에 해당하는 선지를 띄우는게 나을수도도
+  //   }
+  //   return '';
+  // };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -65,27 +67,27 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className='space-y-4'>
-          <div className='flex w-full gap-4'>
+          <div className='flex justify-center w-full gap-4'>
             {/* 음수인 경우 "감소" 양수인 경우 "중가" */}
             {/* 0인 경우는 어떻게 처리? */}
-            <p>
-              탄소가{Math.abs(result.carbon)}%{' '}
+            <p className='text-3xl'>
+              탄소가 {Math.abs(result.carbon)}%{' '}
               {result?.carbon < 0 ? '감소' : '증가'}했어요
             </p>
 
             {/* 경험치 증가는 토스트 창이 낫지 않을까 */}
 
             {/* 정답은 x번이에요.(법원) */}
-            {getAnswerMessage() && <p>{getAnswerMessage()}</p>}
+            {/* {getAnswerMessage() && <p>{getAnswerMessage()}</p>} */}
           </div>
         </AlertDialogDescription>
 
         <AlertDialogFooter>
           {/* <AlertDialogAction>Continue</AlertDialogAction> */}
           {/* 확인 버튼이 필요할까? 닫기 눌러도 닫히는데*/}
-          <Button onClick={() => onOpenChange(false)} className='p-3'>
+          {/* <Button onClick={() => onOpenChange(false)} className='p-3'>
             확인
-          </Button>
+          </Button> */}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

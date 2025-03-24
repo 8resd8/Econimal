@@ -3,6 +3,7 @@ import { patchTownName, getTownEvents, TownEventsResponse } from './townApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
+import { EcoType } from './infraApi';
 
 // 마을 이름 변경 쿼리
 export const usePatchTownName = () => {
@@ -47,4 +48,4 @@ export const useGetTownEvents = () => {
   }, [result.data, setTownName]);
 
   return result;
-}
+};
