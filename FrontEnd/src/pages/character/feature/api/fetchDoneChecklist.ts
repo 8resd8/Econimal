@@ -1,6 +1,6 @@
 import { checklistAPI } from '@/api/axiosConfig';
 
-export const fetchDoneChecklist = async (checklistId: number) => {
+export const fetchDoneChecklist = async (checklistId: string) => {
   try {
     const response = await checklistAPI.postCheckList(checklistId);
     return response.data;
