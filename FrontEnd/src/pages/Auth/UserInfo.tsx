@@ -29,7 +29,7 @@ const UserInfo = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex justify-center items-center">
       <div className="max-w-md mx-auto pt-10 pb-10">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="p-8 w-full">
@@ -71,13 +71,15 @@ const UserInfo = () => {
             <div className="mt-6 flex justify-center">
               <button 
               onClick={() => window.location.href = '/'}
-              className="mx-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+              className="mx-2 px-4 py-2 bg-gray-200 text-gray-700
+              rounded-lg hover:bg-gray-300 transition-colors shadow-md"
               >
               메인으로
               </button>
               <button 
               onClick={() => window.location.href = '/edit-profile'}
-              className="mx-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="mx-2 px-4 py-2 bg-blue-500 text-white
+              rounded-lg hover:bg-blue-600 transition-colors shadow-md"
               >
               프로필 수정
               </button>
