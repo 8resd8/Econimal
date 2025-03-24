@@ -71,7 +71,7 @@ const Login = () => {
             placeholder="아이디"
             className="pt-2 pb-2 pl-3 border-4 border-white
               rounded-lg bg-black bg-opacity-25 w-full
-              font-extrabold text-lg"
+              font-extrabold text-lg text-white"
           />
           {/* 비밀번호 입력 필드 - 눈 아이콘 */}
           <div className="relative">
