@@ -52,10 +52,8 @@ export const getTownEvents = async () => {
       response?.data?.message || '마을 상황 조회 중 요류가 발생했습니다.',
     );
   }
-  return response.data // 꼭 있어야 함?
+  return response.data;
 };
-
-
 
 // 마을 상황 조회 API에서 마을 이름 가져오기
 // export const getTownName = async () => {
