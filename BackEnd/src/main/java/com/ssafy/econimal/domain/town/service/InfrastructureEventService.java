@@ -83,7 +83,7 @@ public class InfrastructureEventService {
         events.forEach(event -> {
             System.out.println(event.getUpdatedAt());
             if (!event.isActive() && event.getUpdatedAt().isBefore(now.minusMinutes(1))) {
-                event.setActive(false, true);
+                event.updateActive(false, true);
             }
         });
     }
@@ -121,11 +121,23 @@ public class InfrastructureEventService {
         carbonLogRepository.save(carbonLog);
     }
 
-    private void updateCharacterExpression(UserCharacter userCharacter, EcoAnswerResponse response) {
-        ExpressionType newExpression = ExpressionType.valueOf(response.expression());
-        userCharacter.updateExpression(newExpression);
+    private void updateCharacter(UserCharacter userCharacter, EcoAnswerResponse response) {
+        userCharacter.updateExpression(ExpressionType.fromString(response.expression()));
+        userCharacter.updateExp(response.exp());
     }
 
+    private InfrastructureEvent getEventForAnswer(User user, EcoAnswer answer) {
+        // 유저가 속한 town의 모든 시설(Infrastructure)을 조회
+        List<Infrastructure> infrastructures = infrastructureRepository.findByTown(user.getTown());
+
+        // 각 시설에서 ecoQuiz와 매칭되는 이벤트를 찾아 반환
+        return infrastructures.stream()
+            .map(infra -> infrastructureEventRepository.findByInfrastructureAndEcoQuiz(infra, answer.getEcoQuiz()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .findFirst()
+            .orElseThrow(() -> new InvalidArgumentException("해당 유저의 타운 인프라 중 연결된 퀴즈 이벤트가 없습니다."));
+    }
 
     public EcoAnswerResponse getEcoAnswer(User user, Long ecoAnswerId) {
         EcoAnswer answer = getEcoAnswerById(ecoAnswerId);
@@ -133,8 +145,14 @@ public class InfrastructureEventService {
         UserCharacter userCharacter = getMainCharacter(user);
 
         saveCarbonLog(response, user, answer);
-        updateCharacterExpression(userCharacter, response);
+        updateCharacter(userCharacter, response);
+        InfrastructureEvent event = getEventForAnswer(user, answer);
 
+        if (response.isOptimal()) {
+            event.getInfrastructure().setClean(true);
+        }
+
+        event.deactivate();
         return response;
 	}
 
@@ -168,14 +186,6 @@ public class InfrastructureEventService {
             quiz.getFacility().getEcoType() == EcoType.COURT
                 ? selectCourtAnswers(shuffledAnswers)
                 : selectGeneralAnswers(shuffledAnswers, quiz);
-
-        // 조건: 정답(exp > 0)이 존재하면 시설(isClean)을 true로 업데이트
-        if (selectedAnswers.stream().anyMatch(answerDto -> answerDto.exp() > 0)) {
-            event.getInfrastructure().setClean(true);
-        }
-
-        // 정답 여부와 관계없이 이벤트를 비활성화
-        event.deactivate();
 
         return new InfrastructureEventDetailResponse(quizDto, selectedAnswers);
     }
