@@ -24,9 +24,16 @@ interface CourtModalProps {
   infraEventId?: number;
 }
 
+interface ExtendedInfraSubmitResponse extends InfraSubmitResponse {
+  selectedAnswerId: number;
+  correctDescription: string | null;
+}
+
 const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   const [showResult, setShowResult] = useState(false);
-  const [result, setResult] = useState<InfraSubmitResponse | null>(null);
+  const [result, setResult] = useState<ExtendedInfraSubmitResponse | null>(
+    null,
+  );
 
   // 인프라 이벤트 상세 조회 쿼리
   // Loading을 써 말아
@@ -41,7 +48,19 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
       onSuccess: (data) => {
         if (data) {
           // API 응답 데이터를 상태에 저장해? 말아?
-          // setResult(data);
+          // 정답 설명 매칭
+          const correctAnswer = answers.find(
+            (a) => a.ecoAnswerId === Number(data.answerId),
+          );
+
+          // description만 따로 저장
+          const resultWithDescription: ExtendedInfraSubmitResponse = {
+            ...data,
+            selectedAnswerId: ecoAnswerId,
+            correctDescription: correctAnswer?.description ?? null,
+          };
+
+          setResult(resultWithDescription); // result는 이제 description 포함
 
           // useTownStore 업데이트?
           // 퀴즈 결과가 스토어에 있던가
@@ -63,8 +82,8 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   const fallbackAnswers = [
     { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
     { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요1' },
-    { ecoAnswerId: 3, description: '선택지 길이 어떻게 하지2' },
-    { ecoAnswerId: 4, description: '배치 어떻게 할까3' },
+    { ecoAnswerId: 3, description: '잠시 후 다시 시도해 주세요2' },
+    { ecoAnswerId: 4, description: '잠시 후 다시 시도해 주세요3' },
   ];
 
   const answers =
@@ -117,6 +136,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
           open={showResult}
           onOpenChange={handleResultClose}
           result={result}
+          ecoType='COURT' // [수정] 에코 타입 전달
         />
       )}
     </>

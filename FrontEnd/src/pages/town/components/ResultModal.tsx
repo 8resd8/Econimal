@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { InfraSubmitResponse } from '../features/infraApi';
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -11,20 +10,31 @@ import {
   AlertDialogTitle,
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-// import { Button } from '@/components/ui/button';
-import { Button } from '@/components/ui/button';
-import { useTownStore } from '@/store/useTownStore';
 
 interface ResultModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  result: InfraSubmitResponse;
-  // ecoType?: string; // 추가: 이벤트 타입을 받아 법원인지 확인하기 위함
+  result: {
+    carbon: number;
+    exp: number;
+    coin: number;
+    expression: string;
+    isOptimal: boolean;
+    answerId: number;
+    selectedAnswerId: number;
+    correctDescription: string | null;
+  };
+  ecoType?: string;
 }
 
 // props가 필요없지 않나
 // 사용자가 결과 제출 후
-const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
+const ResultModal = ({
+  open,
+  onOpenChange,
+  result,
+  ecoType,
+}: ResultModalProps) => {
   // 결과 모달이 열릴 때 탄소가 감소했으면 효과 표시
   useEffect(() => {
     if (open && result && result.carbon < 0) {
@@ -44,13 +54,30 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
     }
   };
 
-  // const getAnswerMessage = () => {
-  //   // 법원인 경우만 표시하고 싶은데 이렇게 하면
-  //   if (result.answerId) {
-  //     return `정답은 ${result.answerId}번이에요.`;  // 번호가 1~4로 유지되는 것이 아니라면 정답 번호에 해당하는 선지를 띄우는게 나을수도도
-  //   }
-  //   return '';
-  // };
+  const getAnswerMessage = () => {
+    // 오답인 경우만 정답 메시지 표시 (isOptimal 제거)
+    if (
+      ecoType === 'COURT' &&
+      Number(result.selectedAnswerId) !== Number(result.answerId)
+    ) {
+      if (result.correctDescription) {
+        return `정답은 ${result.correctDescription}이에요`;
+      } else {
+        return `정답을 확인할 수 없습니다`;
+      }
+    }
+    return '';
+  };
+
+  // 탄소 변화 메시지 (법원이 아닌 경우만)
+  const getCarbonChangeMessage = () => {
+    if (ecoType !== 'COURT') {
+      return `탄소가 ${Math.abs(result.carbon)}% ${
+        result?.carbon < 0 ? '감소' : '증가'
+      }했어요`;
+    }
+    return '';
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -67,18 +94,13 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className='space-y-4'>
-          <div className='flex justify-center w-full gap-4'>
-            {/* 음수인 경우 "감소" 양수인 경우 "중가" */}
-            {/* 0인 경우는 어떻게 처리? */}
-            <p className='text-3xl'>
-              탄소가 {Math.abs(result.carbon)}%{' '}
-              {result?.carbon < 0 ? '감소' : '증가'}했어요
-            </p>
-
-            {/* 경험치 증가는 토스트 창이 낫지 않을까 */}
-
-            {/* 정답은 x번이에요.(법원) */}
-            {/* {getAnswerMessage() && <p>{getAnswerMessage()}</p>} */}
+          <div className='flex flex-col items-center w-full gap-4'>
+            {/* [수정] 장소에 따라 다른 메시지 표시 */}
+            {ecoType === 'COURT' ? (
+              <p className='text-3xl text-center'>{getAnswerMessage()}</p>
+            ) : (
+              <p className='text-3xl text-center'>{getCarbonChangeMessage()}</p>
+            )}
           </div>
         </AlertDialogDescription>
 
