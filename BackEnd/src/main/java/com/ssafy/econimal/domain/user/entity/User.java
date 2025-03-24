@@ -91,5 +91,5 @@ public class User extends BaseTimeEntity {
 		this.password = encodedPassword;
 	}
 
-	public void updateCoin(int coin) { this.coin += coin; }
+	public void updateCoin(long coin) { this.coin = coin; }
 }
