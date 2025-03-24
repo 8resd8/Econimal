@@ -148,7 +148,7 @@ export const useAuth = () => {
     }
   };
 
-  // 그리고 fetchUserData 함수에서 에러 처리 부분을 다음과 같이 수정
+  // fetchUserData 함수에서 에러 처리 부분을 다음과 같이 수정
   const fetchUserData = async () => {
     if (!token) {
       console.log("토큰이 없어 유저 정보를 가져올 수 없습니다.");
@@ -195,26 +195,38 @@ export const useAuth = () => {
   // AccessToken 갱신 (refreshToken은 쿠키에 있으므로 자동으로 전송됨)
   const refreshToken = async () => {
     try {
-      const res = await axios.post<LoginResponse>("/users/refresh");
-      setToken(res.data.accessToken);
+      console.log("토큰 갱신 시도 시간:", new Date().toISOString());
       
-      const expiresIn = res.data.timeToLive;
-      // 만료 시간 5분 전에 자동 갱신 예약
-    const refreshTimeoutId = setTimeout(() => {
-      refreshToken();
-    }, expiresIn - 300000); // 5분(300000ms)을 빼서 만료 직전에 갱신
-    
-    // 타이머 ID 저장 (로그아웃 시 타이머 제거를 위해)
-    setRefreshTimerId(refreshTimeoutId);
+      const res = await axios.post<LoginResponse>("/users/refresh");
+      console.log("토큰 갱신 응답:", res.data);
+      
+      setToken(res.data.accessToken);
+      setTimeout(() => {
+        console.log("토큰이 정상적으로 갱신되었는지 확인:", useAuthStore.getState().token);
+      }, 100);
 
-      return true; // 성공 시 true 반환
+      console.log("새 토큰 설정됨:", res.data.accessToken);
+      
+      const newExpiresIn = res.data.timeToLive;
+      console.log("새 토큰 만료 시간:", newExpiresIn);
+      
+      // 타이머 설정
+      const refreshTimeoutId = setTimeout(() => {
+        console.log("자동 갱신 타이머 실행:", new Date().toISOString());
+        refreshToken();
+      }, Math.max(5000, newExpiresIn - 300000)); // 최소 5초 후 실행되도록 보장
+      
+      // 타이머 ID 저장
+      setRefreshTimerId(refreshTimeoutId);
+  
+      return true;
     } catch (error) {
       console.error("토큰 갱신 실패", error);
       // 로그인 페이지에 있지 않은 경우에만 로그아웃
       if (window.location.pathname !== '/login') {
         clearToken();
       }
-      return false; // 실패 시 false 반환
+      return false;
     }
   };
 
@@ -303,6 +315,7 @@ export const useAuth = () => {
   useEffect(() => {
     if (token) {
       fetchUserData();
+      // refreshToken(); // 초기 실행 시에도 갱신 시도
     } else {
       setLoading(false);
     }
