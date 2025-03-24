@@ -93,7 +93,7 @@ const InfoEdit = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+    <div className="min-h-screen bg-white py-10 max-w-md mx-auto mt-10 p-6 rounded-xl shadow-md">
       <h1 className="text-2xl font-bold text-center mb-6">프로필 수정</h1>
       
       {/* 현재 정보 표시 */}
