@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import {
-  ChecklistTypes,
-  ChecklistPanelTypes,
+  // ChecklistPanel,
+  ChecklistPanelProps,
 } from '@/pages/character/types/checklist/ChecklistPanelTypes';
 import CustomChecklistModal from './CustomChecklistModal';
 import CustomChecklistAdvice from './CustomChecklistAdvice';
 import ChecklistItem from './ChecklistItem';
 
-const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
+const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   items,
   isEditable = false,
   onAddItem,
@@ -27,7 +27,7 @@ const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
         <div
           key={item.checklistId}
           className={`p-4 border rounded-lg ${
-            item.is_complete ? 'bg-green-100' : 'bg-white'
+            item.isComplete ? 'bg-green-100' : 'bg-white'
           }`}
         >
           <div className='flex justify-between items-center'>
@@ -55,7 +55,7 @@ const ChecklistPanel: React.FC<ChecklistPanelTypes> = ({
           </div>
 
           {/* 완료 버튼 */}
-          {!item.is_complete && (
+          {!item.isComplete && (
             <button
               onClick={() => onCompleteItem?.(item.checklistId)}
               className='mt-2 px-4 py-2 bg-green-500 text-white rounded-lg'

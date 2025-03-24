@@ -139,8 +139,8 @@ export const characterListAPI = {
 };
 
 export const checklistAPI = {
-  getCheckList: () => axiosInstance.get(`${API.CHECKLIST}`),
-  postCheckList: (checklistId: number) =>
+  getCheckList: () => axiosInstance.get(`${API.CHECKLIST.LIST}`),
+  postCheckList: (checklistId: string) =>
     axiosInstance.post(`${API.CHECKLIST.DONE}`, {
       checklistId,
     }),
