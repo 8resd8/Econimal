@@ -69,4 +69,13 @@ public class UserCharacter extends BaseTimeEntity {
 	public void updateExpression(ExpressionType expression) {
 		this.expression = expression;
 	}
+
+	public void updateExp(int exp) {
+		if(this.character.getMaxLevel() > this.totalExp + exp) {
+			this.totalExp += exp;
+		} else {
+			this.totalExp = this.character.getMaxLevel();
+		}
+		this.user.updateCoin(exp);
+	}
 }
