@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.ssafy.econimal.domain.user.dto.UpdateNicknameRequest;
 import com.ssafy.econimal.domain.user.dto.UserInfoDto;
 import com.ssafy.econimal.domain.user.dto.UserInfoResponse;
+import com.ssafy.econimal.domain.user.dto.UserProfileDto;
+import com.ssafy.econimal.domain.user.dto.UserProfileResponse;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
@@ -21,8 +23,12 @@ public class UserService {
 
 	public UserInfoResponse getUserInfo(User user) {
 		UserInfoDto userInfo = userRepository.findUserInfoById(user.getId());
-
 		return new UserInfoResponse(userInfo);
+	}
+
+	public UserProfileResponse getUserProfile(User user) {
+		UserProfileDto userProfile = userRepository.findUserProfileById(user.getId());
+		return new UserProfileResponse(userProfile);
 	}
 
 	public void updateNickname(User user, UpdateNicknameRequest request) {
