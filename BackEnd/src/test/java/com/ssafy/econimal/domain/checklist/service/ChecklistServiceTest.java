@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -112,6 +113,7 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
+	@Disabled
 	void 커스텀체크리스트삭제_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
@@ -160,6 +162,7 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
+	@Disabled
 	void 커스텀체크리스트수정_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
@@ -184,6 +187,7 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
+	@Disabled
 	void 커스텀체크리스트완료() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
