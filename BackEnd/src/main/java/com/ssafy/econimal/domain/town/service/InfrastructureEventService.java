@@ -2,6 +2,7 @@ package com.ssafy.econimal.domain.town.service;
 
 import com.ssafy.econimal.domain.carbonlog.entity.CarbonLog;
 import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
+import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.town.dto.EcoAnswerDto;
 import com.ssafy.econimal.domain.town.dto.EcoAnswerResponse;
 import com.ssafy.econimal.domain.town.dto.EcoQuizDto;
@@ -18,6 +19,7 @@ import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
+import com.ssafy.econimal.domain.user.util.CoinUtil;
 import com.ssafy.econimal.global.common.enums.EcoType;
 import com.ssafy.econimal.global.common.enums.ExpressionType;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
@@ -123,7 +125,8 @@ public class InfrastructureEventService {
 
     private void updateCharacter(UserCharacter userCharacter, EcoAnswerResponse response) {
         userCharacter.updateExpression(ExpressionType.fromString(response.expression()));
-        userCharacter.updateExp(response.exp());
+        ExpUtil.addExp(response.exp(), userCharacter);
+        CoinUtil.addCoin(response.coin(), userCharacter.getUser());
     }
 
     private InfrastructureEvent getEventForAnswer(User user, EcoAnswer answer) {
