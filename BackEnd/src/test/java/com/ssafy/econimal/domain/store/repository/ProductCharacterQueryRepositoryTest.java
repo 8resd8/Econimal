@@ -32,9 +32,11 @@ class ProductCharacterQueryRepositoryTest {
 	@Test
 	void 캐릭터상점항목조회() {
 		User user = userRepository.findById(1L).get();
+		assertThat(user).isNotNull();
+
 		List<StoreDto> charactersStore = productCharacterQueryRepository.findAllCharactersStore(user);
 
-		assertThat(charactersStore.size()).isEqualTo(3); // 테스트로 올리면 2로 바꿔야함
+		assertThat(charactersStore.size()).isEqualTo(4);
 		long ownedCount = charactersStore.stream()
 			.filter(StoreDto::owned)
 			.count();
