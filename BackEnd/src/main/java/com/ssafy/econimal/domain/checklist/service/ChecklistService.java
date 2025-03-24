@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDto;
@@ -21,8 +22,11 @@ import com.ssafy.econimal.domain.checklist.dto.UserChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.UserChecklistResponse;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
+import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ public class ChecklistService {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final UserChecklistRepository userChecklistRepository;
+	private final UserCharacterRepository userCharacterRepository;
 
 	private static final int MAX_CHECKLIST_PER_DAY = 5;
 	private static final String CHECKLIST_PREFIX = "CC:";
@@ -175,6 +180,9 @@ public class ChecklistService {
 		UserChecklist userChecklist = userChecklistRepository.findByUserAndChecklistId(user, checklistId)
 			.orElseThrow(() -> new IllegalArgumentException("ddd"));
 		userChecklistRepository.completeChecklist(userChecklist.getId());
+
+		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
+		ExpUtil.addExp(userChecklist.getChecklist().getExp(), userCharacter);
 	}
 
 	private void completeCustomChecklist(User user, String checklistId) {
@@ -188,5 +196,11 @@ public class ChecklistService {
 		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
 
 		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
+
+		// 경험치 업데이트
+		String expStr = (String)redisTemplate.opsForHash().get(hashKey, "exp");
+		int exp = expStr != null ? Integer.parseInt(expStr) : 0;
+		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
+		ExpUtil.addExp(exp, userCharacter);
 	}
 }
