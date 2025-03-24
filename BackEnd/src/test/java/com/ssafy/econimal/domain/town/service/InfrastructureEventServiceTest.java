@@ -52,7 +52,7 @@ class InfrastructureEventServiceTest {
 
         InfrastructureEventResponse eventResponse = response.townStatus().get(0);
         assertEquals(infrastructure.getId(), eventResponse.infraId());
-        assertEquals(facility.getEcoType(), eventResponse.ecoType());
+        assertEquals(facility.getEcoType().toString(), eventResponse.ecoType().toString());
         assertEquals(infrastructure.isClean(), eventResponse.isClean());
         assertEquals(infrastructureEvent.getId(), eventResponse.infraEventId());
         assertEquals(infrastructureEvent.isActive(), eventResponse.isActive());
