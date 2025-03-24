@@ -11,6 +11,7 @@ import { useEmotionChange } from '@/pages/character/feature/hooks/reuse/useEmoti
 import { MyCharInfoRes } from '@/pages/character/types/MyCharInfoRes';
 import CharEmotionChange from './CharEmotionChange';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 //useEffect 조건부 이전 위치 -> 조건부 랜더링은 훅 호출 이후 진행
 const CharBackground = () => {
@@ -21,7 +22,16 @@ const CharBackground = () => {
     myChar: myChar,
   });
   const nav = useNavigate();
-  //data가 없을때도 로딩중
+
+  //charsel을 하지 않았다고 판단되면 옮겨준다.
+  useEffect(() => {
+    if (!myChar || Object.keys(myChar).length === 0) {
+      nav('/charsel');
+    } else {
+      console.log('myChar exists:', myChar);
+    }
+  }, [myChar, nav]);
+
   if (isLoading || isEmotionLoading || !data) return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
   if (!data || !data.level || !myChar) return <div>필수 데이터 없음</div>;

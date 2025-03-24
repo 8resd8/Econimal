@@ -14,9 +14,10 @@ export interface ChecklistPanelProps {
     exp: number;
     isComplete: boolean;
   }>;
+  activeTab?: string;
   isEditable?: boolean; // 수정/삭제 가능 여부
   onAddItem?: (newItem: ChecklistPanel) => void;
-  onCompleteItem?: (checklistId: string) => void;
+  onCompleteItem?: (checklistId: string, type: string) => void;
   onEditItem?: (checklistId: string, newTitle: string) => void;
   onDeleteItem?: (checklistId: string) => void;
 }
