@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,35 +78,15 @@ public class InfrastructureEventService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public TownStatusResponse getTownStatus(User user) {
-        Long townId = user.getTown().getId();
-        List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(townId);
-
-        List<InfrastructureEventResponse> responseList = events.stream()
-                .map(InfrastructureEventResponse::from)
-                .toList();
-
-        return new TownStatusResponse(user.getTown().getName(), responseList);
+    private void updateInactiveEvents(List<InfrastructureEvent> events) {
+        LocalDateTime now = LocalDateTime.now();
+        events.forEach(event -> {
+            System.out.println(event.getUpdatedAt());
+            if (!event.isActive() && event.getUpdatedAt().isBefore(now.minusMinutes(1))) {
+                event.setActive(false, true);
+            }
+        });
     }
-
-    @Transactional(readOnly = true)
-	public InfrastructureEventDetailResponse getInfrastructureEventDetail(Long infraEventId) {
-        InfrastructureEvent event = infrastructureEventRepository.findById(infraEventId)
-            .orElseThrow(() -> new InvalidArgumentException("존재하지 않는 infraEventId입니다."));
-
-        EcoQuiz quiz = event.getEcoQuiz();
-        EcoQuizDto quizDto = EcoQuizDto.from(quiz);
-
-        List<EcoAnswer> shuffledAnswers = getShuffledAnswers(quiz);
-
-        List<EcoAnswerDto> selectedAnswers =
-            quiz.getFacility().getEcoType() == EcoType.COURT
-                ? selectCourtAnswers(shuffledAnswers)
-                : selectGeneralAnswers(shuffledAnswers, quiz);
-
-        return new InfrastructureEventDetailResponse(quizDto, selectedAnswers);
-	}
 
     private EcoAnswer getEcoAnswerById(Long ecoAnswerId) {
         return ecoAnswerRepository.findById(ecoAnswerId)
@@ -156,4 +137,46 @@ public class InfrastructureEventService {
 
         return response;
 	}
+
+    public TownStatusResponse getTownStatus(User user) {
+        Long townId = user.getTown().getId();
+        List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(townId);
+
+        updateInactiveEvents(events);
+
+        List<InfrastructureEventResponse> responseList = events.stream()
+            .map(InfrastructureEventResponse::from)
+            .toList();
+
+        return new TownStatusResponse(user.getTown().getName(), responseList);
+    }
+
+    public InfrastructureEventDetailResponse getInfrastructureEventDetail(Long infraEventId) {
+        InfrastructureEvent event = infrastructureEventRepository.findById(infraEventId)
+            .orElseThrow(() -> new InvalidArgumentException("존재하지 않는 infraEventId입니다."));
+
+        EcoQuiz quiz = event.getEcoQuiz();
+        EcoQuizDto quizDto = EcoQuizDto.from(quiz);
+
+        // 랜덤 이벤트 발생을 위한 배열 내 shuffle 진행
+        List<EcoAnswer> shuffledAnswers = getShuffledAnswers(quiz);
+
+        // COURT와 나머지 타입에 대해 수행하는 메소드가 다름
+        // COURT : 4개 전체 가져옴
+        // 나머지 : 좋은 선지와 안좋은 선지 하나씩 가져옴
+        List<EcoAnswerDto> selectedAnswers =
+            quiz.getFacility().getEcoType() == EcoType.COURT
+                ? selectCourtAnswers(shuffledAnswers)
+                : selectGeneralAnswers(shuffledAnswers, quiz);
+
+        // 조건: 정답(exp > 0)이 존재하면 시설(isClean)을 true로 업데이트
+        if (selectedAnswers.stream().anyMatch(answerDto -> answerDto.exp() > 0)) {
+            event.getInfrastructure().setClean(true);
+        }
+
+        // 정답 여부와 관계없이 이벤트를 비활성화
+        event.deactivate();
+
+        return new InfrastructureEventDetailResponse(quizDto, selectedAnswers);
+    }
 }
