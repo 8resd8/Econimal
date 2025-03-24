@@ -12,6 +12,7 @@ import com.ssafy.econimal.domain.town.repository.EcoAnswerRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureEventRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.common.enums.EcoType;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -32,7 +34,7 @@ public class InfrastructureEventService {
     private final EcoAnswerRepository ecoAnswerRepository;
 
     private List<EcoAnswer> getShuffledAnswers(EcoQuiz quiz) {
-        List<EcoAnswer> answers = new ArrayList<>(ecoAnswerRepository.findAllByEcoQuiz(quiz));
+        List<EcoAnswer> answers = new ArrayList<>(ecoAnswerRepository.findAllByEcoQuizId(quiz.getId()));
         Collections.shuffle(answers);
         return answers;
     }
@@ -45,19 +47,21 @@ public class InfrastructureEventService {
     }
 
     private List<EcoAnswerDto> selectGeneralAnswers(List<EcoAnswer> answers, EcoQuiz quiz) {
-        Optional<EcoAnswerDto> positive = answers.stream()
-            .filter(a -> a.getExp() > 0)
-            .findFirst()
-            .map(EcoAnswerDto::from);
+        EcoAnswerDto positive = null;
+        EcoAnswerDto negative = null;
 
-        Optional<EcoAnswerDto> negative = answers.stream()
-            .filter(a -> a.getExp() < 0)
-            .findFirst()
-            .map(a -> new EcoAnswerDto(a.getEcoQuiz().getId(), a.getDescription(), 0)); // exp 0으로 보정
+        for (EcoAnswer answer : answers) {
+            if (positive == null && answer.getExp() > 0) {
+                positive = EcoAnswerDto.from(answer);
+            } else if (negative == null && answer.getExp() <= 0) {
+                negative = new EcoAnswerDto(answer.getId(), answer.getDescription(), 0);
+            }
+
+            if (positive != null && negative != null) break;
+        }
 
         return Stream.of(positive, negative)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+            .filter(Objects::nonNull)
             .toList();
     }
 
@@ -74,9 +78,9 @@ public class InfrastructureEventService {
     }
 
     @Transactional
-	public InfrastructureEventDetailResponse getInfrastructureEventDetail(User user, Long infraEventId) {
+	public InfrastructureEventDetailResponse getInfrastructureEventDetail(Long infraEventId) {
         InfrastructureEvent event = infrastructureEventRepository.findById(infraEventId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 infraEventId입니다."));
+            .orElseThrow(() -> new InvalidArgumentException("존재하지 않는 infraEventId입니다."));
 
         EcoQuiz quiz = event.getEcoQuiz();
         EcoQuizDto quizDto = EcoQuizDto.from(quiz);

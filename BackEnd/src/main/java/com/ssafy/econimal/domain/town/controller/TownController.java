@@ -34,7 +34,7 @@ public class TownController {
     }
 
     @GetMapping("/events/{infraEventId}")
-    public InfrastructureEventDetailResponse getInfrastructureEventDetail(@Login User user, @PathVariable Long infraEventId) {
-        return infrastructureEventService.getInfrastructureEventDetail(user, infraEventId);
+    public InfrastructureEventDetailResponse getInfrastructureEventDetail(@PathVariable Long infraEventId) {
+        return infrastructureEventService.getInfrastructureEventDetail(infraEventId);
     }
 }
