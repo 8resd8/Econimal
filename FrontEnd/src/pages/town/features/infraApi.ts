@@ -1,6 +1,8 @@
 // 인프라 api 요청
 import { axiosInstance } from '@/api/axiosConfig';
 
+export type EcoType = 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
+
 // 퀴즈/선택지 항목
 interface EcoAnswer {
   ecoAnswerId: number;

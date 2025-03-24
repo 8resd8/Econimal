@@ -23,12 +23,14 @@ interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   infraEventId?: number;
+  ecoType: string;
 }
 
 const NormalModal = ({
   open,
   onOpenChange,
   infraEventId,
+  ecoType,
 }: NormalModalProps) => {
   const [showResult, setShowResult] = useState(false);
   // const [result, setResult] = useState(null); // 타입지정... <InfraSubmitResponse> import해서 사용...?
@@ -47,7 +49,7 @@ const NormalModal = ({
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
-    submitInfraResult(ecoAnswerId, {
+    submitInfraResult(ecoAnswerId, ecoType, {
       onSuccess: (data) => {
         if (data) {
           setResult(data); // data가 있는 경우에만 실행

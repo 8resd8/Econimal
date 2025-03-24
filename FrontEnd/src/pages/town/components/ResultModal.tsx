@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/alert-dialog';
 // import { Button } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
+import { useTownStore } from '@/store/useTownStore';
 
 interface ResultModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   result: InfraSubmitResponse;
+  // ecoType?: string; // 추가: 이벤트 타입을 받아 법원인지 확인하기 위함
 }
 
 // props가 필요없지 않나
@@ -42,13 +44,13 @@ const ResultModal = ({ open, onOpenChange, result }: ResultModalProps) => {
     }
   };
 
-  const getAnswerMessage = () => {
-    // 법원인 경우만 표시하고 싶은데 이렇게 하면
-    if (result.answerId) {
-      return `정답은 ${result.answerId}번이에요.`;
-    }
-    return '';
-  };
+  // const getAnswerMessage = () => {
+  //   // 법원인 경우만 표시하고 싶은데 이렇게 하면
+  //   if (result.answerId) {
+  //     return `정답은 ${result.answerId}번이에요.`;  // 번호가 1~4로 유지되는 것이 아니라면 정답 번호에 해당하는 선지를 띄우는게 나을수도도
+  //   }
+  //   return '';
+  // };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

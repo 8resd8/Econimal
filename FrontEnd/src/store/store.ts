@@ -14,7 +14,7 @@
 
 // 테스팅을 위한 로컬스토리지에 토큰 저장하는 로직
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware'; // 추가 설치 필요할 수 있음
 
 interface AuthState {
   token: string | null;
@@ -22,17 +22,15 @@ interface AuthState {
   clearToken: () => void;
 }
 
-export const useAuthStore = create(
-  persist<AuthState>(
+export const useAuthStore = create<AuthState>()(
+  persist(
     (set) => ({
       token: null,
       setToken: (token) => set({ token }),
       clearToken: () => set({ token: null }),
     }),
     {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ token: state.token }),
+      name: 'auth-storage', // localStorage에 저장될 키 이름
     },
   ),
 );
