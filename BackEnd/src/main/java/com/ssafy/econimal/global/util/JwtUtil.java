@@ -26,8 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class JwtUtil {
 
 	private final JwtProperties jwtProperties;
-	// private final long accessExpireTime = 1000 * 60 * 30; // 30분
-	private final long accessExpireTime = 1000 / 2; // 30초
+	// private final long accessExpireTime = 1000 * 60 * 30; // 30분 1초 * 60, 1분
+	private final long accessExpireTime = 1000 * 30; // 30초
 
 	// 액세스 토큰 생성
 	public String createToken(Long userId, UserType userType) {
