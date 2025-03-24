@@ -8,10 +8,11 @@ import factoryImg from '@/assets/town/factory.png';
 const Factory = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
-  const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
-  // const sewageStatus = useTownStore((state) => state.sewageStatus);
 
-  // const showImage = sewageStatus === 'polluted' ? pollutedImg : sewageImg;
+  // 해당 인프라(GAS)의 최적/오염 상태 가져오기
+  const isOptimal = useTownStore((state) => state.infraStatus.GAS);
+
+  const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
 
   return (
     <div
@@ -20,16 +21,18 @@ const Factory = ({ infraEventId, className }: TownProps) => {
       }`}
     >
       <img
-        className='w-full h-auto cursor-pointer'
+        className={`w-full h-auto cursor-pointer ${
+          isActive ? 'animate-pulse' : ''
+        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
         src={factoryImg}
         alt='공장'
-        // onClick={() => infraEventId && setIsModalOpen(true)}
-        onClick={() => setIsModalOpen(true)} // 이벤트 발생하지 않아도 모달 오픈
+        onClick={() => setIsModalOpen(true)}
       />
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         infraEventId={infraEventId}
+        ecoType='GAS'
       />
     </div>
   );

@@ -37,7 +37,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
-    submitInfraResult(ecoAnswerId, {
+    submitInfraResult(ecoAnswerId, 'COURT', {
       onSuccess: (data) => {
         if (data) {
           // API 응답 데이터를 상태에 저장해? 말아?

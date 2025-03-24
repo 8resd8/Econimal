@@ -31,6 +31,24 @@ const Town = () => {
   // 마을 상황 조회
   const { data: townEventsData, refetch } = useGetTownEvents();
 
+  // [수정] 페이지 로드 시 API 응답에서 인프라 상태 초기화 로직 추가
+  useEffect(() => {
+    if (townEventsData?.townStatus) {
+      // 활성화된 이벤트id 필터링
+      const activeEventIds = townEventsData.townStatus
+        .filter((event) => event.isActive)
+        .map((event) => event.infraEventId);
+
+      // 스토어에 활성화된 이벤트 설정
+      setActiveEvents(activeEventIds);
+
+      // [수정] 각 인프라 상태(clean/polluted) 설정
+      townEventsData.townStatus.forEach((event) => {
+        useTownStore.getState().setInfraStatus(event.ecoType, event.isClean);
+      });
+    }
+  }, [townEventsData, setActiveEvents]);
+
   // useEffect를 사용하여 데이터 변경 시 마을 이름 업데이트
   useEffect(() => {
     if (townEventsData?.townName) {

@@ -12,10 +12,10 @@ const queryClient = new QueryClient(); // 일단 기본 옵션으로 설정. 추
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AspectRatioContainer>
-        <RouterProvider router={router} />
-        {/* ReactQueryDevtools : 탠스택쿼리 개발자도구입니다. npm run dev 했을 때 우측 하단에 있는 로고 누르면 뜹니다. */}
-      </AspectRatioContainer>
+      {/* <AspectRatioContainer> */}
+      <RouterProvider router={router} />
+      {/* ReactQueryDevtools : 탠스택쿼리 개발자도구입니다. npm run dev 했을 때 우측 하단에 있는 로고 누르면 뜹니다. */}
+      {/* </AspectRatioContainer> */}
       <ReactQueryDevtools />
     </QueryClientProvider>
   );

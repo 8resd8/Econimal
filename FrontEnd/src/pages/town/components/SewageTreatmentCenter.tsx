@@ -20,8 +20,8 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
     >
       <img
         className={`w-full h-auto cursor-pointer ${
-          !isOptimal ? 'opacity-70' : '' // 오염 상태(false)일 때 이미지를 약간 흐리게 표시
-        }`}
+          isActive ? 'animate-pulse' : ''
+        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
         src={sewageImg}
         alt='하수처리장'
         onClick={() => setIsModalOpen(true)}

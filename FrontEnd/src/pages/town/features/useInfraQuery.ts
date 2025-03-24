@@ -1,6 +1,10 @@
 // 인프라 탠스택쿼리
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { getInfraEvent, submitInfraResult } from './infraApi';
+import {
+  getInfraEvent,
+  submitInfraResult,
+  InfraSubmitResponse,
+} from './infraApi';
 import { useTownStore } from '@/store/useTownStore';
 import { EcoType } from './infraApi';
 
@@ -40,7 +44,21 @@ export const useSubmitInfraResult = () => {
     },
   });
 
-  // ecoAnswerId와 ecoType을 함께 전달
-  return (ecoAnswerId: number, ecoType: string) =>
-    mutate({ ecoAnswerId, ecoType });
+  // [수정] ecoAnswerId와 ecoType을 함께 전달하는 함수 수정
+  return (
+    ecoAnswerId: number,
+    ecoType: string,
+    options?: { onSuccess?: (data: InfraSubmitResponse) => void },
+  ) =>
+    mutate(
+      { ecoAnswerId, ecoType },
+      {
+        onSuccess: (data) => {
+          // 외부에서 전달된 onSuccess 콜백 실행
+          if (options?.onSuccess) {
+            options.onSuccess(data);
+          }
+        },
+      },
+    );
 };
