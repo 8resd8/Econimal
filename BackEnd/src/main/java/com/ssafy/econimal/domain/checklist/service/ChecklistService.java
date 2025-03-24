@@ -1,6 +1,10 @@
 package com.ssafy.econimal.domain.checklist.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +12,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDetailDto;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDto;
@@ -17,7 +23,6 @@ import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
-import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +40,8 @@ public class ChecklistService {
 
 	public UserChecklistResponse getUserChecklist(User user) {
 		DailyUserChecklistDto dailyUserChecklistDto = getDailyUserChecklist(user);
-		UserChecklistDto checklists = new UserChecklistDto(dailyUserChecklistDto);
+		CustomChecklistDto customChecklistDto = getCustomChecklist(user);
+		UserChecklistDto checklists = new UserChecklistDto(dailyUserChecklistDto, customChecklistDto);
 		return new UserChecklistResponse(checklists);
 	}
 
@@ -45,6 +51,26 @@ public class ChecklistService {
 			.map(DailyUserChecklistDetailDto::of)
 			.toList();
 		return DailyUserChecklistDto.of(details);
+	}
+
+	private CustomChecklistDto getCustomChecklist(User user) {
+		String userKey = CustomChecklistUtil.buildUserKey(user);
+
+		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
+		if (uuids == null || uuids.isEmpty()) {
+			return CustomChecklistDto.of(Collections.emptyList());
+		}
+
+		// User에 해당하는 모든 UUID (checklistId)
+		List<CustomChecklistDetailDto> details = uuids.stream()
+			.map(uuid -> Optional.of(redisTemplate.opsForHash().entries(CHECKLIST_PREFIX + uuid))
+				.filter(data -> !data.isEmpty())
+				.map(data -> CustomChecklistDetailDto.of(uuid, data)) // checklist 상세 조회
+				.orElse(null))
+			.filter(Objects::nonNull)
+			.toList();
+
+		return CustomChecklistDto.of(details); // checklist 완료 개수 등 계산
 	}
 
 	public void completeChecklist(User user, ChecklistCompleteRequest request) {
@@ -98,25 +124,22 @@ public class ChecklistService {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
 		String descKey = CustomChecklistUtil.buildDescKey(user);
 
-		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
-		checkCompleteAndDelete(hashKey, descKey);
+		// 완료한 체크리스트일 경우 예외
+		String isCompleteStr = (String)redisTemplate.opsForHash().get(hashKey, "isComplete");
+		CustomChecklistUtil.assertNotCompleted(isCompleteStr);
 
+		String oldDesc = (String)redisTemplate.opsForHash().get(hashKey, "description");
 		String newDesc = request.description();
-		Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
-		try {
-			// 변경하려는 체크리스트가 중복이 아닌 경우
+
+		// 기존 체크리스트와 동일하지 않으면 업데이트
+		if (!Objects.equals(oldDesc, newDesc)) {
+			// 체크리스트 내용 중복 여부 체크
+			Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
 			CustomChecklistUtil.assertDescriptionUnique(isExist);
+
 			redisTemplate.opsForHash().put(hashKey, "description", newDesc);
 			redisTemplate.opsForSet().add(descKey, newDesc);
-		} catch (InvalidArgumentException e) {
-			// 변경하려는 체크리스트가 다른 것과 동일한 경우 롤백
-			rollbackDescription(descKey, oldDesc);
-		}
-	}
-
-	private void rollbackDescription(String descKey, String oldDesc) {
-		if (oldDesc != null) {
-			redisTemplate.opsForSet().add(descKey, oldDesc);
+			redisTemplate.opsForSet().remove(descKey, oldDesc);
 		}
 	}
 

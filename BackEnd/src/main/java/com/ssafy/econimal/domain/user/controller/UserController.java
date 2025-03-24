@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.user.dto.UpdateNicknameRequest;
 import com.ssafy.econimal.domain.user.dto.UserInfoResponse;
+import com.ssafy.econimal.domain.user.dto.UserProfileResponse;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.service.UserService;
 import com.ssafy.econimal.global.annotation.Login;
@@ -25,8 +26,13 @@ public class UserController {
 	private final UserService userService;
 
 	@GetMapping("/info")
-	public UserInfoResponse userInfo(@Login User user) {
+	public UserInfoResponse getUserInfo(@Login User user) {
 		return userService.getUserInfo(user);
+	}
+
+	@GetMapping("/profile")
+	public UserProfileResponse getUserProfile(@Login User user) {
+		return userService.getUserProfile(user);
 	}
 
 	@PatchMapping("/nickname")

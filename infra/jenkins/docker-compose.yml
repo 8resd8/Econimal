@@ -1,0 +1,17 @@
+services:
+  jenkins:
+    user: "root"
+    image: jenkins/jenkins:jdk17
+    container_name: jenkins
+    environment:
+      - TZ=Asia/Seoul
+      - JENKINS_OPTS="--prefix=/jenkins"
+    volumes:
+      - ${DOCKER_SOCK_PATH}:/var/run/docker.sock
+      - ${JENKINS_HOME}:/var/jenkins_home
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: ["sh", "-c"]
+    command:
+      - /entrypoint.sh
+    ports:
+      - 127.0.0.1:${JENKINS_PORT}:8080

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "@/api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/store"; // Zustand 사용 시
+import { isAxiosError } from 'axios';
+import axiosInstance from "@/api/axiosConfig";
 
 interface User {
   id: number;
@@ -13,6 +15,7 @@ interface User {
   role: string;
   lastLoginAt: string;
   townName: string;
+  userId: number;
 }
 
 interface LoginResponse {
@@ -40,7 +43,7 @@ export const useAuth = () => {
   const { token, setToken, clearToken } = useAuthStore(); // Zustand 상태 관리
   const [hasCharacter, setHasCharacter] = useState<boolean>(false); // 캐릭터 존재 여부 상태 추가
   // 타이머 ID 저장을 위한 상태 추가
-const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null);
 
   // 토큰 값이 변경될 때마다 콘솔에 출력
   useEffect(() => {
@@ -145,21 +148,45 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     }
   };
 
-  // 유저 정보 불러오기
+  // fetchUserData 함수에서 에러 처리 부분을 다음과 같이 수정
   const fetchUserData = async () => {
-    if (!token) return;
+    if (!token) {
+      console.log("토큰이 없어 유저 정보를 가져올 수 없습니다.");
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const res = await axios.get("/users/info", {
+      console.log("유저 정보 요청 시작, 토큰:", token);
+      const res = await axiosInstance.get("/users/info", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // API 응답에서 userInfo 객체 추출
-      const userData = res.data.userInfo; // 이 부분 확인 필요
+      
+      console.log("유저 정보 응답:", res.data);
+      
+      // API 응답의 정확한 구조를 확인
+      const userData = res.data.userInfo || res.data;
+      console.log("파싱된 유저 데이터:", userData);
+      
+      if (!userData || typeof userData !== 'object') {
+        console.error("유저 데이터가 올바른 형식이 아닙니다:", userData);
+        return;
+      }
+      
       setUser(userData);
       return userData;
-      // setUser(res.data);
-
     } catch (error) {
       console.error("유저 정보 가져오기 실패", error);
+      // 401 에러인 경우 토큰이 만료되었을 수 있음
+      if (isAxiosError(error) && error.response?.status === 401) {
+        console.log("인증 에러 - 토큰 갱신 시도");
+        const refreshSuccessful = await refreshToken();
+        if (!refreshSuccessful) {
+          console.log("토큰 갱신 실패 - 로그아웃");
+          clearToken();
+          setUser(null);
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -168,26 +195,38 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
   // AccessToken 갱신 (refreshToken은 쿠키에 있으므로 자동으로 전송됨)
   const refreshToken = async () => {
     try {
-      const res = await axios.post<LoginResponse>("/users/refresh");
-      setToken(res.data.accessToken);
+      console.log("토큰 갱신 시도 시간:", new Date().toISOString());
       
-      const expiresIn = res.data.timeToLive;
-      // 만료 시간 5분 전에 자동 갱신 예약
-    const refreshTimeoutId = setTimeout(() => {
-      refreshToken();
-    }, expiresIn - 300000); // 5분(300000ms)을 빼서 만료 직전에 갱신
-    
-    // 타이머 ID 저장 (로그아웃 시 타이머 제거를 위해)
-    setRefreshTimerId(refreshTimeoutId);
+      const res = await axios.post<LoginResponse>("/users/refresh");
+      console.log("토큰 갱신 응답:", res.data);
+      
+      setToken(res.data.accessToken);
+      setTimeout(() => {
+        console.log("토큰이 정상적으로 갱신되었는지 확인:", useAuthStore.getState().token);
+      }, 100);
 
-      return true; // 성공 시 true 반환
+      console.log("새 토큰 설정됨:", res.data.accessToken);
+      
+      const newExpiresIn = res.data.timeToLive;
+      console.log("새 토큰 만료 시간:", newExpiresIn);
+      
+      // 타이머 설정
+      const refreshTimeoutId = setTimeout(() => {
+        console.log("자동 갱신 타이머 실행:", new Date().toISOString());
+        refreshToken();
+      }, Math.max(5000, newExpiresIn - 300000)); // 최소 5초 후 실행되도록 보장
+      
+      // 타이머 ID 저장
+      setRefreshTimerId(refreshTimeoutId);
+  
+      return true;
     } catch (error) {
       console.error("토큰 갱신 실패", error);
       // 로그인 페이지에 있지 않은 경우에만 로그아웃
       if (window.location.pathname !== '/login') {
         clearToken();
       }
-      return false; // 실패 시 false 반환
+      return false;
     }
   };
 
@@ -215,7 +254,7 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     }
   };
 
-  // 비밀번호 찾기 & 변경
+  // 비밀번호 찾기
   const requestPasswordReset = async (email: string) => {
     try {
       await axios.post("/users/password/reset/request", { email });
@@ -232,10 +271,30 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
         throw new Error("비밀번호가 일치하지 않습니다.");
       }
 
+      // user가 null이 아닌지 확인
+      if (!user) {
+        throw new Error("사용자 정보가 없습니다. 다시 로그인해주세요.");
+      }
+
+      // 여기서부터는 user가 null이 아님이 보장됨
+      console.log("사용자 정보:", user);
+      // 디버깅: user 객체의 모든 속성 출력
+      console.log("사용자 정보 전체:", user);
+      console.log("사용자 ID 관련 필드:", {
+        id: user.id,
+        userId: user.userId
+      });
+
       // API 명세에 맞게 요청 구성
       // userId는 서버에서 토큰으로 식별할 수도 있지만, API 명세에 있으므로 포함
-      const userId = user?.id || ""; // 사용자 ID가 없는 경우 빈 문자열
+      const userId = user?.id || user.userId; // 사용자 ID가 없는 경우 빈 문자열
       
+      if (!userId) {
+        throw new Error("사용자 ID를 찾을 수 없습니다.");
+      }
+  
+      console.log("비밀번호 변경 요청, userId:", userId);
+
       await axios.patch("/users/password", {
         userId,
         newPassword1,
@@ -256,10 +315,63 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
   useEffect(() => {
     if (token) {
       fetchUserData();
+      // refreshToken(); // 초기 실행 시에도 갱신 시도
     } else {
       setLoading(false);
     }
   }, [token]);
+
+  // 이메일 중복 확인
+  const validateEmail = async (email: string) => {
+    try {
+      const response = await axios.post("/users/email-validation", { email });
+      console.log("이메일 검증 응답:", response.data);
+      
+      // 응답 구조에 따라 조건문 추가 
+      // 만약 응답에 중복 여부가 포함되어 있다면:
+      if (response.data.isDuplicate) {
+        return { isValid: false, message: "이미 사용 중인 이메일입니다." };
+      }
+      
+      return { isValid: true, message: "사용 가능한 이메일입니다." };
+    } catch (error: any) {
+      console.error("이메일 중복 확인 실패", error);
+      return { 
+        isValid: false, 
+        message: error.response?.data?.message || "이메일 검증에 실패했습니다." 
+      };
+    }
+  };
+
+  // 이메일 인증 코드 전송 함수
+  const sendEmailVerification = async (email: string) => {
+    try {
+      await axios.post("/users/email/password/reset/request", { email });
+      const response = await axiosInstance.post("/users/email/password/reset/request", { email });
+      console.log("이메일 전송 응답:", response.data);
+      return { success: true, message: "인증 코드가 이메일로 전송되었습니다." };
+    } catch (error: any) {
+      console.error("이메일 인증 코드 전송 실패", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "인증 코드 전송에 실패했습니다."
+      };
+    }
+  };
+
+  // 이메일 인증 코드 확인 함수
+  const verifyEmailCode = async (email: string, authCode: string) => {
+    try {
+      await axios.post("/users/email/password/reset/confirm", { email, authCode });
+      return { success: true, message: "이메일이 성공적으로 인증되었습니다." };
+    } catch (error: any) {
+      console.error("이메일 인증 코드 확인 실패", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "인증 코드가 올바르지 않습니다."
+      };
+    }
+  };
 
   return {
     user,
@@ -270,6 +382,9 @@ const [refreshTimerId, setRefreshTimerId] = useState<NodeJS.Timeout | null>(null
     refreshToken,
     changeNickname,
     requestPasswordReset,
-    changePassword
+    changePassword,
+    validateEmail,
+    sendEmailVerification,
+    verifyEmailCode,
   };
 };

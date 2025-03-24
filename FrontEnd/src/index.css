@@ -3,9 +3,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "MyFont";
+  src: url("/fonts/MyFont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* 기본적인 글로벌 스타일 설정 (React 기본 스타일 아님) */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "MyFont", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 

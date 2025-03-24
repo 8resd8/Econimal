@@ -3,7 +3,7 @@ export interface ChecklistPanel {
   title: string; //없음
   description: string;
   exp: number;
-  is_complete: boolean;
+  isComplete: boolean;
 }
 
 export interface ChecklistPanelProps {
@@ -12,11 +12,12 @@ export interface ChecklistPanelProps {
     title: string; //없음
     description: string;
     exp: number;
-    is_complete: boolean;
+    isComplete: boolean;
   }>;
+  activeTab?: string;
   isEditable?: boolean; // 수정/삭제 가능 여부
-  onAddItem?: (newItem) => void;
-  onCompleteItem?: (checklistId: string) => void;
+  onAddItem?: (newItem: ChecklistPanel) => void;
+  onCompleteItem?: (checklistId: string, type: string) => void;
   onEditItem?: (checklistId: string, newTitle: string) => void;
   onDeleteItem?: (checklistId: string) => void;
 }

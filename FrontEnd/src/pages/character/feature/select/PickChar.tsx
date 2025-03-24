@@ -18,7 +18,7 @@ const PickChar = () => {
 
   return (
     <div className='flex flex-col m-8'>
-      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center'>
+      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center text-white'>
         {/* {myChar.description.slice(0, -2)} "{myChar.name}" */}
         {description.slice(0, -2)} "{myChar?.name}"
       </h2>
