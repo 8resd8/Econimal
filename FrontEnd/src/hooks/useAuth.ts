@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "@/api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/store"; // Zustand 사용 시
+import { isAxiosError } from 'axios';
+import axiosInstance from "@/api/axiosConfig";
 
 interface User {
   id: number;
@@ -13,6 +15,7 @@ interface User {
   role: string;
   lastLoginAt: string;
   townName: string;
+  userId: number;
 }
 
 interface LoginResponse {
@@ -145,21 +148,45 @@ export const useAuth = () => {
     }
   };
 
-  // 유저 정보 불러오기
+  // 그리고 fetchUserData 함수에서 에러 처리 부분을 다음과 같이 수정
   const fetchUserData = async () => {
-    if (!token) return;
+    if (!token) {
+      console.log("토큰이 없어 유저 정보를 가져올 수 없습니다.");
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const res = await axios.get("/users/info", {
+      console.log("유저 정보 요청 시작, 토큰:", token);
+      const res = await axiosInstance.get("/users/info", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // API 응답에서 userInfo 객체 추출
-      const userData = res.data.userInfo; // 이 부분 확인 필요
+      
+      console.log("유저 정보 응답:", res.data);
+      
+      // API 응답의 정확한 구조를 확인
+      const userData = res.data.userInfo || res.data;
+      console.log("파싱된 유저 데이터:", userData);
+      
+      if (!userData || typeof userData !== 'object') {
+        console.error("유저 데이터가 올바른 형식이 아닙니다:", userData);
+        return;
+      }
+      
       setUser(userData);
       return userData;
-      // setUser(res.data);
-
     } catch (error) {
       console.error("유저 정보 가져오기 실패", error);
+      // 401 에러인 경우 토큰이 만료되었을 수 있음
+      if (isAxiosError(error) && error.response?.status === 401) {
+        console.log("인증 에러 - 토큰 갱신 시도");
+        const refreshSuccessful = await refreshToken();
+        if (!refreshSuccessful) {
+          console.log("토큰 갱신 실패 - 로그아웃");
+          clearToken();
+          setUser(null);
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -215,7 +242,7 @@ export const useAuth = () => {
     }
   };
 
-  // 비밀번호 찾기 & 변경
+  // 비밀번호 찾기
   const requestPasswordReset = async (email: string) => {
     try {
       await axios.post("/users/password/reset/request", { email });
@@ -232,10 +259,30 @@ export const useAuth = () => {
         throw new Error("비밀번호가 일치하지 않습니다.");
       }
 
+      // user가 null이 아닌지 확인
+      if (!user) {
+        throw new Error("사용자 정보가 없습니다. 다시 로그인해주세요.");
+      }
+
+      // 여기서부터는 user가 null이 아님이 보장됨
+      console.log("사용자 정보:", user);
+      // 디버깅: user 객체의 모든 속성 출력
+      console.log("사용자 정보 전체:", user);
+      console.log("사용자 ID 관련 필드:", {
+        id: user.id,
+        userId: user.userId
+      });
+
       // API 명세에 맞게 요청 구성
       // userId는 서버에서 토큰으로 식별할 수도 있지만, API 명세에 있으므로 포함
-      const userId = user?.id || ""; // 사용자 ID가 없는 경우 빈 문자열
+      const userId = user?.id || user.userId; // 사용자 ID가 없는 경우 빈 문자열
       
+      if (!userId) {
+        throw new Error("사용자 ID를 찾을 수 없습니다.");
+      }
+  
+      console.log("비밀번호 변경 요청, userId:", userId);
+
       await axios.patch("/users/password", {
         userId,
         newPassword1,
@@ -287,6 +334,8 @@ export const useAuth = () => {
   const sendEmailVerification = async (email: string) => {
     try {
       await axios.post("/users/email/password/reset/request", { email });
+      const response = await axiosInstance.post("/users/email/password/reset/request", { email });
+      console.log("이메일 전송 응답:", response.data);
       return { success: true, message: "인증 코드가 이메일로 전송되었습니다." };
     } catch (error: any) {
       console.error("이메일 인증 코드 전송 실패", error);
