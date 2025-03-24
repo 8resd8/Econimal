@@ -102,6 +102,22 @@ pipeline{
                 }
             }
         }
+        stage('Add front env'){
+            steps{
+                withCredentials([file(credentialsId: 'front-env', variable: 'frontenv')]) {
+                    script {
+                        def filePath = "/var/jenkins_home/workspace/econimal/FrontEnd/.env"
+                        def fileExists = sh(script: "test -f ${filePath} && echo true || echo false", returnStdout: true).trim()
+
+                        if (fileExists == 'true') {
+                            sh "rm ${filePath}"
+                        }
+
+                        sh "cp ${frontenv} ${filePath}"
+                    }
+                }
+            }
+        }
         stage('Add infra env'){
             steps{
                 withCredentials([file(credentialsId: 'infra-env', variable: 'infraenv')]) {

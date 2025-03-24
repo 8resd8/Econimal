@@ -42,14 +42,14 @@ public class UserCharacter extends BaseTimeEntity {
 	@Column(name = "level", nullable = false, columnDefinition = "INT DEFAULT 1")
 	private int level = 1;
 
-	@Column(name = "total_exp", nullable = false, columnDefinition = "INT DEFAULT 0 COMMENT '누적 경험치'")
+	@Column(name = "total_exp", nullable = false)
 	private int totalExp;
 
-	@Column(name = "expression", columnDefinition = "ENUM('JOY', 'SADNESS', 'NEUTRAL') DEFAULT 'SADNESS' COMMENT '캐릭터 감정 표현'")
+	@Column(name = "expression")
 	@Enumerated(EnumType.STRING)
 	private ExpressionType expression;
 
-	@Column(name = "is_main", nullable = false, columnDefinition = "tinyint(1) DEFAULT 0")
+	@Column(name = "is_main", nullable = false)
 	private boolean isMain;
 
 	@Builder
