@@ -7,22 +7,26 @@ import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.data.TestEntityHelper;
+import com.ssafy.econimal.domain.data.sample.UserCharacterSample;
+import com.ssafy.econimal.domain.store.entity.Product;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.global.common.enums.DifficultyType;
 import com.ssafy.econimal.global.common.enums.EcoType;
+import com.ssafy.econimal.global.common.enums.ExpressionType;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import jakarta.transaction.Transactional;
@@ -40,19 +44,26 @@ public class ChecklistServiceTest {
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 
+	private Product product;
+	private Character character;
 	private Town town;
 	private User user;
 	private Checklist checklist;
 	private UserChecklist userChecklist;
+	private UserCharacter userCharacter;
 
 	private final String CHECKLIST_PREFIX = "CC:";
 
 	@BeforeEach
 	void setUp() {
+		product = helper.createProduct();
+		character = helper.createCharacter(product);
 		town = helper.createTown();
 		user = helper.createUser(town);
 		checklist = helper.createChecklist(DifficultyType.LOW, EcoType.ELECTRICITY);
 		userChecklist = helper.createUserChecklist(user, checklist);
+		userCharacter = UserCharacterSample.userCharacter(user, character, 1, 0, ExpressionType.SADNESS, true);
+		helper.persist(userCharacter);
 	}
 
 	@Test
@@ -113,7 +124,6 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
-	@Disabled
 	void 커스텀체크리스트삭제_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
@@ -162,7 +172,6 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
-	@Disabled
 	void 커스텀체크리스트수정_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
@@ -187,7 +196,6 @@ public class ChecklistServiceTest {
 	}
 
 	@Test
-	@Disabled
 	void 커스텀체크리스트완료() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
 		checklistService.addCustomChecklist(user, request);
