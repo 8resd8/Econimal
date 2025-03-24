@@ -1,3 +1,13 @@
+-- Product: 4개
+-- Character: 4개 (3개 기본, 1개 유로)
+-- Checklist: 20개
+-- facility: 4개
+-- Infra: 4개
+-- town: 1개
+-- user: 1개
+-- user_character: 3개
+-- user_checklist: 3개
+
 -- 1. 제품(Product) 데이터
 INSERT INTO product (product_id, product_type, price)
 VALUES
