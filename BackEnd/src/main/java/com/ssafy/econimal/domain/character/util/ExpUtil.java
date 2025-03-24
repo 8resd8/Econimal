@@ -27,7 +27,12 @@ public class ExpUtil {
 	public static Integer getMaxExp(Character character) {
 		return character.getExpPerLevel() * character.getMaxLevel();
 	}
+
 	public static void addExp(int exp, UserCharacter userCharacter) {
-		userCharacter.updateExp(userCharacter.getTotalExp() + exp);
+		int totalExp = userCharacter.getTotalExp();
+		int maxExp = getMaxExp(userCharacter.getCharacter());
+		if (maxExp <= totalExp + exp) {
+			userCharacter.updateExp(totalExp + exp);
+		}
 	}
 }
