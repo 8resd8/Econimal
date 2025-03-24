@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,14 +38,6 @@ class UserTestDataTest {
 
 	@Autowired
 	CharacterRepository characterRepository;
-
-	// @BeforeEach
-	// void printProduct() {
-	// 	List<Product> products = productRepository.findAll();
-	// 	for (Product p : products) {
-	// 		System.out.println(p.toString());
-	// 	}
-	// }
 
 	@Test
 	void 전체유저수() {
