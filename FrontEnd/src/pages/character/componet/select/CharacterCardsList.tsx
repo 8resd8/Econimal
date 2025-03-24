@@ -31,7 +31,7 @@ const CharacterCardsList = () => {
   // 서버에서 받은 ip값을 우선적으로 진행하고 있음
   return (
     <div className='flex-col justify-center items-center'>
-      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center'>
+      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center text-white'>
         환경 위기에서 구해줄 친구를 골라주세요!
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
