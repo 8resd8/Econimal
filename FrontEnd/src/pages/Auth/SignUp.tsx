@@ -29,6 +29,45 @@ const Signup = () => {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  // 비밀번호 관련 상태를 추가
+  const [passwordValid, setPasswordValid] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordMatchValid, setPasswordMatchValid] = useState(false);
+  const [passwordMatchMessage, setPasswordMatchMessage] = useState("");
+
+  // 비밀번호 유효성 검사 함수
+  const validatePassword = (password: string) => {
+    // 비밀번호 정책: 최소 8자, 소문자, 숫자, 특수문자 포함 (대문자 제외)
+    const minLength = password.length >= 8;
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    const isValid = minLength && hasLowerCase && hasNumbers && hasSpecialChar;
+    
+    let message = "";
+    if (!minLength) message = "비밀번호는 최소 8자 이상이어야 합니다.";
+    else if (!hasLowerCase) message = "소문자를 포함해야 합니다.";
+    else if (!hasNumbers) message = "숫자를 포함해야 합니다.";
+    else if (!hasSpecialChar) message = "특수문자를 포함해야 합니다.";
+    else message = "사용 가능한 비밀번호입니다.";
+    
+    setPasswordValid(isValid);
+    setPasswordMessage(message);
+    
+    // 비밀번호 일치 여부도 다시 확인
+    if (password2) {
+      checkPasswordMatch(password, password2);
+    }
+  };
+
+  // 비밀번호 일치 여부 검사 함수
+  const checkPasswordMatch = (pw1: string, pw2: string) => {
+    const isMatch = pw1 === pw2;
+    setPasswordMatchValid(isMatch);
+    setPasswordMatchMessage(isMatch ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.");
+  };
+
 
   // useAuth 훅 사용
   const auth = useAuth();
@@ -132,8 +171,14 @@ const Signup = () => {
       return;
     }
     
+    // 비밀번호 유효성 검사
+    if (!passwordValid) {
+      alert("비밀번호가 유효하지 않습니다.");
+      return;
+    }
+    
     // 비밀번호 일치 검사
-    if (password1 !== password2) {
+    if (!passwordMatchValid) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
@@ -160,18 +205,37 @@ const Signup = () => {
     setShowPassword2(!showPassword2);
   };
 
+  // 비밀번호 입력 핸들러 수정
+  const handlePassword1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword1(newPassword);
+    validatePassword(newPassword);
+  };
+
+  // 비밀번호 확인 입력 핸들러 수정
+  const handlePassword2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword2 = e.target.value;
+    setPassword2(newPassword2);
+    if (newPassword2) {
+      checkPasswordMatch(password1, newPassword2);
+    } else {
+      setPasswordMatchValid(false);
+      setPasswordMatchMessage("");
+    }
+  };
+
   return (
     <div
       className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
       {/* 반투명 로고 */}
-      <img
+      {/* <img
         src={logoImage}
         alt="로고"
         className="absolute w-100 opacity-80"
         style={{ top: "20%", left: "50%", transform: "translateX(-50%)" }}
-      />
+      /> */}
 
       {/* 회원가입 폼 */}
       <div className="relative p-8 text-center w-96">
@@ -298,6 +362,13 @@ const Signup = () => {
                 </svg>
               </button>
             </div>
+
+            {/* 비밀번호 유효성 메시지 */}
+            {passwordMessage && (
+              <div className={`text-sm ${passwordValid ? 'text-green-400' : 'text-red-400'} text-left`}>
+                {passwordMessage}
+              </div>
+            )}
             
             {/* 비밀번호 확인 필드 - 눈 아이콘 */}
             <div className="relative">
@@ -336,6 +407,13 @@ const Signup = () => {
               </button>
             </div>
             
+            {/* 비밀번호 일치 메시지 */}
+            {password2 && passwordMatchMessage && (
+              <div className={`text-sm ${passwordMatchValid ? 'text-green-400' : 'text-red-400'} text-left`}>
+                {passwordMatchMessage}
+              </div>
+            )}
+
             {/* 이름 입력 필드 */}
             <input
               type="text"
