@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,4 +46,12 @@ public class CarbonLog extends BaseTimeEntity {
 
 	@Column(name = "carbon_quantity", nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10, 2) DEFAULT 0.00")
 	private BigDecimal carbonQuantity = BigDecimal.valueOf(0.00);
+
+	@Builder
+	public CarbonLog(User user, InfrastructureEvent infrastructureEvent, EcoAnswer ecoAnswer, BigDecimal carbonQuantity) {
+		this.user = user;
+		this.infrastructureEvent = infrastructureEvent;
+		this.ecoAnswer = ecoAnswer;
+		this.carbonQuantity = carbonQuantity;
+	}
 }
