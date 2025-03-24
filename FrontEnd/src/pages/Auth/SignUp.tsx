@@ -1,6 +1,5 @@
 import { useState } from "react";
 import bgImage from "@/assets/auth_background.png";
-import logoImage from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 
 const Signup = () => {
@@ -229,13 +228,6 @@ const Signup = () => {
       className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      {/* 반투명 로고 */}
-      {/* <img
-        src={logoImage}
-        alt="로고"
-        className="absolute w-100 opacity-80"
-        style={{ top: "20%", left: "50%", transform: "translateX(-50%)" }}
-      /> */}
 
       {/* 회원가입 폼 */}
       <div className="relative p-8 text-center w-96">
@@ -261,7 +253,9 @@ const Signup = () => {
                 type="button"
                 onClick={handleEmailCheck}
                 disabled={isCheckingEmail || !email}
-                className="absolute right-0 top-0 bottom-0 bg-slate-600 hover:bg-slate-700 text-white px-3 m-1 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                className="absolute right-0 top-0 bottom-0 bg-slate-600 hover:bg-slate-700
+                text-white px-3 m-2 rounded-lg flex items-center justify-center transition-colors
+                disabled:opacity-50"
               >
                 {isCheckingEmail ? "확인 중..." : "중복 확인"}
               </button>
@@ -444,21 +438,32 @@ const Signup = () => {
               }}
             />
             
-            {/* 생년월일 입력 필드 */}
-            <input
-              type="date"
-              value={birth}
-              onChange={(e) => setBirth(e.target.value)}
-              placeholder="생년월일"
-              className="pt-2 pb-2 pl-3 border-4 border-white
-              rounded-lg bg-black bg-opacity-25 w-full
-              font-extrabold text-lg"
-              style={{ 
-                color: 'white', 
-                caretColor: 'white'
-              }}
-            />
-            
+            <div className="relative">
+              {/* 생년월일 입력 필드 */}
+              <input
+                type="date"
+                value={birth}
+                onChange={(e) => setBirth(e.target.value)}
+                placeholder="생년월일"
+                className="pt-2 pb-2 pl-3 pr-3 border-4 border-white
+                rounded-lg bg-black bg-opacity-25 w-full
+                font-extrabold text-lg z-10 relative"
+                style={{ 
+                  color: 'white', 
+                  caretColor: 'white'
+                }}
+              />
+              <svg 
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 z-0" 
+                width="30" 
+                height="30" 
+                viewBox="0 0 24 24" 
+                fill="white"
+              >
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </div>
+
             {/* 회원가입 버튼 */}
             <button
               type="submit"
