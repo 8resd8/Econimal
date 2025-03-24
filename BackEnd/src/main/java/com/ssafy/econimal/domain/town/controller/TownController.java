@@ -1,5 +1,6 @@
 package com.ssafy.econimal.domain.town.controller;
 
+import com.ssafy.econimal.domain.town.dto.InfrastructureEventDetailResponse;
 import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
 import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
 import com.ssafy.econimal.domain.town.service.InfrastructureEventService;
@@ -33,7 +34,7 @@ public class TownController {
     }
 
     @GetMapping("/events/{infraEventId}")
-    public void getInfraEvent(@Login User user) {
-
+    public InfrastructureEventDetailResponse getInfrastructureEventDetail(@PathVariable Long infraEventId) {
+        return infrastructureEventService.getInfrastructureEventDetail(infraEventId);
     }
 }
