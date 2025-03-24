@@ -1,16 +1,29 @@
 package com.ssafy.econimal.domain.town.service;
 
+import com.ssafy.econimal.domain.town.dto.EcoAnswerDto;
+import com.ssafy.econimal.domain.town.dto.EcoQuizDto;
+import com.ssafy.econimal.domain.town.dto.InfrastructureEventDetailResponse;
 import com.ssafy.econimal.domain.town.dto.InfrastructureEventResponse;
 import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
+import com.ssafy.econimal.domain.town.entity.EcoAnswer;
+import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
+import com.ssafy.econimal.domain.town.repository.EcoAnswerRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureEventRepository;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.global.common.enums.EcoType;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +31,39 @@ import java.util.stream.Collectors;
 public class InfrastructureEventService {
 
     private final InfrastructureEventRepository infrastructureEventRepository;
+    private final EcoAnswerRepository ecoAnswerRepository;
 
+    private List<EcoAnswer> getShuffledAnswers(EcoQuiz quiz) {
+        List<EcoAnswer> answers = new ArrayList<>(ecoAnswerRepository.findAllByEcoQuizId(quiz.getId()));
+        Collections.shuffle(answers);
+        return answers;
+    }
+
+    private List<EcoAnswerDto> selectCourtAnswers(List<EcoAnswer> answers) {
+        return answers.stream()
+            .limit(4)
+            .map(EcoAnswerDto::from)
+            .toList();
+    }
+
+    private List<EcoAnswerDto> selectGeneralAnswers(List<EcoAnswer> answers, EcoQuiz quiz) {
+        EcoAnswerDto positive = null;
+        EcoAnswerDto negative = null;
+
+        for (EcoAnswer answer : answers) {
+            if (positive == null && answer.getExp() > 0) {
+                positive = EcoAnswerDto.from(answer);
+            } else if (negative == null && answer.getExp() <= 0) {
+                negative = new EcoAnswerDto(answer.getId(), answer.getDescription(), 0);
+            }
+
+            if (positive != null && negative != null) break;
+        }
+
+        return Stream.of(positive, negative)
+            .filter(Objects::nonNull)
+            .toList();
+    }
 
     @Transactional(readOnly = true)
     public TownStatusResponse getTownStatus(User user) {
@@ -26,15 +71,27 @@ public class InfrastructureEventService {
         List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(townId);
 
         List<InfrastructureEventResponse> responseList = events.stream()
-                .map(event -> new InfrastructureEventResponse(
-                        event.getInfrastructure().getId(),
-                        event.getInfrastructure().getFacility().getEcoType(),
-                        event.getInfrastructure().isClean(),
-                        event.getId(),
-                        event.isActive()
-                ))
-                .collect(Collectors.toList());
+                .map(InfrastructureEventResponse::from)
+                .toList();
 
         return new TownStatusResponse(user.getTown().getName(), responseList);
     }
+
+    @Transactional
+	public InfrastructureEventDetailResponse getInfrastructureEventDetail(Long infraEventId) {
+        InfrastructureEvent event = infrastructureEventRepository.findById(infraEventId)
+            .orElseThrow(() -> new InvalidArgumentException("존재하지 않는 infraEventId입니다."));
+
+        EcoQuiz quiz = event.getEcoQuiz();
+        EcoQuizDto quizDto = EcoQuizDto.from(quiz);
+
+        List<EcoAnswer> shuffledAnswers = getShuffledAnswers(quiz);
+
+        List<EcoAnswerDto> selectedAnswers =
+            quiz.getFacility().getEcoType() == EcoType.COURT
+                ? selectCourtAnswers(shuffledAnswers)
+                : selectGeneralAnswers(shuffledAnswers, quiz);
+
+        return new InfrastructureEventDetailResponse(quizDto, selectedAnswers);
+	}
 }
