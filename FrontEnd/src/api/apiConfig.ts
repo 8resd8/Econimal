@@ -9,6 +9,6 @@ export const API = {
     DONE: 'checklists/complete',
   },
   SHOP: {
-    LIST: 'store/characters',
+    LIST: 'product/characters',
   },
 };
