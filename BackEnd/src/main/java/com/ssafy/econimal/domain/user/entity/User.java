@@ -91,5 +91,8 @@ public class User extends BaseTimeEntity {
 		this.password = encodedPassword;
 	}
 
-	public void updateCoin(long coin) { this.coin = coin; }
+	public void updateCoin(long coin) {
+		if (coin < 0) throw new IllegalArgumentException("코인은 0보다 작을 수 없습니다.");
+		this.coin = coin;
+	}
 }
