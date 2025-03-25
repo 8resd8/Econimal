@@ -4,8 +4,8 @@ import { useShopList } from '../../feature/hooks/useShopList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import CharCoin from '../main/status/CharCoin';
 
-// 배경 타입 정의
-interface BackgroundType {
+// 아이템 타입 정의
+interface ItemType {
   productId: number;
   characterName: string;
   image: string;
@@ -13,7 +13,7 @@ interface BackgroundType {
   price: number; // 가격 정보 추가
 }
 
-const backgrounds: BackgroundType[] = [
+const backgrounds: ItemType[] = [
   {
     productId: 1,
     characterName: '마을',
@@ -21,7 +21,6 @@ const backgrounds: BackgroundType[] = [
     owned: true,
     price: 300,
   },
-  // 기본 옵션으로 자물쇠가 걸린 빈 슬롯 추가
   ...Array(7).fill({
     productId: -1,
     characterName: '',
@@ -38,12 +37,11 @@ const itemShop = () => {
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
     'characters',
   );
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null); // 선택된 아이템 ID
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
   const [userCoins, setUserCoins] = useState<number>(1500); // 유저 보유 코인 상태
   const [showModal, setShowModal] = useState<boolean>(false); // 모달 상태
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
-    useState<BackgroundType | null>(null); // 구매 대상 아이템
+    useState<ItemType | null>(null); // 구매 대상 아이템
 
   // 스크롤 방지
   useEffect(() => {
@@ -76,7 +74,7 @@ const itemShop = () => {
         ]
       : backgrounds;
 
-  const handlePurchaseClick = (item: BackgroundType) => {
+  const handlePurchaseClick = (item: ItemType) => {
     if (item.productId === -1 || item.owned) {
       alert('구매할 수 없는 상품입니다!');
       return;
@@ -93,7 +91,6 @@ const itemShop = () => {
       selectedItemForPurchase.owned = true; // 소유 상태 업데이트
       alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`);
       setShowModal(false); // 모달 닫기
-      setSelectedItemId(null); // 선택 초기화
     } else {
       alert('코인이 부족합니다!');
     }
@@ -112,10 +109,7 @@ const itemShop = () => {
         {/* 탭 버튼 */}
         <div className='flex justify-center gap-2 mb-8'>
           <button
-            onClick={() => {
-              setSelectedTab('characters');
-              setSelectedItemId(null); // 선택 초기화
-            }}
+            onClick={() => setSelectedTab('characters')}
             className={`px-6 py-2 rounded-full ${
               selectedTab === 'characters'
                 ? 'bg-blue-600 text-white'
@@ -125,10 +119,7 @@ const itemShop = () => {
             캐릭터
           </button>
           <button
-            onClick={() => {
-              setSelectedTab('backgrounds');
-              setSelectedItemId(null); // 선택 초기화
-            }}
+            onClick={() => setSelectedTab('backgrounds')}
             className={`px-6 py-2 rounded-full ${
               selectedTab === 'backgrounds'
                 ? 'bg-blue-600 text-white'
@@ -179,7 +170,8 @@ const itemShop = () => {
                     </text>
                   </svg>
                   <span className='font-bold text-yellow-800'>
-                    {item.price}
+                    {/* {item.price} */}
+                    0----
                   </span>
                 </div>
               )}
