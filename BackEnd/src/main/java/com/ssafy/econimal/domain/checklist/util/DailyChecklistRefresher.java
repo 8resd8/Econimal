@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -11,7 +12,6 @@ import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Component

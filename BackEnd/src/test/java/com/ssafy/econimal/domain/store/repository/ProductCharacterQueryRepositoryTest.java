@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.store.dto.StoreDto;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
-
-import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional
@@ -27,7 +26,6 @@ class ProductCharacterQueryRepositoryTest {
 
 	@Autowired
 	private UserRepository userRepository;
-
 
 	@Test
 	void 캐릭터상점항목조회() {
