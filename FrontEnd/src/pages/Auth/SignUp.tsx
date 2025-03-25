@@ -325,7 +325,7 @@ const Signup = () => {
               <input
                 type={showPassword1 ? "text" : "password"}
                 value={password1}
-                onChange={(e) => setPassword1(e.target.value)}
+                onChange={handlePassword1Change}
                 placeholder="비밀번호"
                 className="pt-2 pb-2 pl-3 border-4 border-white
                 rounded-lg bg-black bg-opacity-25 w-full
@@ -369,7 +369,7 @@ const Signup = () => {
               <input
                 type={showPassword2 ? "text" : "password"}
                 value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
+                onChange={handlePassword2Change}
                 placeholder="비밀번호 확인"
                 className="pt-2 pb-2 pl-3 border-4 border-white
                 rounded-lg bg-black bg-opacity-25 w-full
