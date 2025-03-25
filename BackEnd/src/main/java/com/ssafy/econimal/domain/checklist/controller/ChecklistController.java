@@ -21,7 +21,7 @@ public class ChecklistController {
 
 	private final ChecklistService checklistService;
 
-	@GetMapping()
+	@GetMapping
 	public UserChecklistResponse getUserChecklist(@Login User user) {
 		return checklistService.getUserChecklist(user);
 	}
