@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Lock } from 'lucide-react';
-import { useShopList } from '../../feature/hooks/useShopList';
-import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import CharCoin from '../main/status/CharCoin';
 
 // 아이템 타입 정의
@@ -13,27 +11,38 @@ interface ItemType {
   price: number; // 가격 정보 추가
 }
 
-const backgrounds: ItemType[] = [
+const characters: ItemType[] = [
   {
     productId: 1,
-    characterName: '마을',
-    image: '/bg1.svg',
+    characterName: '부기부기',
+    image: '/images/turtle.png',
     owned: true,
-    price: 300,
+    price: 100,
   },
-  ...Array(7).fill({
+  {
+    productId: 2,
+    characterName: '펭글링스',
+    image: '/images/penguin.png',
+    owned: true,
+    price: 100,
+  },
+  {
+    productId: 3,
+    characterName: '호랭이',
+    image: '/images/tiger.png',
+    owned: true,
+    price: 100,
+  },
+  ...Array(5).fill({
     productId: -1,
     characterName: '',
     image: '',
     owned: false,
-    price: -1,
+    price: 100,
   }),
 ];
 
 const itemShop = () => {
-  const { data } = useShopList();
-  const { charShopList } = useCharShopItem(data || null); // 데이터가 없을 경우 null 전달
-
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
     'characters',
   );
@@ -55,27 +64,19 @@ const itemShop = () => {
     };
   }, [showModal]);
 
-  if (!data || charShopList.length === 0) {
-    return <div>Loading...</div>;
-  }
-
-  // 항상 아이템을 최대 8개로 고정
   const currentItems =
     selectedTab === 'characters'
-      ? [
-          ...charShopList.slice(0, 8),
-          ...Array(8 - charShopList.length).fill({
-            productId: -1,
-            characterName: '',
-            image: '',
-            owned: false,
-            price: -1,
-          }),
-        ]
-      : backgrounds;
+      ? characters
+      : Array(8).fill({
+          productId: -1,
+          characterName: '',
+          image: '',
+          owned: false,
+          price: -1,
+        });
 
   const handlePurchaseClick = (item: ItemType) => {
-    if (item.productId === -1 || item.owned) {
+    if (item.productId === -1) {
       alert('구매할 수 없는 상품입니다!');
       return;
     }
@@ -140,7 +141,7 @@ const itemShop = () => {
               onMouseLeave={() => setHoveredItemId(null)}
             >
               {/* 가격 표시 */}
-              {!item.owned && item.productId !== -1 && (
+              {item.productId !== -1 && (
                 <div className='absolute top-2 right-2 bg-yellow-200 px-2 py-1 rounded-full flex items-center shadow-md'>
                   <svg
                     width='16'
@@ -170,8 +171,7 @@ const itemShop = () => {
                     </text>
                   </svg>
                   <span className='font-bold text-yellow-800'>
-                    {/* {item.price} */}
-                    0----
+                    {item.price}
                   </span>
                 </div>
               )}
