@@ -31,7 +31,7 @@ public class ExpUtil {
 	public static void addExp(int exp, UserCharacter userCharacter) {
 		int totalExp = userCharacter.getTotalExp();
 		int maxExp = getMaxExp(userCharacter.getCharacter());
-		if (maxExp <= totalExp + exp) {
+		if (totalExp + exp < maxExp) {
 			userCharacter.updateExp(totalExp + exp);
 		}
 	}
