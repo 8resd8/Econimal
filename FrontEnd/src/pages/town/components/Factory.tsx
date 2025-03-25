@@ -1,16 +1,18 @@
-// 하수처리장
+// 공장
 import { useState } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
-import sewageImg from '@/assets/town/sewage-treatment-center.png';
+import factoryImg from '@/assets/town/factory.png';
 
-const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
+const Factory = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
+
+  // 해당 인프라(GAS)의 최적/오염 상태 가져오기
+  const isOptimal = useTownStore((state) => state.infraStatus.GAS);
+
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
-  // 해당 인프라(WATER)의 상태 가져오기
-  const isOptimal = useTownStore((state) => state.infraStatus.WATER);
 
   return (
     <div
@@ -22,17 +24,17 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
         className={`w-full h-auto cursor-pointer ${
           isActive ? 'animate-pulse' : ''
         } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
-        src={sewageImg}
-        alt='하수처리장'
+        src={factoryImg}
+        alt='공장'
         onClick={() => setIsModalOpen(true)}
       />
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         infraEventId={infraEventId}
-        ecoType='WATER'
+        ecoType='GAS'
       />
     </div>
   );
 };
-export default SewageTreatmentCenter;
+export default Factory;

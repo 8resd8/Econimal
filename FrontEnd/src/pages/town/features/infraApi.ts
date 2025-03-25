@@ -1,9 +1,11 @@
 // 인프라 api 요청
 import { axiosInstance } from '@/api/axiosConfig';
 
+export type EcoType = 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
+
 // 퀴즈/선택지 항목
 interface EcoAnswer {
-  ecoQuizId: number;
+  ecoAnswerId: number;
   description: string;
 }
 
@@ -41,10 +43,11 @@ export const getInfraEvent = async (infraEventId: number) => {
 
 // 인프라 이벤트 선택지 제출
 export const submitInfraResult = async (ecoAnswerId: number) => {
+  if (ecoAnswerId === undefined || isNaN(ecoAnswerId)) {
+    throw new Error('유효하지 않은 ecoAnswerId: 유효한 숫자가 필요합니다');
+  }
   const response = await axiosInstance.post<InfraSubmitResponse>(
-    `/towns/events`, // 요청 URL
-    null, // body
-    { params: { ecoAnswerId } }, // 쿼리파라미터
+    `/towns/ecoAnswer/${ecoAnswerId}`,
   );
 
   if (!response || !response.data) {
