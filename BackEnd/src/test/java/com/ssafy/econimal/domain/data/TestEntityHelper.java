@@ -15,7 +15,7 @@ import com.ssafy.econimal.domain.data.sample.TownSample;
 import com.ssafy.econimal.domain.data.sample.UserCharacterSample;
 import com.ssafy.econimal.domain.data.sample.UserChecklistSample;
 import com.ssafy.econimal.domain.data.sample.UserSample;
-import com.ssafy.econimal.domain.store.entity.Product;
+import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 import com.ssafy.econimal.domain.town.entity.Facility;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;

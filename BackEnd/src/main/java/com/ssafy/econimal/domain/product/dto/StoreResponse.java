@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.store.dto;
+package com.ssafy.econimal.domain.product.dto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.store.repository;
+package com.ssafy.econimal.domain.product.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.store.dto.StoreDto;
+import com.ssafy.econimal.domain.product.dto.StoreDto;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 

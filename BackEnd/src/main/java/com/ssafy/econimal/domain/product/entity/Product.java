@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.store.entity;
+package com.ssafy.econimal.domain.product.entity;
 
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 import com.ssafy.econimal.global.common.enums.ProductType;

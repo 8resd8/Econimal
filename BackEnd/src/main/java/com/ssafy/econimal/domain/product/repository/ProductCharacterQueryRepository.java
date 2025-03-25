@@ -1,7 +1,7 @@
-package com.ssafy.econimal.domain.store.repository;
+package com.ssafy.econimal.domain.product.repository;
 
 import static com.ssafy.econimal.domain.character.entity.QCharacter.*;
-import static com.ssafy.econimal.domain.store.entity.QProduct.*;
+import static com.ssafy.econimal.domain.product.entity.QProduct.*;
 import static com.ssafy.econimal.domain.user.entity.QUserCharacter.*;
 
 import java.util.List;
@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.store.dto.QStoreDto;
-import com.ssafy.econimal.domain.store.dto.StoreDto;
+import com.ssafy.econimal.domain.product.dto.QStoreDto;
+import com.ssafy.econimal.domain.product.dto.StoreDto;
 import com.ssafy.econimal.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
