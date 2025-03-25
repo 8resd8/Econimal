@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useShopList } from '../../feature/hooks/useShopList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
+import CharCoin from '../main/status/CharCoin';
 
 // 배경 타입 정의
 interface BackgroundType {
@@ -32,6 +33,7 @@ const itemShop = () => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<number>(3);
   const [selectedBackgroundId, setSelectedBackgroundId] = useState<number>(1);
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+  const [userCoins] = useState<number>(1500); // 추가: 유저 보유 코인 상태
 
   if (!data || charShopList.length === 0) {
     // 데이터 로딩 상태 처리
@@ -61,6 +63,11 @@ const itemShop = () => {
   return (
     <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center'>
       <div className='w-full max-w-6xl'>
+        {/* 상단 코인 표시 추가 */}
+        <div className='flex justify-end mb-4'>
+          <CharCoin coin={userCoins} />
+        </div>
+
         <h1 className='text-3xl font-bold text-white mb-6 text-center'>상점</h1>
 
         {/* 탭 버튼 */}
@@ -97,6 +104,7 @@ const itemShop = () => {
                 characterName: '',
                 image: '',
                 owned: false,
+                price: 100 * (index + 1), // 추가: 가격 정보
               };
 
               const isSelected =
@@ -111,6 +119,16 @@ const itemShop = () => {
                   onMouseEnter={() => setHoveredItemId(item.productId)}
                   onMouseLeave={() => setHoveredItemId(null)}
                 >
+                  {/* 가격 표시 추가 */}
+                  {!item.owned && (
+                    <div className='absolute top-2 right-2 bg-yellow-100/90 px-2 py-1 rounded-full flex items-center text-sm'>
+                      <span className='mr-1'>🪙</span>
+                      <span className='font-bold text-yellow-800'>
+                        {/* {item.price} */}
+                        30
+                      </span>
+                    </div>
+                  )}
                   <div
                     className={`relative rounded-lg p-4 transition-all duration-200 flex flex-col items-center justify-center aspect-square border ${
                       item.owned
