@@ -10,13 +10,16 @@ public record EcoAnswerResponse(
 	int coin,
 	String expression,
 	boolean isOptimal,
-	long answerId
+	String description
 ) {
-	public static EcoAnswerResponse from(EcoAnswer answer) {
+	public static EcoAnswerResponse from(EcoAnswer answer, String description) {
 		EcoType type = answer.getEcoQuiz().getFacility().getEcoType();
 
 		// 해당 유형의 가중치로 carbon 계산
-		double carbon = type.getWeight() * (-answer.getExp());
+		double carbon = 0;
+		if(!type.toString().equals(EcoType.COURT.toString())) {
+			carbon = type.getWeight() * (-answer.getExp());
+		}
 
 		int exp = answer.getExp();
 		int coin = exp;
@@ -38,7 +41,7 @@ public record EcoAnswerResponse(
 			coin,
 			expression,
 			isOptimal,
-			answer.getId()
+			description
 		);
 	}
 }

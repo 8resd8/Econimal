@@ -13,20 +13,20 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePatchTownName } from '../features/useTownQuery';
+// import { TownNameData } from '../features/townApi';
 // import { X } from 'lucide-react';
 
 interface TownNameEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currentTownName: string;
-  townId: number;
+  townId?: number;
 }
 
 export const TownNameEditModal = ({
   open,
   onOpenChange,
   currentTownName,
-  townId,
 }: TownNameEditModalProps) => {
   const [townName, setTownName] = useState(currentTownName); // currentTownName이 townName의 초기값
   const [isLoading, setIsLoading] = useState(false);
@@ -43,9 +43,9 @@ export const TownNameEditModal = ({
   // 변경된 마을 이름 저장(제출) 함수
   const handleSave = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);///
       // api 호출
-      await patchTownName({ townId, townName });
+      await patchTownName({ townName });
       // 성공 시 모달 닫기
       onOpenChange(false);
     } catch (error) {

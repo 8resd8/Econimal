@@ -1,12 +1,25 @@
 import { create } from 'zustand';
 import { InfraSubmitResponse } from '@/pages/town/features/infraApi';
 import { TownNameData } from '@/pages/town/features/townApi';
+import { EcoType } from '@/pages/town/features/infraApi';
+
+// 각 인프라 타입
+// type EcoType = 'ELECTRICITY' | 'WATER' | 'GAS' | 'COURT';
+
+// 인프라 상태 맵: 각 인프라 타입별 상태(최적/오염)
+interface InfraStatusMap {
+  [key: string]: boolean; // true = 최적(clean), false = 오염(polluted)
+}
 
 // 마을 스토어 타입 정의 - 두 타입 모두 확장
 interface TownState
   extends TownNameData,
     Pick<InfraSubmitResponse, 'carbon' | 'exp' | 'coin' | 'expression'> {
   activeEvents: number[]; // 활성화된 이벤트 ID 목록
+
+  // 각 인프라별 상태 맵
+  infraStatus: InfraStatusMap;
+  setInfraStatus: (ecoType: EcoType, status: boolean) => void;
 
   // 액션
   // 이게 전부 필요할까?
@@ -29,6 +42,23 @@ export const useTownStore = create<TownState>((set) => ({
   // TownNameData
   townId: 0,
   townName: '기본',
+
+  // 인프라 상태 초기화 - 모두 오염 상태(false)로 시작
+  infraStatus: {
+    ELECTRICITY: false,
+    WATER: false,
+    GAS: false,
+    COURT: false,
+  },
+
+  // 특정 인프라 상태 설정
+  setInfraStatus: (ecoType, status) =>
+    set((state) => ({
+      infraStatus: {
+        ...state.infraStatus,
+        [ecoType]: status,
+      },
+    })),
 
   // InfraSubmitResponse
   carbon: 0,

@@ -96,6 +96,16 @@ public class TownService {
             .orElseThrow(() -> new InvalidArgumentException("존재하지 않는 ecoAnswerId입니다."));
     }
 
+    // 법원(COURT)에 대해서 ecoQuizeId를 이용해서 정답인 선지 설명 반환
+    private String getEcoAnswerDescription(Long ecoQuizId) {
+        List<EcoAnswer> answerList = ecoAnswerRepository.findAllByEcoQuizId(ecoQuizId);
+        for(EcoAnswer answer : answerList) {
+            if(answer.getExp() > 0)
+                return answer.getDescription();
+        }
+        throw new InvalidArgumentException("해당 ecoQuizId에서 정답이 없습니다.");
+    }
+
     private UserCharacter getMainCharacter(User user) {
         return userCharacterRepository.findByUserAndMainIsTrue(user)
             .orElseThrow(() -> new InvalidArgumentException("메인 캐릭터가 존재하지 않습니다."));
@@ -143,8 +153,16 @@ public class TownService {
     }
 
     public EcoAnswerResponse getEcoAnswer(User user, Long ecoAnswerId) {
+        // 사용자의 선택 가져오기
         EcoAnswer answer = getEcoAnswerById(ecoAnswerId);
-        EcoAnswerResponse response = EcoAnswerResponse.from(answer);
+
+        // 실제 정답 선지 가져오기
+        String description = "";
+        if(answer.getEcoQuiz().getFacility().getEcoType().equals(EcoType.COURT)) {
+            description = getEcoAnswerDescription(answer.getEcoQuiz().getId());
+        }
+
+        EcoAnswerResponse response = EcoAnswerResponse.from(answer, description);
         UserCharacter userCharacter = getMainCharacter(user);
 
         saveCarbonLog(response, user, answer);

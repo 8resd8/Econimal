@@ -2,10 +2,11 @@
 import { axiosInstance } from '@/api/axiosConfig';
 
 export interface TownNameData {
-  townId: number; // 명세에서 사라짐!? 스토어에서 사용해서 있긴해야함
+  townId?: number; // 명세에서 사라짐!? 스토어에서 사용해서 있긴해야함
   townName: string;
 }
 
+// 마을 수정후 응답이 없긴해
 interface TownNameResponse {
   message?: string;
 }
@@ -21,24 +22,25 @@ export interface TownEvent {
 
 // 마을 전체 데이터
 export interface TownEventsResponse {
+  townName: string;
   townStatus: TownEvent[];
   message?: string;
 }
 
 // 마을 이름 수정
-export const patchTownName = async (townData: TownNameData) => {
-  // TownData : townId,townName 담긴 객체
+export const patchTownName = async (townName: TownNameData) => {
+  // TownData : townName 담긴 객체
   const response = await axiosInstance.patch<TownNameResponse>(
     '/towns',
-    townData,
+    townName,
   );
 
-  if (!response || !response.data) {
-    throw new Error(
-      response?.data?.message || '마을 이름 수정 중 오류가 발생했습니다.',
-    );
+  // 204 응답은 응답 본문이 없으므로 data를 확인하지 않음
+  if (!response) {
+    throw new Error('마을 이름 수정 중 오류가 발생했습니다.');
   }
-  return response.data;
+  // 성공 시 아무 값도 반환하지 않음
+  return;
 };
 
 // 마을 상황 조회
@@ -50,5 +52,17 @@ export const getTownEvents = async () => {
       response?.data?.message || '마을 상황 조회 중 요류가 발생했습니다.',
     );
   }
-  return response.data; // 꼭 있어야 함?
+  return response.data;
 };
+
+// 마을 상황 조회 API에서 마을 이름 가져오기
+// export const getTownName = async () => {
+//   const response = await axiosInstance.get('/towns/events');
+
+//   if (!response || !response.data) {
+//     throw new Error(
+//       response?.data?.message || '마을 이름 조회 중 오류가 발생했습니다.',
+//     );
+//   }
+//   return response.data;
+// };
