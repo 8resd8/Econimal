@@ -70,12 +70,18 @@ const ItemShopLogic = () => {
   // 상품 구해 완료 관련 내용 전달
   const confirmPurchase = () => {
     if (!selectedItemForPurchase) return;
-
     if (userCoins >= selectedItemForPurchase.price) {
-      setUserCoins(userCoins - selectedItemForPurchase.price); //코인 삭제시 실시간 코인 내역 반영
-      selectedItemForPurchase.owned = true;
-      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`); //추후 모달창으로 변경
+      setUserCoins(userCoins - selectedItemForPurchase.price);
+      const updatedItems = currentItems.map((item) => {
+        if (item.productId === selectedItemForPurchase.productId) {
+          return { ...item, owned: true };
+        }
+        return item;
+      });
+      setCurrentItems(updatedItems);
+      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`);
       setShowModal(false);
+      setSelectedItemForPurchase(null); // 구매 후 초기화
     } else {
       alert('코인이 부족합니다!'); //추후 모달창으로 변경
     }
