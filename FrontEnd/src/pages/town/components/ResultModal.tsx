@@ -20,9 +20,7 @@ interface ResultModalProps {
     coin: number;
     expression: string;
     isOptimal: boolean;
-    answerId: number;
-    selectedAnswerId: number;
-    correctDescription: string | null;
+    description: string;
   };
   ecoType?: string;
 }
@@ -55,13 +53,10 @@ const ResultModal = ({
   };
 
   const getAnswerMessage = () => {
-    // 오답인 경우만 정답 메시지 표시 (isOptimal 제거)
-    if (
-      ecoType === 'COURT' &&
-      Number(result.selectedAnswerId) !== Number(result.answerId)
-    ) {
-      if (result.correctDescription) {
-        return `정답은 ${result.correctDescription}이에요`;
+    // 오답일 경우만 정답 메시지 출력
+    if (ecoType === 'COURT' && result.isOptimal === false) {
+      if (result.description) {
+        return `정답은 "${result.description}"입니다.`;
       } else {
         return `정답을 확인할 수 없습니다`;
       }
