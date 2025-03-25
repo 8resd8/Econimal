@@ -6,13 +6,13 @@ import java.time.Duration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.request.EmailAuthRequest;
 import com.ssafy.econimal.domain.auth.dto.request.UpdatePasswordRequest;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.user.entity.User;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

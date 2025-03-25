@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
@@ -28,7 +29,6 @@ import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -181,7 +181,8 @@ public class ChecklistService {
 			.orElseThrow(() -> new IllegalArgumentException("ddd"));
 		userChecklistRepository.completeChecklist(userChecklist.getId());
 
-		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
+		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
+			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(userChecklist.getChecklist().getExp(), userCharacter);
 	}
 
@@ -200,7 +201,8 @@ public class ChecklistService {
 		// 경험치 업데이트
 		String expStr = (String)redisTemplate.opsForHash().get(hashKey, "exp");
 		int exp = expStr != null ? Integer.parseInt(expStr) : 0;
-		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
+		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
+			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(exp, userCharacter);
 	}
 }
