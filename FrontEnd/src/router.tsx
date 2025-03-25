@@ -10,6 +10,7 @@ import Animation from './pages/animation/Animation';
 import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
 import CharacterShop from './pages/character/componet/shop/CharacterShop';
+import PrologVideo from './components/PrologVideo';
 
 export const router = createBrowserRouter([
   {
@@ -52,5 +53,9 @@ export const router = createBrowserRouter([
   {
     path: '/edit-profile',
     element: <Edit />,
+  },
+  {
+    path: '/prolog',
+    element: <PrologVideo onComplete={() => localStorage.setItem('prologViewed', 'true')} />,
   },
 ]);
