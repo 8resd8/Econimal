@@ -60,7 +60,7 @@ public class ChecklistServiceTest {
 
 	@AfterEach
 	void afterAll() {
-		redisUtilTest.flushRedis();
+		redisUtilTest.deleteKeyPattern(CHECKLIST_PREFIX + "*");
 	}
 
 	@Test
