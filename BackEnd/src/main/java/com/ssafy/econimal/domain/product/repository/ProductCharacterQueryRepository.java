@@ -26,7 +26,8 @@ public class ProductCharacterQueryRepository {
 			.select(new QProductDto(
 				product.id,
 				character.name.as("characterName"),
-				userCharacter.id.isNotNull()
+				userCharacter.id.isNotNull(),
+				product.price
 			))
 			.from(character)
 			.leftJoin(userCharacter)
