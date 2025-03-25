@@ -5,7 +5,7 @@ export const useShopList = () => {
   const { data, isError, error, isLoading } = useQuery({
     queryKey: ['shop'],
     queryFn: fetchShopList,
-    staleTime: 1000 * 6 * 5,
+    staleTime: 1000 * 60 * 5,
   });
 
   return {
