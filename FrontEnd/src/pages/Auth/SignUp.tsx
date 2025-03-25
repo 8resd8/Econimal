@@ -233,7 +233,7 @@ const Signup = () => {
       <div className="relative p-8 text-center w-96">
         <h2 className="text-2xl font-bold mb-4 text-white">회원가입</h2>
         <div className="flex flex-col space-y-3">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 p-4">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 p-2">
             {/* 이메일 입력 필드 - 중복 확인 버튼 추가 */}
             <div className="relative">
               <input
@@ -254,7 +254,7 @@ const Signup = () => {
                 onClick={handleEmailCheck}
                 disabled={isCheckingEmail || !email}
                 className="absolute right-0 top-0 bottom-0 bg-slate-600 hover:bg-slate-700
-                text-white px-3 m-2 rounded-lg flex items-center justify-center transition-colors
+                text-white px-3 m-2.5 rounded-lg flex items-center justify-center transition-colors
                 disabled:opacity-50"
               >
                 {isCheckingEmail ? "확인 중..." : "중복 확인"}
@@ -475,7 +475,8 @@ const Signup = () => {
           </form>
 
           {/* 로그인 페이지 링크 */}
-          <a href="/login" className="text-white text-sm mt-3 block">
+          <a href="/login" className="text-slate-200 text-sm mt-3
+            block hover:text-blue-200">
             이미 회원이신가요? 로그인 하러가기
           </a>
         </div>

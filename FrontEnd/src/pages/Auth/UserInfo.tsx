@@ -1,4 +1,5 @@
 import React from 'react';
+import bgImage from "@/assets/auth_background.png";
 import { useAuth } from '@/hooks/useAuth';
 
 const UserInfo = () => {
@@ -29,18 +30,21 @@ const UserInfo = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex justify-center items-center">
-      <div className="max-w-md mx-auto pt-10 pb-10">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="max-w-lg mx-auto pt-10 pb-10">
+        <div className="bg-slate-50 rounded-xl shadow-md overflow-hidden">
           <div className="p-8 w-full">
-            <div className="flex justify-between items-center">
-              <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-              프로필 정보
-              </div>
+            <div className="flex justify-center items-center uppercase tracking-wide text-lg text-gray-700 font-bold">
+              🌍 {user.nickname}의 프로필 🌍
+            </div>
+            {/* <div className="flex justify-between items-center">
               <div className="text-gray-500 text-sm">
               마지막 로그인: {new Date(user.lastLoginAt).toLocaleString()}
               </div>
-            </div>
+            </div> */}
             
             <h1 className="mt-2 text-2xl font-bold text-gray-800">{user.nickname}</h1>
             <p className="text-gray-600">{user.name}</p>
@@ -71,22 +75,22 @@ const UserInfo = () => {
             <div className="mt-6 flex justify-center">
               <button 
               onClick={() => window.location.href = '/'}
-              className="mx-2 px-4 py-2 bg-gray-200 text-gray-700
-              rounded-lg hover:bg-gray-300 transition-colors shadow-md"
+              className="mx-2 px-4 py-2 bg-slate-200 text-gray-700
+              rounded-lg hover:bg-slate-300 transition-colors shadow-md"
               >
               메인으로
               </button>
               <button 
               onClick={() => window.location.href = '/edit-profile'}
-              className="mx-2 px-4 py-2 bg-blue-500 text-white
-              rounded-lg hover:bg-blue-600 transition-colors shadow-md"
+              className="mx-2 px-4 py-2 bg-blue-300 text-gray-700
+              rounded-lg hover:bg-blue-400 transition-colors shadow-md"
               >
               프로필 수정
               </button>
               <button 
                   onClick={logout}
-                  className='bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg 
-                          transition-colors duration-300 font-semibold shadow-md'
+                  className='bg-red-300 hover:bg-red-400 text-gray-700
+                  px-4 py-2 rounded-lg transition-colors duration-300 shadow-md'
               >
                   로그아웃
               </button>
