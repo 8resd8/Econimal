@@ -5,7 +5,8 @@ import com.querydsl.core.annotations.QueryProjection;
 public record ProductDto(
 	Long productId,
 	String characterName,
-	boolean owned
+	boolean owned,
+	int price
 ) {
 	@QueryProjection
 	public ProductDto {
