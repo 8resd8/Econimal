@@ -178,7 +178,7 @@ public class ChecklistService {
 
 	private void completeDailyChecklist(User user, Long checklistId) {
 		UserChecklist userChecklist = userChecklistRepository.findByUserAndChecklistId(user, checklistId)
-			.orElseThrow(() -> new IllegalArgumentException("ddd"));
+			.orElseThrow(() -> new IllegalArgumentException("해당하는 체크리스트가 없습니다"));
 		userChecklistRepository.completeChecklist(userChecklist.getId());
 
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
