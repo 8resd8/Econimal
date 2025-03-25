@@ -5,21 +5,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.character.util.ExpUtil;
-import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
-import com.ssafy.econimal.domain.checklist.dto.request.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDetailDto;
 import com.ssafy.econimal.domain.checklist.dto.DailyUserChecklistDto;
 import com.ssafy.econimal.domain.checklist.dto.UserChecklistDto;
+import com.ssafy.econimal.domain.checklist.dto.request.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.response.UserChecklistResponse;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
