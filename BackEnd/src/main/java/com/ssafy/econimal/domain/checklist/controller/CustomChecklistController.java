@@ -28,7 +28,6 @@ public class CustomChecklistController {
 	private final CustomChecklistService customChecklistService;
 
 	@PostMapping("/validate")
-	@ResponseStatus(HttpStatus.CREATED)
 	public CustomChecklistResponse CustomChecklistValidation(
 		@Valid @RequestBody CustomChecklistValidationRequest request) {
 		return customChecklistService.CustomChecklistValidation(request);
