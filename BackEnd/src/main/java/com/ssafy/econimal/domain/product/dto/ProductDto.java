@@ -1,13 +1,14 @@
-package com.ssafy.econimal.domain.store.dto;
+package com.ssafy.econimal.domain.product.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-public record StoreDto(
+public record ProductDto(
 	Long productId,
 	String characterName,
-	boolean owned
+	boolean owned,
+	int price
 ) {
 	@QueryProjection
-	public StoreDto {
+	public ProductDto {
 	}
 }
