@@ -1,41 +1,36 @@
-// itemShop.tsx
 import { useState, useEffect } from 'react';
 import { useShopList } from '../../feature/hooks/useShopList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
-import TabItemButton from './TabItemButton';
-import CharCoin from '../main/status/CharCoin';
-import { useBuyItem } from '../../feature/hooks/useBuyItem';
-import BuyModal from './BuyModal';
-import ShopCoin from './ShopCoinUI';
-import ItemShopItems from './ItemShopItems';
-import { ItemShopCardTypes } from './../../types/shop/ItemShopCardTypes';
+import ItemShopUI from './ItemShopUI';
 
-// 아이템 타입 정의
-const backgrounds: ShopItemTypes[] = backgroundShopConfig;
-
-const itemShop = () => {
+const ItemShopLogic = () => {
   const { data } = useShopList();
-  const { charShopList } = useCharShopItem(data || null); // 데이터가 없을 경우 null 전달
-  // const {handleBuyShopItem} = useBuyItem()
+  const { charShopList } = useCharShopItem(data || null);
 
+  // 캐릭터 선택 탭 전환 여부 => 상태 관리
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
     'characters',
   );
-  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins, setUserCoins] = useState<number>(1500); // 유저 보유 코인 상태 =>
-  const [showModal, setShowModal] = useState<boolean>(false); // 모달 상태
-  const [selectedItemForPurchase, setSelectedItemForPurchase] =
-    useState<ShopItemTypes | null>(null); // 구매 대상 아이템
+  // 현재 아이템 목록 -> 캐릭터 선택 탭 전환 여부와 관련
   const [currentItems, setCurrentItems] = useState();
+  // 아이템 호버시 발생되는 이벤트를 위한 상태관리
+  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
+  const [userCoins, setUserCoins] = useState<number>(1500); //추후 서버에서 fetching받은 coin값 활용
+  // 모달 창 열고 / 닫기
+  const [showModal, setShowModal] = useState<boolean>(false);
+  // 구매 상품 선택 여부
+  const [selectedItemForPurchase, setSelectedItemForPurchase] =
+    useState<ShopItemTypes | null>(null);
 
+  // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
     if (!data || !charShopList || !selectedTab) return;
-    //state
     const currentItem =
       selectedTab === 'characters'
         ? [
+            //상품을 8개까지만 나타나게 하되, 부족한 부분은 fill로 채우기
             ...charShopList.slice(0, 8),
             ...Array(8 - charShopList.length).fill({
               productId: -1,
@@ -46,8 +41,8 @@ const itemShop = () => {
             }),
           ]
         : [
-            ...backgrounds.slice(0, 8),
-            ...Array(8 - backgrounds.length).fill({
+            ...backgroundShopConfig.slice(0, 8),
+            ...Array(8 - backgroundShopConfig.length).fill({
               productId: -1,
               characterName: '',
               image: '',
@@ -62,83 +57,45 @@ const itemShop = () => {
     return <div>Loading...</div>;
   }
 
+  // 상품 구매 관련 alert 발송
   const handlePurchaseClick = (item: ShopItemTypes) => {
     if (item.productId === -1 || item.owned) {
       alert('구매할 수 없는 상품입니다!');
       return;
     }
-    setSelectedItemForPurchase(item); // 구매 대상 설정
-    setShowModal(true); // 모달 표시
+    setSelectedItemForPurchase(item);
+    setShowModal(true);
   };
 
+  // 상품 구해 완료 관련 내용 전달
   const confirmPurchase = () => {
     if (!selectedItemForPurchase) return;
 
     if (userCoins >= selectedItemForPurchase.price) {
-      setUserCoins(userCoins - selectedItemForPurchase.price); // 코인 차감
-      selectedItemForPurchase.owned = true; // 소유 상태 업데이트
-      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`);
-      setShowModal(false); // 모달 닫기
+      setUserCoins(userCoins - selectedItemForPurchase.price); //코인 삭제시 실시간 코인 내역 반영
+      selectedItemForPurchase.owned = true;
+      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`); //추후 모달창으로 변경
+      setShowModal(false);
     } else {
-      alert('코인이 부족합니다!');
+      alert('코인이 부족합니다!'); //추후 모달창으로 변경
     }
   };
 
   return (
-    <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center'>
-      <div className='w-full max-w-6xl'>
-        {/* 상단 코인 표시 */}
-        <div className='flex justify-end mb-4'>
-          <CharCoin coin={userCoins} />
-        </div>
-
-        <h1 className='text-3xl font-bold text-white mb-6 text-center'>상점</h1>
-
-        {/* 캐릭터 / 아이템 전환 탭 버튼 */}
-        <div className='flex justify-center gap-2 mb-8'>
-          <TabItemButton
-            category={'캐릭터'}
-            activeTab={'characters'}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
-          <TabItemButton
-            category={'배경'}
-            activeTab={'backgrounds'}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
-        </div>
-
-        {/* 아이템 그리드 */}
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-items-center'>
-          {currentItems.map((item: ItemShopCardTypes, index: number) => (
-            <ItemShopItems
-              key={index}
-              setHoveredItemId={setHoveredItemId}
-              handlePurchaseClick={handlePurchaseClick}
-              productId={item.productId}
-              price={item.price}
-              owned={item.owned}
-              image={item.image}
-              characterName={item.characterName}
-              hoveredItemId={hoveredItemId}
-            />
-          ))}
-        </div>
-
-        {/* 구매 모달 */}
-        {showModal && selectedItemForPurchase && (
-          <BuyModal
-            confirmPurchase={confirmPurchase}
-            setShowModal={setShowModal}
-            characterName={selectedItemForPurchase.characterName}
-            price={selectedItemForPurchase.price}
-          />
-        )}
-      </div>
-    </div>
+    <ItemShopUI
+      userCoins={userCoins}
+      selectedTab={selectedTab}
+      setSelectedTab={setSelectedTab}
+      currentItems={currentItems}
+      setHoveredItemId={setHoveredItemId}
+      handlePurchaseClick={handlePurchaseClick}
+      hoveredItemId={hoveredItemId}
+      showModal={showModal}
+      setShowModal={setShowModal}
+      selectedItemForPurchase={selectedItemForPurchase}
+      confirmPurchase={confirmPurchase}
+    />
   );
 };
 
-export default itemShop;
+export default ItemShopLogic;
