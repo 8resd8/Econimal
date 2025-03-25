@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class TownServiceTest {
-
     @Autowired
     private TownService townService;
 
@@ -58,5 +57,19 @@ class TownServiceTest {
         Town newTown = townRepository.findById(town.getId()).orElse(null);
         assertNotNull(newTown);
         assertEquals(changeName, newTown.getName());
+    }
+
+    @Test
+    void 도시_상태_조회() {
+        TownStatusResponse response = townService.getTownStatus(user);
+        assertNotNull(response);
+        assertEquals(1, response.townStatus().size());
+
+        InfrastructureEventResponse eventResponse = response.townStatus().get(0);
+        assertEquals(infrastructure.getId(), eventResponse.infraId());
+        assertEquals(facility.getEcoType().toString(), eventResponse.ecoType().toString());
+        assertEquals(infrastructure.isClean(), eventResponse.isClean());
+        assertEquals(infrastructureEvent.getId(), eventResponse.infraEventId());
+        assertEquals(infrastructureEvent.isActive(), eventResponse.isActive());
     }
 }

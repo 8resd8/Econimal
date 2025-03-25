@@ -57,20 +57,14 @@ public class SignUpServiceIntegrationTest {
 
 	@Test
 	public void 회원가입() {
-		signUpService.signup(signupRequest);
+		User signup = signUpService.signup(signupRequest);
 
-		// Assert: 회원가입 후 User가 생성되었는지 검증
-		Optional<User> user = userRepository.findByEmail(signupRequest.email());
-		assertThat(user).isPresent();
+		List<UserChecklist> userChecklists = userChecklistRepository.findByUser(signup);
+		assertEquals(3, userChecklists.size());
 
-		User findUser = user.get();
-
-		List<UserChecklist> userChecklists = userChecklistRepository.findByUser(findUser);
-		assertEquals(3, userChecklists.size(), "체크리스트 3건이 등록되어야 합니다.");
-
-		Town town = findUser.getTown();
+		Town town = signup.getTown();
 		List<Infrastructure> infrastructures = infrastructureRepository.findByTown(town);
-		assertEquals(4, infrastructures.size(), "인프라스트럭처 2건이 등록되어야 합니다.");
+		assertEquals(4, infrastructures.size());
 	}
 
 	@Test
@@ -80,7 +74,6 @@ public class SignUpServiceIntegrationTest {
 		// 동일요청 똑같이 보냄
 		assertThatThrownBy(() -> signUpService.signup(signupRequest))
 			.isInstanceOf(InvalidArgumentException.class);
-
 	}
 
 }

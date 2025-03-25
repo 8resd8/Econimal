@@ -17,7 +17,6 @@ import {
 } from '../features/useInfraQuery';
 import ResultModal from './ResultModal';
 import { InfraSubmitResponse } from '../features/infraApi';
-import { useTownStore } from '@/store/useTownStore';
 
 interface CourtModalProps {
   open: boolean;
@@ -25,9 +24,16 @@ interface CourtModalProps {
   infraEventId?: number;
 }
 
+interface ExtendedInfraSubmitResponse extends InfraSubmitResponse {
+  selectedAnswerId: number;
+  correctDescription: string | null;
+}
+
 const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   const [showResult, setShowResult] = useState(false);
-  const [result, setResult] = useState<InfraSubmitResponse | null>(null);
+  const [result, setResult] = useState<ExtendedInfraSubmitResponse | null>(
+    null,
+  );
 
   // 인프라 이벤트 상세 조회 쿼리
   // Loading을 써 말아
@@ -38,18 +44,31 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
-    submitInfraResult(ecoAnswerId, {
+    submitInfraResult(ecoAnswerId, 'COURT', {
       onSuccess: (data) => {
         if (data) {
           // API 응답 데이터를 상태에 저장해? 말아?
-          // setResult(data);
+          // 정답 설명 매칭
+          const correctAnswer = answers.find(
+            (a) => a.ecoAnswerId === Number(data.answerId),
+          );
+
+          // description만 따로 저장
+          const resultWithDescription: ExtendedInfraSubmitResponse = {
+            ...data,
+            selectedAnswerId: ecoAnswerId,
+            correctDescription: correctAnswer?.description ?? null,
+          };
+
+          setResult(resultWithDescription); // result는 이제 description 포함
 
           // useTownStore 업데이트?
           // 퀴즈 결과가 스토어에 있던가
-          // 현재 모달 닫히면서
+
+          onOpenChange(false); // 현재 모달 닫히면서
           // 약간의 애니메이션 효과를 줄까?
-          // 결과 모달 표시
-          setShowResult(true);
+
+          setShowResult(true); // 결과 모달 표시
         }
       },
     });
@@ -58,8 +77,19 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false);
   };
+
+  const fallbackAnswers = [
+    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요1' },
+    { ecoAnswerId: 3, description: '잠시 후 다시 시도해 주세요2' },
+    { ecoAnswerId: 4, description: '잠시 후 다시 시도해 주세요3' },
+  ];
+
+  const answers =
+    eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
+      ? eventData.ecoAnswer
+      : fallbackAnswers;
 
   return (
     <>
@@ -77,12 +107,16 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription className='space-y-4'>
-            <div className='flex w-full gap-4'>
-              {eventData?.ecoAnswer?.map((answer) => (
-                <Button key={answer.ecoQuizId} className='flex-1 py-8 text-2xl'>
+            <div className='flex flex-col w-full gap-4'>
+              {answers.map((answer) => (
+                <Button
+                  key={answer.ecoAnswerId}
+                  className='flex-1 py-3 text-2xl'
+                  onClick={() => handleSubmit(answer.ecoAnswerId)}
+                >
                   {/* 결과 모달에서 몇번이 정답인지 알려주려면 
                   선택 모달에서 선택지 내용뿐만이 아니라 번호도 알려줘야함 */}
-                  {answer.ecoQuizId}
+                  {/* {answer.ecoAnswerId}. */}
                   {answer.description}
                 </Button>
               ))}
@@ -102,6 +136,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
           open={showResult}
           onOpenChange={handleResultClose}
           result={result}
+          ecoType='COURT' // [수정] 에코 타입 전달
         />
       )}
     </>
