@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.econimal.domain.product.dto.QStoreDto;
-import com.ssafy.econimal.domain.product.dto.StoreDto;
+import com.ssafy.econimal.domain.product.dto.ProductDto;
 import com.ssafy.econimal.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ public class ProductCharacterQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
-	public List<StoreDto> findAllCharactersStore(User user) {
+	public List<ProductDto> findAllCharactersStore(User user) {
 		return queryFactory
-			.select(new QStoreDto(
+			.select(new QProductDto(
 				product.id,
 				character.name.as("characterName"),
 				userCharacter.id.isNotNull()

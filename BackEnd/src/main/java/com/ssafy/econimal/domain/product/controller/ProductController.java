@@ -4,23 +4,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.econimal.domain.product.dto.StoreResponse;
-import com.ssafy.econimal.domain.product.service.StoreService;
+import com.ssafy.econimal.domain.product.dto.ProductResponse;
+import com.ssafy.econimal.domain.product.service.ProductService;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.annotation.Login;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/store")
+@RequestMapping("/product")
 @RequiredArgsConstructor
-public class StoreController {
+public class ProductController {
 
-	private final StoreService storeService;
+	private final ProductService productService;
 
 	@GetMapping("/characters")
-	public StoreResponse getCharacterProducts(@Login User user) {
-		return storeService.getCharacterProducts(user);
+	public ProductResponse getCharacterProducts(@Login User user) {
+		return productService.getCharacterProducts(user);
 	}
 
 }
