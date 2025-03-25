@@ -6,64 +6,61 @@ import java.util.Map;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
 import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
-import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
-import com.ssafy.econimal.domain.data.TestEntityHelper;
-import com.ssafy.econimal.domain.data.sample.UserCharacterSample;
-import com.ssafy.econimal.domain.store.entity.Product;
-import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
-import com.ssafy.econimal.domain.user.entity.UserChecklist;
-import com.ssafy.econimal.global.common.enums.DifficultyType;
-import com.ssafy.econimal.global.common.enums.EcoType;
-import com.ssafy.econimal.global.common.enums.ExpressionType;
+import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
+import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
-
-import jakarta.transaction.Transactional;
+import com.ssafy.econimal.global.util.RedisUtilTest;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
+@Sql(scripts = "classpath:/test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class ChecklistServiceTest {
 
 	@Autowired
 	private ChecklistService checklistService;
 
 	@Autowired
-	private TestEntityHelper helper;
+	private RedisUtilTest redisUtilTest;
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	UserCharacterRepository userCharacterRepository;
 
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 
-	private Product product;
-	private Character character;
-	private Town town;
-	private User user;
-	private Checklist checklist;
-	private UserChecklist userChecklist;
-	private UserCharacter userCharacter;
-
 	private final String CHECKLIST_PREFIX = "CC:";
+
+	User user;
+	UserCharacter userCharacter;
 
 	@BeforeEach
 	void setUp() {
-		product = helper.createProduct();
-		character = helper.createCharacter(product);
-		town = helper.createTown();
-		user = helper.createUser(town);
-		checklist = helper.createChecklist(DifficultyType.LOW, EcoType.ELECTRICITY);
-		userChecklist = helper.createUserChecklist(user, checklist);
-		userCharacter = UserCharacterSample.userCharacter(user, character, 1, 0, ExpressionType.SADNESS, true);
-		helper.persist(userCharacter);
+		user = userRepository.findById(1L).orElse(null);
+		userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user).orElse(null);
+	}
+
+	@AfterEach
+	void afterAll() {
+		redisUtilTest.flushRedis();
 	}
 
 	@Test
