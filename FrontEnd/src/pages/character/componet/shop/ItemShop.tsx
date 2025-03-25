@@ -13,6 +13,37 @@ interface ItemType {
   price: number; // 가격 정보 추가
 }
 
+const backgrounds: ItemType[] = [
+  {
+    productId: 1,
+    characterName: '마을',
+    image: '/images/village.png',
+    owned: true,
+    price: 300,
+  },
+  {
+    productId: 2,
+    characterName: '바다',
+    image: '/images/sea.png',
+    owned: false,
+    price: 500,
+  },
+  {
+    productId: 3,
+    characterName: '산',
+    image: '/images/mountain.png',
+    owned: false,
+    price: 700,
+  },
+  ...Array(5).fill({
+    productId: -1,
+    characterName: '',
+    image: '',
+    owned: false,
+    price: 1000,
+  }),
+];
+
 const itemShop = () => {
   const { data } = useShopList();
   const { charShopList } = useCharShopItem(data || null); // 데이터가 없을 경우 null 전달
@@ -43,16 +74,28 @@ const itemShop = () => {
   }
 
   // 항상 아이템을 최대 8개로 고정
-  const currentItems = [
-    ...charShopList.slice(0, 8),
-    ...Array(8 - charShopList.length).fill({
-      productId: -1,
-      characterName: '',
-      image: '',
-      owned: false,
-      price: 100, // 기본 가격 설정
-    }),
-  ];
+  const currentItems =
+    selectedTab === 'characters'
+      ? [
+          ...charShopList.slice(0, 8),
+          ...Array(8 - charShopList.length).fill({
+            productId: -1,
+            characterName: '',
+            image: '',
+            owned: false,
+            price: -1,
+          }),
+        ]
+      : [
+          ...backgrounds.slice(0, 8),
+          ...Array(8 - backgrounds.length).fill({
+            productId: -1,
+            characterName: '',
+            image: '',
+            owned: false,
+            price: -1,
+          }),
+        ];
 
   const handlePurchaseClick = (item: ItemType) => {
     if (item.productId === -1 || item.owned) {
