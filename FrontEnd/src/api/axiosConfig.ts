@@ -113,11 +113,6 @@ axiosInstance.interceptors.response.use(
 );
 
 // ------------------------- 서버 fetching api 로직 ---------------------------
-
-//캐릭터 api
-//직관적으로 매개변수, get/post 요청을 무엇으로 보내는지 알기 위해서
-//한꺼번에 api로 관리하기 위해서 분리하였습니다.
-//domain interceptor로 했기 때문에 중복 요청X
 export const characterListAPI = {
   //캐릭터 리스트 조회 -> 보유한 캐릭터 목록 조회
   getCharList: () => axiosInstance.get(API.CHARACTERS.LIST),
@@ -139,7 +134,9 @@ export const characterListAPI = {
 };
 
 export const checklistAPI = {
+  // 체크리스트 조회
   getCheckList: () => axiosInstance.get(`${API.CHECKLIST.LIST}`),
+  // 체크리스트 등록
   postCheckList: (checklistId: string, type: string) =>
     axiosInstance.post(`${API.CHECKLIST.DONE}`, {
       type: type.toUpperCase(),
@@ -148,7 +145,11 @@ export const checklistAPI = {
 };
 
 export const shopAPI = {
+  // 아이템 목록 조회
   getShopList: () => axiosInstance.get(`${API.SHOP.LIST}`),
+  // 아이템 구매
+  postShopItem: (productId: number) =>
+    axiosInstance.post(`${API.SHOP.LIST}/${productId}`),
 };
 
 // axiosInstance를 기본 내보내기로 설정
