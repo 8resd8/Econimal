@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.product.dto.QStoreDto;
 import com.ssafy.econimal.domain.product.dto.ProductDto;
+import com.ssafy.econimal.domain.product.dto.QProductDto;
 import com.ssafy.econimal.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
