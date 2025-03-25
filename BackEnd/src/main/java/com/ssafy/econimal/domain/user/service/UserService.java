@@ -1,6 +1,7 @@
 package com.ssafy.econimal.domain.user.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.user.dto.UpdateNicknameRequest;
 import com.ssafy.econimal.domain.user.dto.UserInfoDto;
@@ -11,7 +12,6 @@ import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -53,7 +53,8 @@ public class UserCharacter extends BaseTimeEntity {
 	private boolean isMain;
 
 	@Builder
-	public UserCharacter(User user, Character character, int level, int totalExp, ExpressionType expression, boolean isMain) {
+	public UserCharacter(User user, Character character, int level, int totalExp, ExpressionType expression,
+		boolean isMain) {
 		this.user = user;
 		this.character = character;
 		this.level = level;
@@ -71,11 +72,6 @@ public class UserCharacter extends BaseTimeEntity {
 	}
 
 	public void updateExp(int exp) {
-		if(this.character.getMaxLevel() > this.totalExp + exp) {
-			this.totalExp += exp;
-		} else {
-			this.totalExp = this.character.getMaxLevel();
-		}
-		this.user.updateCoin(exp);
+		this.totalExp = exp;
 	}
 }
