@@ -147,5 +147,9 @@ export const checklistAPI = {
     }),
 };
 
+export const shopAPI = {
+  getShopList: () => axiosInstance.get(`${API.SHOP.LIST}`),
+};
+
 // axiosInstance를 기본 내보내기로 설정
 export default axiosInstance;

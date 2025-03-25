@@ -1,37 +1,31 @@
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
-import { CharShoptTypes } from '../../types/shop/CharShopType';
+import { useShopList } from '../../feature/hooks/useShopList';
+import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 
 // 배경 타입 정의
 interface BackgroundType {
-  id: number;
-  name: string;
+  productId: number;
+  characterName: string;
   image: string;
   owned: boolean;
 }
 
-// 샘플 데이터
-const characters: CharShoptTypes[] = [
-  // 기존 캐릭터 데이터 유지
-  { id: 1, name: '꼬부기', image: '/placeholder.svg', owned: true },
-  { id: 2, name: '호랭이', image: '/placeholder.svg', owned: true },
-  { id: 3, name: '펭귄킹', image: '/placeholder.svg', owned: true },
-  { id: 4, name: '이하힝', image: '/placeholder.svg', owned: false },
-  { id: 5, name: '으르렁', image: '/placeholder.svg', owned: true },
-  { id: 6, name: '늑대', image: '/placeholder.svg', owned: true },
-  { id: 7, name: '박쥐', image: '/placeholder.svg', owned: false },
-  { id: 8, name: '야옹', image: '/placeholder.svg', owned: true },
-];
-
 const backgrounds: BackgroundType[] = [
-  { id: 1, name: '마을', image: '/bg1.svg', owned: true },
-  { id: 2, name: '숲', image: '/bg2.svg', owned: false },
-  { id: 3, name: '성채', image: '/bg3.svg', owned: false },
+  { productId: 1, characterName: '마을', image: '/bg1.svg', owned: true },
   // 5개 추가 placeholder
-  ...Array(5).fill({ id: 0, name: '', image: '', owned: false }),
+  ...Array(5).fill({
+    productId: 0,
+    characterName: '',
+    image: '',
+    owned: false,
+  }),
 ];
 
-const CharacterShop = () => {
+const itemShop = () => {
+  const { data } = useShopList();
+  const { charShopList } = useCharShopItem(data || null); // 데이터가 없을 경우 null 전달
+
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
     'characters',
   );
@@ -39,18 +33,28 @@ const CharacterShop = () => {
   const [selectedBackgroundId, setSelectedBackgroundId] = useState<number>(1);
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
 
+  if (!data || charShopList.length === 0) {
+    // 데이터 로딩 상태 처리
+    return <div>Loading...</div>;
+  }
+
+  if (charShopList.length > 0) {
+    console.log(charShopList, 'csL');
+  }
+
   // 현재 표시할 아이템 목록
   const currentItems =
-    selectedTab === 'characters' ? characters : backgrounds.slice(0, 8); // 8개로 고정
+    selectedTab === 'characters' ? charShopList : backgrounds.slice(0, 8); // 8개로 고정
+  // selectedTab === 'characters' ? characters : backgrounds.slice(0, 8); // 8개로 고정
 
-  const handleSelectItem = (id: number) => {
-    const item = currentItems.find((item) => item.id === id);
+  const handleSelectItem = (productId: number) => {
+    const item = currentItems.find((item) => item.productId === productId);
     if (!item || !item.owned) return;
 
     if (selectedTab === 'characters') {
-      setSelectedCharacterId(id);
+      setSelectedCharacterId(productId);
     } else {
-      setSelectedBackgroundId(id);
+      setSelectedBackgroundId(productId);
     }
   };
 
@@ -89,22 +93,22 @@ const CharacterShop = () => {
             .fill(0)
             .map((_, index) => {
               const item = currentItems[index] || {
-                id: index,
-                name: '',
+                productId: index,
+                characterName: '',
                 image: '',
                 owned: false,
               };
 
               const isSelected =
                 selectedTab === 'characters'
-                  ? item.id === selectedCharacterId
-                  : item.id === selectedBackgroundId;
+                  ? item.productId === selectedCharacterId
+                  : item.productId === selectedBackgroundId;
 
               return (
                 <div
                   key={index}
                   className='relative w-full max-w-[200px]'
-                  onMouseEnter={() => setHoveredItemId(item.id)}
+                  onMouseEnter={() => setHoveredItemId(item.productId)}
                   onMouseLeave={() => setHoveredItemId(null)}
                 >
                   <div
@@ -119,14 +123,14 @@ const CharacterShop = () => {
                         <>
                           <img
                             src={item.image}
-                            alt={item.name}
+                            alt={item.characterName}
                             className={`w-3/4 h-3/4 object-contain transition-all duration-200 ${
                               isSelected ? 'opacity-100' : 'opacity-70'
                             }`}
                           />
-                          {hoveredItemId === item.id && (
+                          {hoveredItemId === item.productId && (
                             <button
-                              onClick={() => handleSelectItem(item.id)}
+                              onClick={() => handleSelectItem(item.productId)}
                               className='absolute inset-0 flex items-center justify-center bg-black/50 rounded-md'
                             >
                               <span className='px-4 py-2 bg-white text-black text-sm font-medium rounded-md'>
@@ -146,7 +150,7 @@ const CharacterShop = () => {
                         item.owned ? 'text-white' : 'text-gray-500'
                       } ${isSelected && item.owned ? 'font-bold' : ''}`}
                     >
-                      {item.name || 'Locked'}
+                      {item.characterName || 'Locked'}
                     </span>
                   </div>
                 </div>
@@ -158,4 +162,4 @@ const CharacterShop = () => {
   );
 };
 
-export default CharacterShop;
+export default itemShop;
