@@ -68,7 +68,7 @@ const CharBackground = () => {
         {/* mouseEventHandler 기준 준수를 위해 e 사용 */}
         <TownIcon onClick={(e) => nav('/town')} />
         <EarthIcon onClick={(e) => nav('/earth')} />
-        <ShopIcon />
+        <ShopIcon onClick={(e) => nav('/shop')} />
       </div>
 
       {/* 캐릭터 */}
