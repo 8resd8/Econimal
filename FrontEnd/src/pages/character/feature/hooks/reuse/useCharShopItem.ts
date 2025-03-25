@@ -1,5 +1,5 @@
-import { shopConfig } from '@/config/shopConfig';
 import { useEffect, useState } from 'react';
+import { charShopConfig } from '@/config/charShopConfig';
 import {
   ShopItemTypes,
   ShopItemRes,
@@ -14,17 +14,18 @@ export const useCharShopItem = (data: ShopItemRes) => {
 
     const resultData = data.products.map((item: ShopItemTypes, idx: number) => {
       if (
-        item.productId === shopConfig[idx].productId ||
-        item.characterName === shopConfig[idx].characterName
+        item.productId === charShopConfig[idx].productId ||
+        item.characterName === charShopConfig[idx].characterName
       ) {
         return {
           productId: item.productId,
           characterName: item.characterName,
-          image: shopConfig[idx].img,
+          price: item.price,
+          image: charShopConfig[idx].img,
           owned: item.owned,
         };
       }
-      return shopConfig[idx];
+      return charShopConfig[idx]; //item 데이터를 못받아 올경우 config 더미 데이터(정적 데이터) 활용
     });
 
     setCharShopList(resultData);

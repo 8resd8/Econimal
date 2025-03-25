@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Lock } from 'lucide-react';
 import { useShopList } from '../../feature/hooks/useShopList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
+import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 import CharCoin from '../main/status/CharCoin';
 
 // 아이템 타입 정의
@@ -13,36 +14,7 @@ interface ItemType {
   price: number; // 가격 정보 추가
 }
 
-const backgrounds: ItemType[] = [
-  {
-    productId: 1,
-    characterName: '마을',
-    image: '/images/village.png',
-    owned: true,
-    price: 300,
-  },
-  {
-    productId: 2,
-    characterName: '바다',
-    image: '/images/sea.png',
-    owned: false,
-    price: 500,
-  },
-  {
-    productId: 3,
-    characterName: '산',
-    image: '/images/mountain.png',
-    owned: false,
-    price: 700,
-  },
-  ...Array(5).fill({
-    productId: -1,
-    characterName: '',
-    image: '',
-    owned: false,
-    price: 1000,
-  }),
-];
+const backgrounds: ItemType[] = backgroundShopConfig;
 
 const itemShop = () => {
   const { data } = useShopList();
@@ -52,10 +24,14 @@ const itemShop = () => {
     'characters',
   );
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins, setUserCoins] = useState<number>(1500); // 유저 보유 코인 상태
+  const [userCoins, setUserCoins] = useState<number>(1500); // 유저 보유 코인 상태 =>
   const [showModal, setShowModal] = useState<boolean>(false); // 모달 상태
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
     useState<ItemType | null>(null); // 구매 대상 아이템
+
+  if (data && charShopList) {
+    console.log(charShopList, 'csl');
+  }
 
   // 스크롤 방지
   useEffect(() => {
