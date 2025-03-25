@@ -21,6 +21,18 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+ext {
+    set('springAiVersion', "1.0.0-M6")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 dependencies {
@@ -58,6 +70,11 @@ dependencies {
     // Prometheus
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // SpringAI
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+//    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-M6")
+//    implementation 'org.springframework.ai:spring-ai-openai'
 }
 
 tasks.named('test') {

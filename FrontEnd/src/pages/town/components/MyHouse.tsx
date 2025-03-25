@@ -3,13 +3,16 @@ import { useState } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
-import houseImg from '@/assets/my-house.png';
+import houseImg from '@/assets/town/my-house.png';
 
-const MyHouse = ({infraEventId, className}: TownProps) => {
+const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   // activeEvents : 현재 마을에서 활성화된 이벤트의 ID 목록을 저장하는 배열
   // API에서 받아온 이벤트 중 isActive: true인 이벤트들의 ID만 모아놓은 것
+
+  // 해당 인프라(ELECTRICITY)의 최적/오염 상태 가져오기
+  const isOptimal = useTownStore((state) => state.infraStatus.ELECTRICITY);
 
   // 이벤트가 활성화 되었는지 확인 -> 활성화 됐을 경우 CSS 효과(ex. 반짝반짝)
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
@@ -21,15 +24,17 @@ const MyHouse = ({infraEventId, className}: TownProps) => {
       <img
         className={`w-full h-auto cursor-pointer ${
           isActive ? 'animate-pulse' : ''
-        }`} // 이벤트 발생한 건물 깜빡이기
+        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
         src={houseImg}
         alt='가정'
-        onClick={() => infraEventId && setIsModalOpen(true)}
+        onClick={() => setIsModalOpen(true)}
       />
+
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         infraEventId={infraEventId}
+        ecoType='ELECTRICITY'
       />
     </div>
   );

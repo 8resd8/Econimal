@@ -10,12 +10,16 @@ import Animation from './pages/animation/Animation';
 import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
 import CharacterShop from './pages/character/componet/shop/ItemShop';
-
+import PrologVideo from './components/PrologVideo';
 export const router = createBrowserRouter([
   {
     path: '/',
     // element: <Home />,
     element: <MyCharacter />,
+  },
+  {
+    path: '/store',
+    element: <CharacterShop />,
   },
   {
     path: '/town',
@@ -52,5 +56,13 @@ export const router = createBrowserRouter([
   {
     path: '/shop',
     element: <CharacterShop />,
+  },
+  {
+    path: '/prolog',
+    element: (
+      <PrologVideo
+        onComplete={() => localStorage.setItem('prologViewed', 'true')}
+      />
+    ),
   },
 ]);

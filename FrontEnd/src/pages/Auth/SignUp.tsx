@@ -1,6 +1,5 @@
 import { useState } from "react";
 import bgImage from "@/assets/auth_background.png";
-import logoImage from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 
 const Signup = () => {
@@ -29,6 +28,45 @@ const Signup = () => {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  // 비밀번호 관련 상태를 추가
+  const [passwordValid, setPasswordValid] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordMatchValid, setPasswordMatchValid] = useState(false);
+  const [passwordMatchMessage, setPasswordMatchMessage] = useState("");
+
+  // 비밀번호 유효성 검사 함수
+  const validatePassword = (password: string) => {
+    // 비밀번호 정책: 최소 8자, 소문자, 숫자, 특수문자 포함 (대문자 제외)
+    const minLength = password.length >= 8;
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    const isValid = minLength && hasLowerCase && hasNumbers && hasSpecialChar;
+    
+    let message = "";
+    if (!minLength) message = "비밀번호는 최소 8자 이상이어야 합니다.";
+    else if (!hasLowerCase) message = "소문자를 포함해야 합니다.";
+    else if (!hasNumbers) message = "숫자를 포함해야 합니다.";
+    else if (!hasSpecialChar) message = "특수문자를 포함해야 합니다.";
+    else message = "사용 가능한 비밀번호입니다.";
+    
+    setPasswordValid(isValid);
+    setPasswordMessage(message);
+    
+    // 비밀번호 일치 여부도 다시 확인
+    if (password2) {
+      checkPasswordMatch(password, password2);
+    }
+  };
+
+  // 비밀번호 일치 여부 검사 함수
+  const checkPasswordMatch = (pw1: string, pw2: string) => {
+    const isMatch = pw1 === pw2;
+    setPasswordMatchValid(isMatch);
+    setPasswordMatchMessage(isMatch ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.");
+  };
+
 
   // useAuth 훅 사용
   const auth = useAuth();
@@ -132,8 +170,14 @@ const Signup = () => {
       return;
     }
     
+    // 비밀번호 유효성 검사
+    if (!passwordValid) {
+      alert("비밀번호가 유효하지 않습니다.");
+      return;
+    }
+    
     // 비밀번호 일치 검사
-    if (password1 !== password2) {
+    if (!passwordMatchValid) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
@@ -160,24 +204,36 @@ const Signup = () => {
     setShowPassword2(!showPassword2);
   };
 
+  // 비밀번호 입력 핸들러 수정
+  const handlePassword1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword1(newPassword);
+    validatePassword(newPassword);
+  };
+
+  // 비밀번호 확인 입력 핸들러 수정
+  const handlePassword2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword2 = e.target.value;
+    setPassword2(newPassword2);
+    if (newPassword2) {
+      checkPasswordMatch(password1, newPassword2);
+    } else {
+      setPasswordMatchValid(false);
+      setPasswordMatchMessage("");
+    }
+  };
+
   return (
     <div
       className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      {/* 반투명 로고 */}
-      <img
-        src={logoImage}
-        alt="로고"
-        className="absolute w-100 opacity-80"
-        style={{ top: "20%", left: "50%", transform: "translateX(-50%)" }}
-      />
 
       {/* 회원가입 폼 */}
       <div className="relative p-8 text-center w-96">
         <h2 className="text-2xl font-bold mb-4 text-white">회원가입</h2>
         <div className="flex flex-col space-y-3">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 p-4">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 p-2">
             {/* 이메일 입력 필드 - 중복 확인 버튼 추가 */}
             <div className="relative">
               <input
@@ -197,7 +253,9 @@ const Signup = () => {
                 type="button"
                 onClick={handleEmailCheck}
                 disabled={isCheckingEmail || !email}
-                className="absolute right-0 top-0 bottom-0 bg-slate-600 hover:bg-slate-700 text-white px-3 m-1 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                className="absolute right-0 top-0 bottom-0 bg-slate-600 hover:bg-slate-700
+                text-white px-3 m-2.5 rounded-lg flex items-center justify-center transition-colors
+                disabled:opacity-50"
               >
                 {isCheckingEmail ? "확인 중..." : "중복 확인"}
               </button>
@@ -267,7 +325,7 @@ const Signup = () => {
               <input
                 type={showPassword1 ? "text" : "password"}
                 value={password1}
-                onChange={(e) => setPassword1(e.target.value)}
+                onChange={handlePassword1Change}
                 placeholder="비밀번호"
                 className="pt-2 pb-2 pl-3 border-4 border-white
                 rounded-lg bg-black bg-opacity-25 w-full
@@ -298,13 +356,20 @@ const Signup = () => {
                 </svg>
               </button>
             </div>
+
+            {/* 비밀번호 유효성 메시지 */}
+            {passwordMessage && (
+              <div className={`text-sm ${passwordValid ? 'text-green-400' : 'text-red-400'} text-left`}>
+                {passwordMessage}
+              </div>
+            )}
             
             {/* 비밀번호 확인 필드 - 눈 아이콘 */}
             <div className="relative">
               <input
                 type={showPassword2 ? "text" : "password"}
                 value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
+                onChange={handlePassword2Change}
                 placeholder="비밀번호 확인"
                 className="pt-2 pb-2 pl-3 border-4 border-white
                 rounded-lg bg-black bg-opacity-25 w-full
@@ -336,6 +401,13 @@ const Signup = () => {
               </button>
             </div>
             
+            {/* 비밀번호 일치 메시지 */}
+            {password2 && passwordMatchMessage && (
+              <div className={`text-sm ${passwordMatchValid ? 'text-green-400' : 'text-red-400'} text-left`}>
+                {passwordMatchMessage}
+              </div>
+            )}
+
             {/* 이름 입력 필드 */}
             <input
               type="text"
@@ -366,21 +438,32 @@ const Signup = () => {
               }}
             />
             
-            {/* 생년월일 입력 필드 */}
-            <input
-              type="date"
-              value={birth}
-              onChange={(e) => setBirth(e.target.value)}
-              placeholder="생년월일"
-              className="pt-2 pb-2 pl-3 border-4 border-white
-              rounded-lg bg-black bg-opacity-25 w-full
-              font-extrabold text-lg"
-              style={{ 
-                color: 'white', 
-                caretColor: 'white'
-              }}
-            />
-            
+            <div className="relative">
+              {/* 생년월일 입력 필드 */}
+              <input
+                type="date"
+                value={birth}
+                onChange={(e) => setBirth(e.target.value)}
+                placeholder="생년월일"
+                className="pt-2 pb-2 pl-3 pr-3 border-4 border-white
+                rounded-lg bg-black bg-opacity-25 w-full
+                font-extrabold text-lg z-10 relative"
+                style={{ 
+                  color: 'white', 
+                  caretColor: 'white'
+                }}
+              />
+              <svg 
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 z-0" 
+                width="30" 
+                height="30" 
+                viewBox="0 0 24 24" 
+                fill="white"
+              >
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </div>
+
             {/* 회원가입 버튼 */}
             <button
               type="submit"
@@ -392,7 +475,8 @@ const Signup = () => {
           </form>
 
           {/* 로그인 페이지 링크 */}
-          <a href="/login" className="text-white text-sm mt-3 block">
+          <a href="/login" className="text-slate-200 text-sm mt-3
+            block hover:text-blue-200">
             이미 회원이신가요? 로그인 하러가기
           </a>
         </div>

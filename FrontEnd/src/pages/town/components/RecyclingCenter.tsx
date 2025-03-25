@@ -1,7 +1,7 @@
 // 분리수거장
 import { useState } from 'react';
 import NormalModal from './NormalModal';
-import recyclingImg from '@/assets/recycling-center.png';
+import recyclingImg from '@/assets/town/recycling-center.png';
 
 const RecyclingCenter = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

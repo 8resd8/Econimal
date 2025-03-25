@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware"; // 추가 설치 필요할 수 있음
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware'; // 추가 설치 필요할 수 있음
 
 interface AuthState {
   token: string | null;
@@ -15,7 +15,7 @@ export const useAuthStore = create<AuthState>()(
       clearToken: () => set({ token: null }),
     }),
     {
-      name: "auth-storage", // localStorage에 저장될 키 이름
-    }
-  )
+      name: 'auth-storage', // localStorage에 저장될 키 이름
+    },
+  ),
 );

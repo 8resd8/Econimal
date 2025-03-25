@@ -70,7 +70,6 @@ const CharBackground = () => {
         <EarthIcon onClick={(e) => nav('/earth')} />
         <ShopIcon onClick={(e) => nav('/shop')} />
       </div>
-
       {/* 캐릭터 */}
       <div className='absolute bottom-0 left-0 w-full'>
         <div className='relative bottom-24 left-[40%] -translate-x-1/2 w-64 md:w-80'>

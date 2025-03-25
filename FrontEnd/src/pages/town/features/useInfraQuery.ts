@@ -1,6 +1,12 @@
 // 인프라 탠스택쿼리
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { getInfraEvent, submitInfraResult } from './infraApi';
+import {
+  getInfraEvent,
+  submitInfraResult,
+  InfraSubmitResponse,
+} from './infraApi';
+import { useTownStore } from '@/store/useTownStore';
+import { EcoType } from './infraApi';
 
 // useQuery? useSuspenseQuery?
 // 인프라 이벤트 상세 조회
@@ -16,9 +22,14 @@ export const useSubmitInfraResult = () => {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: (ecoAnswerId: number) => submitInfraResult(ecoAnswerId), // ecoAnswerId 전달
-    // 무효화 언제 사용하는지
-    onSuccess: (data) => {
+    mutationFn: (params: { ecoAnswerId: number; ecoType: string }) =>
+      submitInfraResult(params.ecoAnswerId),
+    onSuccess: (data, variables) => {
+      // 해당 인프라 타입의 상태를 isOptimal 값에 따라 설정
+      useTownStore
+        .getState()
+        .setInfraStatus(variables.ecoType as EcoType, data.isOptimal);
+
       // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
       queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 선택지 제출 후 데이터 새로고침
 
@@ -33,5 +44,21 @@ export const useSubmitInfraResult = () => {
     },
   });
 
-  return mutate;
+  // [수정] ecoAnswerId와 ecoType을 함께 전달하는 함수 수정
+  return (
+    ecoAnswerId: number,
+    ecoType: string,
+    options?: { onSuccess?: (data: InfraSubmitResponse) => void },
+  ) =>
+    mutate(
+      { ecoAnswerId, ecoType },
+      {
+        onSuccess: (data) => {
+          // 외부에서 전달된 onSuccess 콜백 실행
+          if (options?.onSuccess) {
+            options.onSuccess(data);
+          }
+        },
+      },
+    );
 };

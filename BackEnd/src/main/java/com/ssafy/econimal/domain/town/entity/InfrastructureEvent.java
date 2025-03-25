@@ -44,4 +44,13 @@ public class InfrastructureEvent extends BaseTimeEntity {
 		this.ecoQuiz = ecoQuiz;
 		this.isActive = isActive;
 	}
+
+	public void updateActive(boolean isClean, boolean isActive) {
+		this.infrastructure.setClean(isClean);
+		this.isActive = isActive;
+	}
+
+	public void deactivate() {
+		this.isActive = false;
+	}
 }

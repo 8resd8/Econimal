@@ -16,21 +16,21 @@ import {
   useGetInfraEvent,
   useSubmitInfraResult,
 } from '../features/useInfraQuery';
-import { useTownStore } from '@/store/useTownStore';
+// import { useTownStore } from '@/store/useTownStore';
 import ResultModal from './ResultModal';
-
-// import { easeElastic } from 'd3'; // 내가 안했는데
 
 interface NormalModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   infraEventId?: number;
+  ecoType: string;
 }
 
 const NormalModal = ({
   open,
   onOpenChange,
   infraEventId,
+  ecoType,
 }: NormalModalProps) => {
   const [showResult, setShowResult] = useState(false);
   // const [result, setResult] = useState(null); // 타입지정... <InfraSubmitResponse> import해서 사용...?
@@ -49,7 +49,7 @@ const NormalModal = ({
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
-    submitInfraResult(ecoAnswerId, {
+    submitInfraResult(ecoAnswerId, ecoType, {
       onSuccess: (data) => {
         if (data) {
           setResult(data); // data가 있는 경우에만 실행
@@ -78,40 +78,51 @@ const NormalModal = ({
   // if (isEventLoading) return <div>로딩 중...</div>;
   // if (eventError) return <div>오류가 발생했습니다.</div>;
 
+  // fallback 선택지: 문제가 없어도 버튼 뜨게 만들기
+  const fallbackAnswers = [
+    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
+    { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요.' },
+  ];
+
+  // 실제 선택지 데이터가 없을 경우 fallback 사용
+  const answers =
+    eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
+      ? eventData.ecoAnswer
+      : fallbackAnswers;
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger></AlertDialogTrigger> */}
-        <AlertDialogContent className='p-10'>
+        <AlertDialogContent className='p-10 z-50'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
             X
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-4xl m-6'>
+            <AlertDialogTitle className='text-4xl m-6 break-keep'>
+              {/* <AlertDialogTitle className='text-4xl m-6'> */}
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription className='space-y-4'>
-            <div className='flex w-full gap-4'>
-              {eventData?.ecoAnswer?.map((answer) => (
+            <div className='flex flex-col w-full gap-4'>
+              {answers.map((answer) => (
                 <Button
-                  key={answer.ecoQuizId}
-                  className='flex-1 py-8 text-2xl'
-                  onClick={() => handleSubmit(answer.ecoQuizId)}
+                  key={answer.ecoAnswerId}
+                  className='flex-1 py-5 text-2xl'
+                  onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
-                  {/* 선지 번호 */}
-                  {answer.ecoQuizId}. 
-                  {/* 선지 내용 */}
+                  {/* 선지 번호, 내용 */}
+                  {/* {answer.ecoAnswerId}. */}
                   {answer.description}
                 </Button>
               ))}
             </div>
           </AlertDialogDescription>
 
-          <AlertDialogFooter>
-          </AlertDialogFooter>
+          <AlertDialogFooter></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 

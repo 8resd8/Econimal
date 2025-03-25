@@ -77,8 +77,8 @@ export const useAuth = () => {
       setHasCharacter(characterExists);
       console.log("캐릭터 존재 여부:", characterExists);
       
-      // 사용자 정보 가져오기
-      await fetchUserData();
+      // 직접 토큰을 전달하여 사용자 정보 가져오기
+      await fetchUserData(res.data.accessToken);
       
       // 캐릭터 존재 여부에 따라 다른 페이지로 이동
       if (characterExists) {
@@ -148,18 +148,21 @@ export const useAuth = () => {
     }
   };
 
-  // 그리고 fetchUserData 함수에서 에러 처리 부분을 다음과 같이 수정
-  const fetchUserData = async () => {
-    if (!token) {
+  // fetchUserData 함수 - accessToken 매개변수 추가
+  const fetchUserData = async (accessToken?: string) => {
+    // 파라미터로 받은 토큰이 있거나 store에 있는 토큰 사용
+    const currentToken = accessToken || token;
+    
+    if (!currentToken) {
       console.log("토큰이 없어 유저 정보를 가져올 수 없습니다.");
       setLoading(false);
       return;
     }
     
     try {
-      console.log("유저 정보 요청 시작, 토큰:", token);
+      console.log("유저 정보 요청 시작, 토큰:", currentToken);
       const res = await axiosInstance.get("/users/info", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${currentToken}` },
       });
       
       console.log("유저 정보 응답:", res.data);
@@ -174,6 +177,12 @@ export const useAuth = () => {
       }
       
       setUser(userData);
+
+      // 토큰 갱신 타이머 설정 (신규 로그인 시에만)
+      if (accessToken) {
+        refreshTokenTimer();
+      }
+
       return userData;
     } catch (error) {
       console.error("유저 정보 가져오기 실패", error);
@@ -192,29 +201,74 @@ export const useAuth = () => {
     }
   };
 
+  // 토큰 갱신 타이머 설정을 위한 함수
+  const refreshTokenTimer = () => {
+    // 기존 타이머 정리
+    if (refreshTimerId) {
+      clearTimeout(refreshTimerId);
+    }
+    
+    // 만료 5분 전에 갱신 (최소 30초)
+    const refreshDelay = Math.max(30000, 900000 - 300000); // 기본값 15분(900000ms)에서 5분 전
+    console.log(`${refreshDelay}ms 후 토큰 갱신 예정`);
+    
+    const newTimerId = setTimeout(() => {
+      console.log("자동 갱신 타이머 실행:", new Date().toISOString());
+      refreshToken();
+    }, refreshDelay);
+    
+    setRefreshTimerId(newTimerId);
+  };
+
   // AccessToken 갱신 (refreshToken은 쿠키에 있으므로 자동으로 전송됨)
   const refreshToken = async () => {
     try {
-      const res = await axios.post<LoginResponse>("/users/refresh");
-      setToken(res.data.accessToken);
+      console.log("토큰 갱신 시도 시간:", new Date().toISOString());
       
-      const expiresIn = res.data.timeToLive;
-      // 만료 시간 5분 전에 자동 갱신 예약
-    const refreshTimeoutId = setTimeout(() => {
-      refreshToken();
-    }, expiresIn - 300000); // 5분(300000ms)을 빼서 만료 직전에 갱신
-    
-    // 타이머 ID 저장 (로그아웃 시 타이머 제거를 위해)
-    setRefreshTimerId(refreshTimeoutId);
-
-      return true; // 성공 시 true 반환
+      // withCredentials 옵션 추가하여 쿠키가 포함되도록 함
+      const res = await axios.post<LoginResponse>("/users/refresh", {}, {
+        withCredentials: true
+      });
+      
+      console.log("토큰 갱신 응답:", res.data);
+      
+      if (!res.data.accessToken) {
+        console.error("새 액세스 토큰이 없습니다:", res.data);
+        return false;
+      }
+      
+      setToken(res.data.accessToken);
+      console.log("새 토큰 설정됨:", res.data.accessToken);
+      
+      // 만료 시간 (기본값 설정)
+      const newExpiresIn = res.data.timeToLive || 900000; // 기본값 15분
+      console.log("새 토큰 만료 시간:", newExpiresIn, "ms");
+      
+      // 기존 타이머 정리
+      if (refreshTimerId) {
+        clearTimeout(refreshTimerId);
+      }
+      
+      // 만료 5분 전에 갱신 (최소 30초)
+      const refreshDelay = Math.max(30000, newExpiresIn - 300000);
+      console.log(`${refreshDelay}ms 후 토큰 갱신 예정 (${new Date(Date.now() + refreshDelay).toISOString()})`);
+      
+      const refreshTimeoutId = setTimeout(() => {
+        console.log("자동 갱신 타이머 실행:", new Date().toISOString());
+        refreshToken();
+      }, refreshDelay);
+      
+      setRefreshTimerId(refreshTimeoutId);
+      return true;
     } catch (error) {
       console.error("토큰 갱신 실패", error);
+      
       // 로그인 페이지에 있지 않은 경우에만 로그아웃
       if (window.location.pathname !== '/login') {
         clearToken();
+        setUser(null);
       }
-      return false; // 실패 시 false 반환
+      return false;
     }
   };
 
@@ -303,6 +357,7 @@ export const useAuth = () => {
   useEffect(() => {
     if (token) {
       fetchUserData();
+      // refreshToken(); // 초기 실행 시에도 갱신 시도
     } else {
       setLoading(false);
     }
