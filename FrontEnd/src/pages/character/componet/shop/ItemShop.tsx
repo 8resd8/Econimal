@@ -33,7 +33,7 @@ const itemShop = () => {
   const [selectedCharacterId, setSelectedCharacterId] = useState<number>(3);
   const [selectedBackgroundId, setSelectedBackgroundId] = useState<number>(1);
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins] = useState<number>(1500); // 추가: 유저 보유 코인 상태
+  const [userCoins, setUserCoins] = useState<number>(1500); // 유저 보유 코인 상태
 
   if (!data || charShopList.length === 0) {
     // 데이터 로딩 상태 처리
@@ -47,23 +47,24 @@ const itemShop = () => {
   // 현재 표시할 아이템 목록
   const currentItems =
     selectedTab === 'characters' ? charShopList : backgrounds.slice(0, 8); // 8개로 고정
-  // selectedTab === 'characters' ? characters : backgrounds.slice(0, 8); // 8개로 고정
 
-  const handleSelectItem = (productId: number) => {
+  const handlePurchaseItem = (productId: number, price: number) => {
     const item = currentItems.find((item) => item.productId === productId);
-    if (!item || !item.owned) return;
+    if (!item || item.owned) return;
 
-    if (selectedTab === 'characters') {
-      setSelectedCharacterId(productId);
+    if (userCoins >= price) {
+      setUserCoins(userCoins - price); // 코인 차감
+      item.owned = true; // 아이템 소유 상태 업데이트
+      alert(`"${item.characterName}" 구매 완료!`);
     } else {
-      setSelectedBackgroundId(productId);
+      alert('코인이 부족합니다!');
     }
   };
 
   return (
     <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center'>
       <div className='w-full max-w-6xl'>
-        {/* 상단 코인 표시 추가 */}
+        {/* 상단 코인 표시 */}
         <div className='flex justify-end mb-4'>
           <CharCoin coin={userCoins} />
         </div>
@@ -104,7 +105,7 @@ const itemShop = () => {
                 characterName: '',
                 image: '',
                 owned: false,
-                price: 100 * (index + 1), // 추가: 가격 정보
+                price: (index + 1) * 100, // 가격 정보 추가
               };
 
               const isSelected =
@@ -119,16 +120,43 @@ const itemShop = () => {
                   onMouseEnter={() => setHoveredItemId(item.productId)}
                   onMouseLeave={() => setHoveredItemId(null)}
                 >
-                  {/* 가격 표시 추가 */}
+                  {/* 가격 표시 */}
                   {!item.owned && (
-                    <div className='absolute top-2 right-2 bg-yellow-100/90 px-2 py-1 rounded-full flex items-center text-sm'>
-                      <span className='mr-1'>🪙</span>
+                    <div className='absolute top-2 right-2 bg-yellow-200 px-2 py-1 rounded-full flex items-center shadow-md'>
+                      <svg
+                        width='16'
+                        height='16'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='mr-1'
+                      >
+                        <circle
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          fill='#fcd34d'
+                          stroke='#f59e0b'
+                          strokeWidth='2'
+                        />
+                        <text
+                          x='12'
+                          y='16'
+                          textAnchor='middle'
+                          fontSize='10'
+                          fontWeight='bold'
+                          fill='#f59e0b'
+                        >
+                          $
+                        </text>
+                      </svg>
                       <span className='font-bold text-yellow-800'>
-                        {/* {item.price} */}
-                        30
+                        {item.price}
                       </span>
                     </div>
                   )}
+
+                  {/* 기존 로직 유지 */}
                   <div
                     className={`relative rounded-lg p-4 transition-all duration-200 flex flex-col items-center justify-center aspect-square border ${
                       item.owned
@@ -142,24 +170,24 @@ const itemShop = () => {
                           <img
                             src={item.image}
                             alt={item.characterName}
-                            className={`w-3/4 h-3/4 object-contain transition-all duration-200 ${
+                            className={`w-full h-full object-contain transition-all duration-200 ${
                               isSelected ? 'opacity-100' : 'opacity-70'
                             }`}
                           />
                           {hoveredItemId === item.productId && (
                             <button
-                              onClick={() => handleSelectItem(item.productId)}
-                              className='absolute inset-0 flex items-center justify-center bg-black/50 rounded-md'
+                              onClick={() =>
+                                handlePurchaseItem(item.productId, item.price)
+                              }
+                              className='absolute inset-x-[20%] bottom-[10%] bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700'
                             >
-                              <span className='px-4 py-2 bg-white text-black text-sm font-medium rounded-md'>
-                                선택
-                              </span>
+                              구매
                             </button>
                           )}
                         </>
                       ) : (
-                        <div className='w-3/4 h-3/4 flex items-center justify-center bg-gray-700 rounded-md'>
-                          <Lock className='w-1/2 h-1/2 text-gray-400' />
+                        <div className='w-full h-full flex items-center justify-center bg-gray-700 rounded-md'>
+                          <Lock className='w-[50%] h-[50%] text-gray-400' />
                         </div>
                       )}
                     </div>
