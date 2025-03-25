@@ -76,7 +76,9 @@ const CharChecklist = () => {
         <>
           {/* 진척률 막대바 */}
           <div className='mt-4 mb-4'>
-            <h3 className='text-center text-lg font-semibold mb-2'>진척률</h3>
+            <h3 className='text-center text-lg font-semibold mb-2'>
+              오늘 내가 실천할 일
+            </h3>
             <ProgressBar progress={dailyProgress} />
             <p className='text-center text-sm mt-2'>{dailyProgress}% 완료</p>
           </div>
