@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.checklist.dto.request.CustomChecklistRequest;
+import com.ssafy.econimal.domain.checklist.dto.request.CustomChecklistValidationRequest;
+import com.ssafy.econimal.domain.checklist.dto.response.CustomChecklistResponse;
 import com.ssafy.econimal.domain.checklist.service.CustomChecklistService;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.annotation.Login;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,6 +26,13 @@ import lombok.RequiredArgsConstructor;
 public class CustomChecklistController {
 
 	private final CustomChecklistService customChecklistService;
+
+	@PostMapping("/validate")
+	@ResponseStatus(HttpStatus.CREATED)
+	public CustomChecklistResponse CustomChecklistValidation(
+		@Valid @RequestBody CustomChecklistValidationRequest request) {
+		return customChecklistService.CustomChecklistValidation(request);
+	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)

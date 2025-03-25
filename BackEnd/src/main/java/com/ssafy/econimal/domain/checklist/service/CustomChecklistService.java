@@ -1,20 +1,22 @@
 package com.ssafy.econimal.domain.checklist.service;
 
-import java.util.Collections;
-import java.util.List;
+import static com.ssafy.econimal.global.util.Prompt.*;
+
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDetailDto;
-import com.ssafy.econimal.domain.checklist.dto.CustomChecklistDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.econimal.domain.checklist.dto.CustomChecklistAIDto;
 import com.ssafy.econimal.domain.checklist.dto.request.CustomChecklistRequest;
+import com.ssafy.econimal.domain.checklist.dto.request.CustomChecklistValidationRequest;
+import com.ssafy.econimal.domain.checklist.dto.response.CustomChecklistResponse;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 
@@ -26,28 +28,30 @@ import lombok.RequiredArgsConstructor;
 public class CustomChecklistService {
 
 	private final RedisTemplate<String, String> redisTemplate;
+	private final ChatModel chatModel;
 
 	private static final int MAX_CHECKLIST_PER_DAY = 5;
 	private static final String CHECKLIST_PREFIX = "CC:";
 
-	private CustomChecklistDto getCustomChecklist(User user) {
-		String userKey = CustomChecklistUtil.buildUserKey(user);
+	// AI 환경내용 검사
+	public CustomChecklistResponse CustomChecklistValidation(CustomChecklistValidationRequest request) {
+		String aiResponse = chatModel.call(environmentPrompt(request.description()));
 
-		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
-		if (uuids == null || uuids.isEmpty()) {
-			return CustomChecklistDto.of(Collections.emptyList());
+		ObjectMapper objectMapper = new ObjectMapper();
+		CustomChecklistAIDto response = null;
+		boolean result = false;
+		int exp = 0;
+		try {
+			response = objectMapper.readValue(aiResponse, CustomChecklistAIDto.class);
+			if (response.point() >= 6) {
+				result = true;
+				exp = response.point() * 2;
+			}
+		} catch (JsonProcessingException e) {
+			return new CustomChecklistResponse(new CustomChecklistAIDto(0, "파싱 실패"), result, exp);
 		}
 
-		// User에 해당하는 모든 UUID (checklistId)
-		List<CustomChecklistDetailDto> details = uuids.stream()
-			.map(uuid -> Optional.of(redisTemplate.opsForHash().entries(CHECKLIST_PREFIX + uuid))
-				.filter(data -> !data.isEmpty())
-				.map(data -> CustomChecklistDetailDto.of(uuid, data)) // checklist 상세 조회
-				.orElse(null))
-			.filter(Objects::nonNull)
-			.toList();
-
-		return CustomChecklistDto.of(details); // checklist 완료 개수 등 계산
+		return new CustomChecklistResponse(response, result, exp);
 	}
 
 	public void addCustomChecklist(User user, CustomChecklistRequest request) {
