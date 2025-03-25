@@ -27,7 +27,7 @@ public class ProductCharacterController {
 		return productService.getCharacterProducts(user);
 	}
 
-	@PostMapping("/{productId}")
+	@PostMapping("/characters/{productId}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void buyCharacterProducts(@Login User user, @PathVariable("productId") Long productId) {
 		productService.buyCharacterProduct(user, productId);
