@@ -17,6 +17,7 @@ import {
   useCharacterExpression,
   useCharacterLevel,
 } from '@/store/useCharStatusStore';
+import CharStatusBar from '@/components/CharStatusBar';
 
 //useEffect 조건부 이전 위치 -> 조건부 랜더링은 훅 호출 이후 진행
 const CharBackground = () => {
@@ -66,19 +67,7 @@ const CharBackground = () => {
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 상단바 */}
-        <div className='flex items-center justify-between p-6'>
-          {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
-          <div className='flex items-center gap-4'>
-            <CharProfile level={level} profileImg={myChar.profileImg} />
-            <ExpBar current={exp} max={100} />
-          </div>
-
-          {/* 오른쪽: 금 정보 + 햄버거 메뉴 */}
-          <div className='flex items-center gap-4'>
-            <CharCoin coin={coin} />
-            <CharMenu />
-          </div>
-        </div>
+        <CharStatusBar />
       </div>
 
       {/* 아이콘들 */}
