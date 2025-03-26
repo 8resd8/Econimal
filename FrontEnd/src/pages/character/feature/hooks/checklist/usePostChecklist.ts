@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchDoneChecklist } from '../api/fetchDoneChecklist';
+import { fetchDoneChecklist } from '../../api/checklist/fetchDoneChecklist';
 
 //checklist에 id값 전달을 위해 선언
 export const usePostChecklist = () => {
@@ -13,7 +13,6 @@ export const usePostChecklist = () => {
       checklistId: string;
       type: string;
     }) => {
-      console.log('[3] 뮤테이션 시작', checklistId);
       return fetchDoneChecklist(checklistId, type);
     },
     onSuccess: () => {

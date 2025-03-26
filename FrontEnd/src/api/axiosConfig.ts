@@ -134,7 +134,7 @@ export const characterListAPI = {
 };
 
 export const checklistAPI = {
-  // 체크리스트 조회
+  // 체크리스트 조회(서버/커스텀 내용)
   getCheckList: () => axiosInstance.get(`${API.CHECKLIST.LIST}`),
   // 체크리스트 등록
   postCheckList: (checklistId: string, type: string) =>
@@ -142,6 +142,17 @@ export const checklistAPI = {
       type: type.toUpperCase(),
       checklistId,
     }),
+  //커스텀 체크리스트 추가
+  postAddCheckList: () => axiosInstance.post(`${API.CHECKLIST.CUSTOM}`),
+  //커스텀 체크리스트 수정
+  pathEditCheckList: (checklistId: number) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
+  //커스텀 체크리스트 삭제
+  deleteCheckList: (checklistId: number) =>
+    axiosInstance.delete(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
+  //커스텀 체크리스트 검증
+  postValidationCheckList: () =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM_VALIDATE}`),
 };
 
 export const shopAPI = {

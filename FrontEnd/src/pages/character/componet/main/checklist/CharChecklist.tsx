@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import ChecklistPanel from './ChecklistPanel';
 import ProgressBar from './ProgressBar';
-import { useChecklist } from '@/pages/character/feature/hooks/useChecklist';
-import { usePostChecklist } from '@/pages/character/feature/hooks/usePostChecklist';
+import { useChecklist } from '@/pages/character/feature/hooks/checklist/useChecklist';
+import { usePostChecklist } from '@/pages/character/feature/hooks/checklist/usePostChecklist';
 import ChecklistTab from './ChecklistTab';
 import { a } from 'node_modules/framer-motion/dist/types.d-B50aGbjN';
 

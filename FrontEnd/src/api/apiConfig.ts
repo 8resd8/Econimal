@@ -8,6 +8,8 @@ export const API = {
   CHECKLIST: {
     LIST: 'checklists',
     DONE: 'checklists/complete',
+    CUSTOM: 'checklist/custom',
+    CUSTOM_VALIDATE: 'checklist/custom/validate',
   },
   SHOP: {
     CHARLIST: 'product/characters',
