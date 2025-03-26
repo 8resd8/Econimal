@@ -10,6 +10,7 @@ import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
 import { TownEvent } from './features/townApi'; // TownEvent 타입 임포트 추가
 import pollutedImg from '@/assets/town/polluted-river.png';
+// import { EcoButton } from './components/GoMainBtn';
 
 // import RecyclingCenter from './components/RecyclingCenter';
 // import Vehicle from './components/Vehicle';
@@ -123,8 +124,9 @@ const Town = () => {
             <div className='absolute top-4 left-4 z-30'>
               <GoMainBtn />
             </div>
+
             {/* 5. 마을 이름 - 항상 상단 중앙에 위치 */}
-            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg text-xl w-[18%] z-30'>
+            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 w-[18%] z-30'>
               <TownName />
             </div>
             {/* 6. 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
@@ -135,7 +137,6 @@ const Town = () => {
             <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-20'>
               <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
             </div>
-
             {/* 오염된 강물 오버레이 - 하수처리장이 오염 상태일 때만 표시 */}
             {!useTownStore.getState().infraStatus.WATER && (
               <img
