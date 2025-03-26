@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useShopList } from '../../feature/hooks/useShopCharList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
-import { backgroundShopConfig } from '@/config/backgroundShopConfig';
+import { backShopList } from '@/config/backShopList';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from './ItemShopUI';
 import SuccessPurchaseModal from './SuccessPurchaseModal';
 import ErrorCoinModal from './ErrorCoinModal';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
+import { usebackShopItem } from '../../feature/hooks/reuse/useBackShopItem';
+import { useShopBackList } from '../../feature/hooks/useShopBackList';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
+  const { data: backData } = useShopBackList();
   const { charShopList } = useCharShopItem(data || null);
+  const { backShopList } = usebackShopItem(backData);
   const coin = useCharacterCoin();
 
   // 캐릭터 선택 탭 전환 여부 => 상태 관리
@@ -32,7 +36,7 @@ const ItemShopLogic = () => {
 
   // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
-    if (!data || !charShopList || !selectedTab) return;
+    if (!data || !charShopList || !selectedTab || !backShopList) return;
     const currentItem =
       selectedTab === 'characters'
         ? [
@@ -47,8 +51,8 @@ const ItemShopLogic = () => {
             }),
           ]
         : [
-            ...backgroundShopConfig.slice(0, 8),
-            ...Array(8 - backgroundShopConfig.length).fill({
+            ...backShopList.slice(0, 8),
+            ...Array(8 - backShopList.length).fill({
               productId: -1,
               characterName: '',
               image: '',
@@ -59,8 +63,17 @@ const ItemShopLogic = () => {
     setCurrentItems(currentItem);
   }, [data, charShopList, selectedTab]);
 
-  if (!data || charShopList.length === 0) {
+  if (
+    !data ||
+    !backData ||
+    charShopList.length === 0 ||
+    backShopList.length === 0
+  ) {
     return <div>Loading...</div>;
+  }
+
+  if (backData) {
+    console.log(backData, 'backData');
   }
 
   // 상품 구매 관련 alert 발송

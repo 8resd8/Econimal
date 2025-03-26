@@ -3,7 +3,7 @@ import { fetchCharShopList } from '../api/fetchCharShopList';
 
 export const useShopList = () => {
   const { data, isError, error, isLoading } = useQuery({
-    queryKey: ['shop'],
+    queryKey: ['charshop'],
     queryFn: fetchCharShopList,
     staleTime: 1000 * 60 * 5,
   });
