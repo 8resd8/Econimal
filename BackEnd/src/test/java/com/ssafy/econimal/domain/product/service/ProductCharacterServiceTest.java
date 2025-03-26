@@ -38,6 +38,7 @@ class ProductCharacterServiceTest {
 	ProductCharacterService productCharacterService;
 
 	User user;
+	
 	@Autowired
 	private ProductRepository productRepository;
 
@@ -47,7 +48,7 @@ class ProductCharacterServiceTest {
 	}
 
 	@Test
-	void 상점조회() {
+	void 캐릭터상점조회() {
 		ProductCharacterResponse actual = productCharacterService.getCharacterProducts(user);
 		assertThat(actual).isNotNull();
 
