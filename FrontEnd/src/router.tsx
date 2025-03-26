@@ -11,6 +11,11 @@ import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
 import CharacterShop from './pages/character/componet/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
+
+import NetworkErrorScreen from './components/ErrorScreen';
+import LoadingScreen from './components/LoadingScreen';
+import NotFoundScreen from './components/NotFoundScreen';
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -64,5 +69,18 @@ export const router = createBrowserRouter([
         onComplete={() => localStorage.setItem('prologViewed', 'true')}
       />
     ),
+  },
+  // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
+  {
+    path: '/error',
+    element: <NetworkErrorScreen />,
+  },
+  {
+    path: '/loading',
+    element: <LoadingScreen />,
+  },
+  {
+    path: '*',
+    element: <NotFoundScreen />,
   },
 ]);

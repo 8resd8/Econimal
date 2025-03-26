@@ -1,5 +1,6 @@
-package com.ssafy.econimal.domain.town.entity;
+package com.ssafy.econimal.domain.user.entity;
 
+import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -19,28 +20,29 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "eco_answer")
-public class EcoAnswer extends BaseTimeEntity {
+@Table(name = "user_background")
+public class UserBackground extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "eco_answer_id")
+	@Column(name = "user_background_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "eco_quiz_id", nullable = false)
-	private EcoQuiz ecoQuiz;
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-	@Column(name = "description", nullable = false, columnDefinition = "TEXT")
-	private String description;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id", nullable = false)
+	private Product product;
 
-	@Column(name = "exp", nullable = false, columnDefinition = "INT DEFAULT 0")
-	private int exp;
+	@Column(name = "is_main", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	private boolean isMain;
 
 	@Builder
-	public EcoAnswer(EcoQuiz ecoQuiz, String description, int exp) {
-		this.ecoQuiz = ecoQuiz;
-		this.description = description;
-		this.exp = exp;
+	public UserBackground(User user, Product product, boolean isMain) {
+		this.user = user;
+		this.product = product;
+		this.isMain = isMain;
 	}
 }
