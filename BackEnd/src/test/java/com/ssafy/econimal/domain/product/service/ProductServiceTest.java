@@ -12,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.product.dto.ProductDto;
-import com.ssafy.econimal.domain.product.dto.ProductResponse;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterResponse;
 import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -48,10 +48,10 @@ class ProductServiceTest {
 
 	@Test
 	void 상점조회() {
-		ProductResponse actual = productService.getCharacterProducts(user);
+		ProductCharacterResponse actual = productService.getCharacterProducts(user);
 		assertThat(actual).isNotNull();
 
-		List<ProductDto> products = actual.products();
+		List<ProductCharacterDto> products = actual.products();
 		assertThat(products.size()).isEqualTo(4);
 	}
 
