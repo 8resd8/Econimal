@@ -58,31 +58,6 @@ const Town = () => {
     }
   }, [townEventsData]);
 
-  // // 화면 크기 변경 감지 및 aspectRatio 업데이트를 위한 useEffect 추가
-  // useEffect(() => {
-  //   // 초기 화면 크기 설정
-  //   setAspectRatio({
-  //     width: window.innerWidth,
-  //     height: window.innerHeight,
-  //   });
-
-  //   // 화면 크기 변경 감지 함수
-  //   const handleResize = () => {
-  //     setAspectRatio({
-  //       width: window.innerWidth,
-  //       height: window.innerHeight,
-  //     });
-  //   };
-
-  //   // 이벤트 리스너 등록
-  //   window.addEventListener('resize', handleResize);
-
-  //   // 컴포넌트 언마운트 시 이벤트 리스너 제거
-  //   return () => {
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
-
   // 마을 접속 시(페이지 로드 시) 이벤트 목록 조회 및 상태 업데이트
   useEffect(() => {
     if (townEventsData?.townStatus) {
