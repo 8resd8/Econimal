@@ -33,7 +33,7 @@ export function CharMenu() {
 
       {/* 오른쪽 슬라이드 패널 */}
       {openChecklist && (
-        <div className='fixed inset-y-0 right-0 w-[400px] bg-white shadow-xl transition-transform duration-300 transform translate-x-0'>
+        <div className='fixed inset-y-0 right-0 w-[400px] h-[430px] bg-white shadow-xl transition-transform duration-300 transform translate-x-0'>
           <div className='p-6 h-full overflow-y-auto'>
             <div className='flex items-center justify-between mb-6'>
               <h2 className='text-xl font-bold'>활동</h2>
