@@ -31,10 +31,10 @@ const UserInfo = () => {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
+      className="flex items-center justify-center min-h-screen bg-cover bg-center relative w-full max-w-screen-2xl"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="max-w-lg mx-auto pt-10 pb-10">
+      <div className="max-w-lg mx-auto pt-10 pb-10 scale-75">
         <div className="bg-slate-50 rounded-xl shadow-md overflow-hidden">
           <div className="p-8 w-full">
             <div className="flex justify-center items-center uppercase tracking-wide text-lg text-gray-700 font-bold">

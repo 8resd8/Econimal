@@ -64,22 +64,22 @@ const CharBackground = () => {
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 상단바 */}
-        <div className='flex items-center justify-between p-6'>
+        <div className='flex items-center justify-between p-2 scale-90'>
           {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
-          <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-4 scale-90'>
             <CharProfile level={level} profileImg={myChar.profileImg} />
             <ExpBar current={exp} max={100} />
           </div>
 
           {/* 오른쪽: 코인 정보 + 햄버거 메뉴 */}
-          <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-4 scale-90'>
             <CharCoin coin={coin} />
             <CharMenu />
           </div>
         </div>
 
         {/* 아이콘들 */}
-        <div className='absolute left-12 sm:left-16 md:left-24 top-[60%] -translate-y-1/2 flex flex-col gap-8 z-[100]'>
+        <div className='absolute left-12 sm:left-16 md:left-24 top-[60%] -translate-y-1/2 flex flex-col gap-3 z-[100] scale-75'>
           {/* mouseEventHandler 기준 준수를 위해 e 사용 */}
           <TownIcon onClick={(e) => nav('/town')} />
           <EarthIcon onClick={(e) => nav('/earth')} />
@@ -87,13 +87,13 @@ const CharBackground = () => {
         </div>
 
         {/* 캐릭터 */}
-        <div className='absolute bottom-0 left-0 w-full'>
-          <div className='relative bottom-24 left-[40%] -translate-x-1/2 w-64 md:w-80'>
+        <div className='absolute bottom-0 left-0 w-full scale-75'>
+          <div className='relative bottom-24 left-[40%] -translate-x-1/2 w-64 md:w-80 scale-90'>
             {/* 발판 이미지 === 추후 LevelChange로 활용될 내용*/}
             <img
               src={myChar.footImg}
               alt='발판'
-              className='absolute bottom-[-50px] left-[50%] -translate-x-1/2 w-[90%] z-[1]'
+              className='absolute bottom-[-50px] left-[50%] -translate-x-1/2 w-[90%] z-[1] scale-75'
             />
             {/* 캐릭터 이미지 */}
             <CharEmotionChange faceImg={faceImg} />
