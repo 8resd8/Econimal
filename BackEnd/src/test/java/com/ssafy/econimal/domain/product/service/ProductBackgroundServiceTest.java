@@ -69,9 +69,9 @@ class ProductBackgroundServiceTest {
 		user.updateCoin(500);
 
 		productBackgroundService.buyBackgroundProduct(user, product.getId());
-		List<UserBackground> backgroundUsers = userBackgroundRepository.findByUser(user);
+		List<UserBackground> userBackground = userBackgroundRepository.findByUser(user);
 
 		assertThat(user.getCoin()).isEqualTo(300); // 500 - 200
-		assertThat(backgroundUsers.size()).isEqualTo(1);
+		assertThat(userBackground.size()).isEqualTo(2);
 	}
 }
