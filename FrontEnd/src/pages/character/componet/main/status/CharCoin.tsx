@@ -1,7 +1,8 @@
 const CharCoin = ({ coin }: { coin: number }) => {
   // const CharCoin = () => {
   return (
-    <div className='flex items-center bg-gradient-to-r from-yellow-100 to-yellow-50 px-5 py-3 rounded-full shadow-md border-2 border-yellow-300'>
+    <div className='flex items-center bg-gradient-to-r from-yellow-200 to-yellow-100 px-5 py-3 rounded-full shadow-lg border-2 border-yellow-400'>
+      {/* 동전 아이콘 */}
       <svg
         width='36'
         height='36'
@@ -14,20 +15,26 @@ const CharCoin = ({ coin }: { coin: number }) => {
           cx='12'
           cy='12'
           r='10'
-          fill='#fde68a'
+          fill='#fcd34d' // 더 밝은 금색
           stroke='#f59e0b'
           strokeWidth='2'
         />
-        <circle cx='12' cy='12' r='8' fill='#fef3c7' strokeWidth='0' />
-        <path
-          d='M12 7v10M8 12h8'
-          stroke='#f59e0b'
-          strokeWidth='2'
-          strokeLinecap='round'
-        />
+        <circle cx='12' cy='12' r='8' fill='#fef08a' strokeWidth='0' />
+        <text
+          x='12'
+          y='16'
+          textAnchor='middle'
+          fontSize='12'
+          fontWeight='bold'
+          fill='#f59e0b'
+        >
+          $
+        </text>
       </svg>
       {/* <span className='font-bold text-lg text-yellow-800'>2350</span> */}
-      <span className='font-bold text-lg text-yellow-800'>{coin}</span>
+      <span className='font-extrabold text-xl text-yellow-700'>
+        {coin} 코인
+      </span>
     </div>
   );
 };

@@ -8,4 +8,8 @@ export const API = {
     LIST: 'checklists',
     DONE: 'checklists/complete',
   },
+  SHOP: {
+    CHARLIST: 'product/characters',
+    BACKLIST: 'product/backgrounds',
+  },
 };

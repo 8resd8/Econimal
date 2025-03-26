@@ -9,8 +9,9 @@ import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
 import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
-import CharacterShop from './pages/character/componet/shop/CharacterShop';
+import CharacterShop from './pages/character/componet/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
+
 import NetworkErrorScreen from './components/ErrorScreen';
 import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/NotFoundScreen';
@@ -56,6 +57,10 @@ export const router = createBrowserRouter([
   {
     path: '/edit-profile',
     element: <Edit />,
+  },
+  {
+    path: '/shop',
+    element: <CharacterShop />,
   },
   {
     path: '/prolog',
