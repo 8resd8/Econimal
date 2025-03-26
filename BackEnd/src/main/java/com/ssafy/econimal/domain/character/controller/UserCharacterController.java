@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +45,12 @@ public class UserCharacterController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void patchUserCharacterMain(@Login User user, @PathVariable("userCharacterId") Long userCharacterId) {
 		userCharacterService.updateUserCharacterMain(user, userCharacterId);
+	}
+
+	// 최초 1회 캐릭터 선택 및 배경 지급
+	@PostMapping("/initial/main/{userCharacterId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void initialUserCharacterMain(@Login User user, @PathVariable("userCharacterId") Long userCharacterId) {
+		userCharacterService.setInitCharacterAndBackground(user, userCharacterId);
 	}
 }

@@ -9,7 +9,9 @@ import com.ssafy.econimal.domain.character.dto.UserCharacterMainResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
 import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
+import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class UserCharacterService {
 
 	private final UserCharacterRepository userCharacterRepository;
+	private final UserBackgroundRepository userBackgroundRepository;
 
 	// 보유한 캐릭터 전체조회
 	public UserCharacterResponse getUserCharacters(User user) {
@@ -35,7 +38,8 @@ public class UserCharacterService {
 
 	// 메인 페이지 캐릭터 상세 조회
 	public UserCharacterMainResponse getUserCharacterMain(User user) {
-		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user).orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
+		UserCharacter mainChar = userCharacterRepository.findByUserAndMainIsTrue(user)
+			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		UserCharacterMainDto mainDto = UserCharacterMainDto.builder()
 			.coin(user.getCoin())
 			.exp(ExpUtil.getExp(mainChar.getTotalExp(), mainChar))
@@ -55,5 +59,33 @@ public class UserCharacterService {
 		// 변경할 대표 캐릭터 true 설정
 		userCharacterRepository.findByUserAndId(user, userCharacterId).
 			ifPresent(userCharacter -> userCharacter.updateIsMain(true));
+	}
+
+	// 최초 1회 메인 캐릭터 선택 및 캐릭터마다 배경 지급
+	public void setInitCharacterAndBackground(User user, Long userCharacterId) {
+		if (userCharacterRepository.findByUserAndMainIsTrue(user).isPresent()) {
+			throw new InvalidArgumentException("이미 대표 캐릭터가 설정되어 있습니다.");
+		}
+
+		UserCharacter userCharacter = userCharacterRepository.findByUserAndId(user, userCharacterId)
+			.orElseThrow(() -> new InvalidArgumentException("잘못된 캐릭터 선택입니다."));
+
+		// 메인 캐릭터 선택
+		userCharacter.updateIsMain(true);
+
+		// 캐릭터마다 기본 배경 지정
+		if (userCharacter.getCharacter().getId().equals(1L)) {
+			UserBackground bugibugi = userBackgroundRepository.findById(1774L)
+				.orElseThrow(() -> new RuntimeException("거북이 배경 지급오류"));
+			bugibugi.updateIsMain(true);
+		} else if (userCharacter.getCharacter().getId().equals(2L)) {
+			UserBackground penguin = userBackgroundRepository.findById(1775L)
+				.orElseThrow(() -> new RuntimeException("펭귄 배경 지급오류"));
+			penguin.updateIsMain(true);
+		} else if (userCharacter.getCharacter().getId().equals(3L)) {
+			UserBackground horangE = userBackgroundRepository.findById(1776L)
+				.orElseThrow(() -> new RuntimeException("호랑이 배경 지급오류"));
+			horangE.updateIsMain(true);
+		}
 	}
 }
