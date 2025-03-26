@@ -63,7 +63,7 @@ const ItemShopLogic = () => {
             }),
           ];
     setCurrentItems(currentItem);
-  }, [data, charShopList, selectedTab]);
+  }, [data, charShopList, selectedTab, backShopList]);
 
   if (
     !data ||
@@ -87,7 +87,7 @@ const ItemShopLogic = () => {
   };
 
   // 상품 구해 완료 관련 내용 전달 => 실제 coin값을 반영하고 변경해야 함 => zustand에 저장하고
-  // 서버에 저장된 코인 값이 아니라 자체적으로 저장되고 => 서버에 패칭된 coin이 반영이 안되는 현상 확인됨 
+  // 서버에 저장된 코인 값이 아니라 자체적으로 저장되고 => 서버에 패칭된 coin이 반영이 안되는 현상 확인됨
   const confirmPurchase = () => {
     if (!selectedItemForPurchase) return;
 

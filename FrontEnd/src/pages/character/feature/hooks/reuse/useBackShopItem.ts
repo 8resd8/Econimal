@@ -10,26 +10,22 @@ export const usebackShopItem = (data: ShopBackItemTypesRes) => {
 
   useEffect(() => {
     if (!data || !data.products) return;
-    console.log(data.products, 'data내용 확인하기');
-    const resultData = data.products.map(
-      (item: ShopBackItemTypes, idx: number) => {
-        console.log(item.productId, '서버 패칭 productId');
-        console.log(
-          backgroundShopConfig[idx].productId,
-          'config 정적 productId',
-        );
-        if (item.productId === backgroundShopConfig[idx].productId) {
-          return {
-            productId: item.productId,
-            characterName: backgroundShopConfig[idx].characterName,
-            image: backgroundShopConfig[idx].image,
-            price: item.price,
-            ownded: item.owned,
-          };
-        }
-        return backgroundShopConfig[idx];
-      },
-    );
+
+    const resultData = data.products.map((item: ShopBackItemTypes) => {
+      const configData = backgroundShopConfig.find(
+        (back) => item.productId === back.productId,
+      );
+      if (item !== undefined) {
+        return {
+          productId: item.productId,
+          owned: item.owned,
+          price: item.price,
+          image: configData?.image,
+          characterName: configData?.characterName,
+        };
+      }
+      return configData;
+    });
     setBackShopList(resultData);
   }, [data]);
 
