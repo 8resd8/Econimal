@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
-import com.ssafy.econimal.domain.store.entity.Product;
-import com.ssafy.econimal.domain.store.repository.ProductRepository;
+import com.ssafy.econimal.domain.product.entity.Product;
+import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.global.common.enums.CharacterType;
 import com.ssafy.econimal.global.common.enums.ProductType;
 

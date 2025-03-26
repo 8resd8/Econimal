@@ -1,16 +1,43 @@
 import { create } from 'zustand';
-import { CharStore } from '@/types/CharStore';
-import { CharacterTypes } from '@/types/CharacterTypes';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 
-// zustand Type 설정 => charStore로
-const useCharStore = create<CharStore>((set) => ({
-  myChar: {
-    name: '',
-    description: '',
-    subStory: undefined, // 초기값 설정
-    detailStory: undefined, // 초기값 설정
-  },
-  setMyChar: (char: CharacterTypes<string>) => set({ myChar: char }), //캐릭터 자체가 반환하는 내용?
-}));
+interface CharState {
+  myChar: CharacterTypes<number>;
+  setMyChar: (char: CharacterTypes<number>) => void;
+  resetMyChar: () => void;
+}
+
+interface PersistedCharState extends CharState {
+  $$storeMutators?: [['zustand/persist', unknown]];
+}
+
+const defaultChar: CharacterTypes<number> = {
+  // 기본 캐릭터 상태
+};
+
+const useCharStore = create<PersistedCharState>(
+  persist(
+    (set) => ({
+      myChar: defaultChar,
+
+      setMyChar: (char) => {
+        const validatedChar = {
+          ...char,
+          id: char.id || char.userCharacterId || 1,
+          userCharacterId: char.userCharacterId || char.id || 1,
+        };
+
+        set({ myChar: validatedChar });
+      },
+
+      resetMyChar: () => set({ myChar: defaultChar }),
+    }),
+    {
+      name: 'char-storage',
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+) as typeof useCharStore;
 
 export default useCharStore;

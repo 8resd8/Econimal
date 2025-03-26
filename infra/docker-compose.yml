@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     image: backend-blue:0.0.1
     ports:
-      - ${BLUE_PORT}:8080
+      - 127.0.0.1:${BLUE_PORT}:8080
     networks:
       - econimal-network
 
@@ -17,10 +17,21 @@ services:
       dockerfile: Dockerfile
     image: backend-green:0.0.1
     ports:
-      - ${GREEN_PORT}:8080
+      - 127.0.0.1:${GREEN_PORT}:8080
     networks:
       - econimal-network
-  
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../FrontEnd
+      dockerfile: Dockerfile
+    image: frontend:0.0.1
+    ports:
+      - 127.0.0.1:${APP_PORT}:5173
+    networks:
+      - econimal-network
+
   mysql:
     container_name: mysql
     image: mysql:latest

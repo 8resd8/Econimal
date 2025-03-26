@@ -4,14 +4,27 @@ import Town from './pages/town/Town';
 import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/SignUp';
-import MyCharacter from './pages/character/MyCharacter';
+import MyPage from './pages/Auth/UserInfo';
 import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
+import Edit from './pages/Auth/InfoEdit';
+import MyCharacter from './pages/character/MyCharacter';
+import CharacterShop from './pages/character/componet/shop/ItemShop';
+import PrologVideo from './components/PrologVideo';
+
+import NetworkErrorScreen from './components/ErrorScreen';
+import LoadingScreen from './components/LoadingScreen';
+import NotFoundScreen from './components/NotFoundScreen';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
+    // element: <Home />,
+    element: <MyCharacter />,
+  },
+  {
+    path: '/store',
+    element: <CharacterShop />,
   },
   {
     path: '/town',
@@ -23,7 +36,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/my',
-    element: <MyCharacter />,
+    element: <MyPage />,
   },
   {
     path: '/login',
@@ -35,10 +48,39 @@ export const router = createBrowserRouter([
   },
   {
     path: '/earth',
-    element: <Earth />
+    element: <Earth />,
   },
   {
     path: '/animation',
-    element: <Animation />
-  }
+    element: <Animation />,
+  },
+  {
+    path: '/edit-profile',
+    element: <Edit />,
+  },
+  {
+    path: '/shop',
+    element: <CharacterShop />,
+  },
+  {
+    path: '/prolog',
+    element: (
+      <PrologVideo
+        onComplete={() => localStorage.setItem('prologViewed', 'true')}
+      />
+    ),
+  },
+  // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
+  {
+    path: '/error',
+    element: <NetworkErrorScreen />,
+  },
+  {
+    path: '/loading',
+    element: <LoadingScreen />,
+  },
+  {
+    path: '*',
+    element: <NotFoundScreen />,
+  },
 ]);

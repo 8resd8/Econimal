@@ -1,6 +1,6 @@
 package com.ssafy.econimal.domain.data.sample;
 
-import com.ssafy.econimal.domain.store.entity.Product;
+import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.global.common.enums.ProductType;
 
 public class ProductSample {

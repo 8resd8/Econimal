@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.request.UpdatePasswordRequest;
 import com.ssafy.econimal.domain.data.TestEntityHelper;
@@ -14,8 +15,6 @@ import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
-
-import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional

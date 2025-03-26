@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,4 +37,20 @@ public class InfrastructureEvent extends BaseTimeEntity {
 
 	@Column(name = "is_active", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
 	private boolean isActive;
+
+	@Builder
+	public InfrastructureEvent(Infrastructure infrastructure, EcoQuiz ecoQuiz, boolean isActive) {
+		this.infrastructure = infrastructure;
+		this.ecoQuiz = ecoQuiz;
+		this.isActive = isActive;
+	}
+
+	public void updateActive(boolean isClean, boolean isActive) {
+		this.infrastructure.setClean(isClean);
+		this.isActive = isActive;
+	}
+
+	public void deactivate() {
+		this.isActive = false;
+	}
 }

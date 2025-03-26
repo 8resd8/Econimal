@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.ssafy.econimal.global.common.enums.UserType;
 
 public record UserInfoDto (
+	Long userId,
 	String email,
 	String name,
 	String nickname,

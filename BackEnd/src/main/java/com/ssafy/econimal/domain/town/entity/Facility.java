@@ -1,9 +1,12 @@
 package com.ssafy.econimal.domain.town.entity;
 
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
+import com.ssafy.econimal.global.common.enums.EcoType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,10 +31,11 @@ public class Facility extends BaseTimeEntity {
 	private String facilityName;
 
 	@Column(name = "eco_type")
-	private String ecoType;
+	@Enumerated(EnumType.STRING)
+	private EcoType ecoType;
 
 	@Builder
-	public Facility(String facilityName, String ecoType) {
+	public Facility(String facilityName, EcoType ecoType) {
 		this.facilityName = facilityName;
 		this.ecoType = ecoType;
 	}

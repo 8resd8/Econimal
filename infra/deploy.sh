@@ -18,6 +18,9 @@ else
 fi
 sleep 30
 echo "===== ${AFTER_COLOR} server up(port:${AFTER_PORT}) ====="
-docker-compose stop backend-${BEFORE_COLOR}
+docker compose stop backend-${BEFORE_COLOR}
 docker rmi backend-${BEFORE_COLOR}:0.0.1
 echo "===== ${BEFORE_COLOR} server down(port:${BEFORE_PORT}) ====="
+
+docker compose stop frontend
+docker compose up -d frontend --build
