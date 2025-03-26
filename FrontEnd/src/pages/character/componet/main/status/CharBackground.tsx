@@ -8,17 +8,26 @@ import ShopIcon from '../moveicon/ShopIcon';
 import CharMenu from '../../../feature/status/CharMenu';
 import { useMyCharInfo } from '@/pages/character/feature/hooks/useMyCharInfo';
 import { useEmotionChange } from '@/pages/character/feature/hooks/reuse/useEmotionChange';
-import { MyCharInfoRes } from '@/pages/character/types/MyCharInfoRes';
 import CharEmotionChange from './CharEmotionChange';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import {
+  useCharacterCoin,
+  useCharacterExp,
+  useCharacterExpression,
+  useCharacterLevel,
+} from '@/store/useCharStatusStore';
 
 //useEffect 조건부 이전 위치 -> 조건부 랜더링은 훅 호출 이후 진행
 const CharBackground = () => {
   const { myChar } = useCharStore();
-  const { data, isLoading, isError } = useMyCharInfo();
+  const { isLoading, isError } = useMyCharInfo();
+  const level = useCharacterLevel();
+  const exp = useCharacterExp();
+  const coin = useCharacterCoin();
+  const expression = useCharacterExpression();
   const { faceImg, isLoading: isEmotionLoading } = useEmotionChange({
-    data: data as MyCharInfoRes,
+    data: { level, exp, coin, expression },
     myChar: myChar,
   });
   const nav = useNavigate();
@@ -32,9 +41,18 @@ const CharBackground = () => {
     }
   }, [myChar, nav]);
 
-  if (isLoading || isEmotionLoading || !data) return <div>...로딩중</div>;
+  if (isLoading || isEmotionLoading) return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
-  if (!data || !data.level || !myChar) return <div>필수 데이터 없음</div>;
+  if (
+    //초기값이 0이기 때문에 체크에서 제외해야하기 때문에 undefined로 판단한다.
+    level === undefined ||
+    exp === undefined ||
+    coin === undefined ||
+    !expression ||
+    !myChar
+  ) {
+    return <div>필수 데이터 없음</div>;
+  }
 
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
@@ -51,13 +69,13 @@ const CharBackground = () => {
         <div className='flex items-center justify-between p-6'>
           {/* 왼쪽: 캐릭터 프로필 + 경험치 바 */}
           <div className='flex items-center gap-4'>
-            <CharProfile level={data.level} profileImg={myChar.profileImg} />
-            <ExpBar current={data.exp} max={100} />
+            <CharProfile level={level} profileImg={myChar.profileImg} />
+            <ExpBar current={exp} max={100} />
           </div>
 
           {/* 오른쪽: 금 정보 + 햄버거 메뉴 */}
           <div className='flex items-center gap-4'>
-            <CharCoin coin={data.coin} />
+            <CharCoin coin={coin} />
             <CharMenu />
           </div>
         </div>

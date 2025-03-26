@@ -6,10 +6,12 @@ import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from './ItemShopUI';
 import SuccessPurchaseModal from './SuccessPurchaseModal';
 import ErrorCoinModal from './ErrorCoinModal';
+import { useCharacterCoin } from '@/store/useCharStatusStore';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
   const { charShopList } = useCharShopItem(data || null);
+  const coin = useCharacterCoin();
 
   // 캐릭터 선택 탭 전환 여부 => 상태 관리
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
@@ -19,7 +21,7 @@ const ItemShopLogic = () => {
   const [currentItems, setCurrentItems] = useState();
   // 아이템 호버시 발생되는 이벤트를 위한 상태관리
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins, setUserCoins] = useState<number>(1500); //추후 서버에서 fetching받은 coin값 활용
+  const [userCoins, setUserCoins] = useState<number>(coin); //추후 서버에서 fetching받은 coin값 활용
   // 모달 창 열고 / 닫기
   const [showModal, setShowModal] = useState<boolean>(false);
   // 구매 상품 선택 여부
