@@ -9,6 +9,8 @@ import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
 import { TownEvent } from './features/townApi';
+import CharStatusBar from '@/components/CharStatusBar';
+
 import Toast from '@/components/Toast';
 
 import pollutedImg from '@/assets/town/polluted-river.png';
@@ -105,6 +107,9 @@ const Town = () => {
             <div className='absolute top-40 left-10'>
               <Toast />
             </div>
+
+            {/* 캐릭터 상태 바 */}
+            <CharStatusBar />
 
             {/* 마을 이름 - 항상 상단 중앙에 위치 */}
             <div className='absolute top-4 left-1/2 transform -translate-x-1/2 w-[15%] z-30'>
