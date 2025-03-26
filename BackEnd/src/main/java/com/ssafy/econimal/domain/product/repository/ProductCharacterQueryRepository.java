@@ -12,6 +12,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
 import com.ssafy.econimal.domain.product.dto.QProductCharacterDto;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.global.common.enums.ProductType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +33,7 @@ public class ProductCharacterQueryRepository {
 			.from(character)
 			.leftJoin(userCharacter)
 			.on(userCharacter.character.eq(character), userCharacter.user.id.eq(user.getId()))
+			.where(product.type.eq(ProductType.CHARACTER))
 			.fetch();
 	}
 }
