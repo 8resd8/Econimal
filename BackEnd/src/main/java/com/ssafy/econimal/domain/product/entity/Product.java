@@ -1,6 +1,10 @@
 package com.ssafy.econimal.domain.product.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ssafy.econimal.domain.character.entity.Character;
+import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
 import com.ssafy.econimal.global.common.enums.ProductType;
 
@@ -12,6 +16,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -39,6 +44,9 @@ public class Product extends BaseTimeEntity {
 
 	@OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Character character;
+
+	@OneToMany(mappedBy = "product") // 양방향 매핑 추가
+	private List<UserBackground> userBackgrounds = new ArrayList<>();
 
 	@Builder
 	public Product(ProductType type, int price) {

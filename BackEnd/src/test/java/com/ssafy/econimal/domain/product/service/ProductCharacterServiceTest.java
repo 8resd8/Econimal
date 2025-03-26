@@ -12,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.product.dto.ProductDto;
-import com.ssafy.econimal.domain.product.dto.ProductResponse;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterResponse;
 import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -26,7 +26,7 @@ import com.ssafy.econimal.global.exception.InvalidArgumentException;
 @Transactional
 @ActiveProfiles("test")
 @Sql(scripts = "classpath:test-data.sql")
-class ProductServiceTest {
+class ProductCharacterServiceTest {
 
 	@Autowired
 	UserRepository userRepository;
@@ -35,9 +35,10 @@ class ProductServiceTest {
 	UserCharacterRepository userCharacterRepository;
 
 	@Autowired
-	ProductService productService;
+	ProductCharacterService productCharacterService;
 
 	User user;
+	
 	@Autowired
 	private ProductRepository productRepository;
 
@@ -47,11 +48,11 @@ class ProductServiceTest {
 	}
 
 	@Test
-	void 상점조회() {
-		ProductResponse actual = productService.getCharacterProducts(user);
+	void 캐릭터상점조회() {
+		ProductCharacterResponse actual = productCharacterService.getCharacterProducts(user);
 		assertThat(actual).isNotNull();
 
-		List<ProductDto> products = actual.products();
+		List<ProductCharacterDto> products = actual.products();
 		assertThat(products.size()).isEqualTo(4);
 	}
 
@@ -59,7 +60,7 @@ class ProductServiceTest {
 	void 캐릭터구입실패() {
 		Product product = productRepository.findById(4L).get();
 
-		assertThatThrownBy(() -> productService.buyCharacterProduct(user, product.getId()))
+		assertThatThrownBy(() -> productCharacterService.buyCharacterProduct(user, product.getId()))
 			.isInstanceOf(InvalidArgumentException.class)
 			.hasMessage("보유한 코인이 부족합니다.");
 	}
@@ -69,7 +70,7 @@ class ProductServiceTest {
 		Product product = productRepository.findById(4L).get();
 		user.updateCoin(500);
 
-		productService.buyCharacterProduct(user, product.getId());
+		productCharacterService.buyCharacterProduct(user, product.getId());
 		List<UserCharacter> userCharacters = userCharacterRepository.findByUser(user);
 
 		assertThat(user.getCoin()).isEqualTo(0);
