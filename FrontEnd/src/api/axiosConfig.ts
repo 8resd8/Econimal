@@ -127,8 +127,8 @@ export const characterListAPI = {
   //캐릭터 리스트 중 캐릭터 선택 => 대표 캐릭터 선택택
   // 캐릭터 선택 => 대표 캐릭터 선택
   patchMyChar: (userCharacterId: number) => {
-    return axiosInstance.patch(
-      `${API.CHARACTERS.MAIN_CHAR}/${userCharacterId}`,
+    return axiosInstance.post(
+      `${API.CHARACTERS.FIRST_MAIN_CHAR}/${userCharacterId}`,
     );
   },
 };
