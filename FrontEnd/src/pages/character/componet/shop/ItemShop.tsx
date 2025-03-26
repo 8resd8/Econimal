@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useShopList } from '../../feature/hooks/useShopCharList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import { backShopList } from '@/config/backShopList';
@@ -23,8 +23,7 @@ const ItemShopLogic = () => {
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
     'characters',
   );
-  // 현재 아이템 목록 -> 캐릭터 선택 탭 전환 여부와 관련
-  const [currentItems, setCurrentItems] = useState();
+
   // 아이템 호버시 발생되는 이벤트를 위한 상태관리
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
   const [userCoins, setUserCoins] = useState<number>(coin); //추후 서버에서 fetching받은 coin값 활용
@@ -35,35 +34,37 @@ const ItemShopLogic = () => {
     useState<ShopItemTypes | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
+  const [currentItems, setCurrentItems] = useState([]);
 
-  // 서버 패칭시에도 발생되는 상태관리에 대비
-  useEffect(() => {
-    if (!data || !charShopList || !selectedTab || !backShopList) return;
-    const currentItem =
-      selectedTab === 'characters'
-        ? [
-            //상품을 8개까지만 나타나게 하되, 부족한 부분은 fill로 채우기
-            ...charShopList.slice(0, 8),
-            ...Array(8 - charShopList.length).fill({
-              productId: -1,
-              characterName: '',
-              image: '',
-              owned: false,
-              price: -1,
-            }),
-          ]
-        : [
-            ...backShopList.slice(0, 8),
-            ...Array(8 - backShopList.length).fill({
-              productId: -1,
-              characterName: '',
-              image: '',
-              owned: false,
-              price: -1,
-            }),
-          ];
-    setCurrentItems(currentItem);
+  const currentItem = useMemo(() => {
+    if (!data || !charShopList || !selectedTab || !backShopList) return [];
+
+    return selectedTab === 'characters'
+      ? [
+          ...charShopList.slice(0, 8),
+          ...Array(8 - charShopList.length).fill({
+            productId: -1,
+            characterName: '',
+            image: '',
+            owned: false,
+            price: -1,
+          }),
+        ]
+      : [
+          ...backShopList.slice(0, 8),
+          ...Array(8 - backShopList.length).fill({
+            productId: -1,
+            characterName: '',
+            image: '',
+            owned: false,
+            price: -1,
+          }),
+        ];
   }, [data, charShopList, selectedTab, backShopList]);
+
+  useEffect(() => {
+    setCurrentItems(currentItem); //current값 변경될떄마다 상태갱신
+  }, [currentItem]);
 
   if (
     !data ||
@@ -81,8 +82,8 @@ const ItemShopLogic = () => {
       return;
     }
     setSelectedItemForPurchase(item);
-    setShowModal(true);
     handleBuyBackShopItem(item.productId);
+    setShowModal(true);
     // modal을 보여주 구매를 하게 되면 => 실제 서버에 fetching
   };
 
@@ -93,7 +94,8 @@ const ItemShopLogic = () => {
 
     if (userCoins >= selectedItemForPurchase.price) {
       setUserCoins(userCoins - selectedItemForPurchase.price);
-      const updatedItems = currentItems.map((item) =>
+      // 불변성 유지를 위한 새로운 배열 생성
+      const updatedItems = [...currentItems].map((item) =>
         item.productId === selectedItemForPurchase.productId
           ? { ...item, owned: true }
           : item,
@@ -128,7 +130,6 @@ const ItemShopLogic = () => {
         selectedItemForPurchase={selectedItemForPurchase}
         confirmPurchase={confirmPurchase}
       />
-      // 수정된 모달 렌더링 부분
       {showSuccessModal && (
         <SuccessPurchaseModal
           characterName={selectedItemForPurchase?.characterName || ''}
