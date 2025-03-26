@@ -4,7 +4,7 @@ import SewageTreatmentCenter from './components/SewageTreatmentCenter';
 import TownName from './components/TownName';
 import Factory from './components/Factory';
 import town from '@/assets/town/baisc-town.png'; // 배경
-import GoMainBtn from './components/GoMainBtn';
+import GoMainBtn from '@/components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
