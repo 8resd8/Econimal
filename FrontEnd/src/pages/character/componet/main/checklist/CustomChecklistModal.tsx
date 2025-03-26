@@ -46,7 +46,8 @@ const CustomChecklistModal = ({
 
           <button
             onClick={() => {
-              //서버에 해당 데이터 전달
+              // 서버에 검증로직 추가 => 검증 내역에 대한 확인 모달창 => 추가
+
               if (newItemDescription.trim()) {
                 onAddItem?.({
                   //내용 추가하기
