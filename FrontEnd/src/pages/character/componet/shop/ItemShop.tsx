@@ -4,6 +4,8 @@ import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from './ItemShopUI';
+import SuccessPurchaseModal from './SuccessPurchaseModal';
+import ErrorCoinModal from './ErrorCoinModal';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -23,6 +25,8 @@ const ItemShopLogic = () => {
   // 구매 상품 선택 여부
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
     useState<ShopItemTypes | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
 
   // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
@@ -70,37 +74,58 @@ const ItemShopLogic = () => {
   // 상품 구해 완료 관련 내용 전달
   const confirmPurchase = () => {
     if (!selectedItemForPurchase) return;
+
     if (userCoins >= selectedItemForPurchase.price) {
       setUserCoins(userCoins - selectedItemForPurchase.price);
-      const updatedItems = currentItems.map((item) => {
-        if (item.productId === selectedItemForPurchase.productId) {
-          return { ...item, owned: true };
-        }
-        return item;
-      });
+      const updatedItems = currentItems.map((item) =>
+        item.productId === selectedItemForPurchase.productId
+          ? { ...item, owned: true }
+          : item,
+      );
       setCurrentItems(updatedItems);
-      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`);
+
       setShowModal(false);
-      setSelectedItemForPurchase(null); // 구매 후 초기화
+      setShowSuccessModal(true);
     } else {
-      alert('코인이 부족합니다!'); //추후 모달창으로 변경
+      setShowErrorModal(true);
     }
   };
 
+  // 성공 모달 닫기
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setSelectedItemForPurchase(null); // 2. 모달 닫을 때 데이터 초기화
+  };
+
   return (
-    <ItemShopUI
-      userCoins={userCoins}
-      selectedTab={selectedTab}
-      setSelectedTab={setSelectedTab}
-      currentItems={currentItems}
-      setHoveredItemId={setHoveredItemId}
-      handlePurchaseClick={handlePurchaseClick}
-      hoveredItemId={hoveredItemId}
-      showModal={showModal}
-      setShowModal={setShowModal}
-      selectedItemForPurchase={selectedItemForPurchase}
-      confirmPurchase={confirmPurchase}
-    />
+    <>
+      <ItemShopUI
+        userCoins={userCoins}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        currentItems={currentItems}
+        setHoveredItemId={setHoveredItemId}
+        handlePurchaseClick={handlePurchaseClick}
+        hoveredItemId={hoveredItemId}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        selectedItemForPurchase={selectedItemForPurchase}
+        confirmPurchase={confirmPurchase}
+      />
+      // 수정된 모달 렌더링 부분
+      {showSuccessModal && (
+        <SuccessPurchaseModal
+          characterName={selectedItemForPurchase?.characterName || ''}
+          onClose={handleSuccessModalClose} // 변경된 핸들러 사용
+        />
+      )}
+      {showErrorModal && selectedItemForPurchase && (
+        <ErrorCoinModal
+          requiredCoins={selectedItemForPurchase.price}
+          onClose={() => setShowErrorModal(false)}
+        />
+      )}
+    </>
   );
 };
 
