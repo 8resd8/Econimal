@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ProductService {
+public class ProductCharacterService {
 
 	private final ProductCharacterQueryRepository productQueryRepository;
 	private final ProductRepository productRepository;
