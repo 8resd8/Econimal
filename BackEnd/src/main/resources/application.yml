@@ -36,6 +36,11 @@ spring:
           auth: ${mail.properties.mail.smtp.auth}
           starttls:
             enable: ${mail.properties.mail.smtp.starttls.enable}
+  ai:
+    openai:
+      api-key: ${ai.gpt.api-key}
+      options:
+        model: ${ai.gpt.model}
 
 server:
   servlet:

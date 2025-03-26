@@ -16,8 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.checklist.dto.ChecklistCompleteRequest;
-import com.ssafy.econimal.domain.checklist.dto.CustomChecklistRequest;
+import com.ssafy.econimal.domain.checklist.dto.request.ChecklistCompleteRequest;
+import com.ssafy.econimal.domain.checklist.dto.request.CustomChecklistRequest;
 import com.ssafy.econimal.domain.checklist.util.CustomChecklistUtil;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
@@ -34,6 +34,9 @@ public class ChecklistServiceTest {
 
 	@Autowired
 	private ChecklistService checklistService;
+
+	@Autowired
+	private CustomChecklistService customChecklistService;
 
 	@Autowired
 	private RedisUtilTest redisUtilTest;
@@ -71,7 +74,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트생성() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 		assertEquals(1, redisTemplate.opsForZSet().size(userKey));
 
@@ -89,7 +92,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트생성_실패_중복내용() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 		assertEquals(1, redisTemplate.opsForZSet().size(userKey));
 
@@ -97,7 +100,7 @@ public class ChecklistServiceTest {
 		assertNotNull(uuids);
 		assertEquals(1, uuids.size());
 
-		Assertions.assertThatThrownBy(() -> checklistService.addCustomChecklist(user, request))
+		Assertions.assertThatThrownBy(() -> customChecklistService.addCustomChecklist(user, request))
 			.isInstanceOf(InvalidArgumentException.class)
 			.hasMessage("동일한 체크리스트가 존재합니다.");
 	}
@@ -105,7 +108,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트삭제() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
@@ -113,7 +116,7 @@ public class ChecklistServiceTest {
 		assertEquals(1, uuids.size());
 
 		uuids.forEach(uuid -> {
-			checklistService.deleteCustomChecklist(user, uuid);
+			customChecklistService.deleteCustomChecklist(user, uuid);
 		});
 
 		uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
@@ -123,7 +126,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트삭제_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
@@ -133,7 +136,7 @@ public class ChecklistServiceTest {
 		uuids.forEach(uuid -> {
 			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid);
 			checklistService.completeChecklist(user, completeRequest);
-			Assertions.assertThatThrownBy(() -> checklistService.deleteCustomChecklist(user, uuid))
+			Assertions.assertThatThrownBy(() -> customChecklistService.deleteCustomChecklist(user, uuid))
 				.isInstanceOf(InvalidArgumentException.class)
 				.hasMessage("이미 완료된 체크리스트입니다.");
 		});
@@ -145,7 +148,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트수정() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
@@ -157,7 +160,7 @@ public class ChecklistServiceTest {
 
 		CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기");
 		uuids.forEach(uuid -> {
-			checklistService.updateCustomChecklist(user, uuid, newRequest);
+			customChecklistService.updateCustomChecklist(user, uuid, newRequest);
 		});
 
 		assertEquals(1, uuids.size());
@@ -171,7 +174,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트수정_실패_완료된체크리스트() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);
@@ -186,7 +189,7 @@ public class ChecklistServiceTest {
 			checklistService.completeChecklist(user, completeRequest);
 
 			CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기");
-			Assertions.assertThatThrownBy(() -> checklistService.updateCustomChecklist(user, uuid, newRequest))
+			Assertions.assertThatThrownBy(() -> customChecklistService.updateCustomChecklist(user, uuid, newRequest))
 				.isInstanceOf(InvalidArgumentException.class)
 				.hasMessage("이미 완료된 체크리스트입니다.");
 		});
@@ -195,7 +198,7 @@ public class ChecklistServiceTest {
 	@Test
 	void 커스텀체크리스트완료() {
 		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
-		checklistService.addCustomChecklist(user, request);
+		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
 		Set<String> uuids = redisTemplate.opsForZSet().range(userKey, 0, -1);

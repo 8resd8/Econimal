@@ -15,7 +15,7 @@ import com.ssafy.econimal.domain.character.dto.UserCharacterDetailResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.data.TestEntityHelper;
-import com.ssafy.econimal.domain.store.entity.Product;
+import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;

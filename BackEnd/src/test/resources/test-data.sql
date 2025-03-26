@@ -89,11 +89,11 @@ VALUES (1, 1, 'hyunwoo', 'dkanfjgwls@naver.com', '2000-01-18', '!11112222', 100,
 
 
 -- 유저 캐릭터 데이터
-INSERT INTO user_character (user_character_id, user_id, character_id, level, total_exp, expression, is_main)
- VALUES
-    (1, 1, 1, 1, 0, 'SADNESS', FALSE),
-    (2, 1, 2, 1, 0, 'SADNESS', FALSE),
-    (3, 1, 3, 1, 0, 'SADNESS', TRUE);
+INSERT INTO user_character (user_id, character_id, level, total_exp, expression, is_main)
+VALUES
+    (1, 1, 1, 0, 'SADNESS', FALSE),
+    (1, 2, 1, 0, 'SADNESS', FALSE),
+    (1, 3, 1, 0, 'SADNESS', TRUE);
 
 -- 유저 체크리스트 데이터
  INSERT INTO user_checklist (user_checklist_id, user_id, checklist_id, is_complete)

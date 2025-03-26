@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import bgImage from "@/assets/auth_background.png"; // 배경 이미지
 import logoImage from "@/assets/logo.png"; // 로고 이미지
 
 const Login = () => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +36,22 @@ const Login = () => {
     setError("");
 
     try {
-      await login(email, password);
-      // 로그인 성공 - useAuth 내부에서 navigate 처리
+      const response = await login(email, password);
+      
+      // 로그인 성공 후 처리
+      console.log("로그인 성공:", response);
+      
+      // 프롤로그 시청 여부 확인
+      const hasPrologViewed = localStorage.getItem('prologViewed') === 'true';
+      
+      // isFirst 값이 true이고 프롤로그를 아직 보지 않았다면 프롤로그 페이지로 이동
+      if (!hasPrologViewed) {
+        // 캐릭터 선택 페이지로 이동하기 전에 프롤로그 영상 페이지로 이동
+        navigate('/prolog');
+      }
+      // 이미 프롤로그를 봤거나 isFirst가 false라면 기존 로직대로 진행
+      // login 함수 내에서 이미 캐릭터 존재 여부에 따라 적절한 페이지로 이동시킴
+
     } catch (error: any) {
       console.error("로그인 오류:", error);
       // 서버 에러 메시지가 있으면 표시, 없으면 기본 메시지

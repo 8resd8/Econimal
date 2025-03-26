@@ -26,9 +26,11 @@ import com.ssafy.econimal.domain.town.entity.EcoAnswer;
 import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;
 import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
+import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.town.repository.EcoAnswerRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureEventRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
+import com.ssafy.econimal.domain.town.util.InfrastructureEventInitializer;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
@@ -49,6 +51,7 @@ public class TownService {
 	private final UserCharacterRepository userCharacterRepository;
 	private final CarbonLogRepository carbonLogRepository;
 	private final InfrastructureRepository infrastructureRepository;
+	private final InfrastructureEventInitializer infrastructureEventInitializer;
 
 	private List<EcoAnswer> getShuffledAnswers(EcoQuiz quiz) {
 		List<EcoAnswer> answers = new ArrayList<>(ecoAnswerRepository.findAllByEcoQuizId(quiz.getId()));
@@ -102,8 +105,8 @@ public class TownService {
 	// 법원(COURT)에 대해서 ecoQuizeId를 이용해서 정답인 선지 설명 반환
 	private String getEcoAnswerDescription(Long ecoQuizId) {
 		List<EcoAnswer> answerList = ecoAnswerRepository.findAllByEcoQuizId(ecoQuizId);
-		for(EcoAnswer answer : answerList) {
-			if(answer.getExp() > 0)
+		for (EcoAnswer answer : answerList) {
+			if (answer.getExp() > 0)
 				return answer.getDescription();
 		}
 		throw new InvalidArgumentException("해당 ecoQuizId에서 정답이 없습니다.");
@@ -162,7 +165,7 @@ public class TownService {
 
 		// 실제 정답 선지 가져오기
 		String description = "";
-		if(answer.getEcoQuiz().getFacility().getEcoType().equals(EcoType.COURT)) {
+		if (answer.getEcoQuiz().getFacility().getEcoType().equals(EcoType.COURT)) {
 			description = getEcoAnswerDescription(answer.getEcoQuiz().getId());
 		}
 
@@ -185,8 +188,13 @@ public class TownService {
 	}
 
 	public TownStatusResponse getTownStatus(User user) {
-		Long townId = user.getTown().getId();
-		List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(townId);
+		Town town = user.getTown();
+
+		// 내부 InfrastructureEvent를 조회하기 전 없을 경우 InfrastructureEvent를 추가
+		infrastructureEventInitializer.createMissingEventsForTown(town);
+
+		// InfrastructureEvent 조회
+		List<InfrastructureEvent> events = infrastructureEventRepository.findByInfrastructureTownId(town.getId());
 
 		updateInactiveEvents(events);
 
