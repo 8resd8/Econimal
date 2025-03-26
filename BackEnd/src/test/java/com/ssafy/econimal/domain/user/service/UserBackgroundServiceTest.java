@@ -1,11 +1,10 @@
-package com.ssafy.econimal.domain.product.repository;
+package com.ssafy.econimal.domain.user.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.product.dto.ProductBackgroundDto;
 import com.ssafy.econimal.domain.product.entity.Product;
+import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
@@ -23,36 +22,42 @@ import com.ssafy.econimal.domain.user.repository.UserRepository;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-@Sql(scripts = "classpath:test-data.sql")
-class ProductBackgroundQueryRepositoryTest {
+@Sql(scripts = "classpath:test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+class UserBackgroundServiceTest {
+	@Autowired
+	UserRepository userRepository;
 
 	@Autowired
-	private ProductBackgroundQueryRepository backgroundQueryRepository;
+	UserBackgroundRepository userBackgroundRepository;
 
 	@Autowired
-	private UserRepository userRepository;
+	UserBackgroundService userBackgroundService;
 
+	User user;
 	@Autowired
 	private ProductRepository productRepository;
 
-	@Autowired
-	private UserBackgroundRepository userBackgroundRepository;
+	@BeforeEach
+	void setUp() {
+		user = userRepository.findById(1L).get();
+	}
 
 	@Test
-	void 유저배경상점조회() {
-		User user = userRepository.findById(1L).get();
-
+	void 배경변경() {
 		Product product = productRepository.findById(6L).get();
+		// 새 배경 추가
 		UserBackground userBackground = UserBackground.builder()
 			.product(product)
 			.user(user)
-			.isMain(true)
+			.isMain(false)
 			.build();
-		userBackgroundRepository.save(userBackground);
 
-		List<ProductBackgroundDto> background = backgroundQueryRepository.findAllBackground(user);
+		UserBackground updateBackground = userBackgroundRepository.save(userBackground);
+		UserBackground originBackground = userBackgroundRepository.findByUserAndMainIsTrue(user).get();
 
-		assertThat(background).isNotEmpty();
-		assertThat(background.size()).isEqualTo(2);
+		userBackgroundService.updateBackground(user, updateBackground.getId());
+
+		assertThat(originBackground.isMain()).isFalse();
+		assertThat(updateBackground.isMain()).isTrue();
 	}
 }
