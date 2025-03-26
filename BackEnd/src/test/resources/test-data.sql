@@ -1,4 +1,4 @@
--- Product: 4개
+-- Product: 4개 -> 6개 (캐릭터4, 배경2)
 -- Character: 4개 (3개 기본, 1개 유로)
 -- Checklist: 20개
 -- facility: 4개
@@ -14,7 +14,9 @@ VALUES
     (1, 'CHARACTER', 0),
     (2, 'CHARACTER', 0),
     (3, 'CHARACTER', 0),
-    (4, 'CHARACTER', 500);
+    (4, 'CHARACTER', 500),
+    (5, 'BACKGROUND', 200),
+    (6, 'BACKGROUND', 300);
 
 -- 1-1. 캐릭터(Character) 데이터
 INSERT INTO characters (character_id, product_id, character_name, character_type, summary, description, exp_per_level, max_level, is_original)
