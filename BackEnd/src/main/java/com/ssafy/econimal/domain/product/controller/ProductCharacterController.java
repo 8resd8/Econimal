@@ -8,29 +8,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.econimal.domain.product.dto.ProductResponse;
-import com.ssafy.econimal.domain.product.service.ProductService;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterResponse;
+import com.ssafy.econimal.domain.product.service.ProductCharacterService;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.annotation.Login;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/product/characters")
 @RequiredArgsConstructor
 public class ProductCharacterController {
 
-	private final ProductService productService;
+	private final ProductCharacterService productCharacterService;
 
-	@GetMapping("/characters")
-	public ProductResponse getCharacterProducts(@Login User user) {
-		return productService.getCharacterProducts(user);
+	@GetMapping
+	public ProductCharacterResponse getCharacterProducts(@Login User user) {
+		return productCharacterService.getCharacterProducts(user);
 	}
 
-	@PostMapping("/characters/{productId}")
+	@PostMapping("/{productId}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void buyCharacterProducts(@Login User user, @PathVariable("productId") Long productId) {
-		productService.buyCharacterProduct(user, productId);
+		productCharacterService.buyCharacterProduct(user, productId);
 	}
 
 }

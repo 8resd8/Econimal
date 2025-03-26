@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.product.dto.ProductDto;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 
@@ -32,11 +32,11 @@ class ProductCharacterQueryRepositoryTest {
 		User user = userRepository.findById(1L).get();
 		assertThat(user).isNotNull();
 
-		List<ProductDto> charactersStore = productCharacterQueryRepository.findAllCharactersStore(user);
+		List<ProductCharacterDto> charactersStore = productCharacterQueryRepository.findAllCharactersStore(user);
 
 		assertThat(charactersStore.size()).isEqualTo(4);
 		long ownedCount = charactersStore.stream()
-			.filter(ProductDto::owned)
+			.filter(ProductCharacterDto::owned)
 			.count();
 		assertThat(ownedCount).isEqualTo(3);
 	}
