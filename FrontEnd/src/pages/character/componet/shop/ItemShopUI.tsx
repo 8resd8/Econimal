@@ -1,10 +1,11 @@
-import { ItemShopTypesUI } from '../../types/shop/ItemShopTypesUI';
+import GoMainBtn from '@/components/GoMainBtn';
+import { ItemShopTypes } from '../../types/shop/ItemShopTypesUI';
 import CharCoin from '../main/status/CharCoin';
 import BuyModal from './BuyModal';
 import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
 
-const ItemShopUI: React.FC<ItemShopTypesUI> = ({
+const ItemShopUI = ({
   userCoins,
   selectedTab,
   setSelectedTab,
@@ -16,16 +17,23 @@ const ItemShopUI: React.FC<ItemShopTypesUI> = ({
   setShowModal,
   selectedItemForPurchase,
   confirmPurchase,
-}) => {
+}: ItemShopTypes) => {
   return (
-    <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center'>
+    <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center relative'>
       <div className='w-full max-w-6xl'>
-        {/* 상단 코인 표시 */}
-        <div className='flex justify-end mb-4'>
+        {/* 상단 레이아웃 */}
+        <div className='flex items-center justify-between mb-6 relative'>
+          {/* 뒤로가기 버튼 */}
+          <GoMainBtn />
+
+          {/* 상점 제목 */}
+          <h1 className='absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white'>
+            상점
+          </h1>
+
+          {/* 코인 표시 */}
           <CharCoin coin={userCoins} />
         </div>
-
-        <h1 className='text-3xl font-bold text-white mb-6 text-center'>상점</h1>
 
         {/* 캐릭터 / 아이템 전환 탭 버튼 */}
         <div className='flex justify-center gap-2 mb-8'>
