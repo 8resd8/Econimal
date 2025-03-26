@@ -8,9 +8,10 @@ import GoMainBtn from '@/components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
-import { TownEvent } from './features/townApi'; // TownEvent 타입 임포트 추가
+import { TownEvent } from './features/townApi';
+import Toast from '@/components/Toast';
+
 import pollutedImg from '@/assets/town/polluted-river.png';
-// import { EcoButton } from './components/GoMainBtn';
 
 // import RecyclingCenter from './components/RecyclingCenter';
 // import Vehicle from './components/Vehicle';
@@ -106,11 +107,11 @@ const Town = () => {
   };
 
   return (
-    // 1. 전체 화면을 차지하는 고정 컨테이너
+    // 전체 화면을 차지하는 고정 컨테이너
     <div className='fixed inset-0 overflow-hidden'>
-      {/* 2. 배경 이미지 래퍼 - 배경 이미지를 화면 중앙에 배치 */}
+      {/* 배경 이미지 래퍼 - 배경 이미지를 화면 중앙에 배치 */}
       <div className='relative w-full h-full flex items-center justify-center'>
-        {/* 3. 배경 이미지 - 비율 유지하면서 화면에 맞춤 */}
+        {/* 배경 이미지 - 비율 유지하면서 화면에 맞춤 */}
         <div className='relative'>
           <img
             src={town}
@@ -118,22 +119,27 @@ const Town = () => {
             className='max-w-full max-h-screen object-contain'
           />
 
-          {/* 4. 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
+          {/* 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
           <div className='absolute inset-0'>
             {/* 홈으로 가는 버튼 */}
-            <div className='absolute top-4 left-4 z-30'>
+            <div className='absolute top-4 left-4 w-[15%] z-30'>
               <GoMainBtn />
             </div>
 
-            {/* 5. 마을 이름 - 항상 상단 중앙에 위치 */}
-            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 w-[18%] z-30'>
+            {/* 토스트 테스트 */}
+            <div className='absolute top-40 left-10'>
+              <Toast />
+            </div>
+
+            {/* 마을 이름 - 항상 상단 중앙에 위치 */}
+            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 w-[15%] z-30'>
               <TownName />
             </div>
-            {/* 6. 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
+            {/* 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[15%] left-[44%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
               <MyHouse infraEventId={getInfraEventId('ELECTRICITY')} />
             </div>
-            {/* 7. 하수처리장 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
+            {/* 하수처리장 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-20'>
               <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
             </div>
@@ -149,7 +155,7 @@ const Town = () => {
             <div className='absolute top-[30%] left-[78%] transform -translate-x-1/2 -translate-y-1/2 w-[20%] z-20'>
               <Factory infraEventId={getInfraEventId('GAS')} />
             </div>
-            {/* 8. 법원 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
+            {/* 법원 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[84%] left-[19%] transform -translate-x-1/2 -translate-y-1/2 w-[14%] z-20'>
               <Court infraEventId={getInfraEventId('COURT')} />
             </div>
