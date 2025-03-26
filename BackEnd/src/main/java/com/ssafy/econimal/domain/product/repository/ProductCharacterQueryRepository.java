@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.product.dto.ProductDto;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
 import com.ssafy.econimal.domain.product.dto.QProductDto;
 import com.ssafy.econimal.domain.user.entity.User;
 
@@ -21,7 +21,7 @@ public class ProductCharacterQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
-	public List<ProductDto> findAllCharactersStore(User user) {
+	public List<ProductCharacterDto> findAllCharactersStore(User user) {
 		return queryFactory
 			.select(new QProductDto(
 				product.id,

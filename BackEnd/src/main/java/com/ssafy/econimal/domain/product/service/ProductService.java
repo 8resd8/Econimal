@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.character.entity.Character;
-import com.ssafy.econimal.domain.product.dto.ProductDto;
-import com.ssafy.econimal.domain.product.dto.ProductResponse;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterDto;
+import com.ssafy.econimal.domain.product.dto.ProductCharacterResponse;
 import com.ssafy.econimal.domain.product.entity.Product;
 import com.ssafy.econimal.domain.product.repository.ProductCharacterQueryRepository;
 import com.ssafy.econimal.domain.product.repository.ProductRepository;
@@ -28,9 +28,9 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final UserCharacterRepository userCharacterRepository;
 
-	public ProductResponse getCharacterProducts(User user) {
-		List<ProductDto> products = productQueryRepository.findAllCharactersStore(user);
-		return new ProductResponse(products);
+	public ProductCharacterResponse getCharacterProducts(User user) {
+		List<ProductCharacterDto> products = productQueryRepository.findAllCharactersStore(user);
+		return new ProductCharacterResponse(products);
 	}
 
 	public void buyCharacterProduct(User user, Long productId) {
