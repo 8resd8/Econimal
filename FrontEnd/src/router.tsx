@@ -75,7 +75,7 @@ export const router = createBrowserRouter([
     element: <LoadingScreen />,
   },
   {
-    path: '/not-found',
+    path: '*',
     element: <NotFoundScreen />,
   },
 ]);
