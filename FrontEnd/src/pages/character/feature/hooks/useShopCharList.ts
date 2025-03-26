@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchShopList } from '../api/fetchShopList';
+import { fetchCharShopList } from '../api/fetchCharShopList';
 
 export const useShopList = () => {
   const { data, isError, error, isLoading } = useQuery({
     queryKey: ['shop'],
-    queryFn: fetchShopList,
+    queryFn: fetchCharShopList,
     staleTime: 1000 * 60 * 5,
   });
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useShopList } from '../../feature/hooks/useShopList';
+import { useShopList } from '../../feature/hooks/useShopCharList';
 import { useCharShopItem } from '../../feature/hooks/reuse/useCharShopItem';
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';

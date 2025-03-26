@@ -145,11 +145,13 @@ export const checklistAPI = {
 };
 
 export const shopAPI = {
-  // 아이템 목록 조회
-  getShopList: () => axiosInstance.get(`${API.SHOP.LIST}`),
-  // 아이템 구매
-  postShopItem: (productId: number) =>
-    axiosInstance.post(`${API.SHOP.LIST}/${productId}`),
+  // 캐릭터 아이템 목록 조회
+  getShopCharList: () => axiosInstance.get(`${API.SHOP.CHARLIST}`),
+  // 캐릭터 아이템 구매
+  postShopCharItem: (productId: number) =>
+    axiosInstance.post(`${API.SHOP.CHARLIST}/${productId}`),
+  // 배경 아이템 목록 조회(추가)
+  getShopBackList: () => axiosInstance.get(`${API.SHOP.BACKLIST}`),
 };
 
 // axiosInstance를 기본 내보내기로 설정

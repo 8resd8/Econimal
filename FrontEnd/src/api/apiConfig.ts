@@ -9,6 +9,7 @@ export const API = {
     DONE: 'checklists/complete',
   },
   SHOP: {
-    LIST: 'product/characters',
+    CHARLIST: 'product/characters',
+    BACKLIST: 'product/backgrounds',
   },
 };
