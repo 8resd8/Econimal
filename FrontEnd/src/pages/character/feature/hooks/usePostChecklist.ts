@@ -22,6 +22,7 @@ export const usePostChecklist = () => {
     },
     onError: (error) => {
       console.log('id값을 서버에 전달하는 과정에서 문제가 발생했습니다', error);
+      throw Error;
     },
   });
 

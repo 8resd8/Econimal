@@ -9,12 +9,14 @@ import ErrorCoinModal from './ErrorCoinModal';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
 import { usebackShopItem } from '../../feature/hooks/reuse/useBackShopItem';
 import { useShopBackList } from '../../feature/hooks/useShopBackList';
+import { useBuyBackItem } from '../../feature/hooks/useBuyBackItem';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
   const { data: backData } = useShopBackList();
   const { charShopList } = useCharShopItem(data || null);
   const { backShopList } = usebackShopItem(backData);
+  const { handleBuyBackShopItem } = useBuyBackItem();
   const coin = useCharacterCoin();
 
   // 캐릭터 선택 탭 전환 여부 => 상태 관리
@@ -72,10 +74,6 @@ const ItemShopLogic = () => {
     return <div>Loading...</div>;
   }
 
-  if (backData) {
-    console.log(backData, 'backData');
-  }
-
   // 상품 구매 관련 alert 발송
   const handlePurchaseClick = (item: ShopItemTypes) => {
     if (item.productId === -1 || item.owned) {
@@ -84,9 +82,12 @@ const ItemShopLogic = () => {
     }
     setSelectedItemForPurchase(item);
     setShowModal(true);
+    handleBuyBackShopItem(item.productId);
+    // modal을 보여주 구매를 하게 되면 => 실제 서버에 fetching
   };
 
-  // 상품 구해 완료 관련 내용 전달
+  // 상품 구해 완료 관련 내용 전달 => 실제 coin값을 반영하고 변경해야 함 => zustand에 저장하고
+  // 서버에 저장된 코인 값이 아니라 자체적으로 저장되고 => 서버에 패칭된 coin이 반영이 안되는 현상 확인됨 
   const confirmPurchase = () => {
     if (!selectedItemForPurchase) return;
 

@@ -14,6 +14,7 @@ export const useBuyItem = () => {
     onError: (error) => {
       console.log('구매 과정에서 에러가 발생했습니다.');
       console.log(error.message);
+      throw Error;
     },
   });
 

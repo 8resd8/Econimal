@@ -1,6 +1,6 @@
 import { shopAPI } from '@/api/axiosConfig';
 
-export const fetchBackShopList = async (productId: number) => {
+export const fetchBackBuyItem = async (productId: number) => {
   try {
     const response = await shopAPI.postShopBackItem(productId);
     return response.data;
