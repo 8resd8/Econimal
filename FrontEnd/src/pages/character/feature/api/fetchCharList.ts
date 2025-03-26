@@ -1,16 +1,6 @@
 import { characterListAPI } from '@/api/axiosConfig';
 import { CharacterListResponse } from '../../types/CharacterListRes';
 
-// const fetchCarList = async () => {
-//   // 주소값 => 요청할 파라미터는 없긴 함
-//   try {
-//     const response = await axios.get('https://econimal.com/characters');
-//     return response.data
-//   } catch (error) {
-//     console.log('캐릭터 리스트 fetching 오류')
-//   }
-// }
-
 const fetchCharList = async (): Promise<CharacterListResponse<number>> => {
   //반환값 명시 모두 설정
   try {

@@ -45,4 +45,8 @@ public class UserBackground extends BaseTimeEntity {
 		this.product = product;
 		this.isMain = isMain;
 	}
+
+	public void updateIsMain(boolean isMain) {
+		this.isMain = isMain;
+	}
 }

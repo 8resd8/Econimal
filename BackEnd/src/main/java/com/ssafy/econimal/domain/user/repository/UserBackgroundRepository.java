@@ -1,11 +1,20 @@
 package com.ssafy.econimal.domain.user.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.Optional;
 
-import com.ssafy.econimal.domain.product.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserBackground;
 
 public interface UserBackgroundRepository extends JpaRepository<UserBackground, Long> {
-	boolean existsByUserAndProduct(User user, Product product);
+
+	// 배경 대표(메인) 찾기
+	@Query("select ub from UserBackground ub where ub.user = :user and ub.isMain = true")
+	Optional<UserBackground> findByUserAndMainIsTrue(@Param("user") User user);
+
+	List<UserBackground> findByUser(User user);
 }
