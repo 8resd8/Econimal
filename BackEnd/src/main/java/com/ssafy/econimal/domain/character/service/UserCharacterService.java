@@ -13,6 +13,7 @@ import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
+import com.ssafy.econimal.global.exception.InitialSettingException;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -76,15 +77,15 @@ public class UserCharacterService {
 		// 캐릭터마다 기본 배경 지정
 		if (userCharacter.getCharacter().getId().equals(1L)) {
 			UserBackground bugibugi = userBackgroundRepository.findById(1774L)
-				.orElseThrow(() -> new RuntimeException("거북이 배경 지급오류"));
+				.orElseThrow(() -> new InitialSettingException("거북이 배경 지급오류"));
 			bugibugi.updateIsMain(true);
 		} else if (userCharacter.getCharacter().getId().equals(2L)) {
 			UserBackground penguin = userBackgroundRepository.findById(1775L)
-				.orElseThrow(() -> new RuntimeException("펭귄 배경 지급오류"));
+				.orElseThrow(() -> new InitialSettingException("펭귄 배경 지급오류"));
 			penguin.updateIsMain(true);
 		} else if (userCharacter.getCharacter().getId().equals(3L)) {
 			UserBackground horangE = userBackgroundRepository.findById(1776L)
-				.orElseThrow(() -> new RuntimeException("호랑이 배경 지급오류"));
+				.orElseThrow(() -> new InitialSettingException("호랑이 배경 지급오류"));
 			horangE.updateIsMain(true);
 		}
 	}
