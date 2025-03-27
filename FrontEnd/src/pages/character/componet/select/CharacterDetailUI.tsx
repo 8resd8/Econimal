@@ -23,9 +23,10 @@ const CharacterDetailUI = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <div className='rounded-2xl p-6 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-auto h-60'>
+      {/* ✅ h-60 제거 → min-h-[300px]으로 자동 조정 */}
+      <div className='rounded-2xl p-6 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-auto min-h-[300px]'>
         {/* 서브 스토리 */}
-        <h3 className='text-lg font-bold text-primary mb-4 text-center'>
+        <h3 className='text-xl font-bold text-primary mb-4 text-center'>
           "{subStory}"
         </h3>
 
@@ -38,8 +39,8 @@ const CharacterDetailUI = ({
           ))}
         </div>
 
-        {/* 버튼 영역 (한 줄에 배치, 중앙 정렬 및 아래 여백 추가) */}
-        <div className='mt-2 flex flex-row justify-center w-full gap-4 pb-4'>
+        {/* ✅ 버튼을 아래로 정렬 (mt-auto) */}
+        <div className='mt-auto flex flex-row justify-center w-full gap-4 pb-6'>
           <CharNextChap
             text={`${name} 돕기`}
             handleChar={handleHelpChar}
