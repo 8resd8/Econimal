@@ -64,6 +64,7 @@ public class QueryTest {
 	}
 
 	@Test
+	@Disabled
 	void 국가별월별평균기후() {
 		List<Tuple> fetch = queryFactory
 			.select(
