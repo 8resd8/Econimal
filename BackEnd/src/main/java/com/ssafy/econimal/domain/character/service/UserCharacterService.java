@@ -8,6 +8,8 @@ import com.ssafy.econimal.domain.character.dto.UserCharacterMainDto;
 import com.ssafy.econimal.domain.character.dto.UserCharacterMainResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
 import com.ssafy.econimal.domain.character.util.ExpUtil;
+import com.ssafy.econimal.domain.product.entity.Product;
+import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
@@ -25,6 +27,7 @@ public class UserCharacterService {
 
 	private final UserCharacterRepository userCharacterRepository;
 	private final UserBackgroundRepository userBackgroundRepository;
+	private final ProductRepository productRepository;
 
 	// 보유한 캐릭터 전체조회
 	public UserCharacterResponse getUserCharacters(User user) {
@@ -76,17 +79,28 @@ public class UserCharacterService {
 
 		// 캐릭터마다 기본 배경 지정
 		if (userCharacter.getCharacter().getId().equals(1L)) {
-			UserBackground bugibugi = userBackgroundRepository.findById(1774L)
+			Product bugibugi = productRepository.findById(1774L)
 				.orElseThrow(() -> new InitialSettingException("거북이 배경 지급오류"));
-			bugibugi.updateIsMain(true);
+
+			createUserBackground(user, bugibugi);
 		} else if (userCharacter.getCharacter().getId().equals(2L)) {
-			UserBackground penguin = userBackgroundRepository.findById(1775L)
+			Product penguin = productRepository.findById(1775L)
 				.orElseThrow(() -> new InitialSettingException("펭귄 배경 지급오류"));
-			penguin.updateIsMain(true);
+			createUserBackground(user, penguin);
+
 		} else if (userCharacter.getCharacter().getId().equals(3L)) {
-			UserBackground horangE = userBackgroundRepository.findById(1776L)
+			Product horangE = productRepository.findById(1776L)
 				.orElseThrow(() -> new InitialSettingException("호랑이 배경 지급오류"));
-			horangE.updateIsMain(true);
+			createUserBackground(user, horangE);
 		}
+	}
+
+	private void createUserBackground(User user, Product product) {
+		UserBackground userBackground = UserBackground.builder()
+			.user(user)
+			.product(product)
+			.isMain(true)
+			.build();
+		userBackgroundRepository.save(userBackground);
 	}
 }
