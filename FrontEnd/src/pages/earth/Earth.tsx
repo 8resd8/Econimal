@@ -88,7 +88,7 @@ const Earth: React.FC = () => {
   };
   
   return (
-    <div className='bg-slate-500'>
+    <div className='bg-slate-500 w-screen'>
       <EarthContainer>
         {/* 세계지도 구현 섹션 */}
         <Section>

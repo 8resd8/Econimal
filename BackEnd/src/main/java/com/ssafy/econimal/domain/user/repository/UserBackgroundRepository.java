@@ -17,4 +17,7 @@ public interface UserBackgroundRepository extends JpaRepository<UserBackground, 
 	Optional<UserBackground> findByUserAndMainIsTrue(@Param("user") User user);
 
 	List<UserBackground> findByUser(User user);
+
+	// 소유한 물건인지 확인
+	boolean existsByUserAndProductId(User user, Long productId);
 }

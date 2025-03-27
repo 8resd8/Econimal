@@ -23,7 +23,7 @@ public class ProductBackgroundController {
 	private final ProductBackgroundService backgroundService;
 
 	@GetMapping
-	public ProductBackgroundResponse getCharacterProducts(@Login User user) {
+	public ProductBackgroundResponse getBackgroundProducts(@Login User user) {
 		return backgroundService.getBackgroundProducts(user);
 	}
 

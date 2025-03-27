@@ -65,13 +65,13 @@ class ProductBackgroundServiceTest {
 
 	@Test
 	void 배경구입성공() {
-		Product product = productRepository.findById(5L).get(); // 200원
+		Product product = productRepository.findById(6L).get(); // 200원
 		user.updateCoin(500);
 
 		productBackgroundService.buyBackgroundProduct(user, product.getId());
 		List<UserBackground> userBackground = userBackgroundRepository.findByUser(user);
 
-		assertThat(user.getCoin()).isEqualTo(300); // 500 - 200
+		assertThat(user.getCoin()).isEqualTo(200); // 500 - 300
 		assertThat(userBackground.size()).isEqualTo(2);
 	}
 }
