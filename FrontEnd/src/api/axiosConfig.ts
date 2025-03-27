@@ -164,7 +164,7 @@ export const shopAPI = {
   // 캐릭터 아이템 구매
   postShopCharItem: (productId: number) =>
     axiosInstance.post(`${API.SHOP.CHARLIST}/${productId}`),
-  // 배경 아이템 목록 조회(추가)
+  // 배경 아이템 목록/ 조회(추가)
   getShopBackList: () => axiosInstance.get(`${API.SHOP.BACKLIST}`),
   // 배경 아이템 구매
   postShopBackItem: (productId: number) =>

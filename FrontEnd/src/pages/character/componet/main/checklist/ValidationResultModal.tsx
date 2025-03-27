@@ -31,8 +31,9 @@ const ValidationResultModal = ({
         {/* 메시지 */}
         <h3 className='font-bold mb-4'>검증 결과</h3>
         <p className='mb-4'>
-          &lt;{validationData.aiResponse.reason}&gt;는 환경 관련 내용이
-          아닙니다. 그래도 추가할까요?
+          "{validationData.aiResponse.reason}";
+          <br />
+          그래도 추가할까요?
         </p>
         <p className='text-sm text-gray-500 mb-4'>
           환경 관련 체크리스트가 아니면 불합격 처리될 수 있어요.

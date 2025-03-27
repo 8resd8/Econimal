@@ -5,11 +5,13 @@ import { useChecklist } from '@/pages/character/feature/hooks/checklist/useCheck
 import { usePostChecklist } from '@/pages/character/feature/hooks/checklist/usePostChecklist';
 import ChecklistTab from './ChecklistTab';
 import { useCustomValidation } from '@/pages/character/feature/hooks/checklist/useCustomValidation';
+import { useAddCusChecklist } from '@/pages/character/feature/hooks/checklist/useAddCusChecklist';
 
 //useChecklist의 data활용해서
 const CharChecklist = () => {
   const { data, isLoading, isError, error } = useChecklist();
   const { handleValidationCustomChecklist } = useCustomValidation();
+  const { handleSubmitCustomChecklist } = useAddCusChecklist();
 
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
   const { handleChecklistToServer } = usePostChecklist();
@@ -20,6 +22,7 @@ const CharChecklist = () => {
       const dailyProgress = Math.ceil((daily.done / daily.total) * 100);
       return Number(dailyProgress);
     }
+    return 0;
   }, [data]);
 
   const customProgress = useMemo(() => {
@@ -30,6 +33,7 @@ const CharChecklist = () => {
       const customProgress = Math.ceil((custom.done / custom.total) * 100);
       return Number(customProgress);
     }
+    return 0;
   }, [data]);
 
   if (isLoading) {
@@ -41,7 +45,6 @@ const CharChecklist = () => {
   }
 
   const dailyItems = data.checklists.daily.checklist; //이거 자체
-
   const customItems = data.checklists.custom.checklist;
 
   const onCompleteItem = async (checklistId: string, type: string) => {
@@ -61,6 +64,17 @@ const CharChecklist = () => {
     } catch (error) {
       console.error('유효성 검증 실패:', error.message);
       throw error;
+    }
+  };
+
+  // 이 함수 수정 - 이제 description만 받아서 API로 전송
+  const onAddItem = async (description: string) => {
+    try {
+      // 문자열만 전달하도록 수정
+      handleSubmitCustomChecklist(description);
+      console.log('체크리스트 항목 추가됨:', description);
+    } catch (error) {
+      console.error('체크리스트 항목 추가 실패:', error);
     }
   };
 
@@ -117,6 +131,7 @@ const CharChecklist = () => {
             activateTab={activeTab}
             onValidateItem={onValidateItem}
             onCompleteItem={onCompleteItem}
+            onAddItem={onAddItem}
           />
         </>
       )}
