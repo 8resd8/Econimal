@@ -41,12 +41,17 @@ class ExpUtilTest {
 		when(character.getMaxLevel()).thenReturn(3);
 		when(character.getExpPerLevel()).thenReturn(100);
 
+
 		assertEquals(0, ExpUtil.getExp(0, userCharacter));
 		assertEquals(0, ExpUtil.getExp(100, userCharacter));
 		assertEquals(0, ExpUtil.getExp(200, userCharacter));
 		assertEquals(0, ExpUtil.getExp(300, userCharacter));
 		assertEquals(50, ExpUtil.getExp(250, userCharacter));
 		assertEquals(10, ExpUtil.getExp(310, userCharacter));
+
+		// 초과하면 꽉채움
+		when(userCharacter.getLevel()).thenReturn(3);
+		assertEquals(100, ExpUtil.getExp(333, userCharacter));
 	}
 
 	@Test
