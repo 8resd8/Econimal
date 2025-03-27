@@ -9,19 +9,21 @@ public class ExpUtil {
 	}
 
 	public static Integer getLevel(int totalExp, UserCharacter userCharacter) {
-		return totalExp / userCharacter.getCharacter().getExpPerLevel() + 1;
+		int maxLevel = userCharacter.getCharacter().getMaxLevel(); // 최대 레벨
+		int level = totalExp / userCharacter.getCharacter().getExpPerLevel() + 1; // 현재 레벨 계산
+		return Math.min(level, maxLevel);
 	}
 
 	public static Integer getExp(int totalExp, UserCharacter userCharacter) {
-		return totalExp % userCharacter.getCharacter().getExpPerLevel();
-	}
+		Character character = userCharacter.getCharacter();
 
-	public static Integer getLevel(int totalExp, Character character) {
-		return totalExp / character.getExpPerLevel() + 1;
-	}
+		int maxLevel = character.getMaxLevel();
+		int expPerLevel = character.getExpPerLevel();
 
-	public static Integer getExp(int totalExp, Character character) {
-		return totalExp % character.getExpPerLevel();
+		int maxExp = maxLevel * expPerLevel; // 경험치를 가질 수 있는 최대치
+		int exp = totalExp % expPerLevel; // 현재 경험치
+		// 최대레벨이면 경험치바 꽉채워서 보여줌
+		return maxLevel == userCharacter.getLevel() ? expPerLevel : Math.min(exp, maxExp);
 	}
 
 	public static Integer getMaxExp(Character character) {
@@ -31,8 +33,9 @@ public class ExpUtil {
 	public static void addExp(int exp, UserCharacter userCharacter) {
 		int totalExp = userCharacter.getTotalExp();
 		int maxExp = getMaxExp(userCharacter.getCharacter());
-		if (totalExp + exp < maxExp) {
+		if (totalExp + exp <= maxExp) {
 			userCharacter.updateExp(totalExp + exp);
+			userCharacter.updateLevel(getLevel(totalExp, userCharacter));
 		}
 	}
 }
