@@ -6,7 +6,10 @@ import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from './ItemShopUI';
 import SuccessPurchaseModal from './SuccessPurchaseModal';
 import ErrorCoinModal from './ErrorCoinModal';
-import { useCharacterCoin } from '@/store/useCharStatusStore';
+import {
+  useCharacterActions,
+  useCharacterCoin,
+} from '@/store/useCharStatusStore';
 import { usebackShopItem } from '../../feature/hooks/reuse/useBackShopItem';
 import { useShopBackList } from '../../feature/hooks/useShopBackList';
 import { useBuyBackItem } from '../../feature/hooks/useBuyBackItem';
@@ -26,7 +29,7 @@ const ItemShopLogic = () => {
 
   // 아이템 호버시 발생되는 이벤트를 위한 상태관리
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins, setUserCoins] = useState<number>(coin); //추후 서버에서 fetching받은 coin값 활용
+  // const [userCoins, setUserCoins] = useState<number>(coin); //추후 서버에서 fetching받은 coin값 활용
   // 모달 창 열고 / 닫기
   const [showModal, setShowModal] = useState<boolean>(false);
   // 구매 상품 선택 여부
@@ -82,33 +85,21 @@ const ItemShopLogic = () => {
       return;
     }
     setSelectedItemForPurchase(item);
-    handleBuyBackShopItem(item.productId);
     setShowModal(true);
-    // modal을 보여주 구매를 하게 되면 => 실제 서버에 fetching
   };
 
-  // 상품 구해 완료 관련 내용 전달 => 실제 coin값을 반영하고 변경해야 함 => zustand에 저장하고
-  // 서버에 저장된 코인 값이 아니라 자체적으로 저장되고 => 서버에 패칭된 coin이 반영이 안되는 현상 확인됨
-  const confirmPurchase = () => {
-    if (!selectedItemForPurchase) return;
+const confirmPurchase = async () => {
+  if (!selectedItemForPurchase?.price) return; // 옵셔널 체이닝 추가
 
-    if (userCoins >= selectedItemForPurchase.price) {
-      setUserCoins(userCoins - selectedItemForPurchase.price);
-      // 불변성 유지를 위한 새로운 배열 생성
-      const updatedItems = [...currentItems].map((item) =>
-        item.productId === selectedItemForPurchase.productId
-          ? { ...item, owned: true }
-          : item,
-      );
-      setCurrentItems(updatedItems);
-
-      setShowModal(false);
-      setShowSuccessModal(true);
-    } else {
-      setShowErrorModal(true);
-    }
-  };
-
+  try {
+    await handleBuyBackShopItem(selectedItemForPurchase.productId);
+    setShowSuccessModal(true);
+  } catch (error) {
+    setShowErrorModal(true);
+  } finally {
+    setShowModal(false);
+  }
+};
   // 성공 모달 닫기
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
@@ -118,7 +109,7 @@ const ItemShopLogic = () => {
   return (
     <>
       <ItemShopUI
-        userCoins={userCoins}
+        userCoins={coin}
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
         currentItems={currentItems}
