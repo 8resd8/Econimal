@@ -67,29 +67,41 @@ const CharBackground = () => {
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 🟢 상단바 (높이 정렬 조정) */}
-        <div className='flex items-center justify-between px-6 py-2 w-full fixed top-0 left-0 bg-white/80 backdrop-blur-md z-50'>
+        <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0 bg-white/80 backdrop-blur-md z-50'>
           {/* 🔵 왼쪽: 캐릭터 프로필 + 경험치 바 */}
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-2 md:gap-3'>
             <CharProfile level={level} profileImg={myChar.profileImg} />
             <ExpBar current={exp} max={100} />
           </div>
 
-          {/* 🔴 오른쪽: 코인 정보 + 햄버거 메뉴 (정렬 조정) */}
-          <div className='flex items-center gap-3'>
-            <CharCoin coin={coin} />
+          {/* 🔴 오른쪽: 코인 정보 + 햄버거 메뉴 */}
+          <div className='flex items-center gap-2 md:gap-3'>
+            <CharCoin
+              coin={coin}
+              className='w-[50px] h-[18px] md:w-[60px] md:h-[20px]'
+            />
             <CharMenu />
           </div>
         </div>
 
-        {/* 🟠 왼쪽 이동 버튼 (위치 수정) */}
-        <div className='absolute left-6 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-3 z-[100] scale-75'>
-          <TownIcon onClick={() => nav('/town')} />
-          <EarthIcon onClick={() => nav('/earth')} />
-          <ShopIcon onClick={() => nav('/shop')} />
+        {/* 🟠 왼쪽 이동 버튼 (위치 수정 & 크기 조절) */}
+        <div className='absolute left-5 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-2 md:gap-3 z-[100] scale-[0.65] md:scale-[0.75]'>
+          <TownIcon
+            onClick={() => nav('/town')}
+            className='w-[35px] h-[35px] md:w-[40px] md:h-[40px]'
+          />
+          <EarthIcon
+            onClick={() => nav('/earth')}
+            className='w-[35px] h-[35px] md:w-[40px] md:h-[40px]'
+          />
+          <ShopIcon
+            onClick={() => nav('/shop')}
+            className='w-[35px] h-[35px] md:w-[40px] md:h-[40px]'
+          />
         </div>
 
         {/* 🟡 캐릭터 & 발판 */}
-        <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-40 md:w-52 scale-75'>
+        <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-36 md:w-40 scale-90 md:scale-100'>
           <div className='relative flex flex-col items-center'>
             {/* 캐릭터 이미지 */}
             <CharEmotionChange faceImg={faceImg} className='z-10' />
@@ -98,7 +110,7 @@ const CharBackground = () => {
             <img
               src={myChar.footImg}
               alt='발판'
-              className='relative bottom-[-5px] w-full z-0'
+              className='relative bottom-[-4px] w-full z-0'
             />
           </div>
         </div>
