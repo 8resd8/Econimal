@@ -146,12 +146,12 @@ export const checklistAPI = {
   postAddCheckList: (description: string) =>
     axiosInstance.post(`${API.CHECKLIST.CUSTOM}`, { description }),
   //커스텀 체크리스트 수정
-  pathEditCheckList: (checklistId: number, description: string) =>
-    axiosInstance.post(`${API.CHECKLIST.CUSTOM}/${checklistId}`, {
+  pathEditCheckList: (checklistId: string, description: string) =>
+    axiosInstance.patch(`${API.CHECKLIST.CUSTOM}/${checklistId}`, {
       description,
     }),
   //커스텀 체크리스트 삭제
-  deleteCheckList: (checklistId: number) =>
+  deleteCheckList: (checklistId: string) =>
     axiosInstance.delete(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
   //커스텀 체크리스트 검증
   postValidationCheckList: (description: string) =>

@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import ChecklistItem from './ChecklistItem';
 import CustomChecklistAdvice from './CustomChecklistAdvice';
 import CustomChecklistModal from './CustomChecklistModal';
+import EditChecklistModal from './EditChecklistModal';
 import ValidationResultModal from './ValidationResultModal';
-import { Plus } from 'lucide-react'; // 추가 아이콘을 위해 lucide-react에서 Plus 아이콘 import
+import { Plus, Edit, Trash, Check } from 'lucide-react'; // 필요한 아이콘들 추가
 
 interface ChecklistItemType {
   checklistId: string;
@@ -17,7 +18,7 @@ interface ChecklistPanelProps {
   isEditable?: boolean;
   activateTab?: string;
   onValidateItem: (description: string) => Promise<any>;
-  onAddItem?: (description: string) => void; // description만 전송하도록 변경
+  onAddItem?: (description: string) => void;
   onCompleteItem?: (id: string, type: string) => void;
   onEditItem?: (id: string, description: string) => void;
   onDeleteItem?: (id: string) => void;
@@ -37,12 +38,20 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newItemDescription, setNewItemDescription] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<ChecklistItemType | null>(
+    null,
+  );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // 유효성 검증 관련 상태
   const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
   const [validationData, setValidationData] = useState<any>(null);
   const [pendingValidation, setPendingValidation] = useState('');
+
+  // 삭제 확인 관련 상태
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null,
+  );
 
   // 디버깅을 위한 ref
   const debugRef = useRef({
@@ -57,8 +66,16 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
       isValidationModalOpen,
       validationData,
       pendingValidation,
+      editingItem,
+      isEditModalOpen,
     });
-  }, [isValidationModalOpen, validationData, pendingValidation]);
+  }, [
+    isValidationModalOpen,
+    validationData,
+    pendingValidation,
+    editingItem,
+    isEditModalOpen,
+  ]);
 
   // 검증 데이터가 설정되면 모달 열기
   useEffect(() => {
@@ -105,6 +122,26 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
     }
   };
 
+  // 수정 시작 핸들러
+  const handleEditStart = (item: ChecklistItemType) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+  };
+
+  // 삭제 핸들러
+  const handleDelete = (id: string) => {
+    if (showDeleteConfirm === id) {
+      // 확인 후 삭제 실행
+      if (onDeleteItem) {
+        onDeleteItem(id);
+      }
+      setShowDeleteConfirm(null);
+    } else {
+      // 삭제 확인 표시
+      setShowDeleteConfirm(id);
+    }
+  };
+
   // 항목 개수가 최대 개수를 초과하는지 확인
   const isMaxItemsReached = items.length >= MAX_CUSTOM_ITEMS;
 
@@ -113,21 +150,64 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
       {/* 체크리스트 아이템 렌더링 */}
       {items.map((item) => (
         <div key={item.checklistId} className='p-4 border rounded-lg'>
-          <div className='flex justify-between items-center'>
-            <ChecklistItem description={item.description} exp={item.exp} />
+          <div className='flex flex-col'>
+            {/* 체크리스트 내용 및 기본 정보 */}
+            <div className='flex justify-between items-center mb-2'>
+              <ChecklistItem description={item.description} exp={item.exp} />
 
-            {/* 완료 버튼 */}
-            {!item.isComplete && (
-              <button
-                onClick={() =>
-                  onCompleteItem &&
-                  onCompleteItem(item.checklistId, activateTab || '')
-                }
-                className='mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600'
-              >
-                완료하기
-              </button>
-            )}
+              {/* 경험치 표시 */}
+              <span className='text-sm text-gray-500'>경험치: {item.exp}</span>
+            </div>
+
+            {/* 버튼 그룹 - 완료, 수정, 삭제 */}
+            <div className='flex justify-end items-center space-x-2 mt-2'>
+              {/* 편집 기능은 커스텀 체크리스트에만 표시 */}
+              {isEditable && (
+                <>
+                  {/* 수정 버튼 */}
+                  <button
+                    onClick={() => handleEditStart(item)}
+                    className='p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors'
+                    title='수정하기'
+                  >
+                    <Edit size={18} />
+                  </button>
+
+                  {/* 삭제 버튼/확인 버튼 */}
+                  {showDeleteConfirm === item.checklistId ? (
+                    <button
+                      onClick={() => handleDelete(item.checklistId)}
+                      className='p-2 text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors flex items-center'
+                      title='삭제 확인'
+                    >
+                      <Check size={18} />
+                      <span className='text-xs ml-1'>확인</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleDelete(item.checklistId)}
+                      className='p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors'
+                      title='삭제하기'
+                    >
+                      <Trash size={18} />
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* 완료 버튼 */}
+              {!item.isComplete && (
+                <button
+                  onClick={() =>
+                    onCompleteItem &&
+                    onCompleteItem(item.checklistId, activateTab || '')
+                  }
+                  className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                >
+                  완료하기
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ))}
@@ -168,6 +248,16 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               onAddItem={onAddItem}
             />
           )}
+
+          {/* 체크리스트 수정 모달 */}
+          {isEditModalOpen && editingItem && (
+            <EditChecklistModal
+              item={editingItem}
+              setIsModalOpen={setIsEditModalOpen}
+              onEditItem={onEditItem}
+              onValidateItem={onValidateItem}
+            />
+          )}
         </div>
       )}
 
@@ -177,6 +267,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
           <p>검증 모달 열림: {isValidationModalOpen ? 'true' : 'false'}</p>
           <p>검증 데이터 있음: {validationData ? 'true' : 'false'}</p>
           <p>대기 중인 검증: {pendingValidation || '없음'}</p>
+          <p>수정 중인 항목: {editingItem?.description || '없음'}</p>
           <p>
             항목 개수: {items.length} / {MAX_CUSTOM_ITEMS}
           </p>

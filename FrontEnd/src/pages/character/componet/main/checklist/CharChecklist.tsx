@@ -6,16 +6,21 @@ import { usePostChecklist } from '@/pages/character/feature/hooks/checklist/useP
 import ChecklistTab from './ChecklistTab';
 import { useCustomValidation } from '@/pages/character/feature/hooks/checklist/useCustomValidation';
 import { useAddCusChecklist } from '@/pages/character/feature/hooks/checklist/useAddCusChecklist';
+import { useEditCusChecklist } from '@/pages/character/feature/hooks/checklist/useEditCusChecklist';
+import { useDeleteCusChecklist } from '@/pages/character/feature/hooks/checklist/useDeleteCusChecklist';
 
-//useChecklist의 data활용해서
+// CharChecklist 컴포넌트 - 체크리스트 관리 최상위 컴포넌트
 const CharChecklist = () => {
   const { data, isLoading, isError, error } = useChecklist();
   const { handleValidationCustomChecklist } = useCustomValidation();
   const { handleSubmitCustomChecklist } = useAddCusChecklist();
+  const { handleChecklistToServer } = usePostChecklist();
+  const { handleEditCustomChecklist } = useEditCusChecklist();
+  const { handleDeleteCustomChecklist } = useDeleteCusChecklist();
 
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
-  const { handleChecklistToServer } = usePostChecklist();
 
+  // 일일 체크리스트 진행 상황 계산
   const dailyProgress = useMemo(() => {
     if (data) {
       const daily = data.checklists.daily;
@@ -25,6 +30,7 @@ const CharChecklist = () => {
     return 0;
   }, [data]);
 
+  // 커스텀 체크리스트 진행 상황 계산
   const customProgress = useMemo(() => {
     if (data) {
       const custom = data.checklists.custom;
@@ -44,9 +50,10 @@ const CharChecklist = () => {
     return <div>오류 발생: {error.message}</div>;
   }
 
-  const dailyItems = data.checklists.daily.checklist; //이거 자체
+  const dailyItems = data.checklists.daily.checklist;
   const customItems = data.checklists.custom.checklist;
 
+  // 체크리스트 항목 완료 처리 함수
   const onCompleteItem = async (checklistId: string, type: string) => {
     try {
       handleChecklistToServer(checklistId, type);
@@ -56,10 +63,11 @@ const CharChecklist = () => {
     }
   };
 
+  // 체크리스트 항목 유효성 검증 함수
   const onValidateItem = async (description: string) => {
     try {
       const result = await handleValidationCustomChecklist(description);
-      console.log('유효성 검증 결과:', result); // 디버깅 로그 추가
+      console.log('유효성 검증 결과:', result);
       return result; // 데이터를 ChecklistPanel로 전달
     } catch (error) {
       console.error('유효성 검증 실패:', error.message);
@@ -67,7 +75,7 @@ const CharChecklist = () => {
     }
   };
 
-  // 이 함수 수정 - 이제 description만 받아서 API로 전송
+  // 체크리스트 항목 추가 함수
   const onAddItem = async (description: string) => {
     try {
       // 문자열만 전달하도록 수정
@@ -75,6 +83,26 @@ const CharChecklist = () => {
       console.log('체크리스트 항목 추가됨:', description);
     } catch (error) {
       console.error('체크리스트 항목 추가 실패:', error);
+    }
+  };
+
+  // 체크리스트 항목 수정 함수
+  const onEditItem = async (id: string, description: string) => {
+    try {
+      await handleEditCustomChecklist(id, description);
+      console.log('체크리스트 항목 수정됨:', id, description);
+    } catch (error) {
+      console.error('체크리스트 항목 수정 실패:', error);
+    }
+  };
+
+  // 체크리스트 항목 삭제 함수
+  const onDeleteItem = async (id: string) => {
+    try {
+      await handleDeleteCustomChecklist(id);
+      console.log('체크리스트 항목 삭제됨:', id);
+    } catch (error) {
+      console.error('체크리스트 항목 삭제 실패:', error);
     }
   };
 
@@ -132,6 +160,8 @@ const CharChecklist = () => {
             onValidateItem={onValidateItem}
             onCompleteItem={onCompleteItem}
             onAddItem={onAddItem}
+            onEditItem={onEditItem}
+            onDeleteItem={onDeleteItem}
           />
         </>
       )}
