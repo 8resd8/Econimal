@@ -66,20 +66,25 @@ const CharBackground = () => {
 
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
-        {/* 🟢 상단바 (높이 정렬 조정) */}
+        {/* 🔴 상단 UI (한 줄 정렬) */}
         <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0 bg-white/80 backdrop-blur-md z-50'>
-          {/* 🔵 왼쪽: 캐릭터 프로필 + 경험치 바 */}
-          <div className='flex items-center gap-2 md:gap-3'>
+          {/* 🔵 왼쪽: 프로필 + 경험치바 */}
+          {/* 🔵 왼쪽: 프로필 + 경험치바 */}
+          <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
             <CharProfile level={level} profileImg={myChar.profileImg} />
-            <ExpBar current={exp} max={100} />
+            <div className='relative'>
+              <ExpBar current={exp} max={100} className='absolute top-[5px]' />
+              {/* ✅ ⬇ 경험치바를 5px 내림 (3px보다 더 정확한 조정) */}
+            </div>
           </div>
 
-          {/* 🔴 오른쪽: 코인 정보 + 햄버거 메뉴 */}
-          <div className='flex items-center gap-2 md:gap-3'>
-            <CharCoin
-              coin={coin}
-              className='w-[50px] h-[18px] md:w-[60px] md:h-[20px]'
-            />
+          <div className='flex items-baseline gap-4 md:gap-5 flex-shrink-0'>
+            <div className='flex items-baseline'>
+              <CharCoin
+                coin={coin}
+                className='w-[120px] h-[30px] md:w-[140px] md:h-[32px] flex items-baseline justify-center'
+              />
+            </div>
             <CharMenu />
           </div>
         </div>

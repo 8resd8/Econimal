@@ -3,8 +3,8 @@ const CharCoin = ({ coin }: { coin: number }) => {
     <div className='flex items-center bg-gradient-to-r from-yellow-200 to-yellow-100 px-3 py-2 rounded-full shadow-lg border-2 border-yellow-400'>
       {/* 동전 아이콘 */}
       <svg
-        width='28'
-        height='28'
+        width='30'
+        height='30'
         viewBox='0 0 24 24'
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
