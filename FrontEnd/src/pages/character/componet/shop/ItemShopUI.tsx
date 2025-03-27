@@ -19,15 +19,15 @@ const ItemShopUI = ({
   confirmPurchase,
 }: ItemShopTypes) => {
   return (
-    <div className='w-screen h-screen bg-black p-6 flex flex-col justify-center items-center relative'>
-      <div className='w-full max-w-6xl'>
+    <div className='w-screen h-[375px] bg-black p-2 flex flex-col items-center relative'>
+      <div className='w-full max-w-[812px] flex flex-col items-center'>
         {/* 상단 레이아웃 */}
-        <div className='flex items-center justify-between mb-6 relative'>
+        <div className='flex items-center justify-between w-full px-2 mb-2'>
           {/* 뒤로가기 버튼 */}
           <GoMainBtn />
 
-          {/* 상점 제목 */}
-          <h1 className='absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white'>
+          {/* 상점 제목 (크기 축소 & 정렬 개선) */}
+          <h1 className='text-lg font-bold text-white text-center flex-grow'>
             상점
           </h1>
 
@@ -36,23 +36,23 @@ const ItemShopUI = ({
         </div>
 
         {/* 캐릭터 / 아이템 전환 탭 버튼 */}
-        <div className='flex justify-center gap-2 mb-8'>
+        <div className='flex justify-center gap-1 w-full mb-2'>
           <TabItemButton
-            category={'캐릭터'}
-            activeTab={'characters'}
+            category='캐릭터'
+            activeTab='characters'
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
           />
           <TabItemButton
-            category={'배경'}
-            activeTab={'backgrounds'}
+            category='배경'
+            activeTab='backgrounds'
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
           />
         </div>
 
-        {/* 아이템 그리드 */}
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-items-center'>
+        {/* 아이템 리스트 (한 줄에 4개 보이도록 수정) */}
+        <div className='grid grid-cols-4 gap-1 w-full'>
           {currentItems.map((item: any, index: number) => (
             <ItemShopItems
               key={index}
@@ -64,6 +64,7 @@ const ItemShopUI = ({
               image={item.image}
               characterName={item.characterName}
               hoveredItemId={hoveredItemId}
+              className='max-w-[140px]'
             />
           ))}
         </div>
