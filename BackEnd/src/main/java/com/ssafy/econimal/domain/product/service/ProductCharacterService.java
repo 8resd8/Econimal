@@ -39,6 +39,7 @@ public class ProductCharacterService {
 	public void buyCharacterProduct(User user, Long productId) {
 		Product wantProductItem = productUtil.findProductById(productId);
 		validator.buyUserCoin(user, wantProductItem.getPrice());
+		validator.alreadyOwned(user, productId);
 
 		UserCharacter userCharacter = createUserCharacter(user, wantProductItem.getCharacter());
 		userCharacterRepository.save(userCharacter);

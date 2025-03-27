@@ -37,6 +37,7 @@ public class ProductBackgroundService {
 	public void buyBackgroundProduct(User user, Long productId) {
 		Product wantProductItem = productUtil.findProductById(productId);
 		validator.buyUserCoin(user, wantProductItem.getPrice());
+		validator.alreadyOwned(user, productId);
 
 		UserBackground background = createUserBackground(user, wantProductItem);
 		userBackgroundRepository.save(background);
