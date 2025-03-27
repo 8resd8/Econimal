@@ -7,8 +7,8 @@ import {
 } from './infraApi';
 import { useTownStore } from '@/store/useTownStore';
 import { EcoType } from './infraApi';
+import { showInfraResultNotice } from '@/components/toast/toastUtil';
 
-// useQuery? useSuspenseQuery?
 // 인프라 이벤트 상세 조회
 export const useGetInfraEvent = (infraEventId: number) =>
   useQuery({
@@ -20,6 +20,7 @@ export const useGetInfraEvent = (infraEventId: number) =>
 // 인프라 이벤트 선택지 제출
 export const useSubmitInfraResult = () => {
   const queryClient = useQueryClient();
+  // const updateValues = useTownStore((state) => state.updateValues);
 
   const { mutate } = useMutation({
     mutationFn: (params: { ecoAnswerId: number; ecoType: string }) =>
@@ -30,16 +31,22 @@ export const useSubmitInfraResult = () => {
         .getState()
         .setInfraStatus(variables.ecoType as EcoType, data.isOptimal);
 
-      // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
-      queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 선택지 제출 후 데이터 새로고침
+      // Zustand 스토어 상태 업데이트 (carbon, exp, coin, expression)
+      // 덧셈 할 필요있나. 백에서 캐릭터 경험치, 코인 정보 가져오면 어차피 정보 있을 텐데
+      // updateValues({
+      //   carbon: useTownStore.getState().carbon + data.carbon,
+      //   exp: useTownStore.getState().exp + data.exp,
+      //   coin: useTownStore.getState().coin + data.coin,
+      //   expression: data.expression,
+      // });
 
-      // 마을 정보도 함께 갱신
-      queryClient.invalidateQueries({ queryKey: ['town-info'] });
+      // 토스트 알림 표시
+      showInfraResultNotice(data.isOptimal, data.carbon, data.exp, data.coin);
 
-      // 캐릭터 정보도 갱신
-      queryClient.invalidateQueries({ queryKey: ['myCharInfo'] });
+      queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
+      queryClient.invalidateQueries({ queryKey: ['town-info'] }); // 마을 정보도 함께 갱신
+      queryClient.invalidateQueries({ queryKey: ['myCharInfo'] }); // 캐릭터 정보도 갱신
 
-      // 데이터는 콜백으로 직접 전달됨 ???
       return data;
     },
     onError: (error) => {

@@ -7,14 +7,12 @@ import town from '@/assets/town/baisc-town.png'; // 배경
 import GoMainBtn from '@/components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { TownEvent } from './features/townApi';
 // import CharStatusBar from '@/components/CharStatusBar';
 import CharCoin from '@/pages/character/componet/main/status/CharCoin';
 import CharProfile from '@/pages/character/componet/main/status/CharProfile';
 import ExpBar from '@/components/ExpBar';
-
-import Toast from '@/components/Toast';
 
 import pollutedImg from '@/assets/town/polluted-river.png';
 
@@ -29,52 +27,49 @@ export interface TownProps {
 }
 
 const Town = () => {
-  // 스토어에서 이벤트 설정 함수 가져오기
-  const { setActiveEvents } = useTownStore();
-
-  // 화면 비율을 관리하기 위한 상태 추가
-  // const [aspectRatio, setAspectRatio] = useState({ width: 0, height: 0 });
-
   // 마을 상황 조회
-  const { data: townEventsData, refetch } = useGetTownEvents();
+  const { data: townEventsData } = useGetTownEvents();
 
-  // [수정] 페이지 로드 시 API 응답에서 인프라 상태 초기화 로직 추가
-  useEffect(() => {
-    if (townEventsData?.townStatus) {
-      // 활성화된 이벤트id 필터링
-      const activeEventIds = townEventsData.townStatus
-        .filter((event) => event.isActive)
-        .map((event) => event.infraEventId);
+  // Zustand 스토어에서 인프라 상태 가져오기
+  const infraStatus = useTownStore((state) => state.infraStatus);
 
-      // 스토어에 활성화된 이벤트 설정
-      setActiveEvents(activeEventIds);
+  // // [수정] 페이지 로드 시 API 응답에서 인프라 상태 초기화 로직 추가
+  // useEffect(() => {
+  //   if (townEventsData?.townStatus) {
+  //     // 활성화된 이벤트id 필터링
+  //     const activeEventIds = townEventsData.townStatus
+  //       .filter((event) => event.isActive)
+  //       .map((event) => event.infraEventId);
 
-      // [수정] 각 인프라 상태(clean/polluted) 설정
-      townEventsData.townStatus.forEach((event) => {
-        useTownStore.getState().setInfraStatus(event.ecoType, event.isClean);
-      });
-    }
-  }, [townEventsData, setActiveEvents]);
+  //     // 스토어에 활성화된 이벤트 설정
+  //     setActiveEvents(activeEventIds);
 
-  // useEffect를 사용하여 데이터 변경 시 마을 이름 업데이트
-  useEffect(() => {
-    if (townEventsData?.townName) {
-      useTownStore.getState().setTownName(townEventsData.townName);
-    }
-  }, [townEventsData]);
+  //     // [수정] 각 인프라 상태(clean/polluted) 설정
+  //     townEventsData.townStatus.forEach((event) => {
+  //       useTownStore.getState().setInfraStatus(event.ecoType, event.isClean);
+  //     });
+  //   }
+  // }, [townEventsData, setActiveEvents]);
 
-  // 마을 접속 시(페이지 로드 시) 이벤트 목록 조회 및 상태 업데이트
-  useEffect(() => {
-    if (townEventsData?.townStatus) {
-      // 활성화된 이벤트id 필터링
-      const activeEventIds = townEventsData.townStatus
-        .filter((event) => event.isActive)
-        .map((event) => event.infraEventId);
+  // // useEffect를 사용하여 데이터 변경 시 마을 이름 업데이트
+  // useEffect(() => {
+  //   if (townEventsData?.townName) {
+  //     useTownStore.getState().setTownName(townEventsData.townName);
+  //   }
+  // }, [townEventsData]);
 
-      // 스토어에 활성화된 이벤트 설정
-      setActiveEvents(activeEventIds);
-    }
-  }, [townEventsData, setActiveEvents]);
+  // // 마을 접속 시(페이지 로드 시) 이벤트 목록 조회 및 상태 업데이트
+  // useEffect(() => {
+  //   if (townEventsData?.townStatus) {
+  //     // 활성화된 이벤트id 필터링
+  //     const activeEventIds = townEventsData.townStatus
+  //       .filter((event) => event.isActive)
+  //       .map((event) => event.infraEventId);
+
+  //     // 스토어에 활성화된 이벤트 설정
+  //     setActiveEvents(activeEventIds);
+  //   }
+  // }, [townEventsData, setActiveEvents]);
 
   // 각 인프라에 해당 이벤트ID 전달하는 함수
   const getInfraEventId = (ecoType: string) => {
@@ -107,8 +102,8 @@ const Town = () => {
             </div>
 
             {/* 토스트 테스트 */}
-            <div className='absolute top-80 left-10 z-20'>
-              <Toast />
+            <div className='absolute top-80 left-10 z-40'>
+              {/* <Toast /> */}
             </div>
 
             {/* 캐릭터 상태 바 */}
@@ -139,7 +134,7 @@ const Town = () => {
               <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
             </div>
             {/* 오염된 강물 오버레이 - 하수처리장이 오염 상태일 때만 표시 */}
-            {!useTownStore.getState().infraStatus.WATER && (
+            {!infraStatus.WATER && (
               <img
                 src={pollutedImg}
                 alt='오염된 강물'
