@@ -16,9 +16,14 @@ public class ExpUtil {
 
 	public static Integer getExp(int totalExp, UserCharacter userCharacter) {
 		Character character = userCharacter.getCharacter();
-		int maxExp = character.getMaxLevel() * character.getExpPerLevel(); // 경험치를 가질 수 있는 최대치
-		int exp = totalExp % userCharacter.getCharacter().getExpPerLevel(); // 현재 경험치
-		return Math.min(exp, maxExp);
+
+		int maxLevel = character.getMaxLevel();
+		int expPerLevel = character.getExpPerLevel();
+
+		int maxExp = maxLevel * expPerLevel; // 경험치를 가질 수 있는 최대치
+		int exp = totalExp % expPerLevel; // 현재 경험치
+		// 최대레벨이면 경험치바 꽉채워서 보여줌
+		return maxLevel == userCharacter.getLevel() ? expPerLevel : Math.min(exp, maxExp);
 	}
 
 	public static Integer getMaxExp(Character character) {
