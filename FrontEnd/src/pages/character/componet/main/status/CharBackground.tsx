@@ -82,14 +82,14 @@ const CharBackground = () => {
         </div>
 
         {/* 🟠 왼쪽 이동 버튼 (위치 수정) */}
-        <div className='absolute left-6 md:left-16 top-[60%] -translate-y-1/2 flex flex-col gap-3 z-[100] scale-75'>
+        <div className='absolute left-6 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-3 z-[100] scale-75'>
           <TownIcon onClick={() => nav('/town')} />
           <EarthIcon onClick={() => nav('/earth')} />
           <ShopIcon onClick={() => nav('/shop')} />
         </div>
 
         {/* 🟡 캐릭터 & 발판 */}
-        <div className='absolute bottom-10 left-1/2 -translate-x-1/2 w-40 md:w-52 scale-75'>
+        <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-40 md:w-52 scale-75'>
           <div className='relative flex flex-col items-center'>
             {/* 캐릭터 이미지 */}
             <CharEmotionChange faceImg={faceImg} className='z-10' />
