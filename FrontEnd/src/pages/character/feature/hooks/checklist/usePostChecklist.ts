@@ -17,6 +17,7 @@ export const usePostChecklist = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist'] });
+      queryClient.invalidateQueries({ queryKey: ['myCharInfo'] });
       console.log('서버에 완료 내용 전송');
     },
     onError: (error) => {
