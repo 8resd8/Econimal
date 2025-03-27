@@ -50,7 +50,7 @@ const Toast =
       <div className={className}>
         <Button onClick={handleClick}>{buttonText}</Button>
         {/* ToastContainer가 App 컴포넌트에 이미 포함되어 있다면 아래 줄은 제거 */}
-        <ToastContainer />
+        {/* <ToastContainer /> */}
       </div>
     );
   };

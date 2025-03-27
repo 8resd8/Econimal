@@ -33,44 +33,6 @@ const Town = () => {
   // Zustand 스토어에서 인프라 상태 가져오기
   const infraStatus = useTownStore((state) => state.infraStatus);
 
-  // // [수정] 페이지 로드 시 API 응답에서 인프라 상태 초기화 로직 추가
-  // useEffect(() => {
-  //   if (townEventsData?.townStatus) {
-  //     // 활성화된 이벤트id 필터링
-  //     const activeEventIds = townEventsData.townStatus
-  //       .filter((event) => event.isActive)
-  //       .map((event) => event.infraEventId);
-
-  //     // 스토어에 활성화된 이벤트 설정
-  //     setActiveEvents(activeEventIds);
-
-  //     // [수정] 각 인프라 상태(clean/polluted) 설정
-  //     townEventsData.townStatus.forEach((event) => {
-  //       useTownStore.getState().setInfraStatus(event.ecoType, event.isClean);
-  //     });
-  //   }
-  // }, [townEventsData, setActiveEvents]);
-
-  // // useEffect를 사용하여 데이터 변경 시 마을 이름 업데이트
-  // useEffect(() => {
-  //   if (townEventsData?.townName) {
-  //     useTownStore.getState().setTownName(townEventsData.townName);
-  //   }
-  // }, [townEventsData]);
-
-  // // 마을 접속 시(페이지 로드 시) 이벤트 목록 조회 및 상태 업데이트
-  // useEffect(() => {
-  //   if (townEventsData?.townStatus) {
-  //     // 활성화된 이벤트id 필터링
-  //     const activeEventIds = townEventsData.townStatus
-  //       .filter((event) => event.isActive)
-  //       .map((event) => event.infraEventId);
-
-  //     // 스토어에 활성화된 이벤트 설정
-  //     setActiveEvents(activeEventIds);
-  //   }
-  // }, [townEventsData, setActiveEvents]);
-
   // 각 인프라에 해당 이벤트ID 전달하는 함수
   const getInfraEventId = (ecoType: string) => {
     if (!townEventsData?.townStatus) return undefined; // undefined 처리가 맞을까?
@@ -139,6 +101,7 @@ const Town = () => {
                 src={pollutedImg}
                 alt='오염된 강물'
                 className='absolute top-0 left-0 max-w-full max-h-screen object-contain z-10 pointer-events-none'
+                // className='absolute inset-0 w-full h-full object-contain z-10 pointer-events-none'
               />
             )}
             {/* 공장 */}
