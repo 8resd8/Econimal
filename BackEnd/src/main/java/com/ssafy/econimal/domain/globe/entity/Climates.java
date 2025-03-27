@@ -2,6 +2,8 @@ package com.ssafy.econimal.domain.globe.entity;
 
 import java.time.LocalDateTime;
 
+import com.ssafy.econimal.global.common.entity.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "climates")
-public class Climates {
+public class Climates extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
