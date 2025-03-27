@@ -17,24 +17,24 @@ const CharacterCardsUI = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <div className='rounded-2xl p-6 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-48 h-64'>
-        {/* 이미지 영역 */}
-        <div className='rounded-lg relative w-36 h-36 mx-auto mb-3 bg-white flex items-center justify-center'>
+      <div className='rounded-2xl p-6 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-48 h-72'>
+        {/* 이미지 영역 - 크기 통일 */}
+        <div className='rounded-lg w-32 h-32 bg-white flex items-center justify-center'>
           <img src={img} alt={name} className='w-full h-full object-contain' />
         </div>
 
-        {/* 이름 - 길어도 줄이기 */}
-        <h3 className='text-base font-bold text-primary mb-1 w-full text-center leading-tight'>
-          {name}
-        </h3>
+        {/* 이름과 설명 간격 조정 */}
+        <div className='flex flex-col items-center mt-3 gap-1 text-center'>
+          <h3 className='text-base font-bold text-primary truncate w-40'>
+            {name}
+          </h3>
+          <p className='text-sm text-primary/80 w-40 leading-snug'>
+            {description}
+          </p>
+        </div>
 
-        {/* 설명 */}
-        <p className='text-sm text-primary/80 text-center px-3 leading-snug'>
-          {description}
-        </p>
-
-        {/* 버튼 */}
-        <div className='mt-auto w-full flex justify-center'>
+        {/* 선택하기 버튼 - 카드 내부에 배치 */}
+        <div className='mt-auto w-full flex justify-center pt-3'>
           <CharButton handleEvent={handlePickChar} isSelect={isSelected} />
         </div>
       </div>
