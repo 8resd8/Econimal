@@ -38,17 +38,17 @@ const CharacterDetailUI = ({
           ))}
         </div>
 
-        {/* 버튼 영역 */}
-        <div className='mt-4 flex flex-col w-full gap-1'>
+        {/* 버튼 영역 (한 줄에 배치, 중앙 정렬 및 아래 여백 추가) */}
+        <div className='mt-2 flex flex-row justify-center w-full gap-4 pb-4'>
           <CharNextChap
             text={`${name} 돕기`}
             handleChar={handleHelpChar}
-            className='w-full h-8'
+            className='w-1/2 h-8'
           />
           <CharNextChap
             text='다른 친구 돕기'
             handleChar={handleHelpAnotherChar}
-            className='w-full h-8'
+            className='w-1/2 h-8'
           />
         </div>
       </div>
