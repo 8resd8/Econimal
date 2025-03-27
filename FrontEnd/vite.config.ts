@@ -70,7 +70,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-    }
+    },
   },
   server: {
     https: undefined,
@@ -82,8 +82,8 @@ export default defineConfig({
         target: 'http://localhost:8080', // 백엔드 서버 주소
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 });

@@ -12,22 +12,21 @@ export const useCharShopItem = (data: ShopItemRes) => {
   useEffect(() => {
     if (!data || !data.products) return;
 
-    const resultData = data.products.map((item: ShopItemTypes, idx: number) => {
-      if (
-        item.productId === charShopConfig[idx].productId ||
-        item.characterName === charShopConfig[idx].characterName
-      ) {
+    const resultData = data.products.map((item: ShopItemTypes) => {
+      const configData = charShopConfig.find(
+        (char) => char.productId === item.productId,
+      );
+      if (item !== undefined) {
         return {
           productId: item.productId,
-          characterName: item.characterName,
-          price: item.price,
-          image: charShopConfig[idx].img,
           owned: item.owned,
+          price: item.price,
+          image: configData?.image,
+          characterName: configData?.characterName,
         };
       }
-      return charShopConfig[idx]; //item 데이터를 못받아 올경우 config 더미 데이터(정적 데이터) 활용
+      return configData;
     });
-
     setCharShopList(resultData);
   }, [data]);
 

@@ -97,6 +97,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               newItemDescription={newItemDescription}
               setIsModalOpen={setIsModalOpen}
               setNewDescription={setNewItemDescription}
+              onValidateItem={onValidateItem}
               onAddItem={onAddItem}
             />
           )}

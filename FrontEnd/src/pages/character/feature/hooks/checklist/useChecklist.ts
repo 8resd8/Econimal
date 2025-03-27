@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchChecklist } from '../api/fetchChecklist';
+import { fetchChecklist } from '../../api/checklist/fetchChecklist';
 
 export const useChecklist = () => {
   //total / done / todo /

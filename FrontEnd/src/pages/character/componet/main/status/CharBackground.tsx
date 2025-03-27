@@ -31,6 +31,12 @@ const CharBackground = () => {
   });
   const nav = useNavigate();
 
+
+  useEffect(() => {
+    //상태 바뀌는 것 실시간 확인
+    console.log('실시간 상태 변화 확인', level, exp, coin, expression)
+  },[level, exp, coin, expression])
+
   // charsell을 하지 않았다고 판단되면 옮겨준다.
   useEffect(() => {
     if (!myChar || Object.keys(myChar).length === 0) {
