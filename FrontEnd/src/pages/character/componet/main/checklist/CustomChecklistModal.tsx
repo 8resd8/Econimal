@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 
-const CustomChecklistModal = ({
+interface CustomChecklistModalProps {
+  newItemDescription: string;
+  setIsModalOpen: (isOpen: boolean) => void;
+  setNewDescription: (description: string) => void;
+  onAddItem?: (item: any) => void;
+  onValidateItem: (description: string) => void;
+}
+
+const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
   newItemDescription,
   setIsModalOpen,
   setNewDescription,
-  onAddItem,
   onValidateItem,
 }) => {
   const [error, setError] = useState('');
@@ -26,55 +33,66 @@ const CustomChecklistModal = ({
   };
 
   return (
-    <div className='fixed inset-0 flex items-center justify-center bg-black/50 z-[1000]'>
-      {/* 부모 요소에 맞춰서 검정 화면으로 감싼다. */}
-      <div className='bg-white p-6 rounded-lg shadow-lg w-[300px] relative'>
+    <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000]'>
+      <div className='bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-4 border-blue-100'>
         {/* 닫기 버튼 */}
         <button
           onClick={() => setIsModalOpen(false)}
-          className='absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full'
+          className='absolute top-4 right-4 p-1 hover:bg-gray-200 rounded-full'
         >
-          <X className='w-5 h-5' />
+          <X className='w-6 h-6 text-gray-500' />
         </button>
 
-        {/* 하위 체크리스트 추가 목록 창 및 사용자 입력 창*/}
-        <h3 className='font-bold mb-4'>새 체크리스트 추가</h3>
-        <input
-          type='text'
-          placeholder='나만의 체크리스트 내용을 작성해주세요 (최소 5글자)'
-          value={newItemDescription}
-          onChange={(e) => {
-            setNewDescription(e.target.value);
-            setError(''); // 입력 시 에러 메시지 초기화
-          }}
-          className={`w-full p-2 border rounded mb-2 ${
-            error ? 'border-red-500' : ''
-          }`}
-        />
+        {/* 제목 및 아이콘 */}
+        <div className='text-center mb-6'>
+          <div className='flex justify-center mb-4'>
+            <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center'>
+              <Plus className='h-10 w-10 text-blue-500' />
+            </div>
+          </div>
+          <h2 className='text-2xl font-bold text-gray-800 mb-4'>
+            새 체크리스트 추가
+          </h2>
+        </div>
 
-        {/* 에러 메시지 */}
-        {error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
+        {/* 입력 필드 */}
+        <div className='mb-6'>
+          <input
+            type='text'
+            placeholder='나만의 체크리스트 내용을 작성해주세요 (최소 5글자)'
+            value={newItemDescription}
+            onChange={(e) => {
+              setNewDescription(e.target.value);
+              setError(''); // 입력 시 에러 메시지 초기화
+            }}
+            className={`w-full p-3 border-2 rounded-xl mb-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+              error ? 'border-red-300' : 'border-gray-300'
+            }`}
+          />
 
-        {/* 입력 길이 표시 */}
-        <p className='text-xs text-gray-500 mb-4'>
-          현재 {newItemDescription.trim().length}글자 / 최소 5글자
-        </p>
+          {/* 에러 메시지 */}
+          {error && <p className='text-red-500 text-sm mb-1'>{error}</p>}
 
-        {/* 취소 & 추가하기 버튼 */}
-        <div className='flex justify-end space-x-2'>
+          {/* 입력 길이 표시 */}
+          <p className='text-sm text-gray-500'>
+            현재 {newItemDescription.trim().length}글자 / 최소 5글자
+          </p>
+        </div>
+
+        {/* 버튼 영역 */}
+        <div className='flex gap-4'>
           <button
             onClick={() => setIsModalOpen(false)}
-            className='px-4 py-2 bg-gray-200 rounded'
+            className='flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-colors duration-200'
           >
             취소
           </button>
-
           <button
             onClick={handleSubmit}
-            className={`px-4 py-2 rounded ${
+            className={`flex-1 py-3 rounded-xl font-semibold transition-colors duration-200 ${
               newItemDescription.trim().length >= 5
-                ? 'bg-green-500 text-white'
-                : 'bg-gray-300 cursor-not-allowed'
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
             disabled={newItemDescription.trim().length < 5}
           >

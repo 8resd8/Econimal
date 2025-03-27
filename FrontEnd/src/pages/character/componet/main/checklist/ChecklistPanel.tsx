@@ -4,7 +4,9 @@ import CustomChecklistAdvice from './CustomChecklistAdvice';
 import CustomChecklistModal from './CustomChecklistModal';
 import EditChecklistModal from './EditChecklistModal';
 import ValidationResultModal from './ValidationResultModal';
-import { Plus, Edit, Trash, Check } from 'lucide-react'; // 필요한 아이콘들 추가
+import CompleteChecklistModal from './CompleteChecklistModal';
+import CompleteConfirmModal from './CompleteConfirmModal';
+import { Plus, Edit, Trash, Check, LockIcon } from 'lucide-react';
 
 interface ChecklistItemType {
   checklistId: string;
@@ -48,6 +50,13 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   const [validationData, setValidationData] = useState<any>(null);
   const [pendingValidation, setPendingValidation] = useState('');
 
+  // 완료 관련 상태
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false);
+  const [completePendingItem, setCompletePendingItem] =
+    useState<ChecklistItemType | null>(null);
+  const [completedItemExp, setCompletedItemExp] = useState(0);
+
   // 삭제 확인 관련 상태
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null,
@@ -68,6 +77,9 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
       pendingValidation,
       editingItem,
       isEditModalOpen,
+      isCompleteModalOpen,
+      isCompleteConfirmOpen,
+      completePendingItem,
     });
   }, [
     isValidationModalOpen,
@@ -75,6 +87,9 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
     pendingValidation,
     editingItem,
     isEditModalOpen,
+    isCompleteModalOpen,
+    isCompleteConfirmOpen,
+    completePendingItem,
   ]);
 
   // 검증 데이터가 설정되면 모달 열기
@@ -124,22 +139,64 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
 
   // 수정 시작 핸들러
   const handleEditStart = (item: ChecklistItemType) => {
+    // 완료된 항목은 수정 불가
+    if (item.isComplete) return;
+
     setEditingItem(item);
     setIsEditModalOpen(true);
   };
 
   // 삭제 핸들러
-  const handleDelete = (id: string) => {
-    if (showDeleteConfirm === id) {
+  const handleDeleteClick = (item: ChecklistItemType) => {
+    // 완료된 항목은 삭제 불가
+    if (item.isComplete) return;
+
+    if (showDeleteConfirm === item.checklistId) {
       // 확인 후 삭제 실행
       if (onDeleteItem) {
-        onDeleteItem(id);
+        onDeleteItem(item.checklistId);
+        console.log('항목 삭제됨:', item.checklistId);
       }
       setShowDeleteConfirm(null);
     } else {
       // 삭제 확인 표시
-      setShowDeleteConfirm(id);
+      setShowDeleteConfirm(item.checklistId);
+      console.log('삭제 확인 표시:', item.checklistId);
     }
+  };
+
+  // 완료 시작 핸들러 - 확인 모달 표시
+  const handleCompleteStart = (item: ChecklistItemType) => {
+    setCompletePendingItem(item);
+    setIsCompleteConfirmOpen(true);
+  };
+
+  // 완료 확인 핸들러
+  const handleCompleteConfirm = () => {
+    if (!completePendingItem || !onCompleteItem) return;
+
+    // 완료 처리
+    onCompleteItem(completePendingItem.checklistId, activateTab || '');
+
+    // 완료 모달 표시 준비
+    setCompletedItemExp(completePendingItem.exp);
+
+    // 확인 모달 닫기
+    setIsCompleteConfirmOpen(false);
+
+    // 약간의 지연 후 완료 성공 모달 표시
+    setTimeout(() => {
+      setIsCompleteModalOpen(true);
+    }, 300);
+
+    // 상태 정리
+    setCompletePendingItem(null);
+  };
+
+  // 완료 확인 취소 핸들러
+  const handleCompleteCancel = () => {
+    setIsCompleteConfirmOpen(false);
+    setCompletePendingItem(null);
   };
 
   // 항목 개수가 최대 개수를 초과하는지 확인
@@ -149,11 +206,23 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
     <div className='space-y-4'>
       {/* 체크리스트 아이템 렌더링 */}
       {items.map((item) => (
-        <div key={item.checklistId} className='p-4 border rounded-lg'>
+        <div
+          key={item.checklistId}
+          className={`p-4 border rounded-lg ${
+            item.isComplete ? 'bg-gray-50 border-green-200' : ''
+          }`}
+        >
           <div className='flex flex-col'>
             {/* 체크리스트 내용 및 기본 정보 */}
             <div className='flex justify-between items-center mb-2'>
-              <ChecklistItem description={item.description} exp={item.exp} />
+              <div className='flex items-center'>
+                {item.isComplete && (
+                  <div className='mr-2 p-1 bg-green-100 rounded-full'>
+                    <Check size={16} className='text-green-600' />
+                  </div>
+                )}
+                <ChecklistItem description={item.description} exp={item.exp} />
+              </div>
 
               {/* 경험치 표시 */}
               <span className='text-sm text-gray-500'>경험치: {item.exp}</span>
@@ -164,19 +233,40 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               {/* 편집 기능은 커스텀 체크리스트에만 표시 */}
               {isEditable && (
                 <>
-                  {/* 수정 버튼 */}
+                  {/* 수정 버튼 - 완료된 항목은 비활성화 */}
                   <button
                     onClick={() => handleEditStart(item)}
-                    className='p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors'
-                    title='수정하기'
+                    className={`p-2 rounded-full transition-colors ${
+                      item.isComplete
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : 'text-blue-500 hover:bg-blue-100'
+                    }`}
+                    title={
+                      item.isComplete
+                        ? '완료된 항목은 수정할 수 없습니다'
+                        : '수정하기'
+                    }
+                    disabled={item.isComplete}
                   >
-                    <Edit size={18} />
+                    {item.isComplete ? (
+                      <LockIcon size={18} />
+                    ) : (
+                      <Edit size={18} />
+                    )}
                   </button>
 
-                  {/* 삭제 버튼/확인 버튼 */}
-                  {showDeleteConfirm === item.checklistId ? (
+                  {/* 삭제 버튼/확인 버튼 - 완료된 항목은 비활성화 */}
+                  {item.isComplete ? (
                     <button
-                      onClick={() => handleDelete(item.checklistId)}
+                      className='p-2 text-gray-400 cursor-not-allowed'
+                      title='완료된 항목은 삭제할 수 없습니다'
+                      disabled={true}
+                    >
+                      <LockIcon size={18} />
+                    </button>
+                  ) : showDeleteConfirm === item.checklistId ? (
+                    <button
+                      onClick={() => handleDeleteClick(item)}
                       className='p-2 text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors flex items-center'
                       title='삭제 확인'
                     >
@@ -185,7 +275,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleDelete(item.checklistId)}
+                      onClick={() => handleDeleteClick(item)}
                       className='p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors'
                       title='삭제하기'
                     >
@@ -198,14 +288,18 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               {/* 완료 버튼 */}
               {!item.isComplete && (
                 <button
-                  onClick={() =>
-                    onCompleteItem &&
-                    onCompleteItem(item.checklistId, activateTab || '')
-                  }
+                  onClick={() => handleCompleteStart(item)}
                   className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
                 >
                   완료하기
                 </button>
+              )}
+
+              {/* 완료 상태 표시 */}
+              {item.isComplete && (
+                <span className='px-4 py-2 bg-green-100 text-green-700 rounded-lg'>
+                  완료됨
+                </span>
               )}
             </div>
           </div>
@@ -268,6 +362,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
           <p>검증 데이터 있음: {validationData ? 'true' : 'false'}</p>
           <p>대기 중인 검증: {pendingValidation || '없음'}</p>
           <p>수정 중인 항목: {editingItem?.description || '없음'}</p>
+          <p>완료 확인 모달: {isCompleteConfirmOpen ? 'true' : 'false'}</p>
           <p>
             항목 개수: {items.length} / {MAX_CUSTOM_ITEMS}
           </p>
@@ -299,6 +394,26 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
             setPendingValidation('');
             setIsValidationModalOpen(false);
             setValidationData(null);
+          }}
+        />
+      )}
+
+      {/* 완료 확인 모달 */}
+      {isCompleteConfirmOpen && completePendingItem && (
+        <CompleteConfirmModal
+          isOpen={isCompleteConfirmOpen}
+          itemDescription={completePendingItem.description}
+          onClose={handleCompleteCancel}
+          onConfirm={handleCompleteConfirm}
+        />
+      )}
+
+      {/* 체크리스트 완료 성공 모달 */}
+      {isCompleteModalOpen && (
+        <CompleteChecklistModal
+          exp={completedItemExp}
+          onClose={() => {
+            setIsCompleteModalOpen(false);
           }}
         />
       )}

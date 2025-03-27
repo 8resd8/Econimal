@@ -24,6 +24,7 @@ const CharChecklist = () => {
   const dailyProgress = useMemo(() => {
     if (data) {
       const daily = data.checklists.daily;
+      if (daily.total === 0) return Number(0);
       const dailyProgress = Math.ceil((daily.done / daily.total) * 100);
       return Number(dailyProgress);
     }

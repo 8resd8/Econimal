@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Edit } from 'lucide-react';
 
 interface ChecklistItemType {
   checklistId: string;
@@ -28,6 +28,7 @@ const EditChecklistModal: React.FC<EditChecklistModalProps> = ({
   // 컴포넌트가 마운트될 때 현재 항목 설명을 상태에 설정
   useEffect(() => {
     setDescription(item.description);
+    console.log('수정 모달 오픈됨:', item);
   }, [item]);
 
   const handleSubmit = async () => {
@@ -47,19 +48,20 @@ const EditChecklistModal: React.FC<EditChecklistModalProps> = ({
 
     try {
       setIsLoading(true);
+      console.log('수정 시작:', item.checklistId, trimmedDescription);
 
       // 유효성 검증이 필요한 경우
       if (onValidateItem) {
         const validationResult = await onValidateItem(trimmedDescription);
         console.log('수정 내용 유효성 검증 결과:', validationResult);
-
-        // 여기서 유효성 검증 결과에 따른 처리를 할 수 있습니다.
-        // 예를 들어 검증 실패 시 사용자에게 알림을 줄 수 있습니다.
       }
 
       // 서버에 수정 사항 반영
       if (onEditItem) {
+        console.log('onEditItem 호출:', item.checklistId, trimmedDescription);
         onEditItem(item.checklistId, trimmedDescription);
+      } else {
+        console.error('onEditItem 함수가 없습니다');
       }
 
       // 모달 닫기
@@ -73,60 +75,70 @@ const EditChecklistModal: React.FC<EditChecklistModalProps> = ({
   };
 
   return (
-    <div className='fixed inset-0 flex items-center justify-center bg-black/50 z-[1000]'>
-      <div className='bg-white p-6 rounded-lg shadow-lg w-[300px] relative'>
+    <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000]'>
+      <div className='bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-4 border-blue-100'>
         {/* 닫기 버튼 */}
         <button
           onClick={() => setIsModalOpen(false)}
-          className='absolute top-2 right-2 p-1 hover:bg-gray-200 rounded-full'
+          className='absolute top-4 right-4 p-1 hover:bg-gray-200 rounded-full'
           disabled={isLoading}
         >
-          <X className='w-5 h-5' />
+          <X className='w-6 h-6 text-gray-500' />
         </button>
 
-        {/* 제목 */}
-        <h3 className='font-bold mb-4'>체크리스트 수정</h3>
+        {/* 제목 및 아이콘 */}
+        <div className='text-center mb-6'>
+          <div className='flex justify-center mb-4'>
+            <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center'>
+              <Edit className='h-10 w-10 text-blue-500' />
+            </div>
+          </div>
+          <h2 className='text-2xl font-bold text-gray-800 mb-4'>
+            체크리스트 수정
+          </h2>
+        </div>
 
         {/* 입력 필드 */}
-        <input
-          type='text'
-          placeholder='체크리스트 내용을 수정해주세요 (최소 5글자)'
-          value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-            setError(''); // 입력 시 에러 메시지 초기화
-          }}
-          className={`w-full p-2 border rounded mb-2 ${
-            error ? 'border-red-500' : ''
-          }`}
-          disabled={isLoading}
-        />
+        <div className='mb-6'>
+          <input
+            type='text'
+            placeholder='체크리스트 내용을 수정해주세요 (최소 5글자)'
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setError(''); // 입력 시 에러 메시지 초기화
+            }}
+            className={`w-full p-3 border-2 rounded-xl mb-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+              error ? 'border-red-300' : 'border-gray-300'
+            }`}
+            disabled={isLoading}
+          />
 
-        {/* 에러 메시지 */}
-        {error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
+          {/* 에러 메시지 */}
+          {error && <p className='text-red-500 text-sm mb-1'>{error}</p>}
 
-        {/* 입력 길이 표시 */}
-        <p className='text-xs text-gray-500 mb-4'>
-          현재 {description.trim().length}글자 / 최소 5글자
-        </p>
+          {/* 입력 길이 표시 */}
+          <p className='text-sm text-gray-500'>
+            현재 {description.trim().length}글자 / 최소 5글자
+          </p>
+        </div>
 
         {/* 버튼 영역 */}
-        <div className='flex justify-end space-x-2'>
+        <div className='flex gap-4'>
           <button
             onClick={() => setIsModalOpen(false)}
-            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors'
+            className='flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-colors duration-200'
             disabled={isLoading}
           >
             취소
           </button>
-
           <button
             onClick={handleSubmit}
-            className={`px-4 py-2 rounded ${
+            className={`flex-1 py-3 rounded-xl font-semibold transition-colors duration-200 ${
               description.trim().length >= 5 && !isLoading
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed'
-            } transition-colors`}
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
             disabled={description.trim().length < 5 || isLoading}
           >
             {isLoading ? '처리 중...' : '수정하기'}
