@@ -3,7 +3,6 @@ import CharNextChap from './CharNextChap';
 import { CharacterDetailProps } from '../../types/CharacterDetailProps';
 
 interface CharacterDetailCardType extends CharacterDetailProps<number> {
-  //기존 값 상속받기
   handleHelpChar: () => void;
   handleHelpAnotherChar: () => void;
 }
@@ -24,23 +23,32 @@ const CharacterDetailUI = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <div
-        className={`rounded-2xl p-14 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
-      >
-        <h3 className='text-2xl font-bold text-primary mb-8'>"{subStory}"</h3>
-        {detailStory.split('.').map((text: string) => (
-          <p
-            className='text-xl text-wrap text-primary/80 whitespace-pre-wrap'
-            key={text}
-          >
-            {text}
-          </p>
-        ))}
-        <div className='mt-5 flex items-stretch justify-between gap-2'>
-          <CharNextChap text={`${name} 돕기`} handleChar={handleHelpChar} />
+      <div className='rounded-2xl p-6 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-auto h-60'>
+        {/* 서브 스토리 */}
+        <h3 className='text-lg font-bold text-primary mb-4 text-center'>
+          "{subStory}"
+        </h3>
+
+        {/* 상세 스토리 */}
+        <div className='text-sm text-primary/80 text-center whitespace-pre-wrap leading-normal'>
+          {detailStory.split('.').map((text: string, index) => (
+            <p key={index} className='mb-1'>
+              {text}
+            </p>
+          ))}
+        </div>
+
+        {/* 버튼 영역 */}
+        <div className='mt-4 flex flex-col w-full gap-1'>
           <CharNextChap
-            text={'다른 친구 돕기'}
+            text={`${name} 돕기`}
+            handleChar={handleHelpChar}
+            className='w-full h-8'
+          />
+          <CharNextChap
+            text='다른 친구 돕기'
             handleChar={handleHelpAnotherChar}
+            className='w-full h-8'
           />
         </div>
       </div>
