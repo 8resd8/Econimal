@@ -4,10 +4,12 @@ import ProgressBar from './ProgressBar';
 import { useChecklist } from '@/pages/character/feature/hooks/checklist/useChecklist';
 import { usePostChecklist } from '@/pages/character/feature/hooks/checklist/usePostChecklist';
 import ChecklistTab from './ChecklistTab';
+import { useCustomValidation } from '@/pages/character/feature/hooks/checklist/useCustomValidation';
 
 //useChecklist의 data활용해서
 const CharChecklist = () => {
   const { data, isLoading, isError, error } = useChecklist();
+  const { handleValidationCustomChecklist } = useCustomValidation();
 
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
   const { handleChecklistToServer } = usePostChecklist();
@@ -51,6 +53,17 @@ const CharChecklist = () => {
     }
   };
 
+  const onValidateItem = async (description: string) => {
+    try {
+      const result = await handleValidationCustomChecklist(description);
+      console.log('유효성 검증 결과:', result); // 디버깅 로그 추가
+      return result; // 데이터를 ChecklistPanel로 전달
+    } catch (error) {
+      console.error('유효성 검증 실패:', error.message);
+      throw error;
+    }
+  };
+
   return (
     <div>
       {/* 탭 전환 버튼 */}
@@ -84,6 +97,7 @@ const CharChecklist = () => {
             items={dailyItems}
             activateTab={activeTab}
             isEditable={false}
+            onValidateItem={onValidateItem}
             onCompleteItem={onCompleteItem}
           />
         </>
@@ -101,6 +115,7 @@ const CharChecklist = () => {
             items={customItems}
             isEditable={true}
             activateTab={activeTab}
+            onValidateItem={onValidateItem}
             onCompleteItem={onCompleteItem}
           />
         </>

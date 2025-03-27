@@ -1,4 +1,3 @@
-import { ChecklistTypes } from '@/pages/character/types/checklist/ChecklistPanelTypes';
 import { X } from 'lucide-react';
 
 const CustomChecklistModal = ({
@@ -7,12 +6,6 @@ const CustomChecklistModal = ({
   setNewDescription,
   onAddItem,
   onValidateItem,
-}: {
-  newItemDescription: string;
-  setIsModalOpen: (bool: boolean) => void;
-  setNewDescription: (value: string) => void;
-  onAddItem: (item: ChecklistTypes) => void;
-  onValidateItem: (item: ChecklistTypes) => void;
 }) => {
   return (
     <div className='fixed inset-0 flex items-center justify-center bg-black/50 z-[1000]'>
@@ -48,19 +41,9 @@ const CustomChecklistModal = ({
 
           <button
             onClick={() => {
-              //여기서 서버 검증 로직 추가 됨 => onAdditem?이 아니라
-              //validItem을 추가하고 => 그다음 모달이 또 하나 더 떳을 때
-              //경험치가 10이상이면 => 환경에 적합한 내용이에요라고 모달이 뜨고
-              //이 체크리스트 내용을 등록할까요?
               if (newItemDescription.trim()) {
-                onAddItem?.({
-                  //내용 추가하기
-                  checklistId: Date.now().toString(), //현재 시간 기준으로 toString()화 하여 저장하기
-                  //   title: newItemDescription.trim(), //끝 공백 삭제하여 추가하기
-                  description: '',
-                  exp: 10, // 사용자 체크리스트 10점으로 고정
-                  is_complete: false, //추후 체크리스트 완료 확인을 위해 설정
-                });
+                // 여기서 문자열만 전달
+                onValidateItem(newItemDescription.trim());
                 setNewDescription(''); //입력창 비우기
                 setIsModalOpen(false); //모달창 닫기
               }
