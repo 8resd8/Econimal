@@ -4,7 +4,9 @@ import { fetchValidationCheck } from '../../api/checklist/fetchValidationCheck';
 export const useCustomValidation = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: fetchValidationCheck,
+    mutationFn: (description: string) => {
+      return fetchValidationCheck(description);
+    },
     onSuccess: () => {
       console.log('유효성 검증에 성공했습니다.');
       queryClient.invalidateQueries({ queryKey: ['checklist'] });
@@ -15,8 +17,8 @@ export const useCustomValidation = () => {
     },
   });
 
-  const handleValidationCustomChecklist = () => {
-    mutate();
+  const handleValidationCustomChecklist = (description: string) => {
+    mutate(description);
   };
 
   return {

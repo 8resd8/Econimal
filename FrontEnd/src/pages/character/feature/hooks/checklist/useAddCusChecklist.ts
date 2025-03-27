@@ -4,7 +4,9 @@ import { fetchAddCustomCheck } from '../../api/checklist/fetchAddCustomCheck';
 export const useAddCusChecklist = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: fetchAddCustomCheck,
+    mutationFn: (description: string) => {
+      return fetchAddCustomCheck(description);
+    },
     onSuccess: () => {
       console.log('custom 체크리스트 등록 성공');
       queryClient.invalidateQueries({ queryKey: ['checklist'] });
@@ -18,8 +20,8 @@ export const useAddCusChecklist = () => {
     },
   });
 
-  const handleSubmitCustomChecklist = () => {
-    mutate(); //실행
+  const handleSubmitCustomChecklist = (description: string) => {
+    mutate(description); //실행
   };
 
   return {

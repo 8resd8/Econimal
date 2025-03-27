@@ -143,16 +143,19 @@ export const checklistAPI = {
       checklistId,
     }),
   //커스텀 체크리스트 추가
-  postAddCheckList: () => axiosInstance.post(`${API.CHECKLIST.CUSTOM}`),
+  postAddCheckList: (description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}`, { description }),
   //커스텀 체크리스트 수정
-  pathEditCheckList: (checklistId: number) =>
-    axiosInstance.post(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
+  pathEditCheckList: (checklistId: number, description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}/${checklistId}`, {
+      description,
+    }),
   //커스텀 체크리스트 삭제
   deleteCheckList: (checklistId: number) =>
     axiosInstance.delete(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
   //커스텀 체크리스트 검증
-  postValidationCheckList: () =>
-    axiosInstance.post(`${API.CHECKLIST.CUSTOM_VALIDATE}`),
+  postValidationCheckList: (description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM_VALIDATE}`, { description }),
 };
 
 export const shopAPI = {
