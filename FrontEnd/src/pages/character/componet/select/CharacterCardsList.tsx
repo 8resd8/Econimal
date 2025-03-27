@@ -30,14 +30,14 @@ const CharacterCardsList = () => {
   // 따라서 가공된 데이터의 processedData의 값을 하위에 mapping으로 뿌려줌
   // 서버에서 받은 ip값을 우선적으로 진행하고 있음
   return (
-    <div className='flex flex-col items-center h-screen px-4 overflow-auto'>
+    <div className='flex flex-col items-center min-h-screen px-4 py-8 overflow-auto'>
       {/* 제목 */}
-      <h2 className='text-lg sm:text-xl font-bold text-center text-white mb-2'>
-        환경 위기에서 구해줄 친구를 골라주세요!
+      <h2 className='text-2xl sm:text-3xl font-bold text-center text-white mb-6 leading-snug'>
+        🌎 환경 위기에서 구해줄 친구를 골라주세요!
       </h2>
 
       {/* 카드 리스트 */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full max-w-3xl flex-grow'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl'>
         {dataToRender.map((item) => (
           <div
             key={item.userCharacterId || item.id || item.name}
