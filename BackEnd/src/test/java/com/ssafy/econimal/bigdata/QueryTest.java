@@ -1,6 +1,7 @@
 package com.ssafy.econimal.bigdata;
 
-import static com.ssafy.econimal.domain.bigdata.entity.QClimates.*;
+
+import static com.ssafy.econimal.domain.globe.entity.QClimates.*;
 
 import java.util.List;
 
@@ -12,8 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.bigdata.entity.QClimates;
+import com.ssafy.econimal.domain.globe.entity.QClimates;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -32,7 +34,7 @@ public class QueryTest {
 
 	@BeforeEach
 	void setUp() {
-		 c = QClimates.climates;
+		c = climates;
 	}
 
 	@Test
@@ -58,6 +60,25 @@ public class QueryTest {
 			.fetch();
 
 		// 31.8초
+		fetch.forEach(System.out::println);
+	}
+
+	@Test
+	void 국가별월별평균기후() {
+		List<Tuple> fetch = queryFactory
+			.select(
+				c.countryCode,
+				Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", c.referenceDate).as("ym"),
+				c.temperature.avg(),
+				c.humidity.avg()
+			)
+			.from(c)
+			.groupBy(
+				c.countryCode,
+				Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", c.referenceDate)
+			)
+			.fetch();
+
 		fetch.forEach(System.out::println);
 	}
 
