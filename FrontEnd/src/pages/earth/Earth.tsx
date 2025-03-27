@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import bgImage from "@/assets/auth_background.png"; // 배경 이미지
+import GoMainBtn from '@/components/GoMainBtn';
 
 // Components
 import WorldMap from './components/WorldMap';
@@ -173,6 +174,9 @@ const Earth: React.FC = () => {
       className="fixed inset-0 w-full h-full bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
+      <div className='absolute top-4 left-4 z-30'>
+        <GoMainBtn />
+      </div>
       {/* 독립적인 스크롤 컨테이너 */}
       <div 
         className="absolute inset-0 overflow-y-auto overflow-x-hidden"
