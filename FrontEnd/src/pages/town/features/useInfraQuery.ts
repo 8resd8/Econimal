@@ -36,6 +36,9 @@ export const useSubmitInfraResult = () => {
       // 마을 정보도 함께 갱신
       queryClient.invalidateQueries({ queryKey: ['town-info'] });
 
+      // 캐릭터 정보도 갱신
+      queryClient.invalidateQueries({ queryKey: ['myCharInfo'] });
+
       // 데이터는 콜백으로 직접 전달됨 ???
       return data;
     },

@@ -9,7 +9,10 @@ import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { useEffect } from 'react';
 import { TownEvent } from './features/townApi';
-import CharStatusBar from '@/components/CharStatusBar';
+// import CharStatusBar from '@/components/CharStatusBar';
+import CharCoin from '@/pages/character/componet/main/status/CharCoin';
+import CharProfile from '@/pages/character/componet/main/status/CharProfile';
+import ExpBar from '@/components/ExpBar';
 
 import Toast from '@/components/Toast';
 
@@ -99,24 +102,36 @@ const Town = () => {
           {/* 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
           <div className='absolute inset-0'>
             {/* 홈으로 가는 버튼 */}
-            <div className='absolute top-4 left-4 w-[15%] z-30'>
+            <div className='absolute top-[20%] left-[4.5%] w-[15%] z-30'>
               <GoMainBtn />
             </div>
 
             {/* 토스트 테스트 */}
-            <div className='absolute top-40 left-10'>
+            <div className='absolute top-80 left-10 z-20'>
               <Toast />
             </div>
 
             {/* 캐릭터 상태 바 */}
-            <CharStatusBar />
+            {/*
+            <div className='absolute top-[5%] left-10 w-[50%] z-30'>
+              <CharProfile />
+            </div>
+
+            <div className='absolute top-[5%] left-44 w-[50%] z-30'>
+              <ExpBar />
+            </div>
+
+            <div className='absolute top-[5%] right-10 w-[12%] z-30'>
+              <CharCoin />
+            </div>
+            */}
 
             {/* 마을 이름 - 항상 상단 중앙에 위치 */}
-            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 w-[15%] z-30'>
+            <div className='absolute top-[5%] left-[50%] transform -translate-x-1/2 w-[15%] z-30'>
               <TownName />
             </div>
             {/* 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
-            <div className='absolute top-[15%] left-[44%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
+            <div className='absolute top-[60%] right-[0.1%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
               <MyHouse infraEventId={getInfraEventId('ELECTRICITY')} />
             </div>
             {/* 하수처리장 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
