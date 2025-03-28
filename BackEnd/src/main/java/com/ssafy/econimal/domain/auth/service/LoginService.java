@@ -53,7 +53,7 @@ public class LoginService {
 			.path("/")
 			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
 			.secure(isProduction)
-			.sameSite("Strict") // Strict, Lax, None
+			.sameSite("Lax") // Strict, Lax, None
 			.build();
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
