@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.town.dto;
+package com.ssafy.econimal.domain.town.dto.response;
 
 import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
 

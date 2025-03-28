@@ -9,9 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.data.TestEntityHelper;
-import com.ssafy.econimal.domain.town.dto.InfrastructureEventResponse;
-import com.ssafy.econimal.domain.town.dto.TownNameUpdateRequest;
-import com.ssafy.econimal.domain.town.dto.TownStatusResponse;
+import com.ssafy.econimal.domain.town.dto.response.InfrastructureEventResponse;
+import com.ssafy.econimal.domain.town.dto.request.TownNameUpdateRequest;
+import com.ssafy.econimal.domain.town.dto.response.TownStatusResponse;
 import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 import com.ssafy.econimal.domain.town.entity.Facility;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;

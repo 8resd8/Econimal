@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 
 public record CustomChecklistValidationRequest(
 	@NotNull(message = "{required}")
-	@Size(max = 50, message = "{max.length}")
+	@Size(min = 5, max = 50, message = "{length}")
 	String description
 ) {
 }

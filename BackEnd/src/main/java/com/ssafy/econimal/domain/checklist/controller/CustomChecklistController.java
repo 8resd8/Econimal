@@ -35,12 +35,12 @@ public class CustomChecklistController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public void addCustomChecklist(@Login User user, @RequestBody CustomChecklistRequest request) {
+	public void addCustomChecklist(@Login User user, @Valid @RequestBody CustomChecklistRequest request) {
 		customChecklistService.addCustomChecklist(user, request);
 	}
 
 	@PatchMapping("/{checklistId}")
-	public void updateCustomChecklist(@Login User user, @RequestBody CustomChecklistRequest request,
+	public void updateCustomChecklist(@Login User user, @Valid @RequestBody CustomChecklistRequest request,
 		@PathVariable("checklistId") String checklistId) {
 		customChecklistService.updateCustomChecklist(user, checklistId, request);
 	}

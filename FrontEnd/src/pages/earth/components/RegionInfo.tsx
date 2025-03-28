@@ -1,17 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
+import { RegionData } from './RegionDataService';
 
 const RegionInfoContainer = styled.div`
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  top: 50px;
+  bottom: 120px; /* 슬라이더 위에 위치하도록 조정 */
+  left: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 350px;
+  height: 170px;
   z-index: 10;
   transition: all 0.3s ease;
+  scale: 75%;
+  overflow-y: scroll;
 `;
 
 const RegionTitle = styled.h3`
@@ -27,6 +32,8 @@ const RegionDescription = styled.p`
   color: #34495e;
   font-size: 14px;
   line-height: 1.5;
+  max-height: 120px;
+  overflow-y: auto;
 `;
 
 const RegionStats = styled.div`
@@ -70,23 +77,27 @@ const CloseButton = styled.button`
   }
 `;
 
-interface RegionData {
-  name: string;
-  description: string;
-  population?: number;
-  area?: number;
-  environmentalIndex?: number;
-  biodiversityCount?: number;
-  threatLevel?: number;
-  conservationEfforts?: string[];
-}
+const ConservationList = styled.ul`
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: #34495e;
+  line-height: 1.4;
+  max-height: 80px;
+  overflow-y: auto;
+`;
 
 interface RegionInfoProps {
   data: RegionData | null;
   onClose?: () => void;
+  showCharts?: boolean; // 차트 표시 여부 (기본값: true)
 }
 
-const RegionInfo: React.FC<RegionInfoProps> = ({ data, onClose }) => {
+const RegionInfo: React.FC<RegionInfoProps> = ({ 
+  data, 
+  onClose,
+  showCharts = true // 기본적으로 차트 표시
+}) => {
   if (!data) return null;
   
   // 데이터가 없는 필드는 표시하지 않기
@@ -101,17 +112,17 @@ const RegionInfo: React.FC<RegionInfoProps> = ({ data, onClose }) => {
       
       {hasDetailedStats && (
         <RegionStats>
-          {data.population && (
+          {data.co2Level !== undefined && (
             <StatItem>
-              <StatLabel>인구</StatLabel>
-              <StatValue>{data.population.toLocaleString()}</StatValue>
+              <StatLabel>이산화탄소 농도</StatLabel>
+              <StatValue>{data.co2Level.toFixed(1)} ppm</StatValue>
             </StatItem>
           )}
           
-          {data.area && (
+          {data.temperature !== undefined && (
             <StatItem>
-              <StatLabel>면적 (km²)</StatLabel>
-              <StatValue>{data.area.toLocaleString()}</StatValue>
+              <StatLabel>평균 온도</StatLabel>
+              <StatValue>{data.temperature.toFixed(1)} °C</StatValue>
             </StatItem>
           )}
           
@@ -122,7 +133,7 @@ const RegionInfo: React.FC<RegionInfoProps> = ({ data, onClose }) => {
             </StatItem>
           )}
           
-          {data.biodiversityCount && (
+          {data.biodiversityCount !== undefined && (
             <StatItem>
               <StatLabel>생물다양성</StatLabel>
               <StatValue>{data.biodiversityCount.toLocaleString()}</StatValue>
@@ -141,11 +152,11 @@ const RegionInfo: React.FC<RegionInfoProps> = ({ data, onClose }) => {
       {data.conservationEfforts && data.conservationEfforts.length > 0 && (
         <>
           <StatLabel style={{ marginTop: '10px', marginBottom: '5px' }}>보존 노력</StatLabel>
-          <ul style={{ margin: '0', paddingLeft: '20px' }}>
+          <ConservationList>
             {data.conservationEfforts.map((effort, index) => (
-              <li key={index} style={{ fontSize: '14px', marginBottom: '3px' }}>{effort}</li>
+              <li key={index}>{effort}</li>
             ))}
-          </ul>
+          </ConservationList>
         </>
       )}
     </RegionInfoContainer>
