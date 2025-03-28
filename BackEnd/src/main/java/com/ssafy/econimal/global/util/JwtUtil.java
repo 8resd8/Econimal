@@ -28,8 +28,8 @@ public class JwtUtil {
 	private final JwtProperties jwtProperties;
 	// private final long accessExpireTime = 1000 * 60 * 30; // 30분
 	// private final long accessExpireTime = 1000 * 60 * 10; // 10분
-	private final long accessExpireTime = 1000 * 60 * 150; // 150분
-	// private final long accessExpireTime = 1000 * 30; // 30초
+	// private final long accessExpireTime = 1000 * 60 * 150; // 150분
+	private final long accessExpireTime = 1000 * 30; // 30초
 
 	// 액세스 토큰 생성
 	public String createToken(Long userId, UserType userType) {
