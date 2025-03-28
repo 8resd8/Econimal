@@ -8,10 +8,12 @@ import { useCustomValidation } from '@/pages/character/feature/hooks/checklist/u
 import { useAddCusChecklist } from '@/pages/character/feature/hooks/checklist/useAddCusChecklist';
 import { useEditCusChecklist } from '@/pages/character/feature/hooks/checklist/useEditCusChecklist';
 import { useDeleteCusChecklist } from '@/pages/character/feature/hooks/checklist/useDeleteCusChecklist';
+import { useprogressData } from '@/pages/character/feature/hooks/reuse/useProgressData';
 
 // CharChecklist 컴포넌트 - 체크리스트 관리 최상위 컴포넌트
 const CharChecklist = () => {
   const { data, isLoading, isError, error } = useChecklist();
+  const { dailyProgress, customProgress } = useprogressData(data);
   const { handleValidationCustomChecklist } = useCustomValidation();
   const { handleSubmitCustomChecklist } = useAddCusChecklist();
   const { handleChecklistToServer } = usePostChecklist();
@@ -19,29 +21,28 @@ const CharChecklist = () => {
   const { handleDeleteCustomChecklist } = useDeleteCusChecklist();
 
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
-
   // 일일 체크리스트 진행 상황 계산
-  const dailyProgress = useMemo(() => {
-    if (data) {
-      const daily = data.checklists.daily;
-      if (daily.total === 0) return Number(0);
-      const dailyProgress = Math.ceil((daily.done / daily.total) * 100);
-      return Number(dailyProgress);
-    }
-    return 0;
-  }, [data]);
+  // const dailyProgress = useMemo(() => {
+  //   if (data) {
+  //     const daily = data.checklists.daily;
+  //     if (daily.total === 0) return Number(0);
+  //     const dailyProgress = Math.ceil((daily.done / daily.total) * 100);
+  //     return Number(dailyProgress);
+  //   }
+  //   return 0;
+  // }, [data]);
 
-  // 커스텀 체크리스트 진행 상황 계산
-  const customProgress = useMemo(() => {
-    if (data) {
-      const custom = data.checklists.custom;
-      //total 자체가 0으로 시작할 수 있기 때문에
-      if (custom.total === 0) return Number(0);
-      const customProgress = Math.ceil((custom.done / custom.total) * 100);
-      return Number(customProgress);
-    }
-    return 0;
-  }, [data]);
+  // // 커스텀 체크리스트 진행 상황 계산
+  // const customProgress = useMemo(() => {
+  //   if (data) {
+  //     const custom = data.checklists.custom;
+  //     //total 자체가 0으로 시작할 수 있기 때문에
+  //     if (custom.total === 0) return Number(0);
+  //     const customProgress = Math.ceil((custom.done / custom.total) * 100);
+  //     return Number(customProgress);
+  //   }
+  //   return 0;
+  // }, [data]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -49,6 +50,10 @@ const CharChecklist = () => {
 
   if (isError) {
     return <div>오류 발생: {error.message}</div>;
+  }
+
+  if (dailyProgress == undefined && customProgress == undefined) {
+    return <div>데이터 정보 없음</div>;
   }
 
   const dailyItems = data.checklists.daily.checklist;
