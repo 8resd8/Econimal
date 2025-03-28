@@ -4,6 +4,7 @@ import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import { Lock, Check } from 'lucide-react';
 import ShopCoin from './ShopCoinUI';
 
+
 interface Props {
   setHoveredItemId: (productId: number) => void;
   handlePurchaseClick: (item: ShopItemTypes) => void;

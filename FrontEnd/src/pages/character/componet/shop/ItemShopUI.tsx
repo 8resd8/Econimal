@@ -5,6 +5,7 @@ import BuyModal from './BuyModal';
 import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
 import { useState } from 'react';
+import { useCharacterCoin } from '@/store/useCharStatusStore';
 
 const ItemShopUI = ({
   userCoins,
@@ -21,6 +22,7 @@ const ItemShopUI = ({
   selectedCharacterId, // 서버에서 받은 현재 선택된 캐릭터 ID
   selectedBackgroundId, // 서버에서 받은 현재 선택된 배경 ID
 }: ItemShopTypes) => {
+  const coin = useCharacterCoin();
   const [selectedItemId, setSelectedItemId] = useState<number | null>(
     selectedTab === 'characters' ? selectedCharacterId : selectedBackgroundId,
   );
@@ -39,7 +41,7 @@ const ItemShopUI = ({
           <h1 className='absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white'>
             상점
           </h1>
-          <CharCoin coin={userCoins} />
+          <CharCoin coin={coin} />
         </div>
 
         {/* 캐릭터 / 배경 선택 탭 */}
