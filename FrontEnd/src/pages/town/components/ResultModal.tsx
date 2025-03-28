@@ -25,7 +25,6 @@ interface ResultModalProps {
   ecoType?: string;
 }
 
-// props가 필요없지 않나
 // 사용자가 결과 제출 후
 const ResultModal = ({
   open,
@@ -77,24 +76,28 @@ const ResultModal = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
-      <AlertDialogContent className='p-10'>
+      <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'>
         <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
           X
         </AlertDialogCancel>
 
         <AlertDialogHeader>
-          <AlertDialogTitle className='text-4xl m-6'>
-            {/* 가장좋은 답변이에요 / 더 최적인 답안이 있어요 */}
+          <AlertDialogTitle className='text-xl text-center sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep'>
+            {/* 가장 좋은 답변이에요 / 더 최적인 답안이 있어요 */}
             {getResultMessage()}
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className='space-y-4'>
           <div className='flex flex-col items-center w-full gap-4'>
-            {/* [수정] 장소에 따라 다른 메시지 표시 */}
+            {/* 장소에 따라 다른 메시지 표시 */}
             {ecoType === 'COURT' ? (
-              <p className='text-3xl text-center'>{getAnswerMessage()}</p>
+              <p className='text-base sm:text-xl md:text-3xl text-center break-keep whitespace-normal'>
+                {getAnswerMessage()}
+              </p>
             ) : (
-              <p className='text-3xl text-center'>{getCarbonChangeMessage()}</p>
+              <p className='text-base sm:text-xl md:text-3xl text-center break-keep whitespace-normal'>
+                {getCarbonChangeMessage()}
+              </p>
             )}
           </div>
         </AlertDialogDescription>

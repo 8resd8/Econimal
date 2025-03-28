@@ -2,9 +2,9 @@ import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 
 // 기본 토스트 옵션
-const defaultOptions: ToastOptions = {
+export const defaultOptions: ToastOptions = {
   position: 'top-right',
-  autoClose: 5000,
+  autoClose: 3000,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
@@ -32,34 +32,31 @@ export const showInfraEventNotice = (
 };
 
 // 인프라 이벤트 선택 결과 알림 함수
-
 export const showInfraResultNotice = (
   isOptimal: boolean,
-  carbon: number,
   exp: number,
   coin: number,
   options?: ToastOptions,
 ) => {
   // 최적 해결책 여부에 따른 메시지
   const resultMessage = isOptimal
-    ? '문제를 최적으로 해결했습니다! 😁'
-    : '더 좋은 방법이 있었습니다. 😢';
+    ? '캐릭터가 행복해요! 🥰'
+    : '캐릭터가 슬퍼요 😭';
 
-  // 얻은 보상 메시지
-  const rewardMessage = `
-    ${carbon < 0 ? `탄소 ${Math.abs(carbon)} 감소` : `탄소 ${carbon} 증가`}
-    경험치 ${exp} 획득
-    코인 ${coin} 획득
-  `;
+  // 단순 텍스트 메시지로 구성 (줄바꿈을 위해 \n\n 사용)
+  const fullMessage = `${resultMessage}\n\n경험치 ${exp} 획득\n코인 ${coin} 획득`;
 
   // 최적 해결책 여부에 따라 다른 토스트 타입 사용
   const toastFn = isOptimal ? toast.success : toast.warning;
-  return toastFn(`${resultMessage}\n${rewardMessage}`, {
+
+  // 단순 텍스트 메시지를 토스트에 표시
+  return toastFn(fullMessage, {
     ...defaultOptions,
     ...options,
+    // react-toastify CSS에서 줄바꿈을 인식하도록 스타일 추가
+    style: { whiteSpace: 'pre-line' },
   });
 };
-
 // 마을 이름 변경 알림
 // export const showTownNameChangeNotice = (newName: string, options?: ToastOptions) => {
 //   return toast.success(`마을 이름이 "${newName}"으로 변경되었습니다.`, {
@@ -77,7 +74,7 @@ export const showNotice = (
   return toast[type](message, { ...defaultOptions, ...options });
 };
 
-// --------------필요한가--------------
+// ---------------필요한가?--------------
 // ID로 토스트 업데이트 또는 닫기 유틸리티 함수
 // export const updateToast = (
 //   toastId: string | number,

@@ -41,7 +41,7 @@ export const useSubmitInfraResult = () => {
       // });
 
       // 토스트 알림 표시
-      showInfraResultNotice(data.isOptimal, data.carbon, data.exp, data.coin);
+      showInfraResultNotice(data.isOptimal, data.exp, data.coin);
 
       queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
       queryClient.invalidateQueries({ queryKey: ['town-info'] }); // 마을 정보도 함께 갱신

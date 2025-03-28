@@ -40,11 +40,18 @@ const Town = () => {
 
   return (
     // 전체 화면을 차지하는 고정 컨테이너
-    <div className='fixed inset-0 overflow-hidden'>
+    <div className='fixed inset-0 overflow-hidden '>
+      <div className='absolute inset-0'>
+        <img
+          src={town}
+          alt='뒷 배경'
+          className='w-full h-full object-cover blur-3xl'
+        />
+      </div>
       {/* 배경 이미지 래퍼 - 배경 이미지를 화면 중앙에 배치 */}
       <div className='relative w-full h-full flex items-center justify-center'>
         {/* 배경 이미지 - 비율 유지하면서 화면에 맞춤 */}
-        <div className='relative'>
+        <div className='relative max-w-full max-h-screen'>
           <img
             src={town}
             alt='마을'
@@ -76,7 +83,6 @@ const Town = () => {
                 src={pollutedImg}
                 alt='오염된 강물'
                 className='absolute top-0 left-0 max-w-full max-h-screen object-contain z-10 pointer-events-none'
-                // className='absolute inset-0 w-full h-full object-contain z-10 pointer-events-none'
               />
             )}
             {/* 공장 */}
