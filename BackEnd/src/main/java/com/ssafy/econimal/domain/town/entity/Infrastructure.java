@@ -45,7 +45,7 @@ public class Infrastructure extends BaseTimeEntity {
 		this.isClean = isClean;
 	}
 
-	public void setClean(boolean isClean) {
+	public void updateClean(boolean isClean) {
 		this.isClean = isClean;
 	}
 }
