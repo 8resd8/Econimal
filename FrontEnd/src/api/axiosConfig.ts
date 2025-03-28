@@ -10,32 +10,52 @@ let accessToken: string | null = null;
 // 토큰 만료 시간 저장
 let tokenExpiryTime: number | null = null;
 
-// 토큰 setter/getter 함수
+// axiosConfig.ts
+// 토큰 관련 함수 수정
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
+  if (token) {
+    sessionStorage.setItem('accessToken', token);
+  } else {
+    sessionStorage.removeItem('accessToken');
+  }
 };
 
 export const getAccessToken = () => {
+  if (!accessToken) {
+    // 메모리에 없으면 sessionStorage에서 복원
+    accessToken = sessionStorage.getItem('accessToken');
+  }
   return accessToken;
 };
 
-// 토큰 만료 시간 관리 함수
 export const setTokenExpiry = (expiresIn: number) => {
   tokenExpiryTime = Date.now() + expiresIn;
+  sessionStorage.setItem('tokenExpiry', tokenExpiryTime.toString());
 };
 
 export const getTokenExpiry = () => {
+  if (!tokenExpiryTime) {
+    // 메모리에 없으면 sessionStorage에서 복원
+    const storedExpiry = sessionStorage.getItem('tokenExpiry');
+    if (storedExpiry) {
+      tokenExpiryTime = parseInt(storedExpiry);
+    }
+  }
   return tokenExpiryTime;
 };
 
 export const isTokenExpired = () => {
-  if (!tokenExpiryTime) return true;
-  return Date.now() >= tokenExpiryTime;
+  const expiry = getTokenExpiry();
+  if (!expiry) return true;
+  return Date.now() >= expiry;
 };
 
 export const clearTokenData = () => {
   accessToken = null;
   tokenExpiryTime = null;
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('tokenExpiry');
 };
 
 // axios 인스턴스 생성
