@@ -1,4 +1,9 @@
 package com.ssafy.econimal.domain.user.dto;
 
-public record UserInfoResponse(UserInfoDto userInfo) {
+import java.util.List;
+
+public record UserInfoResponse(
+	UserInfoDto userInfo,
+	List<Long> userBackgroundIds,
+	List<Long> userCharacterIds) {
 }
