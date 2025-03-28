@@ -27,19 +27,15 @@ public class ClimateQueryRepository {
 
 		// 날짜 형식 동적 처리
 		String format = "";
-		String dateTimeFormat = "";
 		switch (request.type()) {
 			case "HOUR" -> {
 				format = "%Y-%m-%d %H:00:00";
-				dateTimeFormat = "%Y-%m-%d %H:00:00";
 			}
 			case "DAY" -> {
 				format = "%Y-%m-%d";
-				dateTimeFormat = "%Y-%m-%d 00:00:00";
 			}
 			case "MONTH" -> {
 				format = "%Y-%m";
-				dateTimeFormat = "%Y-%m-01 00:00:00";
 			}
 			default -> throw new InvalidArgumentException("Invaild type : " + request.type());
 		}
@@ -48,7 +44,7 @@ public class ClimateQueryRepository {
 			String.class
 			, "DATE_FORMAT({0}, {1})"
 			, climates.referenceDate
-			, ConstantImpl.create("%Y-%m-%d"));
+			, ConstantImpl.create(format));
 
 		return queryFactory
 			.select(new QGlobeInfoDto(
