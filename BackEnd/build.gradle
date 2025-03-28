@@ -73,8 +73,9 @@ dependencies {
 
     // SpringAI
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
-//    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-M6")
-//    implementation 'org.springframework.ai:spring-ai-openai'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {
