@@ -20,4 +20,8 @@ public interface UserBackgroundRepository extends JpaRepository<UserBackground, 
 
 	// 소유한 물건인지 확인
 	boolean existsByUserAndProductId(User user, Long productId);
+
+	// Id 목록 찾기
+	@Query("select ub.id from UserBackground ub where ub.user = :user")
+	List<Long> findUserBackgroundIds(User user);
 }
