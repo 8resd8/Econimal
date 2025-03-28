@@ -2,17 +2,6 @@ import { useMemo } from 'react';
 //일일 목록 dailyChecklist 내용 매개변수로 전달
 
 export const useprogressData = (data) => {
-  //type 설정 필요요
-  // 일일 체크리스트 진행 상황 계산
-  // if (!data && data.checklists) {
-  //   console.log('useProgressData 데이터가 없습니다.');
-  //   return;
-  // }
-
-  if (data && data.checklists) {
-    console.log(data, 'data-useProgressData, 디버깅 테스팅');
-  }
-
   //데일리 진척률 (하기와 동일한 진행 상황 계산)
   const dailyProgress = useMemo(() => {
     if (data) {
@@ -36,7 +25,7 @@ export const useprogressData = (data) => {
     return 0;
   }, [data]);
 
-  console.log(dailyProgress, customProgress, '진척률 내부 use');
+  // console.log(dailyProgress, customProgress, '진척률 내부 use');
 
   return {
     dailyProgress,

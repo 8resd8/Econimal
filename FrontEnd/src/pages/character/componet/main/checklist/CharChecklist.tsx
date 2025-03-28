@@ -21,28 +21,6 @@ const CharChecklist = () => {
   const { handleDeleteCustomChecklist } = useDeleteCusChecklist();
 
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'custom'
-  // 일일 체크리스트 진행 상황 계산
-  // const dailyProgress = useMemo(() => {
-  //   if (data) {
-  //     const daily = data.checklists.daily;
-  //     if (daily.total === 0) return Number(0);
-  //     const dailyProgress = Math.ceil((daily.done / daily.total) * 100);
-  //     return Number(dailyProgress);
-  //   }
-  //   return 0;
-  // }, [data]);
-
-  // // 커스텀 체크리스트 진행 상황 계산
-  // const customProgress = useMemo(() => {
-  //   if (data) {
-  //     const custom = data.checklists.custom;
-  //     //total 자체가 0으로 시작할 수 있기 때문에
-  //     if (custom.total === 0) return Number(0);
-  //     const customProgress = Math.ceil((custom.done / custom.total) * 100);
-  //     return Number(customProgress);
-  //   }
-  //   return 0;
-  // }, [data]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -52,7 +30,7 @@ const CharChecklist = () => {
     return <div>오류 발생: {error.message}</div>;
   }
 
-  if (dailyProgress && customProgress) {
+  if (!dailyProgress && !customProgress) {
     return <div>데이터 정보 없음</div>;
   }
 
