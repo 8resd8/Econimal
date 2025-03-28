@@ -17,6 +17,7 @@ import {
   useCharacterExpression,
   useCharacterLevel,
 } from '@/store/useCharStatusStore';
+import { useFootChange } from '@/pages/character/feature/hooks/reuse/useFootChange';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
@@ -29,6 +30,11 @@ const CharBackground = () => {
     data: { level, exp, coin, expression },
     myChar: myChar,
   });
+  const { footImg, isFootLoading } = useFootChange({
+    data: { level, exp, coin, expression },
+    myChar: myChar,
+  });
+
   const nav = useNavigate();
 
   useEffect(() => {
@@ -113,7 +119,7 @@ const CharBackground = () => {
 
             {/* 발판 이미지 */}
             <img
-              src={myChar.footImg}
+              src={footImg}
               alt='발판'
               className='relative bottom-[-4px] w-full z-0'
             />

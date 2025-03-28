@@ -33,6 +33,9 @@ export const useEmotionChange = ({
     setIsLoading(false);
   }, [data]);
 
+
+
+
   return {
     faceImg,
     isLoading,
