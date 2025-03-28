@@ -1,5 +1,7 @@
 package com.ssafy.econimal.domain.user.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +11,8 @@ import com.ssafy.econimal.domain.user.dto.UserInfoResponse;
 import com.ssafy.econimal.domain.user.dto.UserProfileDto;
 import com.ssafy.econimal.domain.user.dto.UserProfileResponse;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
+import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
@@ -23,6 +27,7 @@ public class UserService {
 
 	public UserInfoResponse getUserInfo(User user) {
 		UserInfoDto userInfo = userRepository.findUserInfoById(user.getId());
+
 		return new UserInfoResponse(userInfo);
 	}
 
