@@ -48,13 +48,7 @@ public class LoginService {
 			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-			.httpOnly(true)
-			.path("/")
-			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
-			.secure(isProduction)
-			.sameSite("Lax") // Strict, Lax, None
-			.build();
+		ResponseCookie refreshTokenCookie = getResponseCookie(refreshToken);
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
 		user.updateLastLoginAt();
@@ -73,15 +67,21 @@ public class LoginService {
 			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken)
+		ResponseCookie refreshTokenCookie = getResponseCookie(newRefreshToken);
+		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+		return new RefreshResponse(newAccessToken, jwtUtil.getAccessExpireTime());
+	}
+
+	// 쿠키 설정
+	private ResponseCookie getResponseCookie(String refreshToken) {
+		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
 			.path("/")
 			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
 			.secure(isProduction)
-			.sameSite("Strict")
+			.sameSite("Lax") // Strict, Lax, None
 			.build();
-		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
-
-		return new RefreshResponse(newAccessToken, jwtUtil.getAccessExpireTime());
+		return refreshTokenCookie;
 	}
 }
