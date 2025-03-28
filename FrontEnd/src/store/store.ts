@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware'; // 추가 설치 필요할 수 있음
+import { persist } from 'zustand/middleware';
 
 interface AuthState {
   token: string | null;
