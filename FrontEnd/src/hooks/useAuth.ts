@@ -81,36 +81,36 @@ export const useAuth = () => {
   };
   
   // 로그인 함수
-  // login 함수의 해당 부분만 수정
-const login = async (email: string, password: string) => {
-  try {
-    const res = await axiosInstance.post<LoginResponse>("/users/login", {
-      email,
-      password
-    }, {
-      withCredentials: true 
-    });
-    
-    console.log("로그인 응답:", res.data);
-    console.log("쿠키 설정 확인:", document.cookie);
-    
-    // 액세스 토큰과 만료 시간 저장
-    setAccessToken(res.data.accessToken);
-    setToken(res.data.accessToken);
-    setTokenExpiry(res.data.timeToLive);
-    setIsAuthenticated(true);
-    
-    // isFirst 값에 따라 캐릭터 존재 여부 설정
-    const characterExists = !res.data.isFirst;
-    setHasCharacter(characterExists);
-    
-    // 나머지 코드는 동일하게 유지
+  const login = async (email: string, password: string) => {
+    try {
+      const res = await axiosInstance.post<LoginResponse>("/users/login", {
+        email,
+        password
+      }, {
+        withCredentials: true 
+      });
+      
+      console.log("로그인 응답:", res.data);
+      console.log("쿠키 설정 확인:", document.cookie);
+      
+      // 액세스 토큰과 만료 시간 저장
+      setAccessToken(res.data.accessToken);
+      setToken(res.data.accessToken);
+      setTokenExpiry(res.data.timeToLive);
+      setIsAuthenticated(true);
+      
+      // isFirst 값에 따라 캐릭터 존재 여부 설정
+      const characterExists = !res.data.isFirst;
+      setHasCharacter(characterExists);
       
       // 사용자 정보 가져오기
       await fetchUserData();
       
       // 토큰 만료 확인 타이머 설정
       setupTokenExpiryCheck();
+      
+      // 토큰 갱신 타이머 설정
+      setupRefreshTimer(res.data.timeToLive);
       
       // 프롤로그 시청 여부 확인
       const hasPrologViewed = localStorage.getItem('prologViewed') === 'true';

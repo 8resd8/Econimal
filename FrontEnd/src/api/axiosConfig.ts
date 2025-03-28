@@ -10,8 +10,7 @@ let accessToken: string | null = null;
 // 토큰 만료 시간 저장
 let tokenExpiryTime: number | null = null;
 
-// axiosConfig.ts
-// 토큰 관련 함수 수정
+// 토큰 setter/getter 함수
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
   if (token) {
@@ -29,6 +28,7 @@ export const getAccessToken = () => {
   return accessToken;
 };
 
+// 토큰 만료 시간 관리 함수
 export const setTokenExpiry = (expiresIn: number) => {
   tokenExpiryTime = Date.now() + expiresIn;
   sessionStorage.setItem('tokenExpiry', tokenExpiryTime.toString());
@@ -72,7 +72,6 @@ axiosInstance.interceptors.request.use(
     // 토큰 만료 확인 - 로그인 요청은 제외
     if (isTokenExpired() && !config.url?.includes('/users/login')) {
       console.log("토큰 만료됨, 요청 취소");
-      // 로그인 페이지로 리디렉션은 handleLogout에서 처리
       return Promise.reject(new Error('Token expired'));
     }
     
@@ -101,18 +100,47 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 401 오류이고, 로그인 페이지가 아닌 경우
+    // 401 오류이고, 재시도하지 않은 경우, 토큰 갱신 요청이 아닌 경우
     if (
       error.response?.status === 401 &&
-      !originalRequest.url?.includes('/users/login')
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/users/refresh')
     ) {
-      console.log("401 에러 - 인증 실패");
-      // 실제 로그아웃 처리는 useAuth의 handleLogout에서 함
+      originalRequest._retry = true;
+      console.log("401 에러 - 토큰 갱신 시도");
+
+      try {
+        // 토큰 갱신 요청 - HttpOnly 쿠키에 있는 리프레시 토큰 사용
+        const response = await axiosInstance.post('/users/refresh', {}, {
+          withCredentials: true
+        });
+        
+        console.log("인터셉터에서 토큰 갱신 성공:", response.data);
+        const newToken = response.data.accessToken;
+
+        // 메모리에 새 토큰 저장
+        setAccessToken(newToken);
+        // 새 토큰의 만료 시간 저장
+        if (response.data.timeToLive) {
+          setTokenExpiry(response.data.timeToLive);
+        }
+
+        // 원래 요청 헤더 업데이트
+        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
+        // 원래 요청 재시도
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        console.error('인터셉터에서 토큰 갱신 실패:', refreshError);
+        return Promise.reject(refreshError);
+      }
     }
 
     return Promise.reject(error);
   }
 );
+
+// 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
 
 // ------------------------- 서버 fetching api 로직 ---------------------------
 export const characterListAPI = {
@@ -173,5 +201,5 @@ export const shopAPI = {
     axiosInstance.post(`${API.SHOP.BACKLIST}/${productId}`),
 };
 
-// axiosInstance를 기본 내보내기로 설정
+// 기본 내보내기
 export default axiosInstance;
