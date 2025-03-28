@@ -52,7 +52,7 @@ const CharChecklist = () => {
     return <div>오류 발생: {error.message}</div>;
   }
 
-  if (dailyProgress == undefined && customProgress == undefined) {
+  if (dailyProgress && customProgress) {
     return <div>데이터 정보 없음</div>;
   }
 
