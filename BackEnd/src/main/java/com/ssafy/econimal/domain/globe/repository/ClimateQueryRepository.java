@@ -1,0 +1,64 @@
+package com.ssafy.econimal.domain.globe.repository;
+
+import static com.ssafy.econimal.domain.globe.entity.QClimates.*;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
+import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
+import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
+import com.ssafy.econimal.global.exception.InvalidArgumentException;
+
+import lombok.RequiredArgsConstructor;
+
+@Repository
+@RequiredArgsConstructor
+public class ClimateQueryRepository {
+
+	private final JPAQueryFactory queryFactory;
+
+	public List<GlobeInfoDto> findClimateAverageByTime(GlobeInfoRequest request) {
+
+		// 날짜 형식 동적 처리
+		String format = "";
+		switch (request.type()) {
+			case "HOUR" -> {
+				format = "%Y-%m-%d %H:00:00";
+			}
+			case "DAY" -> {
+				format = "%Y-%m-%d";
+			}
+			case "MONTH" -> {
+				format = "%Y-%m";
+			}
+			default -> throw new InvalidArgumentException("Invaild type : " + request.type());
+		}
+
+		DateTemplate<String> formattedDate = Expressions.dateTemplate(
+			String.class
+			, "DATE_FORMAT({0}, {1})"
+			, climates.referenceDate
+			, ConstantImpl.create(format));
+
+		return queryFactory
+			.select(new QGlobeInfoDto(
+				climates.countryCode.as("country"),
+				formattedDate,
+				climates.temperature.avg(),
+				climates.humidity.avg()
+			))
+			.from(climates)
+			.where(climates.referenceDate.between(request.startDate(), request.endDate()))
+			.groupBy(
+				climates.countryCode,
+				formattedDate
+			)
+			.fetch();
+	}
+}
