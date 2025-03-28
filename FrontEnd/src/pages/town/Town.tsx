@@ -7,12 +7,7 @@ import town from '@/assets/town/baisc-town.png'; // 배경
 import GoMainBtn from '@/components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
-// import { useEffect } from 'react';
 import { TownEvent } from './features/townApi';
-// import CharStatusBar from '@/components/CharStatusBar';
-import CharCoin from '@/pages/character/componet/main/status/CharCoin';
-import CharProfile from '@/pages/character/componet/main/status/CharProfile';
-import ExpBar from '@/components/ExpBar';
 
 import pollutedImg from '@/assets/town/polluted-river.png';
 
@@ -62,26 +57,6 @@ const Town = () => {
             <div className='absolute top-[20%] left-[4.5%] w-[15%] z-30'>
               <GoMainBtn />
             </div>
-
-            {/* 토스트 테스트 */}
-            <div className='absolute top-80 left-10 z-40'>
-              {/* <Toast /> */}
-            </div>
-
-            {/* 캐릭터 상태 바 */}
-            {/*
-            <div className='absolute top-[5%] left-10 w-[50%] z-30'>
-              <CharProfile />
-            </div>
-
-            <div className='absolute top-[5%] left-44 w-[50%] z-30'>
-              <ExpBar />
-            </div>
-
-            <div className='absolute top-[5%] right-10 w-[12%] z-30'>
-              <CharCoin />
-            </div>
-            */}
 
             {/* 마을 이름 - 항상 상단 중앙에 위치 */}
             <div className='absolute top-[5%] left-[50%] transform -translate-x-1/2 w-[15%] z-30'>
