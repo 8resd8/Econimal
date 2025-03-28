@@ -8,12 +8,12 @@ import { useCustomValidation } from '@/pages/character/feature/hooks/checklist/u
 import { useAddCusChecklist } from '@/pages/character/feature/hooks/checklist/useAddCusChecklist';
 import { useEditCusChecklist } from '@/pages/character/feature/hooks/checklist/useEditCusChecklist';
 import { useDeleteCusChecklist } from '@/pages/character/feature/hooks/checklist/useDeleteCusChecklist';
-import { useprogressData } from '@/pages/character/feature/hooks/reuse/useProgressData';
+import { useCheckProgressData } from '@/pages/character/feature/hooks/reuse/useCheckProgressData';
 
 // CharChecklist 컴포넌트 - 체크리스트 관리 최상위 컴포넌트
 const CharChecklist = () => {
   const { data, isLoading, isError, error } = useChecklist();
-  const { dailyProgress, customProgress } = useprogressData(data);
+  const { dailyProgress, customProgress } = useCheckProgressData(data);
   const { handleValidationCustomChecklist } = useCustomValidation();
   const { handleSubmitCustomChecklist } = useAddCusChecklist();
   const { handleChecklistToServer } = usePostChecklist();
