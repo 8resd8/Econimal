@@ -20,7 +20,7 @@ public class GlobeService {
 	private final ClimateQueryRepository climateQueryRepository;
 
 	@Transactional(readOnly = true)
-	public GlobeResponse getGlobeInfo(GlobeInfoRequest globeInfoRequest) {
+	public GlobeResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
 		List<GlobeInfoDto> response = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
 		return new GlobeResponse(response);
 	}

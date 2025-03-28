@@ -20,6 +20,6 @@ public class GlobeController {
 
 	@GetMapping
 	public GlobeResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
-		return globeService.getGlobeInfo(globeInfoRequest);
+		return globeService.getGlobeInfoByRDB(globeInfoRequest);
 	}
 }
