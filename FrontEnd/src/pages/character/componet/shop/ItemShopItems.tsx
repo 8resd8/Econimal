@@ -65,6 +65,7 @@ const ItemShopItems: React.FC<Props> = ({
         </div>
         {!owned && hoveredItemId === productId && productId !== -1 && (
           <button
+            // onClick시 서버에 전송해줘야 함함
             onClick={() =>
               handlePurchaseClick({
                 productId,

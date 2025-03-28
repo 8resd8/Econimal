@@ -74,4 +74,9 @@ public class UserCharacter extends BaseTimeEntity {
 	public void updateExp(int exp) {
 		this.totalExp = exp;
 	}
+
+	public void updateLevel(int level) {
+		this.level = level;
+	}
+
 }

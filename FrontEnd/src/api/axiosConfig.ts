@@ -127,14 +127,14 @@ export const characterListAPI = {
   //캐릭터 리스트 중 캐릭터 선택 => 대표 캐릭터 선택택
   // 캐릭터 선택 => 대표 캐릭터 선택
   patchMyChar: (userCharacterId: number) => {
-    return axiosInstance.patch(
-      `${API.CHARACTERS.MAIN_CHAR}/${userCharacterId}`,
+    return axiosInstance.post(
+      `${API.CHARACTERS.FIRST_MAIN_CHAR}/${userCharacterId}`,
     );
   },
 };
 
 export const checklistAPI = {
-  // 체크리스트 조회
+  // 체크리스트 조회(서버/커스텀 내용)
   getCheckList: () => axiosInstance.get(`${API.CHECKLIST.LIST}`),
   // 체크리스트 등록
   postCheckList: (checklistId: string, type: string) =>
@@ -142,6 +142,20 @@ export const checklistAPI = {
       type: type.toUpperCase(),
       checklistId,
     }),
+  //커스텀 체크리스트 추가
+  postAddCheckList: (description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}`, { description }),
+  //커스텀 체크리스트 수정
+  pathEditCheckList: (checklistId: number, description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}/${checklistId}`, {
+      description,
+    }),
+  //커스텀 체크리스트 삭제
+  deleteCheckList: (checklistId: number) =>
+    axiosInstance.delete(`${API.CHECKLIST.CUSTOM}/${checklistId}`),
+  //커스텀 체크리스트 검증
+  postValidationCheckList: (description: string) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM_VALIDATE}`, { description }),
 };
 
 export const shopAPI = {
@@ -152,6 +166,9 @@ export const shopAPI = {
     axiosInstance.post(`${API.SHOP.CHARLIST}/${productId}`),
   // 배경 아이템 목록 조회(추가)
   getShopBackList: () => axiosInstance.get(`${API.SHOP.BACKLIST}`),
+  // 배경 아이템 구매
+  postShopBackItem: (productId: number) =>
+    axiosInstance.post(`${API.SHOP.BACKLIST}/${productId}`),
 };
 
 // axiosInstance를 기본 내보내기로 설정
