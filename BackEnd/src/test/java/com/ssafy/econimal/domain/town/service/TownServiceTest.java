@@ -30,6 +30,9 @@ class TownServiceTest {
 	private TestEntityHelper helper;
 
 	@Autowired
+	private TownEventService townEventService;
+
+	@Autowired
 	private TownRepository townRepository;
 
 	private Town town;
@@ -66,7 +69,7 @@ class TownServiceTest {
 
 	@Test
 	void 도시_상태_조회() {
-		TownStatusResponse response = townService.getTownStatus(user);
+		TownStatusResponse response = townEventService.getTownStatus(user);
 		assertNotNull(response);
 		assertEquals(1, response.townStatus().size());
 
