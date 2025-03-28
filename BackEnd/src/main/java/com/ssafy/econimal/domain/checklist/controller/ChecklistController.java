@@ -12,6 +12,7 @@ import com.ssafy.econimal.domain.checklist.service.ChecklistService;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.annotation.Login;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,7 +28,7 @@ public class ChecklistController {
 	}
 
 	@PostMapping("/complete")
-	public void completeChecklist(@Login User user, @RequestBody ChecklistCompleteRequest request) {
+	public void completeChecklist(@Login User user, @Valid @RequestBody ChecklistCompleteRequest request) {
 		checklistService.completeChecklist(user, request);
 	}
 }

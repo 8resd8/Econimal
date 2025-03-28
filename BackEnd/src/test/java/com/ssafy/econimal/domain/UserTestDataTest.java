@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
-import com.ssafy.econimal.domain.store.entity.Product;
-import com.ssafy.econimal.domain.store.repository.ProductRepository;
+import com.ssafy.econimal.domain.product.entity.Product;
+import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;
 import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -46,7 +46,6 @@ class UserTestDataTest {
 
 	@Test
 	void 전체캐릭터수() {
-		List<Product> products = productRepository.findAll();
 		List<Character> characters = characterRepository.findAll();
 		assertThat(characters.size()).isEqualTo(4);
 	}
@@ -54,7 +53,7 @@ class UserTestDataTest {
 	@Test
 	void 전체상점항목수() {
 		List<Product> products = productRepository.findAll();
-		assertThat(products.size()).isEqualTo(4);
+		assertThat(products.size()).isEqualTo(6);
 	}
 
 	@Test

@@ -1,25 +1,38 @@
-// const CharProfile = () => {
+import { useNavigate } from 'react-router-dom';
+
 const CharProfile = ({
   level,
   profileImg,
 }: {
   level: number;
   profileImg: string;
+  userId: string;
 }) => {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate(`/my`);
+  };
+
   return (
     <div className='relative'>
       <div className='absolute -left-3 -top-3 bg-gradient-to-r from-yellow-400 to-yellow-300 text-white font-bold text-base px-4 py-1 rounded-lg z-20 shadow-md border-2 border-white'>
         {/* 레벨 */}
-        {level}
+        LV {level}
       </div>
-      <div className='w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-blue-300 shadow-lg'>
+      <div 
+        className='w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-blue-300 shadow-lg cursor-pointer'
+        onClick={handleProfileClick}
+        role="button"
+        aria-label="마이 페이지로 이동"
+      >
         <img
           src={profileImg}
           alt='프로필'
           width={96}
           height={96}
           className='object-cover'
-        ></img>
+        />
       </div>
     </div>
   );

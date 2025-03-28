@@ -23,6 +23,7 @@ export const useFetchMyChar = () => {
         '캐릭터 등록 실패, 서버에 캐릭터 등록과 관련된 전달이 실패했습니다.:',
         error,
       );
+      throw Error;
     },
   });
 

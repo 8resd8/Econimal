@@ -1,62 +1,50 @@
 package com.ssafy.econimal.domain.character.service;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.character.dto.UserCharacterDetailResponse;
 import com.ssafy.econimal.domain.character.dto.UserCharacterResponse;
-import com.ssafy.econimal.domain.character.entity.Character;
-import com.ssafy.econimal.domain.data.TestEntityHelper;
-import com.ssafy.econimal.domain.store.entity.Product;
-import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
+import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
+import com.ssafy.econimal.domain.user.repository.UserRepository;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
+@Sql(scripts = "classpath:test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class UserCharacterServiceTest {
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private UserCharacterService userCharacterService;
 
 	@Autowired
-	private TestEntityHelper helper;
-	@Autowired
 	private UserCharacterRepository userCharacterRepository;
 
-	private Town town;
 	private User user;
-	private Product product1;
-	private Product product2;
-	private Character character1;
-	private Character character2;
-	private UserCharacter userCharacter1;
-	private UserCharacter userCharacter2;
 
-
+	@Autowired
+	private UserBackgroundRepository userBackgroundRepository;
 
 	@BeforeEach
 	void setUp() {
-		town = helper.createTown();
-		user = helper.createUser(town);
-
-		product1 = helper.createProduct();
-		product2 = helper.createProduct();
-
-		character1 = helper.createCharacter(product1);
-		character2 = helper.createCharacter(product2);
-
-		userCharacter1 = helper.createUserCharacter(user, character1);
-		userCharacter2 = helper.createUserCharacter(user, character2);
+		user = userRepository.findById(1L).get();
 	}
 
 	@Test
@@ -67,39 +55,84 @@ public class UserCharacterServiceTest {
 		// Then
 		assertNotNull(response);
 		assertNotNull(response.characters());
-		assertEquals(2, response.characters().size());
+		assertEquals(3, response.characters().size());
 	}
 
 	@Test
 	void 유저가_보유한_특정_캐릭터_상세_조회() {
-		Long userCharacterId = userCharacter1.getId();
+		List<UserCharacter> userCharacters = userCharacterRepository.findAll();
 
-		// When
-		UserCharacterDetailResponse response = userCharacterService.getUserCharacterDetail(user, userCharacterId);
+		UserCharacterDetailResponse response = userCharacterService.getUserCharacterDetail(user,
+			userCharacters.get(0).getId());
 
-		// Then
 		assertNotNull(response);
 	}
 
 	@Test
 	void 유저_대표_캐릭터_변경() {
-		userCharacter1.updateIsMain(true); // 초기 대표 캐릭터 설정
-		Long newMainCharacterId = userCharacter2.getId();
+		List<UserCharacter> userCharacters = userCharacterRepository.findAll();
+		UserCharacter origin = null;
+		UserCharacter change = null;
+		for (UserCharacter userCharacter : userCharacters) {
+			if (userCharacter.isMain()) {
+				origin = userCharacter;
+			} else {
+				change = userCharacter;
+			}
+		}
 
-		// When
-		userCharacterService.updateUserCharacterMain(user, newMainCharacterId);
+		assertNotNull(origin);
+		assertNotNull(change);
 
-		// Then
-		UserCharacter newMainCharacter = userCharacterRepository.findById(newMainCharacterId).orElse(null);
-		assertNotNull(newMainCharacter);
-		assertTrue(newMainCharacter.isMain());
+		userCharacterService.updateUserCharacterMain(user, change.getId());
 
-		UserCharacter oldMainCharacter = userCharacterRepository.findById(userCharacter1.getId()).orElse(null);
-		assertNotNull(oldMainCharacter);
-		assertFalse(oldMainCharacter.isMain());
+		assertThat(origin.isMain()).isFalse();
+		assertThat(change.isMain()).isTrue();
 
 		// 유저의 대표 캐릭터가 1개인지 확인
 		Optional<UserCharacter> byUserAndMainIsTrue = userCharacterRepository.findByUserAndMainIsTrue(user);
-		Assertions.assertThat(byUserAndMainIsTrue).isPresent();
+		assertThat(byUserAndMainIsTrue).isPresent();
 	}
+
+	// @Test
+	// void 최초_1회_메인_캐릭터_선택_및_배경_지급() throws IllegalAccessException, NoSuchFieldException {
+	// 	List<UserCharacter> userCharacters = userCharacterRepository.findAll();
+	// 	for (UserCharacter userCharacter : userCharacters) {
+	// 		userCharacter.updateIsMain(false);
+	// 	}
+	// 	UserCharacter userCharacter = userCharacters.get(0);
+	//
+	// 	// 리플렉션으로 id 강제 설정
+	// 	Character character = userCharacter.getCharacter();
+	// 	Field idFiled = Character.class.getDeclaredField("id");
+	// 	idFiled.setAccessible(true);
+	// 	idFiled.set(character, 1L);
+	//
+	// 	userCharacterService.setInitCharacterAndBackground(user, userCharacter.getId());
+	//
+	// 	// Then
+	// 	UserCharacter mainCharacter = userCharacterRepository.findById(userCharacter.getId()).orElse(null);
+	// 	assertNotNull(mainCharacter);
+	// 	assertTrue(mainCharacter.isMain());
+	//
+	// 	// 기본 배경 설정 여부 확인
+	// 	// Long characterId = mainCharacter.getCharacter().getId();
+	// 	// Long expectedBackgroundId = null;
+	// 	// if (characterId.equals(1L))
+	// 	// 	expectedBackgroundId = 1774L;
+	// 	// else if (characterId.equals(2L))
+	// 	// 	expectedBackgroundId = 1775L;
+	// 	// else if (characterId.equals(3L))
+	// 	// 	expectedBackgroundId = 1776L;
+	// 	//
+	// 	// assertNotNull(expectedBackgroundId);
+	// 	//
+	// 	// UserBackground background = userBackgroundRepository.findById(expectedBackgroundId).orElse(null);
+	// 	// assertNotNull(background);
+	// 	// assertTrue(background.isMain());
+	//
+	// 	// 이미 설정된 경우 예외 테스트
+	// 	assertThatThrownBy(() -> userCharacterService.setInitCharacterAndBackground(user, userCharacter.getId()))
+	// 		.isInstanceOf(InvalidArgumentException.class);
+	// }
 }

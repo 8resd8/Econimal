@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,4 +36,11 @@ public class EcoAnswer extends BaseTimeEntity {
 
 	@Column(name = "exp", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private int exp;
+
+	@Builder
+	public EcoAnswer(EcoQuiz ecoQuiz, String description, int exp) {
+		this.ecoQuiz = ecoQuiz;
+		this.description = description;
+		this.exp = exp;
+	}
 }
