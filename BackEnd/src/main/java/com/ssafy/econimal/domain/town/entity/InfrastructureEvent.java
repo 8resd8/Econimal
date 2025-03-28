@@ -46,7 +46,7 @@ public class InfrastructureEvent extends BaseTimeEntity {
 	}
 
 	public void updateActive(boolean isClean, boolean isActive) {
-		this.infrastructure.setClean(isClean);
+		this.infrastructure.updateClean(isClean);
 		this.isActive = isActive;
 	}
 
