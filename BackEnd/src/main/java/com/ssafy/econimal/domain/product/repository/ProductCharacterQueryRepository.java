@@ -26,6 +26,7 @@ public class ProductCharacterQueryRepository {
 		return queryFactory
 			.select(new QProductCharacterDto(
 				product.id,
+				userCharacter.id,
 				character.name.as("characterName"),
 				userCharacter.id.isNotNull(),
 				product.price
