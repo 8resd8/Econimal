@@ -24,15 +24,11 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private final UserBackgroundRepository userBackgroundRepository;
-	private final UserCharacterRepository userCharacterRepository;
 
 	public UserInfoResponse getUserInfo(User user) {
 		UserInfoDto userInfo = userRepository.findUserInfoById(user.getId());
-		List<Long> userBackgroundIds = userBackgroundRepository.findUserBackgroundIds(user);
-		List<Long> userCharacterIds = userCharacterRepository.findUserBackgroundIds(user);
 
-		return new UserInfoResponse(userInfo, userBackgroundIds, userCharacterIds);
+		return new UserInfoResponse(userInfo);
 	}
 
 	public UserProfileResponse getUserProfile(User user) {

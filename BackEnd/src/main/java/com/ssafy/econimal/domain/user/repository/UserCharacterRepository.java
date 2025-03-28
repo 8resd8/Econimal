@@ -31,7 +31,4 @@ public interface UserCharacterRepository extends JpaRepository<UserCharacter, Lo
 	// Id로 UserCharacter 찾기
 	Optional<UserCharacter> findByUserAndId(User user, Long userCharacterId);
 
-	// Id 목록 찾기
-	@Query("select uc.id from UserCharacter uc where uc.user = :user")
-	List<Long> findUserBackgroundIds(User user);
 }
