@@ -20,7 +20,7 @@ public class UserBackgroundController {
 
 	private final UserBackgroundService userBackgroundService;
 
-	@PatchMapping("/{userBackgroundId}")
+	@PatchMapping("/main/{userBackgroundId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void updateBackgroundMain(@Login User user, @PathVariable("userBackgroundId") Long userBackgroundId) {
 		userBackgroundService.updateBackground(user, userBackgroundId);

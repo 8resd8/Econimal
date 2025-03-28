@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 
 public record ProductCharacterDto(
 	Long productId,
+	Long userCharacterId,
 	String characterName,
 	boolean owned,
 	int price
