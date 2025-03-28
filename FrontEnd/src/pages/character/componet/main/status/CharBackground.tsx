@@ -73,7 +73,7 @@ const CharBackground = () => {
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 🔴 상단 UI (한 줄 정렬) */}
-        <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0  backdrop-blur-md z-50'>
+        <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0  z-50'>
           {/* 🔵 왼쪽: 프로필 + 경험치바 */}
           {/* 🔵 왼쪽: 프로필 + 경험치바 */}
           <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
