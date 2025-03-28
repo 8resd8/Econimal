@@ -20,10 +20,18 @@ export const setAccessToken = (token: string | null) => {
   }
 };
 
+// getAccessToken 함수 수정
 export const getAccessToken = () => {
   if (!accessToken) {
     // 메모리에 없으면 sessionStorage에서 복원
     accessToken = sessionStorage.getItem('accessToken');
+    
+    // 복원 시 토큰 만료 여부 즉시 확인
+    if (accessToken && isTokenExpired()) {
+      console.log("복원된 토큰이 이미 만료됨");
+      clearTokenData();
+      return null;
+    }
   }
   return accessToken;
 };
@@ -66,9 +74,13 @@ export const axiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+axiosInstance.defaults.withCredentials = true;
+axiosInstance.defaults.baseURL = 'https://j12a504.p.ssafy.io/api';
+
 // 요청 인터셉터
 axiosInstance.interceptors.request.use(
   async (config) => {
+    console.log('요청 헤더:', config.headers);
     console.log(`요청 URL: ${config.url}`);
     console.log(`withCredentials 설정: ${config.withCredentials}`);
     
@@ -127,7 +139,10 @@ axiosInstance.interceptors.request.use(
 
 // 응답 인터셉터
 axiosInstance.interceptors.response.use(
-  (response) => {
+  response => {
+    console.log('전체 응답:', response);
+    console.log('응답 헤더:', response.headers);
+    console.log('Set-Cookie:', response.headers['set-cookie']);
     return response;
   },
   (error) => {

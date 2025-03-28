@@ -37,9 +37,10 @@ const Login = () => {
 
     try {
       const response = await login(email, password);
-      
-      // 로그인 성공 후 처리
-      console.log("로그인 성공:", response);
+      // 디버깅을 위한 로깅 추가
+      console.log("로그인 응답:", response);
+      console.log("현재 쿠키:", document.cookie);
+      console.log("쿠키 전체 정보:", document.cookie.split('; '));
       
       // 프롤로그 시청 여부 확인
       const hasPrologViewed = localStorage.getItem('prologViewed') === 'true';
