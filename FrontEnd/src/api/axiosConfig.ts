@@ -68,21 +68,54 @@ export const axiosInstance = axios.create({
 
 // 요청 인터셉터
 axiosInstance.interceptors.request.use(
-  (config) => {
-    // 토큰 만료 확인 - 로그인 요청은 제외
-    if (isTokenExpired() && !config.url?.includes('/users/login')) {
-      console.log("토큰 만료됨, 요청 취소");
-      return Promise.reject(new Error('Token expired'));
+  async (config) => {
+    console.log(`요청 URL: ${config.url}`);
+    console.log(`withCredentials 설정: ${config.withCredentials}`);
+    
+    // 리프레시 요청 자체는 체크하지 않음
+    if (config.url?.includes('/users/refresh')) {
+      return config;
     }
     
-    // 헤더에 토큰 추가 - 메모리에서 직접 가져옴
-    if (accessToken && config.headers) {
-      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    // 로그인 요청도 체크하지 않음
+    if (config.url?.includes('/users/login')) {
+      return config;
     }
-
-    // FormData 처리
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type'];
+    
+    // 토큰 만료 확인
+    if (isTokenExpired()) {
+      console.log("토큰 만료됨, 갱신 시도");
+      
+      try {
+        // 토큰 갱신 요청 - withCredentials 제거
+        const refreshResponse = await axiosInstance.post('/users/refresh', {});
+        
+        console.log("토큰 갱신 성공:", refreshResponse.data);
+        const newToken = refreshResponse.data.accessToken;
+        
+        // 새 토큰 저장
+        setAccessToken(newToken);
+        // 새 토큰 만료 시간 저장
+        if (refreshResponse.data.timeToLive) {
+          setTokenExpiry(refreshResponse.data.timeToLive);
+        }
+        
+        // 원래 요청 헤더에 새 토큰 설정
+        if (config.headers) {
+          config.headers['Authorization'] = `Bearer ${newToken}`;
+        }
+        
+        return config;
+      } catch (error) {
+        console.error("토큰 갱신 실패:", error);
+        return Promise.reject(new Error('Token refresh failed'));
+      }
+    }
+    
+    // 헤더에 토큰 추가
+    const token = getAccessToken();
+    if (token && config.headers) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     return config;
@@ -97,45 +130,14 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
-
-    // 401 오류이고, 재시도하지 않은 경우, 토큰 갱신 요청이 아닌 경우
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/users/refresh')
-    ) {
-      originalRequest._retry = true;
-      console.log("401 에러 - 토큰 갱신 시도");
-
-      try {
-        // 토큰 갱신 요청 - HttpOnly 쿠키에 있는 리프레시 토큰 사용
-        const response = await axiosInstance.post('/users/refresh', {}, {
-          withCredentials: true
-        });
-        
-        console.log("인터셉터에서 토큰 갱신 성공:", response.data);
-        const newToken = response.data.accessToken;
-
-        // 메모리에 새 토큰 저장
-        setAccessToken(newToken);
-        // 새 토큰의 만료 시간 저장
-        if (response.data.timeToLive) {
-          setTokenExpiry(response.data.timeToLive);
-        }
-
-        // 원래 요청 헤더 업데이트
-        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-
-        // 원래 요청 재시도
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        console.error('인터셉터에서 토큰 갱신 실패:', refreshError);
-        return Promise.reject(refreshError);
-      }
+  (error) => {
+    console.error("API 요청 오류:", error);
+    
+    // 401 오류 로깅
+    if (error.response?.status === 401) {
+      console.log("401 인증 오류 발생");
     }
-
+    
     return Promise.reject(error);
   }
 );

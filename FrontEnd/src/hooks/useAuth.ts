@@ -199,10 +199,8 @@ export const useAuth = () => {
     try {
       console.log("토큰 갱신 시도 - 시간:", new Date().toISOString());
       
-      // withCredentials 명시적 설정
-      const res = await axiosInstance.post<LoginResponse>("/users/refresh", {}, {
-        withCredentials: true
-      });
+      // 리프레시 토큰 요청 시
+      const res = await axiosInstance.post<LoginResponse>("/users/refresh", {});
       
       console.log("토큰 갱신 성공 응답:", res.data);
       
@@ -211,26 +209,24 @@ export const useAuth = () => {
         return false;
       }
       
-      // 액세스 토큰 저장
+      // 새 토큰 저장
       setAccessToken(res.data.accessToken);
       setToken(res.data.accessToken);
       setTokenExpiry(res.data.timeToLive);
       
       // 다음 갱신 타이머 설정
-      const newExpiresIn = res.data.timeToLive || 900000;
-      setupRefreshTimer(newExpiresIn);
+      setupRefreshTimer(res.data.timeToLive);
       
       return true;
     } catch (error) {
       console.error("토큰 갱신 실패:", error);
       
-      // 에러 상세 정보 로깅
+      // 오류 상세 정보 로깅
       if (isAxiosError(error) && error.response) {
         console.error("응답 상태:", error.response.status);
         console.error("응답 데이터:", error.response.data);
       }
       
-      // 로그인 페이지로 이동하지 않고 실패만 반환
       return false;
     }
   };
