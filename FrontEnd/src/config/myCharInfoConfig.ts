@@ -19,6 +19,7 @@ import tur_3 from '../assets/char/level/tur_3.png';
 import peng_1 from '../assets/char/level/peng_1.png';
 import peng_2 from '../assets/char/level/peng_2.png';
 import peng_3 from '../assets/char/level/peng_3.png';
+import peng_4 from '../assets/char/footitem/peng_item.png';
 import horang_1 from '../assets/char/level/horang_1.png';
 import horang_2 from '../assets/char/level/horang_2.png';
 import horang_3 from '../assets/char/level/horang_3.png';
@@ -47,9 +48,9 @@ export const myCharInfoConfig = [
       { face: 'NEUTRAL', faceImg: peng_basic },
     ],
     level: [
-      { num: 1, footImg: peng_1 },
-      { num: 2, footImg: peng_2 },
-      { num: 3, footImg: peng_3 },
+      { num: 1, footImg: peng_2 },
+      { num: 2, footImg: peng_3 },
+      { num: 3, footImg: peng_4 },
     ],
   },
   {
