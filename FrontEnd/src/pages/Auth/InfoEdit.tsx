@@ -2,10 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import bgImage from "@/assets/auth_background.png";
-<<<<<<< HEAD
-
-=======
->>>>>>> 9763d40f9380da5f694dceb96179e39ddc84a8cc
 
 const InfoEdit = () => {
   const { user, loading, changeNickname, changePassword } = useAuth();
@@ -98,95 +94,6 @@ const InfoEdit = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div style={{ backgroundImage: `url(${bgImage})` }}>
-      <div className="bg-white py-10 max-w-md mx-auto mt-10 p-6 rounded-xl shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-6">프로필 수정</h1>
-        
-        {/* 현재 정보 표시 */}
-        <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-          <h2 className="text-lg font-semibold mb-3">현재 정보</h2>
-          <div className="grid grid-cols-2 gap-2">
-            <span className="text-gray-600">이름:</span>
-            <span>{user.name}</span>
-            <span className="text-gray-600">닉네임:</span>
-            <span>{user.nickname}</span>
-            <span className="text-gray-600">이메일:</span>
-            <span>{user.email}</span>
-          </div>
-        </div>
-        
-        {/* 닉네임 변경 폼 */}
-        <form onSubmit={handleNicknameChange} className="mb-8">
-          <h2 className="text-lg font-semibold mb-3">닉네임 변경</h2>
-          <div className="mb-4">
-            <input
-              type="text"
-              value={updateNickname}
-              onChange={(e) => setUpdateNickname(e.target.value)}
-              placeholder="새 닉네임"
-              className="w-full p-3 border rounded-lg"
-            />
-          </div>
-          
-          {nicknameMessage && (
-            <div className={`mb-4 p-3 rounded-lg ${nicknameSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {nicknameMessage}
-            </div>
-          )}
-          
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            닉네임 변경
-          </button>
-        </form>
-        
-        {/* 비밀번호 변경 폼 */}
-        <form onSubmit={handlePasswordChange}>
-          <h2 className="text-lg font-semibold mb-3">비밀번호 변경</h2>
-          <div className="mb-4">
-            <input
-              type="password"
-              value={newPassword1}
-              onChange={(e) => setNewPassword1(e.target.value)}
-              placeholder="새 비밀번호"
-              className="w-full p-3 border rounded-lg mb-3"
-            />
-            <input
-              type="password"
-              value={newPassword2}
-              onChange={(e) => setNewPassword2(e.target.value)}
-              placeholder="새 비밀번호 확인"
-              className="w-full p-3 border rounded-lg"
-            />
-          </div>
-          
-          {passwordMessage && (
-            <div className={`mb-4 p-3 rounded-lg ${passwordSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {passwordMessage}
-            </div>
-          )}
-          
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            비밀번호 변경
-          </button>
-        </form>
-        
-        {/* 뒤로 가기 버튼 */}
-        <div className="mt-6">
-          <button
-            onClick={() => navigate('/my')}
-            className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            프로필로 돌아가기
-          </button>
-        </div>
-=======
     <div
       className="flex items-center justify-center min-h-screen bg-cover bg-center relative w-full max-w-screen-2xl"
       style={{ backgroundImage: `url(${bgImage})` }}
@@ -281,7 +188,6 @@ const InfoEdit = () => {
             </div>
           </div>
         </div>
->>>>>>> 9763d40f9380da5f694dceb96179e39ddc84a8cc
       </div>
     </div>
   );
