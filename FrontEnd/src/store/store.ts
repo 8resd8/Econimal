@@ -1,21 +1,16 @@
+// store.ts
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware'; // 추가 설치 필요할 수 있음
 
+// 메모리에만 토큰을 저장하는 인증 스토어
 interface AuthState {
   token: string | null;
   setToken: (token: string) => void;
   clearToken: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      token: null,
-      setToken: (token) => set({ token }),
-      clearToken: () => set({ token: null }),
-    }),
-    {
-      name: 'auth-storage', // localStorage에 저장될 키 이름
-    },
-  ),
-);
+// persist 미들웨어 사용하지 않음 - 메모리에만 저장
+export const useAuthStore = create<AuthState>((set) => ({
+  token: null,
+  setToken: (token) => set({ token }),
+  clearToken: () => set({ token: null }),
+}));
