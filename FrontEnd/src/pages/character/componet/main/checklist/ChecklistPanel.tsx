@@ -175,89 +175,76 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   const isMaxItemsReached = items.length >= MAX_CUSTOM_ITEMS;
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-0 flex flex-col gap-y-4'>
       {items.map((item) => (
         <div
           key={item.checklistId}
-          className={`p-4 border rounded-lg ${
-            item.isComplete ? 'bg-gray-50 border-green-200' : ''
+          className={`p-4 border rounded-xl flex items-center justify-between ${
+            item.isComplete
+              ? 'bg-gray-100 border-gray-300 text-gray-500'
+              : 'bg-yellow-50 border-yellow-300'
           }`}
         >
-          <div className='flex flex-col'>
-            <div className='flex justify-between items-center mb-2'>
-              <div className='flex items-center'>
-                {item.isComplete && (
-                  <div className='mr-2 p-1 bg-green-100 rounded-full'>
-                    <Check size={16} className='text-green-600' />
-                  </div>
-                )}
-                <ChecklistItem description={item.description} exp={item.exp} />
-              </div>
-              <span className='text-sm text-gray-500'>경험치: {item.exp}</span>
+          <div className='flex flex-col w-full'>
+            {/* ✔️ 체크 아이콘 & 설명 */}
+            <div className='flex items-center space-x-3'>
+              {item.isComplete ? (
+                <div className='p-2 bg-green-500 rounded-full'>
+                  <Check size={24} className='text-white' />
+                </div>
+              ) : (
+                <div className='p-2 bg-gray-200 rounded-full'>
+                  <Check size={24} className='text-gray-500' />
+                </div>
+              )}
+              <span className='text-lg font-semibold'>{item.description}</span>
             </div>
-            <div className='flex justify-end items-center space-x-2 mt-2'>
-              {isEditable && (
-                <>
-                  <button
-                    onClick={() => handleEditStart(item)}
-                    className={`p-2 rounded-full transition-colors ${
-                      item.isComplete
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-blue-500 hover:bg-blue-100'
-                    }`}
-                    title={
-                      item.isComplete
-                        ? '완료된 항목은 수정할 수 없습니다'
-                        : '수정하기'
-                    }
-                    disabled={item.isComplete}
-                  >
-                    {item.isComplete ? (
-                      <LockIcon size={18} />
-                    ) : (
+
+            {/* 🛠️ 수정 & 삭제 버튼 */}
+            <div className='flex justify-between items-center mt-4'>
+              <div className='flex space-x-2'>
+                {isEditable && (
+                  <>
+                    <button
+                      onClick={() => handleEditStart(item)}
+                      className={`p-2 rounded-lg text-blue-500 border border-blue-300 hover:bg-blue-100 transition-all ${
+                        item.isComplete ? 'cursor-not-allowed opacity-50' : ''
+                      }`}
+                      title={
+                        item.isComplete
+                          ? '완료된 항목은 수정할 수 없습니다'
+                          : '수정하기'
+                      }
+                      disabled={item.isComplete}
+                    >
                       <Edit size={18} />
-                    )}
-                  </button>
-                  {item.isComplete ? (
-                    <button
-                      className='p-2 text-gray-400 cursor-not-allowed'
-                      title='완료된 항목은 삭제할 수 없습니다'
-                      disabled={true}
-                    >
-                      <LockIcon size={18} />
                     </button>
-                  ) : showDeleteConfirm === item.checklistId ? (
                     <button
                       onClick={() => handleDeleteClick(item)}
-                      className='p-2 text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors flex items-center'
-                      title='삭제 확인'
-                    >
-                      <Check size={18} />
-                      <span className='text-xs ml-1'>확인</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleDeleteClick(item)}
-                      className='p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors'
+                      className='p-2 text-red-500 border border-red-300 hover:bg-red-100 rounded-lg transition-all'
                       title='삭제하기'
                     >
                       <Trash size={18} />
                     </button>
-                  )}
-                </>
-              )}
-              {!item.isComplete && (
+                  </>
+                )}
+              </div>
+
+              {/* 완료하기 버튼 */}
+              {item.isComplete ? (
+                <span className='px-3 py-1 bg-green-100 border border-green-400 rounded-full text-sm font-bold text-green-700'>
+                  🎖️ 완료됨
+                </span>
+              ) : (
                 <button
                   onClick={() => handleCompleteStart(item)}
-                  className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                  className='relative px-5 py-3 rounded-full bg-yellow-400 text-black font-semibold shadow-md hover:bg-yellow-500 transition-all'
                 >
-                  완료하기
+                  🎉 완료하기
+                  <span className='absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow'>
+                    +{item.exp} XP
+                  </span>
                 </button>
-              )}
-              {item.isComplete && (
-                <span className='px-4 py-2 bg-green-100 text-green-700 rounded-lg'>
-                  완료됨
-                </span>
               )}
             </div>
           </div>

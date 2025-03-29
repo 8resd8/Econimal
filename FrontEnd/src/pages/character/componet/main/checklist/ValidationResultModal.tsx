@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react';
 interface ValidationResultModalProps {
   isOpen: boolean;
   validationData: {
-    aiResponse: { point: number; reason: string };
+    aiResponse: { reason: string };
     result: boolean;
     exp: number;
   } | null;
@@ -20,82 +20,81 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   onConfirm,
   onDelete,
 }) => {
-  if (!isOpen || !validationData) return null; // 모달이 닫혀 있거나 데이터가 없으면 렌더링하지 않음
+  if (!isOpen || !validationData) return null;
 
-  // 검증 결과에 따라 아이콘 색상 결정
+  // 검증 결과 스타일 결정
   const isValid = validationData.result;
   const iconBgColor = isValid ? 'bg-green-100' : 'bg-yellow-100';
   const iconColor = isValid ? 'text-green-500' : 'text-yellow-500';
-  const borderColor = isValid ? 'border-green-100' : 'border-yellow-100';
+  const borderColor = isValid ? 'border-green-200' : 'border-yellow-200';
 
   return (
-    <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000]'>
+    <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
       <div
-        className={`bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-4 ${borderColor}`}
+        className={`bg-white p-5 rounded-xl shadow-lg border-4 ${borderColor} 
+        max-w-[600px] w-full max-h-[90vh] flex flex-col justify-between`}
       >
-        <div className='text-center mb-6'>
-          <div className='flex justify-center mb-4'>
+        {/* 헤더 */}
+        <div className='text-center'>
+          <div className='flex justify-center mb-3'>
             <div
-              className={`w-16 h-16 ${iconBgColor} rounded-full flex items-center justify-center`}
+              className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}
             >
-              <AlertTriangle className={`h-10 w-10 ${iconColor}`} />
+              <AlertTriangle className={`h-8 w-8 ${iconColor}`} />
             </div>
           </div>
-          <h2 className='text-2xl font-bold text-gray-800 mb-4'>검증 결과</h2>
+          <h2 className='text-lg font-semibold text-gray-800 mb-3'>
+            검증 결과
+          </h2>
 
-          <div className='bg-gray-50 p-4 rounded-lg mb-4 text-left'>
-            <p className='text-gray-600 mb-2'>
-              {validationData.aiResponse.reason}
-            </p>
+          {/* 검증 내용 */}
+          <div className='bg-gray-100 p-3 rounded-lg mb-4 text-left text-sm'>
+            <p className='text-gray-700'>{validationData.aiResponse.reason}</p>
             {!isValid && (
-              <p className='text-sm text-red-500'>
+              <p className='text-xs text-red-500 mt-2'>
                 환경 관련 체크리스트가 아니면 불합격 처리될 수 있어요.
               </p>
             )}
           </div>
-
-          {/* 결과 데이터 표시 */}
-          <div className='flex justify-between items-center p-3 bg-gray-100 rounded-lg mb-4'>
-            <div className='text-left'>
-              <div className='flex items-center space-x-2'>
-                <span className='text-sm text-gray-500'>점수:</span>
-                <span className='font-bold'>
-                  {validationData.aiResponse.point}
-                </span>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <span className='text-sm text-gray-500'>경험치:</span>
-                <span className='font-bold'>{validationData.exp}</span>
-              </div>
-            </div>
-            <div className='text-right'>
-              <span
-                className='px-3 py-1 rounded-full text-sm font-semibold ${
-                validationData.result 
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }'
-              >
-                {validationData.result ? '유효함' : '유효하지 않음'}
-              </span>
-            </div>
-          </div>
         </div>
 
-        {/* 버튼 영역 */}
-        <div className='flex gap-4'>
-          <button
-            onClick={onDelete}
-            className='flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-colors duration-200'
-          >
-            삭제하기
-          </button>
-          <button
-            onClick={onConfirm}
-            className='flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-colors duration-200'
-          >
-            추가하기
-          </button>
+        {/* 결과 및 버튼 */}
+        <div className='flex flex-col gap-4'>
+          <div className='flex justify-between items-center p-3 bg-gray-100 rounded-lg'>
+            {/* 경험치 표시 */}
+            <div className='text-left'>
+              <span className='text-sm text-gray-600'>경험치:</span>
+              <span className='ml-2 font-bold text-lg text-gray-900'>
+                {validationData.exp} XP
+              </span>
+            </div>
+
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                validationData.result
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {validationData.result ? '유효함' : '유효하지 않음'}
+            </span>
+          </div>
+
+          {/* 버튼 영역 */}
+          <div className='flex gap-3 justify-center'>
+            <button
+              onClick={onDelete}
+              className='w-1/2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition'
+            >
+              삭제하기
+            </button>
+            <button
+              onClick={onConfirm}
+              className='w-1/2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition'
+            >
+              추가하기
+            </button>
+          </div>
         </div>
       </div>
     </div>

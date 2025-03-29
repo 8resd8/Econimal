@@ -30,8 +30,13 @@ const CharChecklist = () => {
     return <div>오류 발생: {error.message}</div>;
   }
 
-  if (!!dailyProgress && !!customProgress) {
-    //0을 수용할 수 있도록 boolean 타입에 !!
+  if (
+    dailyProgress == null &&
+    dailyProgress == undefined &&
+    customProgress == null &&
+    customProgress == undefined
+  ) {
+    console.log(dailyProgress, customProgress);
     return <div>데이터 정보 없음</div>;
   }
 
@@ -121,7 +126,7 @@ const CharChecklist = () => {
           </div>
 
           {/* ✅ 체크리스트 항목에만 스크롤 적용 */}
-          <div className='overflow-y-auto max-h-[calc(100vh-260px)] px-4'>
+          <div className='max-h-[calc(100vh-260px)] px-4'>
             <ChecklistPanel
               items={dailyItems}
               activateTab={activeTab}
@@ -143,7 +148,7 @@ const CharChecklist = () => {
           </div>
 
           {/* ✅ 체크리스트 항목에만 스크롤 적용 */}
-          <div className='overflow-y-auto max-h-[calc(100vh-260px)] px-4'>
+          <div className='max-h-[calc(100vh-260px)] px-4'>
             <ChecklistPanel
               items={customItems}
               isEditable={true}
