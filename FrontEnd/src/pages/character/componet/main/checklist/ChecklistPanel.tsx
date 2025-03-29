@@ -303,19 +303,6 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
         </div>
       )}
 
-      {process.env.NODE_ENV === 'development' && (
-        <div className='mt-4 p-4 bg-gray-100 rounded text-xs'>
-          <p>검증 모달 열림: {isValidationModalOpen ? 'true' : 'false'}</p>
-          <p>검증 데이터 있음: {validationData ? 'true' : 'false'}</p>
-          <p>대기 중인 검증: {pendingValidation || '없음'}</p>
-          <p>수정 중인 항목: {editingItem?.description || '없음'}</p>
-          <p>완료 확인 모달: {isCompleteConfirmOpen ? 'true' : 'false'}</p>
-          <p>
-            항목 개수: {items.length} / {MAX_CUSTOM_ITEMS}
-          </p>
-        </div>
-      )}
-
       {validationData && (
         <ValidationResultModal
           isOpen={isValidationModalOpen}
@@ -365,4 +352,3 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
 };
 
 export default ChecklistPanel;
-

@@ -94,7 +94,7 @@ const CharChecklist = () => {
   return (
     <div>
       {/* 탭 전환 버튼 */}
-      <div className='flex mb-4 space-x-4'>
+      <div className='flex justify-center mb-4 space-x-4'>
         <ChecklistTab
           setActiveTab={setActiveTab}
           activeTab={activeTab}
@@ -109,10 +109,9 @@ const CharChecklist = () => {
         />
       </div>
 
-      {/* 체크리스트 패널 */}
       {activeTab === 'daily' ? (
         <>
-          {/* 진척률 막대바 */}
+          {/* ✅ 진척률 바 항상 보이게 유지 */}
           <div className='mt-4 mb-4'>
             <h3 className='text-center text-lg font-semibold mb-2'>
               오늘 내가 실천할 일
@@ -120,34 +119,42 @@ const CharChecklist = () => {
             <ProgressBar progress={dailyProgress} />
             <p className='text-center text-sm mt-2'>{dailyProgress}% 완료</p>
           </div>
-          <ChecklistPanel
-            items={dailyItems}
-            activateTab={activeTab}
-            isEditable={false}
-            onValidateItem={onValidateItem}
-            onCompleteItem={onCompleteItem}
-          />
+
+          {/* ✅ 체크리스트 항목에만 스크롤 적용 */}
+          <div className='overflow-y-auto max-h-[calc(100vh-260px)] px-4'>
+            <ChecklistPanel
+              items={dailyItems}
+              activateTab={activeTab}
+              isEditable={false}
+              onValidateItem={onValidateItem}
+              onCompleteItem={onCompleteItem}
+            />
+          </div>
         </>
       ) : (
         <>
-          {/* 진척률 막대바 */}
+          {/* ✅ 진척률 바 항상 보이게 유지 */}
           <div className='mt-4 mb-4'>
             <h3 className='text-center text-lg font-semibold mb-2'>
-              오늘 내가 실천할 일
+              나만의 체크리스트
             </h3>
             <ProgressBar progress={customProgress} />
             <p className='text-center text-sm mt-2'>{customProgress}% 완료</p>
           </div>
-          <ChecklistPanel
-            items={customItems}
-            isEditable={true}
-            activateTab={activeTab}
-            onValidateItem={onValidateItem}
-            onCompleteItem={onCompleteItem}
-            onAddItem={onAddItem}
-            onEditItem={onEditItem}
-            onDeleteItem={onDeleteItem}
-          />
+
+          {/* ✅ 체크리스트 항목에만 스크롤 적용 */}
+          <div className='overflow-y-auto max-h-[calc(100vh-260px)] px-4'>
+            <ChecklistPanel
+              items={customItems}
+              isEditable={true}
+              activateTab={activeTab}
+              onValidateItem={onValidateItem}
+              onCompleteItem={onCompleteItem}
+              onAddItem={onAddItem}
+              onEditItem={onEditItem}
+              onDeleteItem={onDeleteItem}
+            />
+          </div>
         </>
       )}
     </div>
