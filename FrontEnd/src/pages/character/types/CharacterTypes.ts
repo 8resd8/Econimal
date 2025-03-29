@@ -4,6 +4,7 @@ export interface CharacterTypes<T> {
   userCharacterId?: T; // 서버에서 제공하는 실제 ID
   id?: T; // 로컬에서 사용하는 임의 ID
   name: string; // 서버의 characterName과 일치시킬 필드 (필수)
+  backgroundId?: T;
   description: string;
   subStory: string; // 서버의 summary
   detailStory: string; // 서버의 description

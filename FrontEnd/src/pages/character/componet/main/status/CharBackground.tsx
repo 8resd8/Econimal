@@ -37,6 +37,10 @@ const CharBackground = () => {
 
   const nav = useNavigate();
 
+  if (myChar) {
+    console.log(myChar);
+  }
+
   useEffect(() => {
     console.log('실시간 상태 변화 확인', level, exp, coin, expression);
   }, [level, exp, coin, expression]);

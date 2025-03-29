@@ -19,12 +19,11 @@ const ItemShopUI = ({
   setShowModal,
   selectedItemForPurchase,
   confirmPurchase,
-  selectedCharacterId, // 서버에서 받은 현재 선택된 캐릭터 ID
-  selectedBackgroundId, // 서버에서 받은 현재 선택된 배경 ID
+  selectCharacter, // 선택된 캐릭터 ID 전달 함수
 }: ItemShopTypes) => {
   const coin = useCharacterCoin();
   const [selectedItemId, setSelectedItemId] = useState<number | null>(
-    selectedTab === 'characters' ? selectedCharacterId : selectedBackgroundId,
+    selectedTab === 'characters' ? null : null,
   );
 
   // 보유한 아이템 선택 시 업데이트
@@ -68,14 +67,20 @@ const ItemShopUI = ({
                 key={index}
                 setHoveredItemId={setHoveredItemId}
                 handlePurchaseClick={handlePurchaseClick}
-                selectOwnedItem={selectOwnedItem} // 보유한 아이템 선택 함수 추가
+                selectOwnedItem={selectOwnedItem}
                 productId={item.productId}
                 price={item.price}
                 owned={item.owned}
                 image={item.image}
                 characterName={item.characterName}
+                characterId={item.userCharacterId} // characterId 전달
+                selectedItemId={selectedItemId}
                 hoveredItemId={hoveredItemId}
-                selectedItemId={selectedItemId} // 현재 선택된 아이템 전달
+                selectCharacter={(characterId: number) => {
+                  if (selectedItemId === item.productId) {
+                    selectCharacter(characterId);
+                  }
+                }}
               />
             ))}
           </div>

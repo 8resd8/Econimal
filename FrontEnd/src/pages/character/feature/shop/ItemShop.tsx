@@ -1,3 +1,4 @@
+// ItemShopLogic.tsx
 import { useState, useEffect } from 'react';
 import { useCharShopItem } from '../hooks/reuse/useCharShopItem';
 import { backShopList } from '@/config/backShopList';
@@ -11,6 +12,10 @@ import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
 import { usebackShopItem } from '../hooks/reuse/useBackShopItem';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
 import CharCoin from './../../componet/main/status/CharCoin';
+import { useCharInfo } from '../hooks/useCharInfo';
+import useCharStore from '@/store/useCharStore';
+import { useFetchMyChar } from '../hooks/useFetchMyChar';
+import { useShopFetchMyChar } from '../hooks/useShopFetchMyChar';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -33,10 +38,23 @@ const ItemShopLogic = () => {
   // 구매 상품 선택 여부
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
     useState<ShopItemTypes | null>(null);
+  // 대표 캐릭터 변경 선택 여부
+
   //구매 핸들러 호출
   const { handleBuyBackShopItem } = useBuyBackItem();
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
+  const { myChar } = useCharStore();
+  const { handleFetchMyChar } = useFetchMyChar();
+  const [selectedForChar, setSelectedForChar] = useState(myChar);
+
+  if (myChar) {
+    console.log(myChar, 'myCHar itemshop');
+  }
+
+  if (charShopList) {
+    console.log(charShopList, 'charshoplist');
+  }
 
   // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
@@ -115,6 +133,14 @@ const ItemShopLogic = () => {
     }
   };
 
+  const selectCharacter = (characterId: number) => {
+    if (characterId) {
+      handleFetchMyChar(characterId);
+    } else {
+      console.error('characterId가 존재하지 않습니다.');
+    }
+  };
+
   return (
     <div>
       <ItemShopUI
@@ -125,6 +151,7 @@ const ItemShopLogic = () => {
         setHoveredItemId={setHoveredItemId}
         handlePurchaseClick={handlePurchaseClick}
         hoveredItemId={hoveredItemId}
+        selectCharacter={selectCharacter} // 선택된 캐릭터 ID 전달 함수 전달
         showModal={showModal}
         setShowModal={setShowModal}
         selectedItemForPurchase={selectedItemForPurchase}

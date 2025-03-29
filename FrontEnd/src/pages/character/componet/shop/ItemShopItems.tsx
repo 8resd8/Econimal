@@ -1,9 +1,7 @@
-// ItemShopItems.tsx
 import React from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import { Lock, Check } from 'lucide-react';
 import ShopCoin from './ShopCoinUI';
-
 
 interface Props {
   setHoveredItemId: (productId: number) => void;
@@ -14,6 +12,9 @@ interface Props {
   image: string;
   characterName: string;
   hoveredItemId: number | null;
+  characterId: number; // characterId 추가
+  selectedItemId: number | null;
+  selectCharacter: (characterId: number) => void; // 캐릭터 선택 함수
 }
 
 const ItemShopItems: React.FC<Props> = ({
@@ -26,19 +27,23 @@ const ItemShopItems: React.FC<Props> = ({
   image,
   characterName,
   hoveredItemId,
+  characterId, // 전달받은 characterId
   selectedItemId,
+  selectCharacter, // 선택된 캐릭터 ID 전달 함수
 }) => {
-  const isSelected = selectedItemId === productId; // 현재 선택된 아이템인지 확인
+  const isSelected = selectedItemId === productId;
 
   return (
     <div
       className={`relative w-full max-w-[200px] transition-all duration-200 ${
-        isSelected ? 'border-4 border-yellow-400' : '' // 선택된 경우 테두리 강조
+        isSelected ? 'border-4 border-yellow-400' : ''
       }`}
       onMouseEnter={() => setHoveredItemId(productId)}
       onMouseLeave={() => setHoveredItemId(null)}
       onClick={() => {
-        if (owned) selectOwnedItem(productId); // 보유한 경우 선택 기능 실행
+        if (owned) {
+          selectOwnedItem(productId); // 보유한 경우 선택 기능 실행
+        }
       }}
     >
       {/* 가격 표시 (미보유 아이템만) */}
@@ -102,7 +107,16 @@ const ItemShopItems: React.FC<Props> = ({
             {owned ? '선택' : '구매'}
           </button>
         )}
-
+        {owned && isSelected && (
+          <button
+            onClick={() => {
+              selectCharacter(characterId); // 선택된 캐릭터 ID 전달
+            }}
+            className='absolute inset-x-[20%] bottom-[10%] bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700'
+          >
+            선택
+          </button>
+        )}
         <span
           className={`mt-3 text-base ${owned ? 'text-white' : 'text-gray-500'}`}
         >

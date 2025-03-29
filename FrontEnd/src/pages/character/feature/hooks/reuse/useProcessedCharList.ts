@@ -20,6 +20,7 @@ export const useProcessedCharList = () => {
       const processed = listData.characters
         .map((serverItem) => {
           //구조 분해 할당을 통해서 필요한 데이터 확보
+
           const { userCharacterId, characterName, summary } = serverItem;
 
           // ID값 활용이 가장 중요하기 때문에 유효 여부 판단
@@ -52,6 +53,7 @@ export const useProcessedCharList = () => {
             userCharacterId: userCharacterId,
             name: characterName as string,
             description: summary as string,
+            backgroundId: configItem.backgroundId,
 
             //그 외적으로는 정적 파일 데이터 활용함
             img: configItem.img,
