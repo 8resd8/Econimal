@@ -28,6 +28,10 @@ export const useMyCharInfo = () => {
     }
   }, [queryResult.data, setLevel, setExp, setCoin, setExpression]);
 
+  if (queryResult.data) {
+    console.log(queryResult.data.userCharacterMain.coin, 'coin');
+  }
+
   return {
     isLoading: queryResult.isLoading,
     isError: queryResult.isError,

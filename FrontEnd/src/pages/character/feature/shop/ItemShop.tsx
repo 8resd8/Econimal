@@ -1,13 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useCharShopItem } from '../hooks/reuse/useCharShopItem';
-import { backgroundShopConfig } from '@/config/backgroundShopConfig';
+import { backShopList } from '@/config/backShopList';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from '../../componet/shop/ItemShopUI';
 import { useShopList } from '../hooks/useShopCharList';
+import { useShopBackList } from '../hooks/useShopBackList';
+import { useBuyBackItem } from './../hooks/useBuyBackItem';
+import ErrorCoinModal from '../../componet/shop/ErrorCoinModal';
+import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
+import { usebackShopItem } from '../hooks/reuse/useBackShopItem';
+import { useCharacterCoin } from '@/store/useCharStatusStore';
+import CharCoin from './../../componet/main/status/CharCoin';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
+  const { data: backData } = useShopBackList();
   const { charShopList } = useCharShopItem(data || null);
+  const { backShopList } = usebackShopItem(backData || null);
+  const coin = useCharacterCoin();
 
   // 캐릭터 선택 탭 전환 여부 => 상태 관리
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
@@ -17,12 +27,16 @@ const ItemShopLogic = () => {
   const [currentItems, setCurrentItems] = useState();
   // 아이템 호버시 발생되는 이벤트를 위한 상태관리
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  const [userCoins, setUserCoins] = useState<number>(1500); //추후 서버에서 fetching받은 coin값 활용
+  const [userCoins, setUserCoins] = useState<number>(coin); //추후 서버에서 fetching받은 coin값 활용
   // 모달 창 열고 / 닫기
   const [showModal, setShowModal] = useState<boolean>(false);
   // 구매 상품 선택 여부
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
     useState<ShopItemTypes | null>(null);
+  //구매 핸들러 호출
+  const { handleBuyBackShopItem } = useBuyBackItem();
+  const [successModal, setSuccessModal] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
 
   // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
@@ -41,8 +55,8 @@ const ItemShopLogic = () => {
             }),
           ]
         : [
-            ...backgroundShopConfig.slice(0, 8),
-            ...Array(8 - backgroundShopConfig.length).fill({
+            ...backShopList.slice(0, 8),
+            ...Array(8 - backShopList.length).fill({
               productId: -1,
               characterName: '',
               image: '',
@@ -63,45 +77,72 @@ const ItemShopLogic = () => {
       alert('구매할 수 없는 상품입니다!');
       return;
     }
+    console.log(item.productId); //productId가 들어감 => 구매하기 클릭 시
     setSelectedItemForPurchase(item);
     setShowModal(true);
   };
 
   // 상품 구해 완료 관련 내용 전달
-  const confirmPurchase = () => {
+  const confirmPurchase = async () => {
     if (!selectedItemForPurchase) return;
 
     if (userCoins >= selectedItemForPurchase.price) {
-      setUserCoins(userCoins - selectedItemForPurchase.price);
-      const updatedItems = currentItems.map((item) => {
-        if (item.productId === selectedItemForPurchase.productId) {
-          return { ...item, owned: true };
+      try {
+        const success = await handleBuyBackShopItem(
+          selectedItemForPurchase.productId,
+        );
+        if (success) {
+          setUserCoins(userCoins - selectedItemForPurchase.price);
+          const updatedItems = currentItems.map((item) => {
+            if (item.productId === selectedItemForPurchase.productId) {
+              return { ...item, owned: true };
+            }
+            return item;
+          });
+          setCurrentItems(updatedItems);
+          setSuccessModal(true); // 성공 모달 표시
+          setShowModal(false);
+          setSelectedItemForPurchase(null); // 구매 후 초기화
+        } else {
+          setErrorModal(true); // 에러 모달 표시
         }
-        return item;
-      });
-      setCurrentItems(updatedItems);
-      alert(`"${selectedItemForPurchase.characterName}" 구매 완료!`);
-      setShowModal(false);
-      setSelectedItemForPurchase(null); // 구매 후 초기화
+      } catch (error) {
+        console.error('구매 실패:', error);
+        setErrorModal(true); // 에러 모달 표시
+      }
     } else {
-      alert('코인이 부족합니다!');
+      setErrorModal(true); // 에러 모달 표시
     }
   };
 
   return (
-    <ItemShopUI
-      userCoins={userCoins}
-      selectedTab={selectedTab}
-      setSelectedTab={setSelectedTab}
-      currentItems={currentItems}
-      setHoveredItemId={setHoveredItemId}
-      handlePurchaseClick={handlePurchaseClick}
-      hoveredItemId={hoveredItemId}
-      showModal={showModal}
-      setShowModal={setShowModal}
-      selectedItemForPurchase={selectedItemForPurchase}
-      confirmPurchase={confirmPurchase}
-    />
+    <div>
+      <ItemShopUI
+        userCoins={userCoins}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        currentItems={currentItems}
+        setHoveredItemId={setHoveredItemId}
+        handlePurchaseClick={handlePurchaseClick}
+        hoveredItemId={hoveredItemId}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        selectedItemForPurchase={selectedItemForPurchase}
+        confirmPurchase={confirmPurchase}
+      />
+      {successModal && (
+        <SuccessPurchaseModal
+          characterName={selectedItemForPurchase?.characterName}
+          onClose={() => setSuccessModal(false)}
+        />
+      )}
+      {errorModal && (
+        <ErrorCoinModal
+          requiredCoins={selectedItemForPurchase?.price}
+          onClose={() => setErrorModal(false)}
+        />
+      )}
+    </div>
   );
 };
 
