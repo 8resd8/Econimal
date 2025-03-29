@@ -10,7 +10,6 @@ export const usebackShopItem = (data: ShopBackItemTypesRes) => {
 
   useEffect(() => {
     if (!data || !data.products) return;
-    console.log(data, 'data 내용');
 
     const resultData = data.products.map((item: ShopBackItemTypes) => {
       const configData = backgroundShopConfig.find(
@@ -23,6 +22,7 @@ export const usebackShopItem = (data: ShopBackItemTypesRes) => {
           price: item.price,
           image: configData?.image,
           characterName: configData?.characterName,
+          userBackgroundId: item.userBackgroundId,
         };
       }
       return configData;

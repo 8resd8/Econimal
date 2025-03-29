@@ -45,7 +45,8 @@ const ItemShopLogic = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
   const { myChar } = useCharStore();
-  const { handleFetchMyChar } = useFetchMyChar();
+  // const { handleFetchShopChar } = useFetchMyChar();
+  const { handleFetchShopChar } = useShopFetchMyChar();
   const [selectedForChar, setSelectedForChar] = useState(myChar);
 
   if (myChar) {
@@ -135,7 +136,8 @@ const ItemShopLogic = () => {
 
   const selectCharacter = (characterId: number) => {
     if (characterId) {
-      handleFetchMyChar(characterId);
+      handleFetchShopChar(characterId);
+      console.log(characterId, 'characterId');
     } else {
       console.error('characterId가 존재하지 않습니다.');
     }
