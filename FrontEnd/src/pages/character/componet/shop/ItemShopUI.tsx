@@ -25,10 +25,19 @@ const ItemShopUI = ({
   const [selectedItemId, setSelectedItemId] = useState<number | null>(
     selectedTab === 'characters' ? null : null,
   );
+  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
+    null,
+  );
 
   // 보유한 아이템 선택 시 업데이트
   const selectOwnedItem = (productId: number) => {
     setSelectedItemId(productId);
+    const currentCharacter = currentItems.find(
+      (item) => item.productId === productId,
+    );
+    if (currentCharacter) {
+      setSelectedCharacterId(currentCharacter.userCharacterId);
+    }
   };
 
   return (
@@ -74,8 +83,8 @@ const ItemShopUI = ({
                 image={item.image}
                 characterName={item.characterName}
                 characterId={item.userCharacterId} // characterId 전달
-                selectedItemId={selectedItemId}
                 hoveredItemId={hoveredItemId}
+                selectedItemId={selectedItemId}
                 selectCharacter={(characterId: number) => {
                   if (selectedItemId === item.productId) {
                     selectCharacter(characterId);
