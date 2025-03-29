@@ -15,4 +15,6 @@ public interface EcoQuizRepository extends JpaRepository<EcoQuiz, Long> {
 	// 데이터 삽입위한 메서드
 	@Query("select qu from EcoQuiz qu where qu.id >= :min and qu.id <= :max")
 	List<EcoQuiz> findAllByIdSize(Long min, Long max);
+
+	List<EcoQuiz> findByFacility(Facility facility);
 }
