@@ -9,7 +9,7 @@ export const useCharStatusStore = create<CharacterStatusType>()(
       level: 0,
       exp: 0,
       coin: 0,
-      expression:'NEUTRAL',
+      expression: 'NEUTRAL',
       actions: {
         setLevel: (nowLv: number) => set({ level: nowLv }),
         setExp: (nowExp: number) => set({ exp: nowExp }),
@@ -30,12 +30,14 @@ export const useCharStatusStore = create<CharacterStatusType>()(
   ),
 );
 
-
 // 상태 선택자
-export const useCharacterLevel = () => useCharStatusStore((state) => state.level);
+export const useCharacterLevel = () =>
+  useCharStatusStore((state) => state.level);
 export const useCharacterExp = () => useCharStatusStore((state) => state.exp);
 export const useCharacterCoin = () => useCharStatusStore((state) => state.coin);
-export const useCharacterExpression = () => useCharStatusStore((state) => state.expression);
+export const useCharacterExpression = () =>
+  useCharStatusStore((state) => state.expression);
 
 // 액션 선택자
-export const useCharacterActions = () => useCharStatusStore((state) => state.actions);
+export const useCharacterActions = () =>
+  useCharStatusStore((state) => state.actions);

@@ -30,7 +30,8 @@ const CharChecklist = () => {
     return <div>오류 발생: {error.message}</div>;
   }
 
-  if (!dailyProgress && !customProgress) {
+  if (!!dailyProgress && !!customProgress) {
+    //0을 수용할 수 있도록 boolean 타입에 !!
     return <div>데이터 정보 없음</div>;
   }
 

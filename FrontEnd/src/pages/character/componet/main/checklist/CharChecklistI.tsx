@@ -6,6 +6,13 @@ import CharChecklistManageUI from './CharChecklistManageUI';
 const CharChecklist = () => {
   const data = CharChecklistData();
   const actions = CharChecklistActions();
+
+  if (!!data && !!actions) {
+    return <div>데이터가 없습니다.</div>;
+  }
+
+  console.log(data, actions, 'data와 actions 내용 검증');
+
   return <CharChecklistManageUI data={data} actions={actions} />;
 };
 

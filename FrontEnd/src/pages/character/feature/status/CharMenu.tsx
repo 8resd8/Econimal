@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import CharChecklist from '../../componet/main/checklist/CharChecklist';
+// import CharChecklist from '../../componet/main/checklist/CharChecklistI';
+//컴포넌트 분리구조 내용
 
 export function CharMenu() {
   const [openChecklist, setOpenChecklist] = useState(false);
