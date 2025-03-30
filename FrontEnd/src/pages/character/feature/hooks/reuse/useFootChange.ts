@@ -13,9 +13,7 @@ export const useFootChange = ({
 
     if (data && data.level) {
       const serverLevel = data.level;
-      const charInfo = myCharInfoConfig.find(
-        (item) => item.name === myChar.name,
-      );
+      const charInfo = myCharInfoConfig.find((item) => item.name === myChar);
       const charLevel = charInfo?.level.find(
         (item) => item.num === serverLevel,
       );

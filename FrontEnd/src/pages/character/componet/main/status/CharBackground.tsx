@@ -10,7 +10,7 @@ import { useMyCharInfo } from '@/pages/character/feature/hooks/useMyCharInfo';
 import { useEmotionChange } from '@/pages/character/feature/hooks/reuse/useEmotionChange';
 import CharEmotionChange from './CharEmotionChange';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useCharacterCoin,
   useCharacterExp,
@@ -18,6 +18,8 @@ import {
   useCharacterLevel,
 } from '@/store/useCharStatusStore';
 import { useFootChange } from '@/pages/character/feature/hooks/reuse/useFootChange';
+import { useProcessedCharList } from '@/pages/character/feature/hooks/reuse/useProcessedCharList';
+import { useMyCharacterId, useMyCharName } from '@/store/useMyCharStore';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
@@ -26,16 +28,36 @@ const CharBackground = () => {
   const exp = useCharacterExp();
   const coin = useCharacterCoin();
   const expression = useCharacterExpression();
+  const myCharacterId = useMyCharacterId();
+  const name = useMyCharName();
+
+  // 가공된 데이터를 쓰는게 어떨까? => 계속해서 바뀌니까
+  const { processedData } = useProcessedCharList();
+  const [myCharacterInfo, setMyCharacterInfo] = useState();
+
   const { faceImg, isLoading: isEmotionLoading } = useEmotionChange({
     data: { level, exp, coin, expression },
-    myChar: myChar,
+    myChar: name,
   });
   const { footImg, isFootLoading } = useFootChange({
     data: { level, exp, coin, expression },
-    myChar: myChar,
+    myChar: name,
   });
 
   const nav = useNavigate();
+
+  useEffect(() => {
+    if (processedData) {
+      const myCharInfo = processedData.find(
+        (item) => item.userCharacterId === myCharacterId,
+      );
+      setMyCharacterInfo(myCharInfo);
+    }
+  }, [processedData]);
+
+  if (myCharacterInfo) {
+    console.log(myCharacterInfo, 'myCharacterInfo');
+  }
 
   if (myChar) {
     console.log(myChar);
@@ -46,12 +68,12 @@ const CharBackground = () => {
   }, [level, exp, coin, expression]);
 
   useEffect(() => {
-    if (!myChar || Object.keys(myChar).length === 0) {
+    if (!myCharacterId) {
       nav('/charsel');
     } else {
-      console.log('myChar exists:', myChar);
+      console.log('캐릭터 정보가 존재합니다.');
     }
-  }, [myChar, nav]);
+  }, [myCharacterId, nav]);
 
   if (isLoading || isEmotionLoading) return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
@@ -69,7 +91,7 @@ const CharBackground = () => {
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
       {/* 배경 이미지 */}
       <img
-        src={myChar.backImg}
+        src={myCharacterInfo.backImg}
         alt='캐릭터_배경'
         className='absolute inset-0 w-full h-full object-cover z-0'
       />
@@ -79,9 +101,11 @@ const CharBackground = () => {
         {/* 🔴 상단 UI (한 줄 정렬) */}
         <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0  z-50'>
           {/* 🔵 왼쪽: 프로필 + 경험치바 */}
-          {/* 🔵 왼쪽: 프로필 + 경험치바 */}
           <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
-            <CharProfile level={level} profileImg={myChar.profileImg} />
+            <CharProfile
+              level={level}
+              profileImg={myCharacterInfo.profileImg}
+            />
             <div className='relative'>
               <ExpBar current={exp} max={100} className='absolute top-[5px]' />
               {/* ✅ ⬇ 경험치바를 5px 내림 (3px보다 더 정확한 조정) */}

@@ -19,7 +19,7 @@ export const useEmotionChange = ({
       const serverExpression = data.expression;
       const charInfo = myCharInfoConfig.find(
         //config에서 일치하는 캐릭터 찾고
-        (item) => item.name === myChar.name,
+        (item) => item.name === myChar,
       );
 
       const charExpression = charInfo?.expression.find(
@@ -32,9 +32,6 @@ export const useEmotionChange = ({
     }
     setIsLoading(false);
   }, [data]);
-
-
-
 
   return {
     faceImg,
