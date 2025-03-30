@@ -2,10 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchMyChar } from '../api/fetchMyChar';
 import useCharStore from '@/store/useCharStore';
 import { useEffectiveId } from './reuse/useEffectiveId';
+import { useMyCharacterId } from '@/store/useMyCharStore';
 
 export const useFetchMyChar = () => {
-  const { myChar } = useCharStore();
-  const { effectiveId } = useEffectiveId(myChar);
+  // const { myChar } = useCharStore();
+  const myCharacterId = useMyCharacterId();
+
+  const { effectiveId } = useEffectiveId(myCharacterId);
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({

@@ -3,10 +3,12 @@ import bgThem from '../../assets/auth_background.png';
 import useCharStore from '@/store/useCharStore';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useMyCharacterId } from '@/store/useMyCharStore';
 const CharacterSelect = () => {
   //myChar이 있으면 뒤로 못가게
   const nav = useNavigate();
   const { myChar } = useCharStore(); //myChar, store에 캐릭터를 선택한 정보가 있는지 확인
+  const userCharacterId = useMyCharacterId(); //신규 zustand 로직
 
   // 모바일 환경에서 필요는 없으나 뒤로가기 방지
   useEffect(() => {
@@ -15,6 +17,7 @@ const CharacterSelect = () => {
       nav('/', { replace: true }); // 뒤로가기 방지 옵션
     }
   }, [myChar, nav]);
+  //userCharacterId로 바꿀 필요 있음 test후
 
   // 팽글링스, 호랭이, 부기부기 캐릭터 선택 초기 페이지
   return (

@@ -3,11 +3,44 @@ import useCharStore from '@/store/useCharStore';
 import CharacterCardsList from '../../componet/select/CharacterCardsList';
 import CharacterDetail from './CharacterDetail';
 import { useEffectiveId } from '../hooks/reuse/useEffectiveId';
+import {
+  useBackImg,
+  useCharFootImg,
+  useCharImg,
+  useCharProfileImg,
+  useMyBackgroundId,
+  useMyCharacterId,
+  useMyCharDescription,
+  useMyCharDetailStory,
+  useMyCharName,
+  useMyCharSubStory,
+} from '@/store/useMyCharStore';
 
 const PickChar = () => {
   //맨처음에는 myChar에 대한 정보가 없을 것
   const { myChar } = useCharStore(); //사용자가 선택한 나의 캐릭터 데이터들이 담긴 store
-  const { effectiveId, hasValidSelection } = useEffectiveId(myChar);
+  const characterId = useMyCharacterId();
+  const backgroundId = useMyBackgroundId();
+  const name = useMyCharName();
+  const description = useMyCharDescription();
+  const subStory = useMyCharSubStory();
+  const detailStory = useMyCharDetailStory();
+  const charImg = useCharImg();
+  const profileImg = useCharProfileImg();
+  const footImg = useCharFootImg();
+  const backImg = useBackImg();
+
+  if (characterId && name && description) {
+    console.log(
+      characterId,
+      name,
+      description,
+      '새로운 Zustand 값 잘들어가는가?',
+    );
+  }
+
+  // const { effectiveId, hasValidSelection } = useEffectiveId(myChar);
+  const { effectiveId, hasValidSelection } = useEffectiveId(characterId);
 
   if (!hasValidSelection) {
     //그렇다면, 선택을 하지 않은 것으로 간주되기 떄문에 전체 캐릭터 리스트 확인 가능(캐릭 선택)
@@ -15,29 +48,45 @@ const PickChar = () => {
   }
 
   // 사용자가 캐릭터를 선택했을 때 나타나는 내용들
-  const description = myChar?.description || '';
+  // const description = myChar?.description || '';
 
   return (
     <div className='flex flex-col m-8'>
       <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center text-white'>
         {/* {myChar.description.slice(0, -2)} "{myChar.name}" */}
-        {description.slice(0, -2)} "{myChar?.name}"
+        {description.slice(0, -2)} "{name}"
       </h2>
       <div className='flex justify-center items-center gap-9'>
-        <CharacterCards {...myChar} />
+        <CharacterCards
+          img={charImg}
+          name={name}
+          description={description}
+          userCharacterId={characterId}
+          userBackgroundId={backgroundId}
+          backImg={backImg}
+          profileImg={profileImg}
+          footImg={footImg}
+          subStory={subStory}
+          detailStory={detailStory}
+        />
         {/* detail에 id값이 정확하게 전달되는 것이 중요함 : 추후 서버에 id값을 보내야하기 때문에*/}
         <CharacterDetail
-          id={effectiveId}
-          name={myChar.name}
+          id={characterId}
+          // name={myChar.name}
+          name={name}
           subStory={
-            myChar.subStory
-              ? myChar.subStory
+            // myChar.subStory
+            subStory
+              ? // ? myChar.subStory
+                subStory
               : '안녕, 우린 에코니멀의 친구들이야'
           }
           detailStory={
-            myChar.detailStory
-              ? myChar.detailStory
-              : '자세한 이야기는 추 후 업데이트 될 예정이야'
+            // myChar.detailStory
+            detailStory
+              ? detailStory
+              : // ? myChar.detailStory
+                '자세한 이야기는 추 후 업데이트 될 예정이야'
           }
         />
       </div>

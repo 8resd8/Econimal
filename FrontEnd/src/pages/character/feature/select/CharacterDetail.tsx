@@ -5,6 +5,7 @@ import { useFetchMyChar } from '../hooks/useFetchMyChar';
 import { useCharInfo } from './../hooks/useCharInfo';
 import { useState } from 'react';
 import CharacterDetailUI from '../../componet/select/CharacterDetailUI';
+import { useMyCharacterId, userMyCharActions } from '@/store/useMyCharStore';
 
 // 이제 필수인 id값, 그리고 작은 설명, 자세한 설명
 const CharacterDetail = ({
@@ -14,6 +15,10 @@ const CharacterDetail = ({
   detailStory: initialDetailStory,
 }: CharacterDetailProps<number>) => {
   const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
+  const characterId = useMyCharacterId();
+  const { setResetData } = userMyCharActions();
+
+  // const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
 
   //각 story들을 useState에 담은 이유는 캐릭터를 선택할 때 마다 스토리가 바뀌기 떄문
   //Q. 서버에서 바로 패칭되어서 받아오는 작업인데 상태를 관리할 필요가 있을지 의문인 부분
@@ -28,8 +33,12 @@ const CharacterDetail = ({
 
   //해당 캐릭터 구하기
   const handleHelpChar = () => {
+    console.log('캐릭터 구하기', id, 'id값');
+    console.log(characterId, 'characterId, characterId값 확인');
+
     const effectiveId = id; //zustand에 담긴 서버의 charId값
-    const myCharId = myChar?.userCharacterId || myChar?.id;
+    // const myCharId = myChar?.userCharacterId || myChar?.id;
+    const myCharId = characterId;
 
     //모두 일치하다면 구하기
     if (effectiveId && effectiveId === myCharId) {
@@ -42,7 +51,8 @@ const CharacterDetail = ({
 
   //다른 캐릭터를 선택하면 zustand에 담긴 모든 데이터 날리기
   const handleHelpAnotherChar = () => {
-    resetMyChar();
+    // resetMyChar();
+    setResetData();
   };
 
   // 데이터가 로딩중일 때

@@ -24,9 +24,12 @@ import horang_1 from '../assets/char/level/horang_1.png';
 import horang_2 from '../assets/char/level/horang_2.png';
 import horang_3 from '../assets/char/level/horang_3.png';
 
+//userCharacterId는 계속적으로 바뀔 것
+//backgroudId도 계속적으로 바뀔 것 -> 따라서 이걸 보유하고 있어야하지 않을까?
 export const myCharInfoConfig = [
   {
     userCharacterId: 757,
+    //backgroundId를 알아야 추후 배경도 matching이 가능함
     name: '부기부기',
     expression: [
       { face: 'JOY', faceImg: tur_happy },
