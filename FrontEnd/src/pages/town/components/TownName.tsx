@@ -23,7 +23,7 @@ const TownName = () => {
       <div className='relative flex items-center justify-center px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-2.5 md:py-2 lg:px-3 lg:py-2.5 xl:px-3.5 xl:py-3 text-slate-900 border-2 border-slate-800 sm:border-1 rounded-lg bg-white/90'>
         {/* 마을 이름 + 마을 */}
         {/* <div className='flex items-center gap-2 sm:gap-4 overflow-hidden max-w-[80%]'> */}
-        <div className='flex items-center gap-4 sm:gap-6 sm:text-sm md:gap-2 md:text-base overflow-hidden max-w-[80%]'>
+        <div className='flex items-center gap-2 sm:text-sm md:text-base overflow-hidden max-w-[80%]'>
           {/* <span className='text-xs sm:text-sm md:text-base font-bold overflow-hidden text-ellipsis whitespace-nowrap block'> */}
           <span className='text-[10px] xs:text-xs sm:text-sm md:text-base font-bold overflow-hidden text-ellipsis whitespace-nowrap block'>
             {formattedTownName}
@@ -42,7 +42,7 @@ const TownName = () => {
           {/* <FilePenLine size={16} className='sm:w-4 sm:h-4 md:w-5 md:h-5' /> */}
           <FilePenLine
             size={10}
-            className='w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4'
+            className='absolute top-[30%] right-[5%] w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 '
           />
         </div>
       </div>
