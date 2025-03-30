@@ -1,44 +1,90 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { useGetTownEvents } from '@/pages/town/features/useTownQuery';
 // import { toast, ToastContainer } from 'react-toastify';
 import { showInfraEventNotice } from './toast/toastUtil';
+import { useLocation } from 'react-router-dom';
+import { TownEvent } from '@/pages/town/features/townApi';
+
+// 모달 상태를 전역으로 관리하기 위한 store 생성 또는 활용
+// 모달 상태를 관리하는 전역 변수
+export let isModalOpen = false;
+
+// 모달 상태를 설정하는 함수
+export const setModalOpen = (open: boolean) => {
+  isModalOpen = open;
+};
+
 // 이벤트 감지기
 const EventDetector = () => {
   const activeEvents = useTownStore((state) => state.activeEvents); // 스토어에서 활성화된 이벤트 ID 목록 가져오기
+  const previousEventsRef = useRef<number[]>([]);
+  // const [previousActiveEvents, setPreviousActiveEvents] = useState<number[]>(
+  //   [],
+  // );
+
+  /* useLocation이란?
+  React Router에서 제공하는 훅으로, 현재 URL에 대한 정보를 담고 있는 객체를 반환한다.
+  이를 통해 현재 경로(pathname), 쿼리 문자열(search), 해시(hash), 그리고 이전 페이지에서 전달된 상태(state) 등의 정보를 얻을 수 있다.
+   */
+
+  // 현재 경로 확인
+  const location = useLocation();
+  const isTownPage = location.pathname.includes('/town');
+
+  // 마을 관련 데이터 쿼리 실행
   const { data: townEventsData } = useGetTownEvents();
-  const [previousActiveEvents, setPreviousActiveEvents] = useState<number[]>(
-    [],
-  );
 
   useEffect(() => {
-    // 이전 activeEvents와 현재 activeEvents 비교
-    if (townEventsData?.townStatus && townEventsData.townStatus.length > 0) {
+    // activeEvents가 없거나 배열이 아니면 처리하지 않음
+    if (
+      !activeEvents ||
+      !Array.isArray(activeEvents) ||
+      activeEvents.length === 0 ||
+      !townEventsData ||
+      !townEventsData.townStatus
+    ) {
+      return;
+    }
+
+    // Town 페이지에서는 토스트를 표시하지 않음
+    if (isTownPage) {
+      // 그냥 이전 이벤트 배열을 업데이트만 함
+      previousEventsRef.current = [...activeEvents];
+      return;
+    }
+
+    try {
       // 새로 활성화된 이벤트만 필터링
       const newActiveEvents = activeEvents.filter(
-        (eventId) => !previousActiveEvents.includes(eventId),
+        (eventId) => !previousEventsRef.current.includes(eventId),
       );
 
-      // 새로 활성화된 이벤트가 있으면 토스트 표시
-      if (newActiveEvents.length > 0) {
-        // 해당 이벤트에 대한 ecoType 찾기
+      // 새로운 이벤트가 있고, 모달이 열려있지 않을 때만 토스트 메시지 표시
+      if (newActiveEvents.length > 0 && !isModalOpen) {
+        // 각 이벤트 ID에 대해 해당 ecoType 찾기
         newActiveEvents.forEach((eventId) => {
+          // townEventsData에서 해당 이벤트 ID에 맞는 이벤트 정보 찾기
           const eventInfo = townEventsData.townStatus.find(
-            (event) => event.infraEventId === eventId && event.isActive,
+            (event: TownEvent) => event.infraEventId === eventId,
           );
 
+          // 이벤트 정보가 있을 때만 해당 ecoType으로 토스트 알림 표시
           if (eventInfo) {
             showInfraEventNotice(eventInfo.ecoType);
           }
+          // 이벤트 정보가 없으면 토스트창을 표시하지 않음
         });
       }
 
-      // 현재 activeEvents를 이전 상태로 저장
-      setPreviousActiveEvents([...activeEvents]);
+      // 현재 activeEvents를 참조로 저장
+      previousEventsRef.current = [...activeEvents];
+    } catch (error) {
+      console.error('EventDetector 오류:', error);
     }
-  }, [activeEvents, townEventsData]);
+  }, [activeEvents, isTownPage]);
 
-  return null; // ToastContainer는 상위 컴포넌트에서 한 번만 렌더링하므로 여기서는 제거
+  return null;
 };
 // ToastContainer는 상위 컴포넌트(App.tsx)에서 한 번만 렌더링하는 것이 좋음.
 // 여기서는 독립적인 컴포넌트로 사용할 수 있도록 구현하였으나, 전역에서 토스트를 사용할 것이라면 return 없어도 될듯(->EventDetector가 알림로직만 처리하게 됨)

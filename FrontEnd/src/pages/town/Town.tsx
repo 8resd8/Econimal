@@ -12,6 +12,8 @@ import pollutedImg from '@/assets/town/polluted-river.png';
 
 import LoadingScreen from '@/components/LoadingScreen';
 
+import { useEffect } from 'react';
+// import { setIsTownPage } from '@/components/EventDetector';
 // import RecyclingCenter from './components/RecyclingCenter';
 // import Vehicle from './components/Vehicle';
 
@@ -23,6 +25,15 @@ export interface TownProps {
 }
 
 const Town = () => {
+  // useEffect(() => {
+  //   // 컴포넌트 마운트 시 마을 페이지로 설정
+  //   setIsTownPage(true);
+
+  //   // 컴포넌트 언마운트 시 마을 페이지 아님으로 설정
+  //   return () => setIsTownPage(false);
+  // }, []);
+
+  
   // 마을 상황 조회
   const { data, isLoading, error } = useGetTownEvents(); // error 상태도 추가
 

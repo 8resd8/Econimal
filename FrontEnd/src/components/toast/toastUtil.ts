@@ -1,5 +1,6 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
+import { isModalOpen } from '@/components/EventDetector';
 
 // 기본 토스트 옵션
 export const defaultOptions: ToastOptions = {
@@ -24,6 +25,10 @@ export const showInfraEventNotice = (
   ecoType: string,
   options?: ToastOptions, // 추가 토스트 옵션
 ) => {
+  // 모달이 열려있다면 토스트를 표시하지 않음
+  if (isModalOpen) {
+    return null;
+  }
   const message =
     infraEventMessages[
       (ecoType as EcoType) || '마을에 새로운 문제가 발생했습니다!'
@@ -38,6 +43,10 @@ export const showInfraResultNotice = (
   coin: number,
   options?: ToastOptions,
 ) => {
+  // 모달이 열려있다면 토스트를 표시하지 않음
+  if (isModalOpen) {
+    return null;
+  }
   // 최적 해결책 여부에 따른 메시지
   const resultMessage = isOptimal
     ? '캐릭터가 행복해요! 🥰'
@@ -71,6 +80,10 @@ export const showNotice = (
   type: 'info' | 'success' | 'warning' | 'error' = 'info',
   options?: ToastOptions,
 ): string | number => {
+  // 모달이 열려있다면 토스트를 표시하지 않음
+  if (isModalOpen) {
+    return -1; // 토스트가 표시되지 않았음을 나타내는 임의의 값
+  }
   return toast[type](message, { ...defaultOptions, ...options });
 };
 

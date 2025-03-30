@@ -27,7 +27,7 @@ const Factory = ({ infraEventId, className }: TownProps) => {
 
       <EventAlert
         isActive={isActive}
-        className='top-32 left-8 w-[18%] h-[15%]'
+        className='top-24 left-8 w-[18%] h-[15%]'
       />
 
       <NormalModal

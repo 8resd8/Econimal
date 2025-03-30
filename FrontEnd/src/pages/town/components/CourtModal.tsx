@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -17,6 +17,8 @@ import {
 } from '../features/useInfraQuery';
 import ResultModal from './ResultModal';
 import { InfraSubmitResponse } from '../features/infraApi';
+import { X } from 'lucide-react';
+import { setModalOpen } from '@/components/EventDetector';
 
 interface CourtModalProps {
   open: boolean;
@@ -41,6 +43,12 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   // 인프라 이벤트 선택지 제출 뮤테이션
   const submitInfraResult = useSubmitInfraResult();
 
+  // 모달 열림/닫힘 상태 전역 변수에 반영
+  useEffect(() => {
+    setModalOpen(open);
+    return () => setModalOpen(false);
+  }, [open]);
+
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
     submitInfraResult(ecoAnswerId, 'COURT', {
@@ -64,6 +72,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
+    setModalOpen(false);
   };
 
   const fallbackAnswers = [
@@ -83,18 +92,18 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
         {/* <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'> */}
-        <AlertDialogContent className='p-3 sm:p-5 md:p-6 w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[50vw] max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto mx-auto'>
-          <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
-            X
+        <AlertDialogContent className='p-3 sm:p-5 md:p-6 w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[50vw] max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto mx-auto !rounded-lg'>
+          <AlertDialogCancel className='absolute right-4 top-4 px-2 py-0 m-2 border-none'>
+            <X />
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-lg sm:text-xl md:text-2xl lg:text-3xl mx-1 sm:mx-2 md:mx-4 break-keep text-center'>
+            <AlertDialogTitle className='text-lg sm:text-xl md:text-2xl lg:text-3xl mx-2 sm:mx-2 md:mx-4 break-keep text-center'>
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className='space-y-2 sm:space-y-3 md:space-y-4'>
+          <div className='space-y-2 sm:space-y-3 md:space-y-4'>
             <div className='flex flex-col w-full gap-2 sm:gap-3 md:gap-4'>
               {answers.map((answer) => (
                 <Button
@@ -106,7 +115,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
                 </Button>
               ))}
             </div>
-          </AlertDialogDescription>
+          </div>
 
           <AlertDialogFooter>
             {/* <AlertDialogAction>Continue</AlertDialogAction> */}

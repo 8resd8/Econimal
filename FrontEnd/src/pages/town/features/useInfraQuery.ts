@@ -13,7 +13,7 @@ import { showInfraResultNotice } from '@/components/toast/toastUtil';
 export const useGetInfraEvent = (infraEventId: number) =>
   useQuery({
     queryKey: ['infra-event', infraEventId],
-    queryFn: () => getInfraEvent(infraEventId), //queryFn에는 "함수 실행 결과"가 아니라 "함수 자체"가 전달되어야 함함
+    queryFn: () => getInfraEvent(infraEventId), //queryFn에는 "함수 실행 결과"가 아니라 "함수 자체"가 전달되어야 함
     enabled: !!infraEventId, // infraEventId가 있을 때만 쿼리 실행
   });
 
@@ -40,8 +40,9 @@ export const useSubmitInfraResult = () => {
       //   expression: data.expression,
       // });
 
-      // 토스트 알림 표시
-      showInfraResultNotice(data.isOptimal, data.exp, data.coin);
+      // 마을 페이지에 있고, 모달이 열려있지 않을 때만 토스트 알림 표시
+      // 여기서는 토스트 알림을 표시하지 않고 ResultModal에서 처리
+      // showInfraResultNotice(data.isOptimal, data.exp, data.coin);
 
       queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
       queryClient.invalidateQueries({ queryKey: ['town-info'] }); // 마을 정보도 함께 갱신
@@ -54,7 +55,7 @@ export const useSubmitInfraResult = () => {
     },
   });
 
-  // [수정] ecoAnswerId와 ecoType을 함께 전달하는 함수 수정
+  // ecoAnswerId와 ecoType을 함께 전달하는 함수 수정
   return (
     ecoAnswerId: number,
     ecoType: string,

@@ -26,7 +26,7 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
 
       <EventAlert
         isActive={isActive}
-        className='top-14 left-20 w-[29%] h-[20%]'
+        className='top-14 left-10 w-[29%] h-[20%]'
       />
 
       <NormalModal

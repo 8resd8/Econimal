@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { X } from 'lucide-react';
+
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -10,6 +12,10 @@ import {
   AlertDialogTitle,
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+
+import { setModalOpen } from '@/components/EventDetector';
+import { useLocation } from 'react-router-dom';
+import { showInfraResultNotice } from '@/components/toast/toastUtil';
 
 interface ResultModalProps {
   open: boolean;
@@ -32,16 +38,31 @@ const ResultModal = ({
   result,
   ecoType,
 }: ResultModalProps) => {
+  // 현재 경로 확인
+  const location = useLocation();
+  const isTownPage = location.pathname.includes('/town');
+
+  // 모달 열림/닫힘 상태 전역 변수에 반영
+  useEffect(() => {
+    setModalOpen(open);
+    return () => setModalOpen(false);
+  }, [open]);
+
   // 결과 모달이 열릴 때 탄소가 감소했으면 효과 표시
   useEffect(() => {
-    if (open && result && result.carbon < 0) {
-      // 탄소가 감소했을 때 콘페티? 긍정적 애니메이션 효과
-    } else if (open && result && result.carbon > 0) {
-      // 부정적 애니메이션 효과
-    }
-    // 0일땐 아무것도 안할래
-  }, [open, result]);
+    if (open && result) {
+      // 마을 페이지인 경우에만 결과 토스트 표시
+      if (isTownPage) {
+        showInfraResultNotice(result.isOptimal, result.exp, result.coin);
+      }
 
+      if (result.carbon < 0) {
+        // 탄소가 감소했을 때 긍정적 애니메이션 효과
+      } else if (result.carbon > 0) {
+        // 부정적 애니메이션 효과
+      }
+    }
+  }, [open, result, isTownPage]);
   // 법원 아닌경우만 표시하고 싶은데
   const getResultMessage = () => {
     if (result.isOptimal) {
@@ -76,9 +97,9 @@ const ResultModal = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
-      <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'>
+      <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
         <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
-          X
+          <X />
         </AlertDialogCancel>
 
         <AlertDialogHeader>

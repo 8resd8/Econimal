@@ -42,7 +42,7 @@ const TownName = () => {
           {/* <FilePenLine size={16} className='sm:w-4 sm:h-4 md:w-5 md:h-5' /> */}
           <FilePenLine
             size={10}
-            className='absolute top-[30%] right-[5%] w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 '
+            className='absolute top-[30%] right-[6%] w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 '
           />
         </div>
       </div>

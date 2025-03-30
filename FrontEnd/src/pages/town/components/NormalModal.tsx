@@ -1,5 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { InfraSubmitResponse, InfraEventResponse } from '../features/infraApi';
+import ResultModal from './ResultModal';
+import { setModalOpen } from '@/components/EventDetector';
+import { X } from 'lucide-react';
+
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -16,8 +20,6 @@ import {
   useGetInfraEvent,
   useSubmitInfraResult,
 } from '../features/useInfraQuery';
-// import { useTownStore } from '@/store/useTownStore';
-import ResultModal from './ResultModal';
 
 interface NormalModalProps {
   open: boolean;
@@ -42,6 +44,12 @@ const NormalModal = ({
 
   // 인프라 이벤트 선택지 제출 뮤테이션
   const submitInfraResult = useSubmitInfraResult();
+
+  // 모달 열림/닫힘 상태 전역 변수에 반영
+  useEffect(() => {
+    setModalOpen(open);
+    return () => setModalOpen(false);
+  }, [open]);
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
@@ -68,7 +76,7 @@ const NormalModal = ({
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false); // 원래 모달도 닫기? 이미 닫혀있는데?
+    setModalOpen(false);
   };
 
   // // 로딩 중이거나 에러 발생 시 처리
@@ -91,9 +99,9 @@ const NormalModal = ({
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger></AlertDialogTrigger> */}
-        <AlertDialogContent className='p-4 sm:p-6 md:p-8 z-50 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'>
+        <AlertDialogContent className='p-4 sm:p-6 md:p-8 z-50 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
-            X
+            <X />
           </AlertDialogCancel>
 
           <AlertDialogHeader>
@@ -102,7 +110,7 @@ const NormalModal = ({
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className='space-y-4'>
+          <div className='space-y-4'>
             <div className='flex flex-col w-full gap-4'>
               {answers.map((answer) => (
                 <Button
@@ -114,7 +122,7 @@ const NormalModal = ({
                 </Button>
               ))}
             </div>
-          </AlertDialogDescription>
+          </div>
 
           <AlertDialogFooter></AlertDialogFooter>
         </AlertDialogContent>

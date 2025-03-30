@@ -16,71 +16,79 @@ import NetworkErrorScreen from './components/ErrorScreen';
 import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/NotFoundScreen';
 
+import RootLayout from '@/components/RootLayout';
+
 export const router = createBrowserRouter([
   {
     path: '/',
-    // element: <Home />,
-    element: <MyCharacter />,
-  },
-  {
-    path: '/store',
-    element: <CharacterShop />,
-  },
-  {
-    path: '/town',
-    element: <Town />,
-  },
-  {
-    path: '/charsel',
-    element: <CharacterSelect />,
-  },
-  {
-    path: '/my',
-    element: <MyPage />,
-  },
-  {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/signup',
-    element: <Signup />,
-  },
-  {
-    path: '/earth',
-    element: <Earth />,
-  },
-  {
-    path: '/animation',
-    element: <Animation />,
-  },
-  {
-    path: '/edit-profile',
-    element: <Edit />,
-  },
-  {
-    path: '/shop',
-    element: <CharacterShop />,
-  },
-  {
-    path: '/prolog',
-    element: (
-      <PrologVideo
-        onComplete={() => localStorage.setItem('prologViewed', 'true')}
-      />
-    ),
-  },
-  // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
-  {
-    path: '/error',
-    element: <NetworkErrorScreen />,
-  },
-  {
-    path: '/loading',
-    element: <LoadingScreen />,
-  },
-  {
-    path: '*',
-    element: <NotFoundScreen />,
+    element: <RootLayout />, // 루트 레이아웃으로 모든 라우트를 감싸기
+    children: [
+      {
+        index: true,
+        // element: <Home />,
+        element: <MyCharacter />,
+      },
+      {
+        path: '/store',
+        element: <CharacterShop />,
+      },
+      {
+        path: '/town',
+        element: <Town />,
+      },
+      {
+        path: '/charsel',
+        element: <CharacterSelect />,
+      },
+      {
+        path: '/my',
+        element: <MyPage />,
+      },
+      {
+        path: '/login',
+        element: <Login />,
+      },
+      {
+        path: '/signup',
+        element: <Signup />,
+      },
+      {
+        path: '/earth',
+        element: <Earth />,
+      },
+      {
+        path: '/animation',
+        element: <Animation />,
+      },
+      {
+        path: '/edit-profile',
+        element: <Edit />,
+      },
+      {
+        path: '/shop',
+        element: <CharacterShop />,
+      },
+      {
+        path: '/prolog',
+        element: (
+          <PrologVideo
+            onComplete={() => localStorage.setItem('prologViewed', 'true')}
+          />
+        ),
+      },
+      // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
+      {
+        path: '/error',
+        element: <NetworkErrorScreen />,
+      },
+      {
+        path: '/loading',
+        element: <LoadingScreen />,
+      },
+      {
+        path: '*',
+        element: <NotFoundScreen />,
+      },
+    ],
   },
 ]);
