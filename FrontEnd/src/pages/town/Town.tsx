@@ -55,7 +55,8 @@ const Town = () => {
           <img
             src={town}
             alt='마을'
-            className='max-w-full max-h-screen object-contain'
+            // className='max-w-full max-h-screen object-contain filter saturate-[.9] brightness-[.95]'
+            className='max-w-full max-h-screen object-contain filter saturate-[.75]'
           />
 
           {/* 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}

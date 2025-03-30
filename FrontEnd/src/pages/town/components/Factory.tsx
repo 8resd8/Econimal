@@ -4,6 +4,7 @@ import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import factoryImg from '@/assets/town/factory.png';
+import EventAlert from './EventAlert';
 
 const Factory = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,19 +16,20 @@ const Factory = ({ infraEventId, className }: TownProps) => {
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
 
   return (
-    <div
-      className={`relative ${className || ''} ${
-        isActive ? 'animate-pulse' : ''
-      }`}
-    >
+    <div className={`relative ${className || ''}`}>
       <img
-        className={`w-full h-auto cursor-pointer ${
-          isActive ? 'animate-pulse' : ''
-        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
+        className={`w-full h-auto cursor-pointer
+      ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
         src={factoryImg}
         alt='공장'
         onClick={() => setIsModalOpen(true)}
       />
+
+      <EventAlert
+        isActive={isActive}
+        className='top-32 left-8 w-[18%] h-[15%]'
+      />
+
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
