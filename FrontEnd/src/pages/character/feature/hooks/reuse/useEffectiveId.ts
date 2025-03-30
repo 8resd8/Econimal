@@ -3,10 +3,12 @@ import { CharacterTypes } from '@/pages/character/types/CharacterTypes';
 
 //훅에 직접적인 zustand 사용X -> hooks 규칙 위반!
 export const useEffectiveId = (myChar: CharacterTypes<number>) => {
-  const [hasValidSelection, setHasValidSelection] = useState<boolean>(false); //유효한 내용인지?
+  // 캐릭터 선택 유무 => false일 경우 : 선택하지 않았음을 의미
+  const [hasValidSelection, setHasValidSelection] = useState<boolean>(false);
   const [effectiveId, setEffectiveId] = useState<number | null>(null); //초기에 빈값 설정
   //상태값 설정 -> 들어올 수 있는 값에 대한 타입 설정
 
+  //내가 선택한 값이 있다면?
   useEffect(() => {
     if (myChar) {
       // myChar이 있어야 함 => 빈문자열일 수 있으니 Boolean 타입으로 감싸줌

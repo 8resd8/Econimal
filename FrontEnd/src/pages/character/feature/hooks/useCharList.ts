@@ -8,7 +8,7 @@ export const useCharList = () => {
   >({
     queryKey: ['charList'],
     queryFn: fetchCharList, //캐릭터 전체 리스트 조회, 캐릭터 선택을 위함
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, //5분에 한 번씩
     retry: 3, // 재시도 요청 3번
   });
 

@@ -5,11 +5,12 @@ import CharacterDetail from './CharacterDetail';
 import { useEffectiveId } from '../hooks/reuse/useEffectiveId';
 
 const PickChar = () => {
+  //맨처음에는 myChar에 대한 정보가 없을 것
   const { myChar } = useCharStore(); //사용자가 선택한 나의 캐릭터 데이터들이 담긴 store
   const { effectiveId, hasValidSelection } = useEffectiveId(myChar);
 
   if (!hasValidSelection) {
-    //그렇다면, 선택을 하지 않은 것으로 간주되기 떄문에 전체 캐릭터 리스트 확인 -> 선택에 따른 기능
+    //그렇다면, 선택을 하지 않은 것으로 간주되기 떄문에 전체 캐릭터 리스트 확인 가능(캐릭 선택)
     return <CharacterCardsList />;
   }
 

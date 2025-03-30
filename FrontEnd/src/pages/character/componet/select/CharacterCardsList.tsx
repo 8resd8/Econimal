@@ -3,6 +3,7 @@ import { characterConfig } from '@/config/characterConfig';
 import { useProcessedCharList } from '../../feature/hooks/reuse/useProcessedCharList';
 
 const CharacterCardsList = () => {
+  // 캐릭터 list 전달(가공 받은 데이터, 정적 + server)
   const { processedData, isLoading } = useProcessedCharList(); //가공한 데이터 -> 서버에서 fetching 받아온 데이터들 기반으로
 
   // 로딩중의 경우 로딩중임을 명시한다.
@@ -28,7 +29,7 @@ const CharacterCardsList = () => {
   }
 
   // 따라서 가공된 데이터의 processedData의 값을 하위에 mapping으로 뿌려줌
-  // 서버에서 받은 ip값을 우선적으로 진행하고 있음
+  // 서버에서 받은값을 우선적으로 진행하고 있음
   return (
     <div className='flex flex-col items-center min-h-screen px-4 py-8 overflow-auto'>
       {/* 제목 */}

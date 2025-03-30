@@ -16,6 +16,7 @@ import turProfile from '../assets/char/profile/char_bugiface.png';
 import pengProfile from '../assets/char/profile/char_pengface.png';
 import horangProfile from '../assets/char/profile/char_horangface.png';
 
+//초기에 backgroundId가 필요하지 않을까라는 생각
 export const characterConfig: CharacterTypes<number>[] = [
   {
     id: 757,
@@ -23,7 +24,7 @@ export const characterConfig: CharacterTypes<number>[] = [
     description: '바다에 사는 바다 거북이에요',
     img: turtleImg,
     backImg: turbackImg,
-    backgroundId: 1,
+    userBackgroundId: 1777,
     profileImg: turProfile,
     footImg: turfoot,
     subStory: '안녕, 나는 바다의 쓰레기를 줄여야 한다고 생각해.',
@@ -35,7 +36,7 @@ export const characterConfig: CharacterTypes<number>[] = [
     description: '남극에 사는 펭귄이에요',
     img: pengImg,
     backImg: pengbackImg,
-    backgroundId: 2,
+    userBackgroundId: 1778,
     profileImg: pengProfile,
     footImg: pengfoot,
     subStory: '안녕, 나는 수영보다 걷기를 좋아하는 펭귄이야.',
@@ -48,7 +49,7 @@ export const characterConfig: CharacterTypes<number>[] = [
     description: '산 속에 사는 호랑이에요',
     img: horangImg,
     backImg: horangbackImg,
-    backgroundId: 3,
+    userBackgroundId: 1779,
     profileImg: horangProfile,
     footImg: horang,
     subStory: '안녕, 나는 숲의 보존이 중요하다고 생각해.',
