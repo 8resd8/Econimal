@@ -1,45 +1,128 @@
+// axiosConfig.ts
 import axios from 'axios';
 import { API } from './apiConfig';
-import { useAuthStore } from '@/store/store'; // Zustand 상태 관리 사용
-// import.meta.env
 
-// const DOMAIN = 'http://localhost:8080'; // 임시 URL
+// 환경 변수에서 API 도메인 가져오기
 const DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
+// 전역 액세스 토큰 저장소 (메모리에만 존재)
+let accessToken: string | null = null;
+// 토큰 만료 시간 저장
+let tokenExpiryTime: number | null = null;
+
+// 토큰 setter/getter 함수
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+  if (token) {
+    sessionStorage.setItem('accessToken', token);
+  } else {
+    sessionStorage.removeItem('accessToken');
+  }
+};
+
+export const getAccessToken = () => {
+  if (!accessToken) {
+    // 메모리에 없으면 sessionStorage에서 복원
+    accessToken = sessionStorage.getItem('accessToken');
+  }
+  return accessToken;
+};
+
+// 토큰 만료 시간 관리 함수
+export const setTokenExpiry = (expiresIn: number) => {
+  tokenExpiryTime = Date.now() + expiresIn;
+  sessionStorage.setItem('tokenExpiry', tokenExpiryTime.toString());
+};
+
+export const getTokenExpiry = () => {
+  if (!tokenExpiryTime) {
+    // 메모리에 없으면 sessionStorage에서 복원
+    const storedExpiry = sessionStorage.getItem('tokenExpiry');
+    if (storedExpiry) {
+      tokenExpiryTime = parseInt(storedExpiry);
+    }
+  }
+  return tokenExpiryTime;
+};
+
+export const isTokenExpired = () => {
+  const expiry = getTokenExpiry();
+  if (!expiry) return true;
+  return Date.now() >= expiry;
+};
+
+export const clearTokenData = () => {
+  accessToken = null;
+  tokenExpiryTime = null;
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('tokenExpiry');
+};
+
+// axios 인스턴스 생성
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
   timeout: 5000,
-  withCredentials: true, // refreshToken을 쿠키로 받기 위해 필요
-  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // 리프레시 토큰을 쿠키로 받기 위해 필요
+  headers: { 'Content-Type': 'application/json' }
 });
 
 // 요청 인터셉터
 axiosInstance.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    console.log(`요청 URL: ${config.url}`);
+    console.log(`withCredentials 설정: ${config.withCredentials}`);
+    
+    // 리프레시 요청 자체는 체크하지 않음
+    if (config.url?.includes('/users/refresh')) {
+      return config;
+    }
+    
+    // 로그인 요청도 체크하지 않음
+    if (config.url?.includes('/users/login')) {
+      return config;
+    }
+    
+    // 토큰 만료 확인
+    if (isTokenExpired()) {
+      console.log("토큰 만료됨, 갱신 시도");
+      
+      try {
+        // 토큰 갱신 요청 - withCredentials 제거
+        const refreshResponse = await axiosInstance.post('/users/refresh', {});
+        
+        console.log("토큰 갱신 성공:", refreshResponse.data);
+        const newToken = refreshResponse.data.accessToken;
+        
+        // 새 토큰 저장
+        setAccessToken(newToken);
+        // 새 토큰 만료 시간 저장
+        if (refreshResponse.data.timeToLive) {
+          setTokenExpiry(refreshResponse.data.timeToLive);
+        }
+        
+        // 원래 요청 헤더에 새 토큰 설정
+        if (config.headers) {
+          config.headers['Authorization'] = `Bearer ${newToken}`;
+        }
+        
+        return config;
+      } catch (error) {
+        console.error("토큰 갱신 실패:", error);
+        return Promise.reject(new Error('Token refresh failed'));
+      }
+    }
+    
     // 헤더에 토큰 추가
-    const token = useAuthStore.getState().token;
+    const token = getAccessToken();
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    // Cache-Control 헤더 추가 (API 명세에 필요한 경우)
-    // if (config.url?.includes('users/login')) {
-    //   config.headers['Cache-Control'] = 'no-store';
-    // }
-
-    if (config.data instanceof FormData) {
-      //post 요청시 interceptor가 application/json으로
-      //설정했을 때 오류가 발생할 수 있음 따라서
-      delete config.headers['Content-Type']; //content-type 자체를 삭제해서 자체적으로
-      //axios에서 부여할 수 있도록 설정한다.
-      return config;
     }
 
     return config;
   },
   (error) => {
-    // 요청 오류 처리
     return Promise.reject(error);
-  },
+  }
 );
 
 // 응답 인터셉터
@@ -47,70 +130,19 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  // (error) => {
-  //   if (error.response) {
-  //     switch (error.response.status) {
-  //       case 400:
-  //         console.error('Bad Request, 400에러 : 클라이언트 오류');
-  //         break;
-  //       case 401:
-  //         console.error('Unauthorized, 401에러 : 인증 오류');
-  //         // 로그아웃 처리 또는 토큰 갱신 로직
-  //         break;
-  //       case 403:
-  //         console.error('Forbidden, 403에러 : 권한 오류');
-  //         break;
-  //       case 404:
-  //         console.error('Not Found, 404에러 : 페이지 없음 오류');
-  //         break;
-  //       default:
-  //         console.error('Server Error, 500에러 외 모든 에러 : 서버 측 에러');
-  //     }
-  //   } else if (error.request) {
-  //     console.error('네트워크 에러');
-  //   } else {
-  //     console.error('Error', error.message);
-  //   }
-
-  // 오류 응답 처리
-  async (error) => {
-    const originalRequest = error.config;
-
-    // 401 오류이고, 재시도하지 않은 경우, 토큰 갱신 요청이 아닌 경우
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/users/token/refresh')
-    ) {
-      originalRequest._retry = true;
-
-      try {
-        // 토큰 갱신 요청 - 직접 API 호출 대신 별도 함수 호출
-        // 여기서는 직접 API를 호출해야 함 (훅 사용 불가)
-        const response = await axiosInstance.post('/users/token/refresh');
-        const newToken = response.data.accessToken;
-
-        // 토큰 저장
-        useAuthStore.getState().setToken(newToken);
-
-        // 원래 요청 헤더 업데이트
-        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-
-        // 원래 요청 재시도
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // 로그인 페이지에 있지 않을 경우만 리디렉션
-        if (window.location.pathname !== '/login') {
-          useAuthStore.getState().clearToken();
-          window.location.href = '/login';
-        }
-        return Promise.reject(refreshError);
-      }
+  (error) => {
+    console.error("API 요청 오류:", error);
+    
+    // 401 오류 로깅
+    if (error.response?.status === 401) {
+      console.log("401 인증 오류 발생");
     }
-
+    
     return Promise.reject(error);
-  },
+  }
 );
+
+// 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
 
 // ------------------------- 서버 fetching api 로직 ---------------------------
 export const characterListAPI = {
@@ -171,5 +203,5 @@ export const shopAPI = {
     axiosInstance.post(`${API.SHOP.BACKLIST}/${productId}`),
 };
 
-// axiosInstance를 기본 내보내기로 설정
+// 기본 내보내기
 export default axiosInstance;

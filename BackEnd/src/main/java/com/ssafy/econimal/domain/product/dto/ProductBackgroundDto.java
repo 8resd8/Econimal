@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 
 public record ProductBackgroundDto(
 	Long productId,
+	Long userBackgroundId,
 	boolean owned,
 	int price
 ) {

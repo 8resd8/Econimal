@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.town.dto;
+package com.ssafy.econimal.domain.town.dto.response;
 
 import java.util.List;
 

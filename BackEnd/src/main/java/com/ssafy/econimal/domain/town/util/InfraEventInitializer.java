@@ -17,17 +17,17 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class InfrastructureEventInitializer {
+public class InfraEventInitializer {
 
-	private final InfrastructureRepository infrastructureRepository;
-	private final InfrastructureEventRepository infrastructureEventRepository;
+	private final InfrastructureRepository infraRepository;
+	private final InfrastructureEventRepository infraEventRepository;
 	private final EcoQuizRepository ecoQuizRepository;
 
 	public void createMissingEventsForTown(Town town) {
-		List<Infrastructure> infrastructures = infrastructureRepository.findByTown(town);
+		List<Infrastructure> infrastructures = infraRepository.findByTown(town);
 
 		for (Infrastructure infra : infrastructures) {
-			boolean exists = infrastructureEventRepository.existsByInfrastructure(infra);
+			boolean exists = infraEventRepository.existsByInfrastructure(infra);
 
 			if (!exists) {
 				// EcoQuiz를 랜덤으로 하나 가져오기 (혹은 특정 방식 선택 가능)
@@ -40,7 +40,7 @@ public class InfrastructureEventInitializer {
 					.isActive(false) // 초기엔 비활성화로 시작
 					.build();
 
-				infrastructureEventRepository.save(event);
+				infraEventRepository.save(event);
 			}
 		}
 	}

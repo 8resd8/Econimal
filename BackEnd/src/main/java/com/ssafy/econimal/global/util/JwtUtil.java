@@ -26,7 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class JwtUtil {
 
 	private final JwtProperties jwtProperties;
-	// private final long accessExpireTime = 1000 * 60 * 30; // 30분 1초 * 60, 1분
+	// private final long accessExpireTime = 1000 * 60 * 30; // 30분
+	// private final long accessExpireTime = 1000 * 60 * 10; // 10분
 	private final long accessExpireTime = 1000 * 60 * 150; // 150분
 	// private final long accessExpireTime = 1000 * 30; // 30초
 
