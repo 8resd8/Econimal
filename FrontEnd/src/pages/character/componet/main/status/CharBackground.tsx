@@ -71,6 +71,7 @@ const CharBackground = () => {
   if (isLoading || isEmotionLoading || isFootLoading)
     return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
+
   if (
     level === undefined ||
     exp === undefined ||
@@ -87,7 +88,7 @@ const CharBackground = () => {
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
       {/* 배경 이미지 */}
       <img
-        src={myCharacterInfo.backImg}
+        src={myCharacterInfo?.backImg}
         alt='캐릭터_배경'
         className='absolute inset-0 w-full h-full object-cover z-0'
       />
