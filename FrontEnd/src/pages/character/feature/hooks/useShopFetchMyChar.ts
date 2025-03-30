@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchMyChar } from '../api/fetchMyChar';
+import { useCharacterActions } from '@/store/useCharStatusStore';
+import { userMyCharActions } from '@/store/useMyCharStore';
 
 export const useShopFetchMyChar = () => {
+  const { setUserCharacterId } = userMyCharActions();
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -30,8 +33,10 @@ export const useShopFetchMyChar = () => {
   });
 
   // 캐릭터 선택 핸들러 => 서버에 보낼 id값을 전달할 내용
+  // 같이 zustand에 값 저장..
   const handleFetchShopChar = (characterId: number) => {
     mutate(characterId);
+    setUserCharacterId(characterId);
   };
 
   return {

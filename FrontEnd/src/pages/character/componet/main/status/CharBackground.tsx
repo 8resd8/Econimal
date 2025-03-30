@@ -35,13 +35,13 @@ const CharBackground = () => {
   const { processedData } = useProcessedCharList();
   const [myCharacterInfo, setMyCharacterInfo] = useState();
 
-  const { faceImg, isLoading: isEmotionLoading } = useEmotionChange({
-    data: { level, exp, coin, expression },
-    myChar: name,
-  });
   const { footImg, isFootLoading } = useFootChange({
     data: { level, exp, coin, expression },
-    myChar: name,
+    myChar: myCharacterInfo?.name,
+  });
+  const { faceImg, isLoading: isEmotionLoading } = useEmotionChange({
+    data: { level, exp, coin, expression },
+    myChar: myCharacterInfo?.name,
   });
 
   const nav = useNavigate();
@@ -55,17 +55,10 @@ const CharBackground = () => {
     }
   }, [processedData]);
 
-  if (myCharacterInfo) {
-    console.log(myCharacterInfo, 'myCharacterInfo');
-  }
-
-  if (myChar) {
-    console.log(myChar);
-  }
-
   useEffect(() => {
     console.log('실시간 상태 변화 확인', level, exp, coin, expression);
-  }, [level, exp, coin, expression]);
+    console.log('내 캐릭터 정보', myCharacterInfo);
+  }, [level, exp, coin, expression, myCharacterInfo]);
 
   useEffect(() => {
     if (!myCharacterId) {
@@ -75,14 +68,17 @@ const CharBackground = () => {
     }
   }, [myCharacterId, nav]);
 
-  if (isLoading || isEmotionLoading) return <div>...로딩중</div>;
+  if (isLoading || isEmotionLoading || isFootLoading)
+    return <div>...로딩중</div>;
   if (isError) return <div>데이터 불러오기 실패</div>;
   if (
     level === undefined ||
     exp === undefined ||
     coin === undefined ||
     !expression ||
-    !myChar
+    !myChar ||
+    !myCharacterId ||
+    !myCharacterInfo
   ) {
     return <div>필수 데이터 없음</div>;
   }
