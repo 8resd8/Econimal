@@ -20,20 +20,30 @@ const TownName = () => {
 
   return (
     <div className='w-full'>
-      <div className='relative flex items-center justify-center px-2 py-2 w-full text-slate-900 border-4 border-slate-700 rounded-lg bg-white/90'>
+      <div className='relative flex items-center justify-center px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-2.5 md:py-2 lg:px-3 lg:py-2.5 xl:px-3.5 xl:py-3 text-slate-900 border-2 border-slate-800 sm:border-1 rounded-lg bg-white/90'>
         {/* 마을 이름 + 마을 */}
-        <div className='flex items-center gap-1 overflow-hidden max-w-[200px]'>
-          <span className='font-bold overflow-hidden text-ellipsis whitespace-nowrap block'>
+        {/* <div className='flex items-center gap-2 sm:gap-4 overflow-hidden max-w-[80%]'> */}
+        <div className='flex items-center gap-4 sm:gap-6 sm:text-sm md:gap-2 md:text-base overflow-hidden max-w-[80%]'>
+          {/* <span className='text-xs sm:text-sm md:text-base font-bold overflow-hidden text-ellipsis whitespace-nowrap block'> */}
+          <span className='text-[10px] xs:text-xs sm:text-sm md:text-base font-bold overflow-hidden text-ellipsis whitespace-nowrap block'>
             {formattedTownName}
           </span>
-          <span className='font-bold flex-shrink-0'>마을</span>
+          {/* <span className='text-xs sm:text-sm md:text-base font-bold flex-shrink-0'> */}
+          <span className='text-[10px] xs:text-xs sm:text-sm md:text-base font-bold flex-shrink-0'>
+            마을
+          </span>
         </div>
 
         <div
-          className='absolute right-3 cursor-pointer hover:bg-gray-300'
+          // className='absolute right-3 cursor-pointer hover:bg-gray-300'
+          className='right-1 sm:right-4 md:right-1 cursor-pointer hover:bg-gray-300 rounded p-0.5'
           onClick={() => setIsModalOpen(true)}
         >
-          <FilePenLine size={16} />
+          {/* <FilePenLine size={16} className='sm:w-4 sm:h-4 md:w-5 md:h-5' /> */}
+          <FilePenLine
+            size={10}
+            className='w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4'
+          />
         </div>
       </div>
 

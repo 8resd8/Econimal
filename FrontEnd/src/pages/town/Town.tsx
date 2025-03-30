@@ -60,15 +60,18 @@ const Town = () => {
 
           {/* 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
           <div className='absolute inset-0'>
-            {/* 홈으로 가는 버튼 */}
-            <div className='absolute top-[20%] left-[4.5%] w-[15%] z-30'>
-              <GoMainBtn />
+            <div className=''>
+              {/* 홈으로 가는 버튼 */}
+              <div className='absolute top-[%] left-[4%] z-30'>
+                <GoMainBtn />
+              </div>
+
+              {/* 마을 이름 - 항상 상단 중앙에 위치 */}
+              <div className='absolute top-[5%] left-[50%] transform -translate-x-1/2 w-[20%] h-[5%] z-30'>
+                <TownName />
+              </div>
             </div>
 
-            {/* 마을 이름 - 항상 상단 중앙에 위치 */}
-            <div className='absolute top-[5%] left-[50%] transform -translate-x-1/2 w-[15%] z-30'>
-              <TownName />
-            </div>
             {/* 가정 컴포넌트 - 배경 이미지 기준 상대적 위치 */}
             <div className='absolute top-[60%] right-[0.1%] transform -translate-x-1/2 -translate-y-1/2 w-[15%] z-20'>
               <MyHouse infraEventId={getInfraEventId('ELECTRICITY')} />
