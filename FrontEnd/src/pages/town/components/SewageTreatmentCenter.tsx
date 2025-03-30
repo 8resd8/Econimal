@@ -16,13 +16,18 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   return (
     <div className={`relative ${className || ''}`}>
       <img
-        className={`w-full h-auto cursor-pointer ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
+        className={`w-full h-auto cursor-pointer ${
+          !isOptimal ? 'brightness-50 grayscale-[100%]' : ''
+        }`}
         src={sewageImg}
         alt='하수처리장'
         onClick={() => setIsModalOpen(true)}
       />
 
-      <EventAlert isActive={isActive} className='top-10 left-4 w-[29%] h-[20%]' />
+      <EventAlert
+        isActive={isActive}
+        className='top-14 left-20 w-[29%] h-[20%]'
+      />
 
       <NormalModal
         open={isModalOpen}
