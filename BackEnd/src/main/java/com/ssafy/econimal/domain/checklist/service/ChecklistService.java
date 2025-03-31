@@ -26,6 +26,7 @@ import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,6 +37,7 @@ public class ChecklistService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final UserChecklistRepository userChecklistRepository;
 	private final UserCharacterRepository userCharacterRepository;
+	private final EntityManager em;
 
 	private static final String CHECKLIST_PREFIX = "CC:";
 
@@ -91,7 +93,8 @@ public class ChecklistService {
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
 			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(userChecklist.getChecklist().getExp(), userCharacter);
-
+		em.flush();
+		em.clear();
 		userChecklist.updateCompletionDate();
 	}
 
