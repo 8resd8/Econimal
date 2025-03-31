@@ -17,6 +17,7 @@ export const useShopFetchMyChar = () => {
       queryClient.invalidateQueries({ queryKey: ['myCharInfo'] });
       queryClient.invalidateQueries({ queryKey: ['charInfo'] });
       queryClient.invalidateQueries({ queryKey: ['myCharInformation'] });
+      queryClient.invalidateQueries({ queryKey: ['charshop'] });
       console.log('서버에 내 캐릭터 전송, 내가 고른 캐릭터 선택 완료');
 
       //서버 zustand에 영향

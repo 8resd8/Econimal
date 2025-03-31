@@ -16,6 +16,7 @@ import { useCharInfo } from '../hooks/useCharInfo';
 import useCharStore from '@/store/useCharStore';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
 import { useShopFetchMyChar } from '../hooks/useShopFetchMyChar';
+import { useShopFetchMyBack } from './../hooks/useShopFetchMyBack';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -46,7 +47,11 @@ const ItemShopLogic = () => {
   const [errorModal, setErrorModal] = useState(false);
   const { myChar } = useCharStore();
   // const { handleFetchShopChar } = useFetchMyChar();
+
+  //상점에서 캐릭터 선택
   const { handleFetchShopChar } = useShopFetchMyChar();
+  const { handleFetchShopBack } = useShopFetchMyBack();
+
   const [selectedForChar, setSelectedForChar] = useState(myChar);
 
   if (myChar) {
@@ -134,12 +139,22 @@ const ItemShopLogic = () => {
     }
   };
 
+  //상점에서 캐릭터 선택
   const selectCharacter = (characterId: number) => {
     if (characterId) {
       handleFetchShopChar(characterId);
       console.log(characterId, 'characterId');
     } else {
       console.error('characterId가 존재하지 않습니다.');
+    }
+  };
+
+  const selectBackground = (backgroundId: number) => {
+    if (backgroundId) {
+      handleFetchShopBack(backgroundId);
+      console.log(backgroundId, 'backgroundId');
+    } else {
+      console.error('backgroundId가 존재하지 않습니다.');
     }
   };
 

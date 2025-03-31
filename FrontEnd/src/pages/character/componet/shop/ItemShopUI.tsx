@@ -20,14 +20,19 @@ const ItemShopUI = ({
   selectedItemForPurchase,
   confirmPurchase,
   selectCharacter, // 선택된 캐릭터 ID 전달 함수
+  selectBackground, //선택된 배경 ID 전달 함수
 }: ItemShopTypes) => {
   const coin = useCharacterCoin();
   const [selectedItemId, setSelectedItemId] = useState<number | null>(
     selectedTab === 'characters' ? null : null,
   );
+  const [selectedBackId, setSekectedBackId] = useState(
+    selectedTab === 'background' ? null : null,
+  );
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     null,
   );
+  const [selectedBackgroundId, setSelectedBackgroundId] = useState(null);
 
   // 보유한 아이템 선택 시 업데이트
   const selectOwnedItem = (productId: number) => {
@@ -38,7 +43,11 @@ const ItemShopUI = ({
     if (currentCharacter) {
       setSelectedCharacterId(currentCharacter.userCharacterId);
     }
+    if (currentCharacter) {
+      setSelectedBackgroundId(currentCharacter.userBackgroundId);
+    }
   };
+  //배경..
 
   return (
     <div className='w-screen h-screen bg-black p-2 flex flex-col items-center relative'>
