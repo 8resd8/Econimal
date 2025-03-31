@@ -51,4 +51,8 @@ public class UserChecklist extends BaseTimeEntity {
 		this.isComplete = isComplete;
 		this.completionDate = completionDate;
 	}
+
+	public void updateCompletionDate() {
+		this.completionDate = LocalDateTime.now();
+	}
 }

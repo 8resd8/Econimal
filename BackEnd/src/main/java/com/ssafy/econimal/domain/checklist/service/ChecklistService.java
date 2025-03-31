@@ -37,7 +37,6 @@ public class ChecklistService {
 	private final UserChecklistRepository userChecklistRepository;
 	private final UserCharacterRepository userCharacterRepository;
 
-	private static final int MAX_CHECKLIST_PER_DAY = 5;
 	private static final String CHECKLIST_PREFIX = "CC:";
 
 	public UserChecklistResponse getUserChecklist(User user) {
@@ -92,6 +91,8 @@ public class ChecklistService {
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
 			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(userChecklist.getChecklist().getExp(), userCharacter);
+
+		userChecklist.updateCompletionDate();
 	}
 
 	private void completeCustomChecklist(User user, String checklistId) {
