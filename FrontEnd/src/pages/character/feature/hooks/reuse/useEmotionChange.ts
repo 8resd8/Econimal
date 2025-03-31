@@ -19,8 +19,9 @@ export const useEmotionChange = ({
       const serverExpression = data.expression;
       const charInfo = myCharInfoConfig.find(
         //config에서 일치하는 캐릭터 찾고
-        (item) => item.name === myChar.name,
+        (item) => item.name === myChar,
       );
+      console.log(charInfo, '일치하는 캐릭터 정보');
 
       const charExpression = charInfo?.expression.find(
         //일치하는 감정 찾기

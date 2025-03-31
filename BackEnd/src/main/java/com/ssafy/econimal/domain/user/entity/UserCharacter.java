@@ -53,7 +53,7 @@ public class UserCharacter extends BaseTimeEntity {
 	private boolean isMain;
 
 	@Builder
-	public UserCharacter(User user, Character character, int level, int totalExp, ExpressionType expression,
+	private UserCharacter(User user, Character character, int level, int totalExp, ExpressionType expression,
 		boolean isMain) {
 		this.user = user;
 		this.character = character;
@@ -61,6 +61,28 @@ public class UserCharacter extends BaseTimeEntity {
 		this.totalExp = totalExp;
 		this.expression = expression;
 		this.isMain = isMain;
+	}
+
+
+	/**
+	 * 기본적으로 레벨을 1,
+	 * 총 경험치를 0으로 설정
+	 * 캐릭터의 감정 상태를 {@code ExpressionType.SADNESS}로 고정
+	 * 메인 캐릭터가 아님({@code isMain=false})을 명시
+	 *
+	 * @param user      해당 캐릭터를 소유한 User 객체
+	 * @param character 초기화할 Character 객체
+	 * @return 기본값이 적용된 UserCharacter 객체
+	 */
+	public static UserCharacter createUserCharacter(User user, Character character) {
+		return UserCharacter.builder()
+			.user(user)
+			.character(character)
+			.level(1)
+			.totalExp(0)
+			.expression(ExpressionType.SADNESS)
+			.isMain(false)
+			.build();
 	}
 
 	public void updateIsMain(boolean isMain) {

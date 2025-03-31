@@ -23,6 +23,7 @@ export const useCharShopItem = (data: ShopItemRes) => {
           price: item.price,
           image: configData?.image,
           characterName: configData?.characterName,
+          userCharacterId: item.userCharacterId,
         };
       }
       return configData;

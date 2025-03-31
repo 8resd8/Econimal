@@ -40,13 +40,7 @@ public class CarbonLogUtil {
 			.orElseThrow(() -> new InvalidArgumentException("해당 유저의 타운 인프라 중 연결된 퀴즈 이벤트가 없습니다."));
 
 		// CarbonLog 생성 및 저장
-		CarbonLog carbonLog = CarbonLog.builder()
-			.user(user)
-			.infrastructureEvent(infraEvent)
-			.ecoAnswer(answer)
-			.carbonQuantity(BigDecimal.valueOf(response.carbon()))
-			.build();
-
+		CarbonLog carbonLog = CarbonLog.createCarbonLog(user, infraEvent, answer, BigDecimal.valueOf(response.carbon()));
 		carbonLogRepository.save(carbonLog);
 	}
 }

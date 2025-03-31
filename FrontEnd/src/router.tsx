@@ -9,7 +9,7 @@ import Earth from './pages/earth/Earth';
 import Animation from './pages/animation/Animation';
 import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
-import CharacterShop from './pages/character/componet/shop/ItemShop';
+import CharacterShop from './pages/character/feature/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
 
 import NetworkErrorScreen from './components/ErrorScreen';

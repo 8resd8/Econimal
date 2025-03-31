@@ -7,13 +7,13 @@ const TownIcon = ({
 }) => {
   return (
     <button
-      className='group w-28 h-28 bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-300 shadow-xl hover:from-blue-200 hover:to-blue-100 transition-colors'
+      className='group w-28 h-24 bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-300 shadow-xl hover:from-blue-200 hover:to-blue-100 transition-colors'
       onClick={(e) => {
         console.log('Button clicked');
         if (onClick) onClick(e);
       }}
     >
-      <div className='w-16 h-16 flex items-center justify-center'>
+      <div className='w-12 h-12 flex items-center justify-center'>
         <svg
           width='56'
           height='56'
@@ -43,7 +43,7 @@ const TownIcon = ({
           <rect x='12' y='15' width='2' height='4' fill='#1d4ed8' />
         </svg>
       </div>
-      <span className='text-base mt-2 font-bold text-blue-700'>마을가기</span>
+      <span className='text-sm mt-2 font-bold text-blue-700'>마을가기</span>
     </button>
   );
 };
