@@ -32,10 +32,10 @@ public class ClimateQueryRepository {
 				format = "%Y-%m-%d %H:00:00";
 			}
 			case "DAY" -> {
-				format = "%Y-%m-%d";
+				format = "%Y-%m-%d 00:00:00";
 			}
 			case "MONTH" -> {
-				format = "%Y-%m";
+				format = "%Y-%m-01 00:00:00";
 			}
 			default -> throw new InvalidArgumentException("Invaild type : " + request.type());
 		}
