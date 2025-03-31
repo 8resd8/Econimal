@@ -4,6 +4,7 @@ import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import houseImg from '@/assets/town/my-house.png';
+import EventAlert from './EventAlert';
 
 const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,12 +24,15 @@ const MyHouse = ({ infraEventId, className }: TownProps) => {
     <div className={`relative ${className || ''}`}>
       <img
         className={`w-full h-auto cursor-pointer ${
-          isActive ? 'animate-pulse' : ''
-        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
+          !isOptimal ? 'brightness-50 grayscale-[100%]' : ''
+        }`}
         src={houseImg}
         alt='가정'
         onClick={() => setIsModalOpen(true)}
       />
+
+      {/* 이벤트 발생 시 빨간 느낌표 표시 */}
+      <EventAlert isActive={isActive} className='top-4 right-8 w-[25%] h-[25%] ' />
 
       <NormalModal
         open={isModalOpen}
