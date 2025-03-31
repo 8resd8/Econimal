@@ -53,7 +53,7 @@ public class AuthValidator {
 
 	// 리프레시 토큰 사용자 검증
 	public Long validateRefreshToken(String refreshToken) {
-		if (!jwtUtil.isTokenValid(refreshToken) || jwtUtil.isRefreshToken(refreshToken)) {
+		if (!jwtUtil.isTokenValid(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
 			throw new AuthenticationException("유효하지 않은 리프레시 토큰입니다.");
 		}
 
