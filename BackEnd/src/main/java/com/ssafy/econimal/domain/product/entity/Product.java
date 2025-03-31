@@ -49,7 +49,7 @@ public class Product extends BaseTimeEntity {
 	private List<UserBackground> userBackgrounds = new ArrayList<>();
 
 	@Builder
-	public Product(ProductType type, int price) {
+	private Product(ProductType type, int price) {
 		this.type = type;
 		this.price = price;
 	}

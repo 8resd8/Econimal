@@ -48,7 +48,7 @@ public class CarbonLog extends BaseTimeEntity {
 	private BigDecimal carbonQuantity = BigDecimal.valueOf(0.00);
 
 	@Builder
-	public CarbonLog(User user, InfrastructureEvent infrastructureEvent, EcoAnswer ecoAnswer, BigDecimal carbonQuantity) {
+	private CarbonLog(User user, InfrastructureEvent infrastructureEvent, EcoAnswer ecoAnswer, BigDecimal carbonQuantity) {
 		this.user = user;
 		this.infrastructureEvent = infrastructureEvent;
 		this.ecoAnswer = ecoAnswer;

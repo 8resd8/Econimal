@@ -39,7 +39,7 @@ public class InfrastructureEvent extends BaseTimeEntity {
 	private boolean isActive;
 
 	@Builder
-	public InfrastructureEvent(Infrastructure infrastructure, EcoQuiz ecoQuiz, boolean isActive) {
+	private InfrastructureEvent(Infrastructure infrastructure, EcoQuiz ecoQuiz, boolean isActive) {
 		this.infrastructure = infrastructure;
 		this.ecoQuiz = ecoQuiz;
 		this.isActive = isActive;
