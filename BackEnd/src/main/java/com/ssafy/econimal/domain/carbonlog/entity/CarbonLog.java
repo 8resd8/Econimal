@@ -54,4 +54,13 @@ public class CarbonLog extends BaseTimeEntity {
 		this.ecoAnswer = ecoAnswer;
 		this.carbonQuantity = carbonQuantity;
 	}
+
+	public static CarbonLog createCarbonLog(User user, InfrastructureEvent infrastructureEvent, EcoAnswer ecoAnswer, BigDecimal bigDecimal) {
+		return CarbonLog.builder()
+			.user(user)
+			.infrastructureEvent(infrastructureEvent)
+			.ecoAnswer(ecoAnswer)
+			.carbonQuantity(bigDecimal)
+			.build();
+	}
 }

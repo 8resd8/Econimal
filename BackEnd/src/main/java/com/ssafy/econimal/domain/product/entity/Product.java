@@ -53,4 +53,11 @@ public class Product extends BaseTimeEntity {
 		this.type = type;
 		this.price = price;
 	}
+
+	public static Product createProduct(ProductType type, int price) {
+		return Product.builder()
+			.type(type)
+			.price(price)
+			.build();
+	}
 }
