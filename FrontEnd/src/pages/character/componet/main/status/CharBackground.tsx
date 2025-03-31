@@ -5,7 +5,7 @@ import CharCoin from './CharCoin';
 import TownIcon from '../moveicon/TownIcon';
 import EarthIcon from '../moveicon/EarthIcon';
 import ShopIcon from '../moveicon/ShopIcon';
-import CharMenu from '../../../feature/status/CharMenu'; // 햄버거 메뉴 추가
+import CharMenu from '../../../feature/status/CharMenu';
 import { useMyCharInfo } from '@/pages/character/feature/hooks/useMyCharInfo';
 import { useEmotionChange } from '@/pages/character/feature/hooks/reuse/useEmotionChange';
 import CharEmotionChange from './CharEmotionChange';
@@ -19,7 +19,12 @@ import {
 } from '@/store/useCharStatusStore';
 import { useFootChange } from '@/pages/character/feature/hooks/reuse/useFootChange';
 import { useProcessedCharList } from '@/pages/character/feature/hooks/reuse/useProcessedCharList';
-import { useMyCharacterId, useMyCharName } from '@/store/useMyCharStore';
+import {
+  useMyCharacterId,
+  useMyCharName,
+  useBackImg,
+  useMyBackgroundId,
+} from '@/store/useMyCharStore';
 
 const CharBackground = () => {
   const { myChar } = useCharStore();
@@ -29,9 +34,10 @@ const CharBackground = () => {
   const coin = useCharacterCoin();
   const expression = useCharacterExpression();
   const myCharacterId = useMyCharacterId();
+  const myBackgroundId = useMyBackgroundId();
   const name = useMyCharName();
+  const customBackImg = useBackImg(); // 직접 저장된 배경 이미지
 
-  // 가공된 데이터를 쓰는게 어떨까? => 계속해서 바뀌니까
   const { processedData } = useProcessedCharList();
   const [myCharacterInfo, setMyCharacterInfo] = useState();
 
@@ -53,12 +59,22 @@ const CharBackground = () => {
       );
       setMyCharacterInfo(myCharInfo);
     }
-  }, [processedData]);
+  }, [processedData, myCharacterId]);
 
   useEffect(() => {
     console.log('실시간 상태 변화 확인', level, exp, coin, expression);
     console.log('내 캐릭터 정보', myCharacterInfo);
-  }, [level, exp, coin, expression, myCharacterInfo]);
+    console.log('현재 배경 ID:', myBackgroundId);
+    console.log('커스텀 배경 이미지:', customBackImg);
+  }, [
+    level,
+    exp,
+    coin,
+    expression,
+    myCharacterInfo,
+    myBackgroundId,
+    customBackImg,
+  ]);
 
   useEffect(() => {
     if (!myCharacterId) {
@@ -86,18 +102,18 @@ const CharBackground = () => {
 
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
-      {/* 배경 이미지 */}
+      {/* 배경 이미지 - 커스텀 배경 이미지 우선 사용 */}
       <img
-        src={myCharacterInfo?.backImg}
+        src={customBackImg || myCharacterInfo?.backImg}
         alt='캐릭터_배경'
         className='absolute inset-0 w-full h-full object-cover z-0'
       />
 
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
-        {/* 🔴 상단 UI (한 줄 정렬) */}
+        {/* 상단 UI (한 줄 정렬) */}
         <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0  z-50'>
-          {/* 🔵 왼쪽: 프로필 + 경험치바 */}
+          {/* 왼쪽: 프로필 + 경험치바 */}
           <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
             <CharProfile
               level={level}
@@ -105,7 +121,6 @@ const CharBackground = () => {
             />
             <div className='relative'>
               <ExpBar current={exp} max={100} className='absolute top-[5px]' />
-              {/* ✅ ⬇ 경험치바를 5px 내림 (3px보다 더 정확한 조정) */}
             </div>
           </div>
 
@@ -120,7 +135,7 @@ const CharBackground = () => {
           </div>
         </div>
 
-        {/* 🟠 왼쪽 이동 버튼 (위치 수정 & 크기 조절) */}
+        {/* 왼쪽 이동 버튼 (위치 수정 & 크기 조절) */}
         <div className='absolute left-5 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-2 md:gap-3 z-[100] scale-[0.65] md:scale-[0.75]'>
           <TownIcon
             onClick={() => nav('/town')}
@@ -136,7 +151,7 @@ const CharBackground = () => {
           />
         </div>
 
-        {/* 🟡 캐릭터 & 발판 */}
+        {/* 캐릭터 & 발판 */}
         <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-36 md:w-40 scale-90 md:scale-100'>
           <div className='relative flex flex-col items-center'>
             {/* 캐릭터 이미지 */}

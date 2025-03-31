@@ -11,6 +11,10 @@ export const usebackShopItem = (data: ShopBackItemTypesRes) => {
   useEffect(() => {
     if (!data || !data.products) return;
 
+    if (data) {
+      console.log(data, 'data@@@@@@@@@');
+    }
+
     const resultData = data.products.map((item: ShopBackItemTypes) => {
       const configData = backgroundShopConfig.find(
         (back) => item.productId === back.productId,

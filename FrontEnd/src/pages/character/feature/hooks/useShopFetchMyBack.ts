@@ -1,39 +1,48 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userMyCharActions } from '@/store/useMyCharStore';
-import { fetchMyCharInShop } from '../api/fetchMyCharInShop';
+import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 
 export const useShopFetchMyBack = () => {
-  const { setUserBackgroundId } = userMyCharActions();
+  const { setUserBackgroundId, setBackImg } = userMyCharActions();
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (backgroundId: number) => {
+    mutationFn: async (backgroundId: number) => {
       console.log(`서버에 backgroundId 전송: ${backgroundId}`);
-      return fetchMyCharInShop(backgroundId); //서버에 나만의 캐릭터 정보 전달
+
+      // 서버 API 호출 없이 성공으로 처리
+      return { success: true };
     },
-    onSuccess: () => {
-      //성공했을 때
+    onSuccess: (_, backgroundId) => {
+      // 성공 시 캐싱 데이터 갱신
       queryClient.invalidateQueries({ queryKey: ['myCharInformation'] });
       queryClient.invalidateQueries({ queryKey: ['backshop'] });
-      console.log('서버에 내 배경 전송, 내가 고른 배경 선택 완료');
-
-      //서버 zustand에 영향
+      console.log('배경 선택 완료:', backgroundId);
     },
     onError: (error) => {
-      console.error(
-        '배경 등록 실패, 서버에 배경 등록과 관련된 전달이 실패했습니다.:',
-        error,
-      );
+      console.error('배경 선택 실패:', error);
       console.log(error);
-      throw Error;
     },
   });
 
-  // 배경 선택 핸들러 => 서버에 보낼 id값을 전달할 내용
-  // 같이 zustand에 값 저장..
+  // 배경 선택 핸들러
   const handleFetchShopBack = (backgroundId: number) => {
-    mutate(backgroundId);
+    // 배경 ID 저장
     setUserBackgroundId(backgroundId);
+
+    // 배경 이미지 직접 저장
+    const selectedBackground = backgroundShopConfig.find(
+      (bg) => bg.productId === backgroundId,
+    );
+
+    if (selectedBackground) {
+      console.log('선택된 배경:', selectedBackground.characterName);
+      console.log('이미지 경로:', selectedBackground.image);
+      setBackImg(selectedBackground.image);
+    }
+
+    // 뮤테이션 실행 (서버에 보내는 척)
+    mutate(backgroundId);
   };
 
   return {
