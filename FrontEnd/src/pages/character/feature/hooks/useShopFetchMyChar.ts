@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchMyChar } from '../api/fetchMyChar';
-import { useCharacterActions } from '@/store/useCharStatusStore';
 import { userMyCharActions } from '@/store/useMyCharStore';
+import { fetchMyCharInShop } from '../api/fetchMyCharInShop';
 
 export const useShopFetchMyChar = () => {
   const { setUserCharacterId } = userMyCharActions();
@@ -10,7 +9,7 @@ export const useShopFetchMyChar = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (characterId: number) => {
       console.log(`서버에 characterId 전송: ${characterId}`);
-      return fetchMyChar(characterId); //서버에 나만의 캐릭터 정보 전달
+      return fetchMyCharInShop(characterId); //서버에 나만의 캐릭터 정보 전달
     },
     onSuccess: () => {
       //성공했을 때

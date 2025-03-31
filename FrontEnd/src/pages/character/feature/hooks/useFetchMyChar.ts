@@ -11,6 +11,7 @@ export const useFetchMyChar = () => {
   const { effectiveId } = useEffectiveId(myCharacterId);
   const queryClient = useQueryClient();
 
+  //메인 캐릭터 패칭
   const { mutate, isPending } = useMutation({
     mutationFn: (userCharacterId: number) => {
       console.log(`서버에 characterId 전송: ${userCharacterId}`);
@@ -19,6 +20,7 @@ export const useFetchMyChar = () => {
     onSuccess: () => {
       //성공했을 때
       queryClient.invalidateQueries({ queryKey: ['MyChar'] });
+      queryClient.invalidateQueries({ queryKey: ['myCharInformation'] });
       console.log('서버에 내 캐릭터 전송, 내가 고른 캐릭터 선택 완료');
     },
     onError: (error) => {
