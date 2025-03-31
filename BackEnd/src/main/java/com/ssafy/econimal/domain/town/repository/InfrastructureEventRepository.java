@@ -17,8 +17,10 @@ public interface InfrastructureEventRepository extends JpaRepository<Infrastruct
 	@Query("select ie from InfrastructureEvent ie join Infrastructure i on ie.infrastructure.id = i.id where i.town.id = :townId")
 	List<InfrastructureEvent> findByInfraEventTownId(@Param("townId") Long townId);
 
-	@Query("select ie from InfrastructureEvent ie where ie.infrastructure.id = :infraId and ie.ecoQuiz.id = :ecoQuizId and ie.isActive = true")
-	Optional<InfrastructureEvent> findByInfrastructureAndEcoQuiz(Long infraId, Long ecoQuizId);
+	@Query("select ie from InfrastructureEvent ie join ie.infrastructure i " +
+		"where ie.ecoQuiz.id = :ecoQuizId and ie.isActive = true and i.town.id = :townId")
+	Optional<InfrastructureEvent> findByEcoQuizAndTown(@Param("ecoQuizId") Long ecoQuizId,
+		@Param("townId") Long townId);
 
 	boolean existsByInfrastructure(Infrastructure infra);
 
