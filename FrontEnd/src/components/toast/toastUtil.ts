@@ -36,7 +36,7 @@ export const showInfraEventNotice = (
   return toast.info(message, { ...defaultOptions, ...options });
 };
 
-// 인프라 이벤트 선택 결과 알림 함수
+// 인프라 이벤트 선택 결과 알림 함수 => ResultModal롷 대체하면 불필요함
 export const showInfraResultNotice = (
   isOptimal: boolean,
   exp: number,
@@ -53,7 +53,7 @@ export const showInfraResultNotice = (
     : '캐릭터가 슬퍼요 😭';
 
   // 단순 텍스트 메시지로 구성 (줄바꿈을 위해 \n\n 사용)
-  const fullMessage = `${resultMessage}\n\n경험치 ${exp} 획득\n코인 ${coin} 획득`;
+  const fullMessage = `${resultMessage}\n\n 경험치 ${exp} 획득\n코인 ${coin} 획득`;
 
   // 최적 해결책 여부에 따라 다른 토스트 타입 사용
   const toastFn = isOptimal ? toast.success : toast.warning;

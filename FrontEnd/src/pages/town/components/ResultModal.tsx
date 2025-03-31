@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 import {
@@ -16,6 +16,7 @@ import {
 import { setModalOpen } from '@/components/EventDetector';
 import { useLocation } from 'react-router-dom';
 import { showInfraResultNotice } from '@/components/toast/toastUtil';
+import { useCharStatusStore } from '@/store/useCharStatusStore'; // 캐릭터 정보 스토어
 
 interface ResultModalProps {
   open: boolean;
@@ -42,7 +43,10 @@ const ResultModal = ({
   const location = useLocation();
   const isTownPage = location.pathname.includes('/town');
 
-  // 모달 열림/닫힘 상태 전역 변수에 반영
+  // 캐릭터 정보가 myChar.name으로 접근할 수 있다면 아래와 같이 수정 필요
+  const [characterName, setCharacterName] = useState('캐릭터');
+
+  // 모달 열림/닫힘 상태 전역 변수에 반영 => 토스트 창이랑 같이 사용안하면 불필요한듯
   useEffect(() => {
     setModalOpen(open);
     return () => setModalOpen(false);
@@ -63,28 +67,40 @@ const ResultModal = ({
       }
     }
   }, [open, result, isTownPage]);
-  // 법원 아닌경우만 표시하고 싶은데
+
+  // ---------- 법원 제외 인프라 ----------
+  /*
+  - 최적의 선택이었어요. 탄소가 {carbon} 감소했어요.
+    {캐릭터}가 행복해요
+    경험치 {exp}, 코인 {coin}을 획득했습니다.
+
+  - 더 좋은 선택이 있었어요. 탄소가 {carbon} 증가했어요.
+    {캐릭터}가 슬퍼요
+
+  */
+  // 선택 결과 메시지(법원 아닌 경우만)
   const getResultMessage = () => {
     if (result.isOptimal) {
-      return '최적의 선택이었어요 😊';
+      return '최적의 선택이었어요';
     } else {
-      return '더 좋은 선택이 있었어요 😓';
+      return '더 좋은 선택이 있었어요';
     }
   };
 
-  const getAnswerMessage = () => {
-    // 오답일 경우만 정답 메시지 출력
-    if (ecoType === 'COURT' && result.isOptimal === false) {
-      if (result.description) {
-        return `정답은 "${result.description}"입니다.`;
+  // 캐릭터 표정 메시지
+  const getExpressionMessage = () => {
+    if (ecoType !== 'COURT' && result.expression) {
+      if (result.expression === 'JOY') {
+        return `${characterName}가 행복해요 🥰`;
+      } else if (result.expression === 'SADNESS') {
+        return `${characterName}가 슬퍼요 😭`;
       } else {
-        return `정답을 확인할 수 없습니다`;
+        return ''; // NEUTRAL이거나 다른 표정일 경우 메시지 없음
       }
     }
-    return '';
   };
 
-  // 탄소 변화 메시지 (법원이 아닌 경우만)
+  // 탄소 변화 메시지(법원 아닌 경우만)
   const getCarbonChangeMessage = () => {
     if (ecoType !== 'COURT') {
       return `탄소가 ${Math.abs(result.carbon)}% ${
@@ -92,6 +108,31 @@ const ResultModal = ({
       }했어요`;
     }
     return '';
+  };
+
+  // 경험치, 코인 획득 메시지
+  const getRewardMessage = () => {
+    if (
+      (ecoType === 'COURT' && result.isOptimal) ||
+      (ecoType !== 'COURT' && result.isOptimal)
+    ) {
+      return `경험치 ${result.exp}, 코인 ${result.coin}을 획득했습니다.`;
+    }
+    return '';
+  };
+
+  // ---------- 법원 ----------
+  /*
+  - 정답 입니다! 경험치 {exp} / 코인 {coin}을 획득하였습니다. 
+  - 오답 입니다. 정답은 {result.description}입니다.
+  */
+  const getAnswerMessage = () => {
+    // 오답일 경우만 정답 메시지 출력
+    if (ecoType === 'COURT' && !result.isOptimal && result.description) {
+      return `정답은 "${result.description}"입니다.`;
+    } else {
+      return '';
+    }
   };
 
   return (
@@ -104,32 +145,41 @@ const ResultModal = ({
 
         <AlertDialogHeader>
           <AlertDialogTitle className='text-xl text-center sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep'>
-            {/* 가장 좋은 답변이에요 / 더 최적인 답안이 있어요 */}
             {getResultMessage()}
           </AlertDialogTitle>
         </AlertDialogHeader>
-        <AlertDialogDescription className='space-y-4'>
-          <div className='flex flex-col items-center w-full gap-4'>
-            {/* 장소에 따라 다른 메시지 표시 */}
-            {ecoType === 'COURT' ? (
-              <p className='text-base sm:text-xl md:text-3xl text-center break-keep whitespace-normal'>
-                {getAnswerMessage()}
-              </p>
-            ) : (
-              <p className='text-base sm:text-xl md:text-3xl text-center break-keep whitespace-normal'>
-                {getCarbonChangeMessage()}
-              </p>
-            )}
-          </div>
+
+        <AlertDialogDescription className='space-y-4 text-center'>
+          {/* 탄소 변화 메시지 (법원 제외) */}
+          {getCarbonChangeMessage() && (
+            <p className='text-xl sm:text-xl md:text-2xl break-keep whitespace-normal'>
+              {getCarbonChangeMessage()}
+            </p>
+          )}
+
+          {/* 캐릭터 표정 메시지 (법원 제외) */}
+          {getExpressionMessage() && (
+            <p className='text-xl sm:text-xl md:text-xl break-keep whitespace-normal'>
+              {getExpressionMessage()}
+            </p>
+          )}
+
+          {/* 정답 메시지 (법원 오답) */}
+          {getAnswerMessage() && (
+            <p className='text-xl sm:text-xl md:text-2xl break-keep whitespace-normal font-medium'>
+              {getAnswerMessage()}
+            </p>
+          )}
+
+          {/* 경험치/코인 획득 메시지 */}
+          {getRewardMessage() && (
+            <p className='text-xl sm:text-lg md:text-xl break-keep whitespace-normal text-green-600 font-medium mt-4'>
+              {getRewardMessage()}
+            </p>
+          )}
         </AlertDialogDescription>
 
-        <AlertDialogFooter>
-          {/* <AlertDialogAction>Continue</AlertDialogAction> */}
-          {/* 확인 버튼이 필요할까? 닫기 눌러도 닫히는데*/}
-          {/* <Button onClick={() => onOpenChange(false)} className='p-3'>
-            확인
-          </Button> */}
-        </AlertDialogFooter>
+        <AlertDialogFooter>{/* shadcn 버튼 있던 자리 */}</AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
