@@ -1,3 +1,4 @@
+// CharBackground.tsx - 배경 표시 부분만 수정
 import useCharStore from '@/store/useCharStore';
 import CharProfile from './CharProfile';
 import ExpBar from '@/components/ExpBar';
@@ -23,7 +24,6 @@ import {
   useMyCharacterId,
   useMyCharName,
   useBackImg,
-  useMyBackgroundId,
 } from '@/store/useMyCharStore';
 
 const CharBackground = () => {
@@ -34,7 +34,6 @@ const CharBackground = () => {
   const coin = useCharacterCoin();
   const expression = useCharacterExpression();
   const myCharacterId = useMyCharacterId();
-  const myBackgroundId = useMyBackgroundId();
   const name = useMyCharName();
   const customBackImg = useBackImg(); // 직접 저장된 배경 이미지
 
@@ -52,6 +51,7 @@ const CharBackground = () => {
 
   const nav = useNavigate();
 
+  // 캐릭터 정보 설정
   useEffect(() => {
     if (processedData) {
       const myCharInfo = processedData.find(
@@ -61,26 +61,10 @@ const CharBackground = () => {
     }
   }, [processedData, myCharacterId]);
 
-  useEffect(() => {
-    console.log('실시간 상태 변화 확인', level, exp, coin, expression);
-    console.log('내 캐릭터 정보', myCharacterInfo);
-    console.log('현재 배경 ID:', myBackgroundId);
-    console.log('커스텀 배경 이미지:', customBackImg);
-  }, [
-    level,
-    exp,
-    coin,
-    expression,
-    myCharacterInfo,
-    myBackgroundId,
-    customBackImg,
-  ]);
-
+  // 캐릭터 선택 확인
   useEffect(() => {
     if (!myCharacterId) {
       nav('/charsel');
-    } else {
-      console.log('캐릭터 정보가 존재합니다.');
     }
   }, [myCharacterId, nav]);
 
@@ -100,11 +84,14 @@ const CharBackground = () => {
     return <div>필수 데이터 없음</div>;
   }
 
+  // 배경 이미지 결정 (저장된 배경 이미지 우선, 없으면 캐릭터 기본 배경)
+  const displayBackgroundImage = customBackImg || myCharacterInfo.backImg;
+
   return (
     <div className='w-screen h-screen flex items-center justify-center bg-white'>
-      {/* 배경 이미지 - 커스텀 배경 이미지 우선 사용 */}
+      {/* 배경 이미지 */}
       <img
-        src={customBackImg || myCharacterInfo?.backImg}
+        src={displayBackgroundImage}
         alt='캐릭터_배경'
         className='absolute inset-0 w-full h-full object-cover z-0'
       />
@@ -112,7 +99,7 @@ const CharBackground = () => {
       {/* 내부 인터페이스 */}
       <div className='relative z-10 w-full h-full'>
         {/* 상단 UI (한 줄 정렬) */}
-        <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0  z-50'>
+        <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0 z-50'>
           {/* 왼쪽: 프로필 + 경험치바 */}
           <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
             <CharProfile
@@ -135,7 +122,7 @@ const CharBackground = () => {
           </div>
         </div>
 
-        {/* 왼쪽 이동 버튼 (위치 수정 & 크기 조절) */}
+        {/* 왼쪽 이동 버튼 */}
         <div className='absolute left-5 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-2 md:gap-3 z-[100] scale-[0.65] md:scale-[0.75]'>
           <TownIcon
             onClick={() => nav('/town')}

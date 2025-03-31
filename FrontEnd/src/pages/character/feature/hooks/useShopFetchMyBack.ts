@@ -1,52 +1,64 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { userMyCharActions } from '@/store/useMyCharStore';
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
 
+// 서버 ID와 로컬 ID 매핑 (항상 최신 서버 ID에 맞게 업데이트)
+const serverToLocalIdMap = {
+  45: 1774, // 물속 모험의 세계
+  46: 1775, // 얼음나라 대탐험
+  47: 1776, // 초원의 비밀 정원
+  48: 1777, // 자연의 숨결
+  49: 1778, // 끝없는 바다 여행
+  50: 1779, // 거대한 얼음 왕국
+};
+
 export const useShopFetchMyBack = () => {
   const { setUserBackgroundId, setBackImg } = userMyCharActions();
-  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (backgroundId: number) => {
-      console.log(`서버에 backgroundId 전송: ${backgroundId}`);
-
-      // 서버 API 호출 없이 성공으로 처리
+      // 서버 API 호출은 생략하고 성공 처리
       return { success: true };
-    },
-    onSuccess: (_, backgroundId) => {
-      // 성공 시 캐싱 데이터 갱신
-      queryClient.invalidateQueries({ queryKey: ['myCharInformation'] });
-      queryClient.invalidateQueries({ queryKey: ['backshop'] });
-      console.log('배경 선택 완료:', backgroundId);
-    },
-    onError: (error) => {
-      console.error('배경 선택 실패:', error);
-      console.log(error);
     },
   });
 
   // 배경 선택 핸들러
   const handleFetchShopBack = (backgroundId: number) => {
-    // 배경 ID 저장
-    setUserBackgroundId(backgroundId);
+    // 1. 올바른 배경 ID 찾기 (서버 ID를 로컬 ID로 변환)
+    const mappedId = serverToLocalIdMap[backgroundId] || backgroundId;
 
-    // 배경 이미지 직접 저장
+    // 2. 배경 이미지 찾기
     const selectedBackground = backgroundShopConfig.find(
-      (bg) => bg.productId === backgroundId,
+      (bg) => bg.productId === mappedId,
     );
 
     if (selectedBackground) {
-      console.log('선택된 배경:', selectedBackground.characterName);
-      console.log('이미지 경로:', selectedBackground.image);
+      // 3. Zustand 상태 업데이트
+      setUserBackgroundId(mappedId);
       setBackImg(selectedBackground.image);
+
+      console.log(
+        `'${selectedBackground.characterName}' 배경이 적용되었습니다`,
+      );
+    } else {
+      console.error(
+        `배경 ID ${backgroundId}(매핑: ${mappedId})를 찾을 수 없습니다`,
+      );
+
+      // 기본 배경 적용 (첫 번째 배경)
+      if (backgroundShopConfig.length > 0) {
+        const defaultBackground = backgroundShopConfig[0];
+        setUserBackgroundId(defaultBackground.productId);
+        setBackImg(defaultBackground.image);
+        console.log(
+          `기본 배경 '${defaultBackground.characterName}'이 적용되었습니다`,
+        );
+      }
     }
 
-    // 뮤테이션 실행 (서버에 보내는 척)
+    // 형식상 서버 통신 (실제로는 처리하지 않음)
     mutate(backgroundId);
   };
 
-  return {
-    handleFetchShopBack,
-    isPending,
-  };
+  return { handleFetchShopBack, isPending };
 };
