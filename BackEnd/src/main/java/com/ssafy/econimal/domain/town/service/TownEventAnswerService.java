@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
 import com.ssafy.econimal.domain.carbonlog.util.CarbonLogUtil;
 import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.town.dto.response.EcoAnswerResponse;
@@ -48,6 +47,7 @@ public class TownEventAnswerService {
 		}
 
 		EcoAnswerResponse response = EcoAnswerResponse.from(answer, description);
+		System.out.println(response.exp());
 		UserCharacter userCharacter = getUserCharacter(user);
 
 		carbonLogUtil.saveCarbonLog(response, user, answer);
@@ -98,7 +98,8 @@ public class TownEventAnswerService {
 
 		// 각 시설에서 ecoQuiz와 매칭되는 이벤트를 찾아 반환
 		return infrastructures.stream()
-			.map(infra -> infrastructureEventRepository.findByInfrastructureAndEcoQuiz(infra, answer.getEcoQuiz()))
+			.map(infra -> infrastructureEventRepository.findByInfrastructureAndEcoQuiz(infra.getId(),
+				answer.getEcoQuiz().getId()))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.findFirst()
