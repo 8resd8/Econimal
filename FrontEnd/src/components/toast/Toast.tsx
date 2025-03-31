@@ -15,6 +15,7 @@ interface ToastProps {
   autoClose?: number;
   className?: string;
   buttonText?: string;
+  onToastClick?: () => void; // 클릭 이벤트 핸들러 추가
 }
 
 const Toast =
@@ -25,6 +26,7 @@ const Toast =
     autoClose = 5000,
     className = '',
     buttonText = '기본 토스트',
+    onToastClick,
   }: ToastProps) => {
     const [toastId, setToastId] = useState<string | number | null>(null);
 
@@ -41,6 +43,10 @@ const Toast =
         position,
         autoClose,
         onClose: () => setToastId(null),
+        onClick: onToastClick, // onClick 이벤트 핸들러 추가
+        // 드래그 및 호버 옵션 명시적으로 지정
+        draggable: false,
+        pauseOnHover: false,
       });
 
       setToastId(id);

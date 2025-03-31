@@ -3,7 +3,7 @@ import { useTownStore } from '@/store/useTownStore';
 import { useGetTownEvents } from '@/pages/town/features/useTownQuery';
 // import { toast, ToastContainer } from 'react-toastify';
 import { showInfraEventNotice } from './toast/toastUtil';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { TownEvent } from '@/pages/town/features/townApi';
 
 // 모달 상태를 전역으로 관리하기 위한 store 생성 또는 활용
@@ -22,6 +22,9 @@ const EventDetector = () => {
   // const [previousActiveEvents, setPreviousActiveEvents] = useState<number[]>(
   //   [],
   // );
+
+  // 페이지 이동을 위한 navigate 훅
+  const navigate = useNavigate();
 
   /* useLocation이란?
   React Router에서 제공하는 훅으로, 현재 URL에 대한 정보를 담고 있는 객체를 반환한다.
@@ -71,7 +74,13 @@ const EventDetector = () => {
 
           // 이벤트 정보가 있을 때만 해당 ecoType으로 토스트 알림 표시
           if (eventInfo) {
-            showInfraEventNotice(eventInfo.ecoType);
+            // 토스트 클릭 시 마을 페이지로 이동하는 핸들러 추가
+            showInfraEventNotice(eventInfo.ecoType, {
+              onClick: () => navigate('/town'),
+              // 토스트가 사라지지 않는 문제 해결을 위한 옵션
+              draggable: false,
+              pauseOnHover: false,
+            });
           }
           // 이벤트 정보가 없으면 토스트창을 표시하지 않음
         });
