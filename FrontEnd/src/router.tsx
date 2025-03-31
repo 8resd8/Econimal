@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import Home from './pages/Home';
+// import Home from './pages/Home';
 import Town from './pages/town/Town';
 import CharacterSelect from './pages/character/CharacterSelect';
 import Login from './pages/Auth/Login';
@@ -15,9 +15,13 @@ import PrologVideo from './components/PrologVideo';
 import NetworkErrorScreen from './components/ErrorScreen';
 import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/NotFoundScreen';
-import ProtectedRoute from './components/ProtectedRoute';
 
-export const router = createBrowserRouter([
+import ProtectedRoute from './components/ProtectedRoute';
+import RootLayout from '@/components/RootLayout';
+
+// 인증 필요/불필요 라우트 분리
+// 인증이 불필요한 라우트
+const publicRoutes = [
   {
     path: '/login',
     element: <Login />,
@@ -34,51 +38,7 @@ export const router = createBrowserRouter([
       />
     ),
   },
-
-// 보호된 경로 (로그인 필요)
-  {
-    element: <ProtectedRoute />,
-    children: [
-      {
-        path: '/',
-        element: <MyCharacter />,
-      },
-      {
-        path: '/store',
-        element: <CharacterShop />,
-      },
-      {
-        path: '/town',
-        element: <Town />,
-      },
-      {
-        path: '/charsel',
-        element: <CharacterSelect />,
-      },
-      {
-        path: '/my',
-        element: <MyPage />,
-      },
-      {
-        path: '/earth',
-        element: <Earth />,
-      },
-      {
-        path: '/animation',
-        element: <Animation />,
-      },
-      {
-        path: '/edit-profile',
-        element: <Edit />,
-      },
-      {
-        path: '/shop',
-        element: <CharacterShop />,
-      },
-    ]
-  },
-  
-  // 에러 및 로딩 페이지
+  // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
   {
     path: '/error',
     element: <NetworkErrorScreen />,
@@ -90,5 +50,62 @@ export const router = createBrowserRouter([
   {
     path: '*',
     element: <NotFoundScreen />,
+  },
+];
+
+// 보호된 라우트트(인증 필요)
+const protectedRoutes = [
+  {
+    index: true,
+    // element: <Home />,
+    element: <MyCharacter />,
+  },
+  {
+    path: '/store',
+    element: <CharacterShop />,
+  },
+  {
+    path: '/town',
+    element: <Town />,
+  },
+  {
+    path: '/charsel',
+    element: <CharacterSelect />,
+  },
+  {
+    path: '/my',
+    element: <MyPage />,
+  },
+  {
+    path: '/earth',
+    element: <Earth />,
+  },
+  {
+    path: '/animation',
+    element: <Animation />,
+  },
+  {
+    path: '/edit-profile',
+    element: <Edit />,
+  },
+  {
+    path: '/shop',
+    element: <CharacterShop />,
+  },
+];
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />, // 루트 레이아웃(이벤트 감지기)으로 모든 라우트를 감싸기
+    children: [
+      // 인증이 필요한 라우트는 ProtectedRoute로 감싸기
+      {
+        element: <ProtectedRoute />,
+        children: protectedRoutes,
+      },
+      // 공개 라우트는 직접 접근 가능
+      ...publicRoutes,
+    ],
   },
 ]);
