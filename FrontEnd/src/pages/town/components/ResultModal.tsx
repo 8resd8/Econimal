@@ -16,7 +16,7 @@ import {
 import { setModalOpen } from '@/components/EventDetector';
 import { useLocation } from 'react-router-dom';
 import { showInfraResultNotice } from '@/components/toast/toastUtil';
-import { useCharStatusStore } from '@/store/useCharStatusStore'; // 캐릭터 정보 스토어
+import { useMyCharName } from '@/store/useMyCharStore'; // 사용자 캐릭터 이름 가져오기
 
 interface ResultModalProps {
   open: boolean;
@@ -43,9 +43,8 @@ const ResultModal = ({
   const location = useLocation();
   const isTownPage = location.pathname.includes('/town');
 
-  // 캐릭터 정보가 myChar.name으로 접근할 수 있다면 아래와 같이 수정 필요
-  const [characterName, setCharacterName] = useState('캐릭터');
-  const charName = useCharStatusStore(); // 뭐가져와야해
+  // 캐릭터 이름 가져오기
+  const characterName = useMyCharName() || '캐릭터'; // 이름이 없을 경우 기본값 제공
 
   // 모달 열림/닫힘 상태 전역 변수에 반영 => 토스트 창이랑 같이 사용안하면 불필요한듯
   useEffect(() => {
