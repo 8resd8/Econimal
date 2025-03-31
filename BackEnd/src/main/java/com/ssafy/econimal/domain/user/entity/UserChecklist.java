@@ -45,11 +45,20 @@ public class UserChecklist extends BaseTimeEntity {
 	private LocalDateTime completionDate;
 
 	@Builder
-	public UserChecklist(User user, Checklist checklist, boolean isComplete, LocalDateTime completionDate) {
+	private UserChecklist(User user, Checklist checklist, boolean isComplete, LocalDateTime completionDate) {
 		this.user = user;
 		this.checklist = checklist;
 		this.isComplete = isComplete;
 		this.completionDate = completionDate;
+	}
+
+	public static UserChecklist createUserChecklist(User user, Checklist checklist) {
+		return UserChecklist.builder()
+			.user(user)
+			.checklist(checklist)
+			.isComplete(false)
+			.completionDate(null)
+			.build();
 	}
 
 	public void updateCompletionDate() {

@@ -66,17 +66,30 @@ public class User extends BaseTimeEntity {
 	private LocalDateTime lastLoginAt;
 
 	@Builder
-	public User(Town town, String email, String name, LocalDate birth, String nickname, String password,
+	private User(Town town, String email, String name, LocalDate birth, String nickname, String password,
 		UserType role) {
 		this.town = town;
 		this.email = email;
 		this.name = name;
 		this.birth = birth;
-		if (nickname == null)
-			nickname = name;
-		this.nickname = nickname;
+		this.nickname = (nickname == null || nickname.isEmpty()) ? name : nickname;
 		this.password = password;
 		this.role = role;
+	}
+
+	public static User createUser(Town town, String email, String name, LocalDate birth, String nickname, String password, UserType role) {
+		if (nickname == null || nickname.isEmpty()) {
+			nickname = name;
+		}
+		return User.builder()
+			.town(town)
+			.email(email)
+			.name(name)
+			.birth(birth)
+			.nickname(nickname)
+			.password(password)
+			.role(role)
+			.build();
 	}
 
 	public void updateLastLoginAt() {
