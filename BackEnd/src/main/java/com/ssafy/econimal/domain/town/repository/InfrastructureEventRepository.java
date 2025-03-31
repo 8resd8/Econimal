@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;
 import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
 import com.ssafy.econimal.domain.town.entity.Town;
@@ -18,7 +17,10 @@ public interface InfrastructureEventRepository extends JpaRepository<Infrastruct
 	@Query("select ie from InfrastructureEvent ie join Infrastructure i on ie.infrastructure.id = i.id where i.town.id = :townId")
 	List<InfrastructureEvent> findByInfraEventTownId(@Param("townId") Long townId);
 
-	Optional<InfrastructureEvent> findByInfrastructureAndEcoQuiz(Infrastructure infra, EcoQuiz ecoQuiz);
+	@Query("select ie from InfrastructureEvent ie join ie.infrastructure i " +
+		"where ie.ecoQuiz.id = :ecoQuizId and ie.isActive = true and i.town.id = :townId")
+	Optional<InfrastructureEvent> findByEcoQuizAndTown(@Param("ecoQuizId") Long ecoQuizId,
+		@Param("townId") Long townId);
 
 	boolean existsByInfrastructure(Infrastructure infra);
 
