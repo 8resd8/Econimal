@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import bgImage from "@/assets/auth_background.png"; // 배경 이미지
@@ -6,10 +6,10 @@ import logoImage from "@/assets/logo.png"; // 로고 이미지
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, handleAutoLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem('autoLogin') === 'true');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   // 비밀번호 표시/숨김 상태
@@ -36,7 +36,8 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await login(email, password);
+      // 자동 로그인 값을 로그인 함수에 전달 (useAuth 훅에서 처리 필요)
+      const response = await login(email, password, rememberMe);
       
       // 로그인 성공 후 처리
       console.log("로그인 성공:", response);
@@ -67,6 +68,25 @@ const Login = () => {
       handleLogin();
     }
   };
+  
+  // 컴포넌트 마운트 시 자동 로그인 시도
+  useEffect(() => {
+    const attemptAutoLogin = async () => {
+      // 저장된 이메일 정보가 있으면 입력 필드에 자동 완성
+      const savedEmail = localStorage.getItem('userEmail');
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      
+      // 자동 로그인 시도
+      const succeeded = await handleAutoLogin();
+      if (succeeded) {
+        console.log('자동 로그인 성공');
+      }
+    };
+    
+    attemptAutoLogin();
+  }, []);
 
   return (
     <div
@@ -83,7 +103,7 @@ const Login = () => {
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="아이디"
             className="pt-2 pb-2 pl-3 border-4 border-white
               rounded-lg bg-black bg-opacity-25 w-full
@@ -95,6 +115,7 @@ const Login = () => {
               type={showPassword1 ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyPress}
               placeholder="비밀번호"
               className="pt-2 pb-2 pl-3 border-4 border-white
               rounded-lg bg-black bg-opacity-25 w-full
@@ -125,6 +146,8 @@ const Login = () => {
               </svg>
             </button>
           </div>
+          
+          {error && <div className="text-red-500 text-sm">{error}</div>}
 
           <button
             onClick={handleLogin}
@@ -133,7 +156,13 @@ const Login = () => {
             {isLoading ? '...' : '로그인'}
           </button>
           <div className="flex items-center justify-center space-x-2 text-sm">
-            <input type="checkbox" id="rememberMe" className="w-4 h-4" />
+            <input 
+              type="checkbox" 
+              id="rememberMe" 
+              className="w-4 h-4"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
             <label htmlFor="rememberMe" className="text-white">
               자동 로그인
             </label>

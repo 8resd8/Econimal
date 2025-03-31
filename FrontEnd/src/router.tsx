@@ -15,29 +15,9 @@ import PrologVideo from './components/PrologVideo';
 import NetworkErrorScreen from './components/ErrorScreen';
 import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/NotFoundScreen';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    // element: <Home />,
-    element: <MyCharacter />,
-  },
-  {
-    path: '/store',
-    element: <CharacterShop />,
-  },
-  {
-    path: '/town',
-    element: <Town />,
-  },
-  {
-    path: '/charsel',
-    element: <CharacterSelect />,
-  },
-  {
-    path: '/my',
-    element: <MyPage />,
-  },
   {
     path: '/login',
     element: <Login />,
@@ -47,22 +27,6 @@ export const router = createBrowserRouter([
     element: <Signup />,
   },
   {
-    path: '/earth',
-    element: <Earth />,
-  },
-  {
-    path: '/animation',
-    element: <Animation />,
-  },
-  {
-    path: '/edit-profile',
-    element: <Edit />,
-  },
-  {
-    path: '/shop',
-    element: <CharacterShop />,
-  },
-  {
     path: '/prolog',
     element: (
       <PrologVideo
@@ -70,7 +34,51 @@ export const router = createBrowserRouter([
       />
     ),
   },
-  // 에러 및 로딩 페이지 테스트(추후 삭제 예정)
+
+// 보호된 경로 (로그인 필요)
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/',
+        element: <MyCharacter />,
+      },
+      {
+        path: '/store',
+        element: <CharacterShop />,
+      },
+      {
+        path: '/town',
+        element: <Town />,
+      },
+      {
+        path: '/charsel',
+        element: <CharacterSelect />,
+      },
+      {
+        path: '/my',
+        element: <MyPage />,
+      },
+      {
+        path: '/earth',
+        element: <Earth />,
+      },
+      {
+        path: '/animation',
+        element: <Animation />,
+      },
+      {
+        path: '/edit-profile',
+        element: <Edit />,
+      },
+      {
+        path: '/shop',
+        element: <CharacterShop />,
+      },
+    ]
+  },
+  
+  // 에러 및 로딩 페이지
   {
     path: '/error',
     element: <NetworkErrorScreen />,
