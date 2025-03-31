@@ -105,7 +105,7 @@ const NormalModal = ({
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep'>
+            <AlertDialogTitle className='text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center'>
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
@@ -115,7 +115,7 @@ const NormalModal = ({
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoAnswerId}
-                  className='flex-1 py-2 sm:py-3 md:py-4 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
+                  className='flex-1 py-4 sm:py-4 md:py-6 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
                   {answer.description}

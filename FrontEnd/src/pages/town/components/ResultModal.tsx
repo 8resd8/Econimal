@@ -45,6 +45,7 @@ const ResultModal = ({
 
   // 캐릭터 정보가 myChar.name으로 접근할 수 있다면 아래와 같이 수정 필요
   const [characterName, setCharacterName] = useState('캐릭터');
+  const charName = useCharStatusStore(); // 뭐가져와야해
 
   // 모달 열림/닫힘 상태 전역 변수에 반영 => 토스트 창이랑 같이 사용안하면 불필요한듯
   useEffect(() => {
