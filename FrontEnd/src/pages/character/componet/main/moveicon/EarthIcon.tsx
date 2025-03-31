@@ -7,12 +7,12 @@ const EarthIcon = ({
 }) => {
   return (
     <button
-      className='group w-28 h-28 bg-gradient-to-b from-green-100 to-green-50 rounded-3xl flex flex-col items-center justify-center border-4 border-green-300 shadow-xl hover:from-green-200 hover:to-green-100 transition-colors'
+      className='group w-28 h-24 bg-gradient-to-b from-green-100 to-green-50 rounded-3xl flex flex-col items-center justify-center border-4 border-green-300 shadow-xl hover:from-green-200 hover:to-green-100 transition-colors'
       onClick={(e) => {
         if (onClick) onClick(e);
       }}
     >
-      <div className='w-16 h-16 flex items-center justify-center'>
+      <div className='w-12 h-12 flex items-center justify-center'>
         <svg
           width='56'
           height='56'
@@ -39,7 +39,7 @@ const EarthIcon = ({
           />
         </svg>
       </div>
-      <span className='text-base mt-2 font-bold text-green-700'>전세계</span>
+      <span className='text-sm mt-2 font-bold text-green-700'>전세계</span>
     </button>
   );
 };

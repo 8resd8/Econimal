@@ -1,4 +1,4 @@
-export interface ItemShopTypes {
+export interface ItemShopTypesUI {
   userCoins: number;
   selectedTab: string;
   setSelectedTab: (tab: string) => void;

@@ -6,8 +6,8 @@ const CharacterCardsUI = ({
   name,
   description,
   img,
-  handlePickChar, //기능 관련
-  isSelected, // 기능 관련
+  handlePickChar,
+  isSelected,
 }: CharacterCardTypes) => {
   return (
     <motion.div
@@ -17,15 +17,32 @@ const CharacterCardsUI = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <div
-        className={`rounded-2xl p-12 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50`}
-      >
-        <div className='rounded-2xl relative w-40 h-40 mx-auto mb-4 bg-white'>
+      <div className='rounded-2xl p-3 transition-all duration-300 hover:shadow-lg flex flex-col items-center bg-green-50 w-52 h-76'>
+        {/* 이미지 영역 - 크기 통일 */}
+        <div className='rounded-lg w-36 h-36 bg-white flex items-center justify-center overflow-hidden p-1'>
           <img src={img} alt={name} className='w-full h-full object-contain' />
         </div>
-        <h3 className='text-xl font-bold text-primary mb-2'>{name}</h3>
-        <p className='text-primary/80'>{description}</p>
-        <CharButton handleEvent={handlePickChar} isSelect={isSelected} />
+
+        {/* 이름 & 설명 간격 조정 */}
+        <div className='flex flex-col items-center mt-3 h-12 text-center'>
+          {/* truncate === 텍스트가 컨테이너를 초과할경우 ... */}
+          {/*  leading-tight : 텍스트 줄 간격을 조정 */}
+          <h3 className='text-xl font-bold text-primary truncate w-40 leading-tight'>
+            {name}
+          </h3>
+          <p className='text-sm text-primary/80 w-40 leading-snu'>
+            {description}
+          </p>
+        </div>
+
+        {/* 선택하기 버튼 - 일정한 높이 유지 */}
+        <div className='mt-auto w-full flex justify-center pt-1'>
+          <CharButton
+            handleEvent={handlePickChar}
+            isSelect={isSelected}
+            className='h-10 w-32'
+          />
+        </div>
       </div>
     </motion.div>
   );

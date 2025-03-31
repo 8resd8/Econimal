@@ -4,6 +4,7 @@ export interface ShopItemTypes {
   image?: string;
   price?: number;
   owned: boolean;
+  userCharacterId?: number;
 }
 
 export interface ShopItemRes {

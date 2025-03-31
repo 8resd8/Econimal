@@ -22,6 +22,7 @@ export const usebackShopItem = (data: ShopBackItemTypesRes) => {
           price: item.price,
           image: configData?.image,
           characterName: configData?.characterName,
+          userBackgroundId: item.userBackgroundId,
         };
       }
       return configData;

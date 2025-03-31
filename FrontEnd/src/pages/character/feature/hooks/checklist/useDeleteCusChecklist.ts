@@ -5,7 +5,7 @@ import { error } from 'console';
 export const useDeleteCusChecklist = () => {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: (checklistId: number) => {
+    mutationFn: (checklistId: string) => {
       return fetchDeleteCustomCheck(checklistId);
     },
     onSuccess: () => {
@@ -20,7 +20,7 @@ export const useDeleteCusChecklist = () => {
     },
   });
 
-  const handleDeleteCustomChecklist = (checklistId: number) => {
+  const handleDeleteCustomChecklist = (checklistId: string) => {
     mutate(checklistId);
   };
 
