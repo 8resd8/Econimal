@@ -39,10 +39,21 @@ public class Infrastructure extends BaseTimeEntity {
 	private boolean isClean = false;
 
 	@Builder
-	public Infrastructure(Town town, Facility facility, boolean isClean) {
+	private Infrastructure(Town town, Facility facility, boolean isClean) {
 		this.town = town;
 		this.facility = facility;
 		this.isClean = isClean;
+	}
+
+	/**
+	 * 기본적으로 청결 상태는 false
+	 */
+	public static Infrastructure createInfra(Town town, Facility facility) {
+		return Infrastructure.builder()
+			.town(town)
+			.facility(facility)
+			.isClean(false)
+			.build();
 	}
 
 	public void updateClean(boolean isClean) {

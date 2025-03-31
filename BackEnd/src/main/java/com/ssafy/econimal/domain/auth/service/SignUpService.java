@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.request.EmailDuplicationRequest;
-import com.ssafy.econimal.domain.auth.dto.response.EmailDuplicationResponse;
 import com.ssafy.econimal.domain.auth.dto.request.SignupRequest;
+import com.ssafy.econimal.domain.auth.dto.response.EmailDuplicationResponse;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
 import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
@@ -26,7 +26,6 @@ import com.ssafy.econimal.domain.user.entity.UserChecklist;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
-import com.ssafy.econimal.global.common.enums.ExpressionType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,56 +51,32 @@ public class SignUpService {
 		String encodedPassword = encoder.encode(request.password1());
 
 		// 마을 생성
-		Town town = Town.builder()
-			.name("이름없는 마을")
-			.build();
+		Town town = Town.createTown(request.name());
 		townRepository.save(town);
 
-		User user = User.builder()
-			.town(town)
-			.email(request.email())
-			.name(request.name())
-			.birth(request.birth())
-			.nickname(request.nickname())
-			.password(encodedPassword)
-			.role(request.userType())
-			.build();
-
+		User user = User.createUser(town, request.email(), request.name(),
+			request.birth(), request.nickname(),
+			encodedPassword, request.userType());
 		User saveUser = userRepository.save(user);
 
 		// UserCharacter 생성
 		List<Character> originalCharacters = characterRepository.findByOriginalIsTrue();
 		for (Character character : originalCharacters) {
-			UserCharacter userCharacter = UserCharacter.builder()
-				.user(user)
-				.character(character)
-				.level(1)
-				.totalExp(0)
-				.expression(ExpressionType.SADNESS)
-				.isMain(false)
-				.build();
+			UserCharacter userCharacter = UserCharacter.createUserCharacter(user, character);
 			userCharacterRepository.save(userCharacter);
 		}
 
 		// 체크리스트 생성
 		List<Checklist> randomChecklists = checklistRandomUtil.getRandomChecklistPerDifficulty();
 		for (Checklist checklist : randomChecklists) {
-			UserChecklist userChecklist = UserChecklist.builder()
-				.user(user)
-				.checklist(checklist)
-				.isComplete(false)
-				.build();
+			UserChecklist userChecklist = UserChecklist.createUserChecklist(user, checklist);
 			userChecklistRepository.save(userChecklist);
 		}
 
 		// Facility에 있는 모든 시설에 대해 Infrastructure 생성
 		List<Facility> facilities = facilityRepository.findAll();
 		for (Facility facility : facilities) {
-			Infrastructure infra = Infrastructure.builder()
-				.town(town)
-				.facility(facility)
-				.isClean(false)
-				.build();
+			Infrastructure infra = Infrastructure.createInfra(town, facility);
 			infrastructureRepository.save(infra);
 		}
 

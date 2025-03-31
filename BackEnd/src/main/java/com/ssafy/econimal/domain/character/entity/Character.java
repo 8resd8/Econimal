@@ -58,7 +58,7 @@ public class Character extends BaseTimeEntity {
 	private boolean isOriginal;
 
 	@Builder
-	public Character(Product product, String name, CharacterType type, String summary, String description,
+	private Character(Product product, String name, CharacterType type, String summary, String description,
 		boolean isOriginal) {
 		this.product = product;
 		this.name = name;

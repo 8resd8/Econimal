@@ -28,8 +28,17 @@ public class Town extends BaseTimeEntity {
 	private String name = "이름없는 마을";
 
 	@Builder
-	public Town(String name) {
+	private Town(String name) {
 		this.name = name;
+	}
+
+	public static Town createTown(String name) {
+		if (name == null || name.isEmpty()) {
+			name = "이름없는 마을";
+		}
+		return Town.builder()
+			.name(name)
+			.build();
 	}
 
 	public void updateTownName(String townName) {

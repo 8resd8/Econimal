@@ -82,7 +82,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void signup_success() throws Exception {
+	void 회원가입성공() throws Exception {
 		SignupRequest request = new SignupRequest(
 			"dkanfjgwls@naver.com",
 			"!password",
@@ -106,7 +106,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void login_success() throws Exception {
+	void 로그인성공() throws Exception {
 		LoginRequest request = new LoginRequest("test@test.com", "!password");
 		LoginResponse response = new LoginResponse("accessToken", 90000000L, false);
 		when(loginService.login(any(LoginRequest.class), any(HttpServletResponse.class))).thenReturn(response);
@@ -123,7 +123,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void logout_success() throws Exception {
+	void 로그아웃성공() throws Exception {
 		String refreshToken = "test리프레쉬토큰";
 		doNothing().when(logoutService).logout(any(String.class), any(HttpServletResponse.class));
 
@@ -138,7 +138,7 @@ class AuthControllerTest {
 
 
 	@Test
-	void refreshToken_success() throws Exception {
+	void 리프레쉬토큰_액세스토큰_재발급성공() throws Exception {
 		String refreshToken = "test리프레쉬토큰";
 		RefreshResponse response = new RefreshResponse("newAccessToken", 90000000L);
 		when(loginService.refreshToken(any(String.class), any(HttpServletResponse.class))).thenReturn(response);
@@ -154,7 +154,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void checkDuplicationEmail_success() throws Exception {
+	void 이메일중복검증성공() throws Exception {
 		EmailDuplicationRequest request = new EmailDuplicationRequest("test@test.com");
 		EmailDuplicationResponse response = new EmailDuplicationResponse(false);
 		when(signUpService.checkDuplicationEmail(any(EmailDuplicationRequest.class))).thenReturn(response);
