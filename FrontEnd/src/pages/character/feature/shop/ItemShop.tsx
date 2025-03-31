@@ -1,7 +1,6 @@
-// ItemShopLogic.tsx
+// 1. 수정된 ItemShopLogic.tsx
 import { useState, useEffect } from 'react';
 import { useCharShopItem } from '../hooks/reuse/useCharShopItem';
-import { backShopList } from '@/config/backShopList';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import ItemShopUI from '../../componet/shop/ItemShopUI';
 import { useShopList } from '../hooks/useShopCharList';
@@ -11,10 +10,7 @@ import ErrorCoinModal from '../../componet/shop/ErrorCoinModal';
 import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
 import { usebackShopItem } from '../hooks/reuse/useBackShopItem';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
-import CharCoin from './../../componet/main/status/CharCoin';
-import { useCharInfo } from '../hooks/useCharInfo';
 import useCharStore from '@/store/useCharStore';
-import { useFetchMyChar } from '../hooks/useFetchMyChar';
 import { useShopFetchMyChar } from '../hooks/useShopFetchMyChar';
 import { useShopFetchMyBack } from './../hooks/useShopFetchMyBack';
 
@@ -39,16 +35,14 @@ const ItemShopLogic = () => {
   // 구매 상품 선택 여부
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
     useState<ShopItemTypes | null>(null);
-  // 대표 캐릭터 변경 선택 여부
 
   //구매 핸들러 호출
   const { handleBuyBackShopItem } = useBuyBackItem();
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
   const { myChar } = useCharStore();
-  // const { handleFetchShopChar } = useFetchMyChar();
 
-  //상점에서 캐릭터 선택
+  //상점에서 캐릭터/배경 선택
   const { handleFetchShopChar } = useShopFetchMyChar();
   const { handleFetchShopBack } = useShopFetchMyBack();
 
@@ -76,6 +70,7 @@ const ItemShopLogic = () => {
               image: '',
               owned: false,
               price: -1,
+              userCharacterId: -1,
             }),
           ]
         : [
@@ -86,10 +81,11 @@ const ItemShopLogic = () => {
               image: '',
               owned: false,
               price: -1,
+              userBackgroundId: -1,
             }),
           ];
     setCurrentItems(currentItem);
-  }, [data, charShopList, selectedTab]);
+  }, [data, backData, charShopList, backShopList, selectedTab]);
 
   if (!data || charShopList.length === 0) {
     return <div>Loading...</div>;
@@ -141,7 +137,7 @@ const ItemShopLogic = () => {
 
   //상점에서 캐릭터 선택
   const selectCharacter = (characterId: number) => {
-    if (characterId) {
+    if (characterId && characterId > 0) {
       handleFetchShopChar(characterId);
       console.log(characterId, 'characterId');
     } else {
@@ -149,8 +145,9 @@ const ItemShopLogic = () => {
     }
   };
 
+  //상점에서 배경 선택
   const selectBackground = (backgroundId: number) => {
-    if (backgroundId) {
+    if (backgroundId && backgroundId > 0) {
       handleFetchShopBack(backgroundId);
       console.log(backgroundId, 'backgroundId');
     } else {
@@ -169,6 +166,7 @@ const ItemShopLogic = () => {
         handlePurchaseClick={handlePurchaseClick}
         hoveredItemId={hoveredItemId}
         selectCharacter={selectCharacter} // 선택된 캐릭터 ID 전달 함수 전달
+        selectBackground={selectBackground} // 선택된 배경 ID 전달 함수 전달
         showModal={showModal}
         setShowModal={setShowModal}
         selectedItemForPurchase={selectedItemForPurchase}
