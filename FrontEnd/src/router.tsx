@@ -17,11 +17,11 @@ import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/NotFoundScreen';
 
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicOnlyRoute from './components/PublicOnlyRoute';
 import RootLayout from '@/components/RootLayout';
 
-// 인증 필요/불필요 라우트 분리
-// 인증이 불필요한 라우트
-const publicRoutes = [
+// 인증이 불필요하지만 로그인한 사용자는 접근 불가한 라우트
+const publicOnlyRoutes = [
   {
     path: '/login',
     element: <Login />,
@@ -30,6 +30,10 @@ const publicRoutes = [
     path: '/signup',
     element: <Signup />,
   },
+];
+
+// 인증 여부와 관계없이 모두 접근 가능한 라우트
+const publicRoutes = [
   {
     path: '/prolog',
     element: (
@@ -104,7 +108,12 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: protectedRoutes,
       },
-      // 공개 라우트는 직접 접근 가능
+      // 인증된 사용자가 접근하면 리다이렉트되는 라우트(로그인, 회원가입)
+      {
+        element: <PublicOnlyRoute />,
+        children: publicOnlyRoutes,
+      },
+      // 인증 상태와 관계없이 모두 접근 가능한 라우트
       ...publicRoutes,
     ],
   },
