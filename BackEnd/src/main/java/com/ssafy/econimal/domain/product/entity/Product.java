@@ -42,6 +42,9 @@ public class Product extends BaseTimeEntity {
 	@Column(name = "price", nullable = false, columnDefinition = "INT DEFAULT 0 CHECK (price >= 0) COMMENT '상품 가격'")
 	private int price;
 
+	@Column(name = "product_name")
+	private String name;
+
 	@OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Character character;
 
@@ -49,15 +52,17 @@ public class Product extends BaseTimeEntity {
 	private List<UserBackground> userBackgrounds = new ArrayList<>();
 
 	@Builder
-	private Product(ProductType type, int price) {
+	private Product(ProductType type, int price, String name) {
 		this.type = type;
 		this.price = price;
+		this.name = name;
 	}
 
-	public static Product createProduct(ProductType type, int price) {
+	public static Product createProduct(ProductType type, int price, String productName) {
 		return Product.builder()
 			.type(type)
 			.price(price)
+			.name(productName)
 			.build();
 	}
 }

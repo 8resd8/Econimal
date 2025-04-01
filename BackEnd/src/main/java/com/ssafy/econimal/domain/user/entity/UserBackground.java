@@ -39,11 +39,24 @@ public class UserBackground extends BaseTimeEntity {
 	@Column(name = "is_main", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	private boolean isMain;
 
+	@Column(name = "user_background_name")
+	private String name;
+
 	@Builder
-	private UserBackground(User user, Product product, boolean isMain) {
+	private UserBackground(User user, Product product, boolean isMain, String name) {
 		this.user = user;
 		this.product = product;
 		this.isMain = isMain;
+		this.name = name;
+	}
+
+	public static UserBackground createUserBackground(User user, Product product, boolean isMain, String name) {
+		return UserBackground.builder()
+			.user(user)
+			.product(product)
+			.isMain(isMain)
+			.name(name)
+			.build();
 	}
 
 	public void updateIsMain(boolean isMain) {
