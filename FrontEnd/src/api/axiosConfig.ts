@@ -1,10 +1,12 @@
 // axiosConfig.ts
 import axios from 'axios';
 import { API } from './apiConfig';
+import { handleApiError } from '@/utils/errorHandler';
 
 // 환경 변수에서 API 도메인 가져오기
 const DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
+// -------------------- 토큰 관련 --------------------
 // 전역 액세스 토큰 저장소 (메모리에만 존재)
 let accessToken: string | null = null;
 // 토큰 만료 시간 저장
@@ -58,7 +60,7 @@ export const clearTokenData = () => {
   sessionStorage.removeItem('tokenExpiry');
 };
 
-// axios 인스턴스 생성
+// -------------------- axios 인스턴스, 인터셉터 --------------------
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
   timeout: 5000,
@@ -131,19 +133,24 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('API 요청 오류:', error);
+    // console.error('API 요청 오류:', error);
+
+    // 중앙화된 에러 처리 함수 호출
+    handleApiError(error);
 
     // 401 오류 로깅
-    if (error.response?.status === 401) {
-      console.log('401 인증 오류 발생');
-    }
+    // if (error.response?.status === 401) {
+    //   console.log('401 인증 오류 발생');
+    // }
 
     return Promise.reject(error);
   },
 );
 
-// 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
+// -------------------- 에러 중앙 관리 --------------------
+// 에러 발견되면 해당 에러 코드에 맞는 페이지로 보내기
 
+// 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
 // ------------------------- 서버 fetching api 로직 ---------------------------
 export const characterListAPI = {
   //캐릭터 리스트 조회 -> 보유한 캐릭터 목록 조회
