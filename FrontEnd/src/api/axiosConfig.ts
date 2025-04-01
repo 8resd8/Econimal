@@ -99,10 +99,10 @@ axiosInstance.interceptors.request.use(
       console.log('토큰 만료됨, 갱신 시도');
 
       try {
-        // 토큰 갱신 요청 - withCredentials 제거
         const refreshResponse = await axiosInstance.post('/users/refresh', {});
 
         console.log('토큰 갱신 성공:', refreshResponse.data);
+        
         const newToken = refreshResponse.data.accessToken;
 
         // 새 토큰 저장

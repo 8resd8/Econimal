@@ -79,10 +79,16 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 백엔드 서버 주소
+        target: 'https://j12a504.p.ssafy.io', // 백엔드 서버 주소
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            // 쿠키 헤더 로깅
+            console.log('쿠키 헤더:', proxyRes.headers['set-cookie']);
+          });
+        },
       },
     },
   },

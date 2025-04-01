@@ -2,30 +2,30 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 // 물방울이 떨어지는 애니메이션
-const drip = keyframes`
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(100px) scale(0.5);
-    opacity: 0;
-  }
-`;
+// const drip = keyframes`
+//   0% {
+//     transform: translateY(0) scale(1);
+//     opacity: 0.7;
+//   }
+//   100% {
+//     transform: translateY(100px) scale(0.5);
+//     opacity: 0;
+//   }
+// `;
 
 // 물방울 떨어지는 효과
-export const Droplet = styled.div<{ delay: number; duration: number; left: string }>`
-  position: absolute;
-  background: linear-gradient(135deg, rgba(66, 158, 189, 0.8), rgba(30, 107, 135, 0.6));
-  width: 10px;
-  height: 15px;
-  border-radius: 50% 50% 50% 50%;
-  top: 50%;
-  left: ${props => props.left};
-  animation: ${drip} ${props => props.duration}s linear infinite;
-  animation-delay: ${props => props.delay}s;
-  z-index: 1;
-`;
+// export const Droplet = styled.div<{ delay: number; duration: number; left: string }>`
+//   position: absolute;
+//   background: linear-gradient(135deg, rgba(66, 158, 189, 0.8), rgba(30, 107, 135, 0.6));
+//   width: 10px;
+//   height: 15px;
+//   border-radius: 50% 50% 50% 50%;
+//   top: 50%;
+//   left: ${props => props.left};
+//   animation: ${drip} ${props => props.duration}s linear infinite;
+//   animation-delay: ${props => props.delay}s;
+//   z-index: 1;
+// `;
 
 // 별이 반짝이는 애니메이션
 const twinkle = keyframes`
@@ -122,23 +122,23 @@ export const Cloud = styled.div<{ progress: number; top: string; left: string; s
 `;
 
 // 떨어지는 물방울 컴포넌트
-export const Drips: React.FC<{ progress: number }> = ({ progress }) => {
+// export const Drips: React.FC<{ progress: number }> = ({ progress }) => {
   // 진행도에 따라 물방울 수 결정 (진행도가 높을수록 더 많은 물방울)
-  const dripCount = Math.floor(progress * 10) + 1;
+//   const dripCount = Math.floor(progress * 10) + 1;
   
-  return (
-    <>
-      {Array.from({ length: dripCount }).map((_, i) => (
-        <Droplet 
-          key={i}
-          delay={i * 0.7}
-          duration={1 + Math.random() * 2}
-          left={`${20 + (i * 5) + Math.random() * 30}%`}
-        />
-      ))}
-    </>
-  );
-};
+//   return (
+//     <>
+//       {Array.from({ length: dripCount }).map((_, i) => (
+//         <Droplet 
+//           key={i}
+//           delay={i * 0.7}
+//           duration={1 + Math.random() * 2}
+//           left={`${20 + (i * 5) + Math.random() * 30}%`}
+//         />
+//       ))}
+//     </>
+//   );
+// };
 
 // 배경 별 컴포넌트
 export const Stars: React.FC = () => {

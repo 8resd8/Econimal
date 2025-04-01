@@ -77,7 +77,7 @@ export const useAuth = () => {
         console.log("토큰 만료 확인 - 로그아웃 처리");
         handleLogout();
       }
-    }, 60000);
+    }, 5000);
   };
   
   // 로그인 함수 - rememberMe 매개변수 추가
@@ -184,8 +184,11 @@ export const useAuth = () => {
       refreshTimerRef.current = null;
     }
     
-    // 항상 만료 10초 전에 갱신 시도 (만료 시간이 10초 미만이면 즉시 갱신)
-    const refreshDelay = Math.max(0, expiresIn - 10000);
+    // 만료 시간의 70%가 지난 후에 갱신 시도 (더 안전한 마진)
+    const refreshDelay = Math.min(
+      Math.max(3000, expiresIn * 0.7),
+      expiresIn * 0.8
+    );
     
     console.log(`토큰 만료 시간: ${expiresIn}ms, ${refreshDelay}ms 후 갱신 예정 (만료 ${Math.min(10000, expiresIn)}ms 전)`);
     
@@ -206,25 +209,42 @@ export const useAuth = () => {
   };
 
   // 액세스 토큰 갱신
-  // axiosConfig.ts 파일 내 토큰 갱신 실패 처리 부분 수정
   const refreshToken = async () => {
     try {
-      const res = await axiosInstance.post("/users/refresh", {});
+      console.log("리프레시 토큰 요청 시작");
+      const res = await axiosInstance.post("/users/refresh", {}, {
+        withCredentials: true
+      });
+      
+      console.log("리프레시 응답:", res.data);
       
       if (!res.data.accessToken) {
+        console.error("응답에 토큰이 없음");
         throw new Error("응답에 토큰이 없음");
       }
       
       setAccessToken(res.data.accessToken);
       setTokenExpiry(res.data.timeToLive);
+      console.log("새 토큰 설정 완료, 만료 시간:", new Date(Date.now() + res.data.timeToLive).toISOString());
       
       return true;
-    } catch (error) {
-      console.error("토큰 갱신 실패:", error);
+    } catch (error: unknown) {
+      console.error("토큰 갱신 실패 상세 정보:", error);
       
-      // 토큰 갱신 실패 시 로그아웃 및 로그인 페이지로 리다이렉트
-      clearTokenData(); // 모든 토큰 데이터 정리
-      window.location.href = '/login'; // 강제 리다이렉트
+      // 타입 가드를 사용하여 안전하게 접근
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { 
+          response?: { 
+            status?: number;
+            data?: any;
+          } 
+        };
+        
+        if (axiosError.response) {
+          console.error("서버 응답 상태:", axiosError.response.status);
+          console.error("서버 응답 데이터:", axiosError.response.data);
+        }
+      }
       
       return false;
     }
@@ -500,7 +520,7 @@ useEffect(() => {
         }
         
         // 토큰 갱신 타이머 설정
-        setupRefreshTimer(300000); // 5분마다 토큰 갱신 시도
+        setupRefreshTimer(3000); // 5분마다 토큰 갱신 시도
       } else {
         // 토큰이 없지만 자동 로그인 설정이 있는 경우
         if (autoLogin) {
