@@ -3,9 +3,9 @@ package com.ssafy.econimal.domain.auth.service;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.econimal.domain.auth.dto.request.EmailRequest;
+import com.ssafy.econimal.domain.auth.exception.SendEmailFailException;
 import com.ssafy.econimal.domain.auth.util.HtmlContent;
 
 import jakarta.mail.MessagingException;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class AuthEmailSendService {
 
@@ -47,7 +46,7 @@ public class AuthEmailSendService {
 			javaMailSender.send(mimeMessage);
 			log.debug("이메일 전송 성공: email: {}, code: {}", email, authCode);
 		} catch (MessagingException e) {
-			throw new RuntimeException("알 수 없는 이유로 이메일 전송 실패");
+			throw new SendEmailFailException("알 수 없는 이유로 이메일 전송 실패", e);
 		}
 	}
 }

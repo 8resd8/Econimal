@@ -35,21 +35,14 @@ public class ProductBackgroundService {
 	}
 
 	public void buyBackgroundProduct(User user, Long productId) {
-		Product wantProductItem = productUtil.findProductById(productId);
-		validator.buyUserCoin(user, wantProductItem.getPrice());
+		Product wantProduct = productUtil.findProductById(productId);
+		validator.buyUserCoin(user, wantProduct.getPrice());
 		validator.alreadyOwned(user, productId);
 
-		UserBackground background = createUserBackground(user, wantProductItem);
+		UserBackground background = UserBackground.createUserBackground(user, wantProduct,
+			wantProduct.getName());
 		userBackgroundRepository.save(background);
 
-		buyProductByCoin(user, wantProductItem.getPrice());
-	}
-
-	private UserBackground createUserBackground(User user, Product product) {
-		return UserBackground.builder()
-			.user(user)
-			.product(product)
-			.isMain(false)
-			.build();
+		buyProductByCoin(user, wantProduct.getPrice());
 	}
 }

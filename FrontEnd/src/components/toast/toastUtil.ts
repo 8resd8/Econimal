@@ -1,6 +1,10 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
+// import { useNavigate } from 'react-router-dom';
+
+// 토스트 컨테이너 ID - 로그아웃 시 모든 토스트를 제거하기 위해 사용
+export const TOAST_CONTAINER_ID = 'app-toast-container';
 
 // 기본 토스트 옵션
 export const defaultOptions: ToastOptions = {
@@ -8,8 +12,9 @@ export const defaultOptions: ToastOptions = {
   autoClose: 3000,
   hideProgressBar: false,
   closeOnClick: true,
-  pauseOnHover: true,
-  draggable: true,
+  pauseOnHover: false, // false로 변경하여 hover 시 일시정지되지 않도록 함
+  draggable: false, // false로 변경하여 드래그로 토스트가 계속 떠있지 않도록 함
+  containerId: TOAST_CONTAINER_ID, // 컨테이너 ID 추가
 };
 
 // 인프라 타입별 메시지 맵
@@ -24,6 +29,7 @@ const infraEventMessages: Record<EcoType, string> = {
 export const showInfraEventNotice = (
   ecoType: string,
   options?: ToastOptions, // 추가 토스트 옵션
+  onClick?: () => void, // 클릭 이벤트 핸들러 추가
 ) => {
   // 모달이 열려있다면 토스트를 표시하지 않음
   if (isModalOpen) {
@@ -33,7 +39,19 @@ export const showInfraEventNotice = (
     infraEventMessages[
       (ecoType as EcoType) || '마을에 새로운 문제가 발생했습니다!'
     ];
-  return toast.info(message, { ...defaultOptions, ...options });
+
+  // onClick 이벤트 핸들러를 합쳐서 전달
+  const finalOptions = {
+    ...defaultOptions,
+    ...options,
+    onClick:
+      onClick ||
+      (() => {
+        // 토스트 클릭 시 town 페이지로 이동하는 기본 동작 추가
+        window.location.href = '/town'; // 간단한 리디렉션 방식 사용
+      }),
+  };
+  return toast.info(message, finalOptions);
 };
 
 // 인프라 이벤트 선택 결과 알림 함수 => ResultModal롷 대체하면 불필요함
@@ -85,6 +103,11 @@ export const showNotice = (
     return -1; // 토스트가 표시되지 않았음을 나타내는 임의의 값
   }
   return toast[type](message, { ...defaultOptions, ...options });
+};
+
+// 로그아웃 시 모든 토스트 제거 함수
+export const clearAllToasts = () => {
+  toast.dismiss({ containerId: TOAST_CONTAINER_ID });
 };
 
 // ---------------필요한가?--------------

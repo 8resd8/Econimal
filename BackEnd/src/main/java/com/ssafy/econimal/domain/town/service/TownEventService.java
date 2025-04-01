@@ -100,8 +100,11 @@ public class TownEventService {
 				break;
 		}
 
-		return Stream.of(positive, negative)
+		List<EcoAnswerDto> generalAnswers = new ArrayList<>(Stream.of(positive, negative)
 			.filter(Objects::nonNull)
-			.toList();
+			.toList());
+
+		Collections.shuffle(generalAnswers);
+		return generalAnswers;
 	}
 }

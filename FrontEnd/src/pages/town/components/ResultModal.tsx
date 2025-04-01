@@ -80,10 +80,15 @@ const ResultModal = ({
   // 선택 결과 메시지(법원 아닌 경우만)
   const getResultMessage = () => {
     if (result.isOptimal) {
-      return '최적의 선택이었어요';
+      return '최적의 선택이었어요!';
     } else {
       return '더 좋은 선택이 있었어요';
     }
+  };
+
+  // 결과 메시지 색상 클래스 반환
+  const getResultMessageColorClass = () => {
+    return result.isOptimal ? 'text-green-600' : 'text-yellow-500';
   };
 
   // 캐릭터 표정 메시지
@@ -104,7 +109,7 @@ const ResultModal = ({
     if (ecoType !== 'COURT') {
       return `탄소가 ${Math.abs(result.carbon)}% ${
         result?.carbon < 0 ? '감소' : '증가'
-      }했어요`;
+      }했어요.`;
     }
     return '';
   };
@@ -115,7 +120,7 @@ const ResultModal = ({
       (ecoType === 'COURT' && result.isOptimal) ||
       (ecoType !== 'COURT' && result.isOptimal)
     ) {
-      return `경험치 ${result.exp}, 코인 ${result.coin}을 획득했습니다.`;
+      return `✨경험치 ${result.exp}, 🪙코인 ${result.coin}을 획득했습니다.`;
     }
     return '';
   };
@@ -143,23 +148,24 @@ const ResultModal = ({
         </AlertDialogCancel>
 
         <AlertDialogHeader>
-          <AlertDialogTitle className='text-xl text-center sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep'>
+          <AlertDialogTitle
+            className={`text-2xl text-center sm:text-3xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep ${getResultMessageColorClass()}`}
+          >
             {getResultMessage()}
           </AlertDialogTitle>
         </AlertDialogHeader>
 
         <AlertDialogDescription className='space-y-4 text-center'>
+          {/* 캐릭터 표정 메시지 (법원 제외) */}
+          {getExpressionMessage() && (
+            <p className='text-xl sm:text-2xl md:text-3xl break-keep whitespace-normal'>
+              {getExpressionMessage()}
+            </p>
+          )}
           {/* 탄소 변화 메시지 (법원 제외) */}
           {getCarbonChangeMessage() && (
             <p className='text-xl sm:text-xl md:text-2xl break-keep whitespace-normal'>
               {getCarbonChangeMessage()}
-            </p>
-          )}
-
-          {/* 캐릭터 표정 메시지 (법원 제외) */}
-          {getExpressionMessage() && (
-            <p className='text-xl sm:text-xl md:text-xl break-keep whitespace-normal'>
-              {getExpressionMessage()}
             </p>
           )}
 
@@ -172,7 +178,7 @@ const ResultModal = ({
 
           {/* 경험치/코인 획득 메시지 */}
           {getRewardMessage() && (
-            <p className='text-xl sm:text-lg md:text-xl break-keep whitespace-normal text-green-600 font-medium mt-4'>
+            <p className='text-xl sm:text-xl md:text-2xl break-keep whitespace-normal font-medium mt-4'>
               {getRewardMessage()}
             </p>
           )}

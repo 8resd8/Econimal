@@ -184,23 +184,23 @@ export const useAuth = () => {
       refreshTimerRef.current = null;
     }
     
-    // 만료 시간의 80%가 지난 후에 갱신 시도
-    // 최소 30초, 최대는 만료 시간의 90%
-    const refreshDelay = Math.min(
-      Math.max(30000, expiresIn * 0.8),
-      expiresIn * 0.9
-    );
+    // 항상 만료 10초 전에 갱신 시도 (만료 시간이 10초 미만이면 즉시 갱신)
+    const refreshDelay = Math.max(0, expiresIn - 10000);
     
-    console.log(`토큰 만료 시간: ${expiresIn}ms, ${refreshDelay}ms 후 갱신 예정`);
+    console.log(`토큰 만료 시간: ${expiresIn}ms, ${refreshDelay}ms 후 갱신 예정 (만료 ${Math.min(10000, expiresIn)}ms 전)`);
     
     refreshTimerRef.current = setTimeout(() => {
       console.log("자동 토큰 갱신 시도:", new Date().toISOString());
-      refreshToken().then(success => {
-        if (!success) {
+      refreshToken().then(isSuccess => {
+        if (!isSuccess) {
           console.log("토큰 갱신 실패, 재시도 중...");
-          // 실패 시 1초 후에 다시 시도
-          setTimeout(() => refreshToken(), 1000);
+          // 실패 시 즉시 재시도
+          refreshToken();
+        } else {
+          console.log("토큰 갱신 성공");
         }
+      }).catch(error => {
+        console.error("토큰 갱신 중 오류 발생:", error);
       });
     }, refreshDelay);
   };
