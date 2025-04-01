@@ -1,5 +1,7 @@
 package com.ssafy.econimal.domain.auth.service;
 
+import static org.springframework.boot.web.server.Cookie.SameSite.*;
+
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -79,8 +81,8 @@ public class LoginService {
 			.httpOnly(true)
 			.path("/")
 			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
-			.secure(isProduction)
-			.sameSite("None") // Strict, Lax, None
+			.secure(true)
+			.sameSite(NONE.name()) // Strict, Lax, None
 			.build();
 		return refreshTokenCookie;
 	}
