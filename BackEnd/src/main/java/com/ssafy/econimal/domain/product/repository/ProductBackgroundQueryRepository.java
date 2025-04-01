@@ -25,8 +25,8 @@ public class ProductBackgroundQueryRepository {
 		return queryFactory
 			.select(new QProductBackgroundDto(
 				product.id,
+				product.name.as("productName"),
 				userBackground.id,
-				userBackground.name.as("userBackgroundName"),
 				userBackground.product.isNotNull(),
 				product.price
 			))

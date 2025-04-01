@@ -79,7 +79,7 @@ export const axiosInstance = axios.create({
 axiosInstance.defaults.withCredentials = true;
 axiosInstance.defaults.baseURL = 'https://j12a504.p.ssafy.io/api';
 
-// 요청 인터셉터
+// 요청 인터셉터 수정
 axiosInstance.interceptors.request.use(
   async (config) => {
     console.log('요청 헤더:', config.headers);
@@ -101,10 +101,10 @@ axiosInstance.interceptors.request.use(
       console.log('토큰 만료됨, 갱신 시도');
 
       try {
-        // 토큰 갱신 요청 - withCredentials 제거
         const refreshResponse = await axiosInstance.post('/users/refresh', {});
 
         console.log('토큰 갱신 성공:', refreshResponse.data);
+        
         const newToken = refreshResponse.data.accessToken;
 
         // 새 토큰 저장
@@ -114,6 +114,11 @@ axiosInstance.interceptors.request.use(
           setTokenExpiry(refreshResponse.data.timeToLive);
         }
 
+        // 이벤트 발행: 토큰이 갱신되었음을 알림
+        window.dispatchEvent(new CustomEvent('token-refreshed', { 
+          detail: { accessToken: newToken, timeToLive: refreshResponse.data.timeToLive } 
+        }));
+
         // 원래 요청 헤더에 새 토큰 설정
         if (config.headers) {
           config.headers['Authorization'] = `Bearer ${newToken}`;
@@ -122,6 +127,8 @@ axiosInstance.interceptors.request.use(
         return config;
       } catch (error) {
         console.error('토큰 갱신 실패:', error);
+        // 토큰 갱신 실패 이벤트 발행
+        window.dispatchEvent(new CustomEvent('token-refresh-failed'));
         return Promise.reject(new Error('Token refresh failed'));
       }
     }
