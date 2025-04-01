@@ -5,7 +5,6 @@ import com.ssafy.econimal.global.common.enums.ExpressionType;
 public class CarbonCalculator {
 
 	public static final double CARBON_PERCENT_TO_EXP_RATIO = 0.2;
-	public static final int MAX_EXP_REWARD = 20;
 
 	private static final int ROUNDING_SCALE = 10;
 
@@ -13,11 +12,7 @@ public class CarbonCalculator {
 	}
 
 	public static double calculateCarbon(int exp) {
-		return Math.round(exp * ROUNDING_SCALE) / (double)ROUNDING_SCALE;
-	}
-
-	public static int convertPercentToExp(double percent) {
-		return (int)Math.round(percent * CARBON_PERCENT_TO_EXP_RATIO);
+		return -Math.round(convertExpToPercent(exp) * ROUNDING_SCALE) / (double)ROUNDING_SCALE;
 	}
 
 	public static double convertExpToPercent(int exp) {
