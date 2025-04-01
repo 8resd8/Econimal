@@ -57,8 +57,12 @@ export const useAuth = () => {
   // 토큰 만료 확인 및 자동 로그아웃 함수
   const checkTokenExpiry = () => {
     if (isTokenExpired()) {
-      console.log("토큰이 만료되었습니다. 자동 로그아웃");
-      handleLogout();
+      console.log("토큰이 만료되었습니다. 갱신 시도");
+      // 자동 로그아웃 대신 토큰 갱신 시도
+      refreshToken().catch(() => {
+        // 갱신 실패 시에만 로그아웃
+        handleLogout(true);
+      });
       return true;
     }
     return false;
@@ -72,12 +76,7 @@ export const useAuth = () => {
     }
     
     // 60초마다 토큰 만료 확인
-    tokenCheckIntervalRef.current = setInterval(() => {
-      if (isTokenExpired()) {
-        console.log("토큰 만료 확인 - 로그아웃 처리");
-        handleLogout();
-      }
-    }, 5000);
+    tokenCheckIntervalRef.current = setInterval(checkTokenExpiry, 60000);
   };
   
   // 로그인 함수 - rememberMe 매개변수 추가
@@ -224,8 +223,19 @@ export const useAuth = () => {
       }
       
       setAccessToken(res.data.accessToken);
+      setToken(res.data.accessToken);
       setTokenExpiry(res.data.timeToLive);
+      setIsAuthenticated(true);
+      
       console.log("새 토큰 설정 완료, 만료 시간:", new Date(Date.now() + res.data.timeToLive).toISOString());
+      
+      // 토큰 갱신 성공 이벤트 발행
+      window.dispatchEvent(new CustomEvent('token-refreshed', { 
+        detail: { accessToken: res.data.accessToken, timeToLive: res.data.timeToLive } 
+      }));
+      
+      // 토큰 갱신 타이머 재설정
+      setupRefreshTimer(res.data.timeToLive);
       
       return true;
     } catch (error: unknown) {
@@ -246,6 +256,9 @@ export const useAuth = () => {
         }
       }
       
+      // 토큰 갱신 실패 이벤트 발행
+      window.dispatchEvent(new CustomEvent('token-refresh-failed'));
+      
       return false;
     }
   };
@@ -258,16 +271,16 @@ export const useAuth = () => {
         withCredentials: true
       });
       
-      handleLogout();
+      handleLogout(true);
     } catch (error) {
       console.error("로그아웃 요청 실패", error);
       // 서버 요청이 실패해도 클라이언트에서는 로그아웃
-      handleLogout();
+      handleLogout(true);
     }
   };
   
   // 로그아웃 처리 공통 함수
-  const handleLogout = () => {
+  const handleLogout = (redirectToLogin = true) => {
     // 타이머 정리
     if (refreshTimerRef.current) {
       clearTimeout(refreshTimerRef.current);
@@ -290,8 +303,10 @@ export const useAuth = () => {
     setIsAuthenticated(false);
     setUser(null);
     
-    // 로그인 페이지로 이동
-    navigate("/login");
+    // redirectToLogin이 true일 때만 로그인 페이지로 이동
+    if (redirectToLogin) {
+      navigate("/login");
+    }
   };
 
   // 사용자 정보 가져오기
@@ -317,7 +332,11 @@ export const useAuth = () => {
         console.log("인증 에러 - 토큰 갱신 시도");
         const refreshSuccessful = await refreshToken();
         if (!refreshSuccessful) {
-          handleLogout();
+          // 토큰 갱신 실패 시 로그아웃하지만 리디렉션은 하지 않음
+          handleLogout(false);
+          
+          // 토큰 갱신 실패 이벤트 발행 (이미 refreshToken 함수에서 발행됨)
+          // window.dispatchEvent(new CustomEvent('token-refresh-failed'));
         } else {
           // 갱신 성공 시 다시 사용자 정보 요청
           return fetchUserData();
@@ -452,7 +471,7 @@ export const useAuth = () => {
     }
   };
 
-  // 자동 로그인 처리 함수 (새로 추가)
+  // 자동 로그인 처리 함수
   const handleAutoLogin = async () => {
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
     const savedEmail = localStorage.getItem('userEmail');
@@ -468,88 +487,142 @@ export const useAuth = () => {
     return false;
   };
 
-  // useAuth.ts에 추가할 코드 (기존 코드에 통합)
-
-// 초기 로드 시 실행 (기존 useEffect의 리팩토링)
-useEffect(() => {
-  const checkAuthStatus = async () => {
-    setLoading(true); // 명시적으로 로딩 상태 설정
+  // 토큰 갱신 성공/실패 이벤트 리스너 추가
+  useEffect(() => {
+    // 토큰 갱신 성공 이벤트 리스너
+    const handleTokenRefreshed = (event: any) => {
+      console.log('토큰 갱신 감지됨:', event.detail);
+      const { accessToken, timeToLive } = event.detail;
+      
+      // Zustand 스토어에 토큰 설정
+      setToken(accessToken);
+      
+      // 인증 상태 업데이트
+      setIsAuthenticated(true);
+      
+      // 토큰 갱신 타이머 재설정
+      setupRefreshTimer(timeToLive);
+      
+      // 사용자 정보 재로드 (선택적)
+      fetchUserData();
+    };
     
-    try {
-      // 메모리에 토큰이 있으면 인증된 상태로 간주
-      const currentToken = getAccessToken();
+    // 토큰 갱신 실패 이벤트 리스너
+    const handleTokenRefreshFailed = () => {
+      console.log('토큰 갱신 실패 감지됨');
+      
+      // 자동 로그인이 설정되어 있는지 확인
       const autoLogin = localStorage.getItem('autoLogin') === 'true';
       
-      if (currentToken) {
-        // Zustand 스토어 상태 업데이트
-        setToken(currentToken);
-        
-        // 토큰 만료 여부 확인
-        if (isTokenExpired()) {
-          console.log("저장된 토큰이 만료됨");
+      if (autoLogin) {
+        // 자동 로그인이 활성화되어 있으면 다시 시도
+        refreshToken().catch(() => {
+          // 두 번째 시도도 실패하면 세션 정리하되 페이지는 유지
+          clearTokenData();
+          clearToken();
+          setIsAuthenticated(false);
+          setUser(null);
           
-          // 자동 로그인 설정이 되어 있으면 토큰 갱신 시도
-          if (autoLogin) {
-            const refreshSuccessful = await refreshToken();
-            if (!refreshSuccessful) {
-              handleLogout();
+          // 로그인 페이지로 리디렉션하는 대신 모달 표시 또는 토스트 메시지만 표시
+          // (모달은 App.tsx에서 처리)
+        });
+      } else {
+        // 자동 로그인이 비활성화되어 있으면 로그아웃 (리디렉션 없이)
+        handleLogout(false);
+      }
+    };
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('token-refreshed', handleTokenRefreshed);
+    window.addEventListener('token-refresh-failed', handleTokenRefreshFailed);
+    
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('token-refreshed', handleTokenRefreshed);
+      window.removeEventListener('token-refresh-failed', handleTokenRefreshFailed);
+    };
+  }, []);
+
+  // 초기 로드 시 실행 (기존 useEffect의 리팩토링)
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      setLoading(true); // 명시적으로 로딩 상태 설정
+      
+      try {
+        // 메모리에 토큰이 있으면 인증된 상태로 간주
+        const currentToken = getAccessToken();
+        const autoLogin = localStorage.getItem('autoLogin') === 'true';
+        
+        if (currentToken) {
+          // Zustand 스토어 상태 업데이트
+          setToken(currentToken);
+          
+          // 토큰 만료 여부 확인
+          if (isTokenExpired()) {
+            console.log("저장된 토큰이 만료됨");
+            
+            // 자동 로그인 설정이 되어 있으면 토큰 갱신 시도
+            if (autoLogin) {
+              const refreshSuccessful = await refreshToken();
+              if (!refreshSuccessful) {
+                handleLogout(false); // 리디렉션 없이 로그아웃
+                setLoading(false);
+                return;
+              }
+            } else {
+              handleLogout(false); // 리디렉션 없이 로그아웃
               setLoading(false);
               return;
             }
-          } else {
-            handleLogout();
-            setLoading(false);
-            return;
           }
+          
+          // 토큰이 유효하면 사용자 정보 로드 및 타이머 설정
+          console.log("초기 로드 - 저장된 토큰 존재");
+          setIsAuthenticated(true);
+          
+          // 토큰 만료 확인 타이머 설정
+          setupTokenExpiryCheck();
+          
+          // 사용자 정보 가져오기
+          try {
+            await fetchUserData();
+            console.log("사용자 정보 로드 성공");
+          } catch (error) {
+            console.error("사용자 정보 로드 실패", error);
+            await refreshToken();
+          }
+          
+          // 토큰 갱신 타이머 설정
+          setupRefreshTimer(3000); // 5분마다 토큰 갱신 시도
+        } else {
+          // 토큰이 없지만 자동 로그인 설정이 있는 경우
+          if (autoLogin) {
+            console.log("자동 로그인 설정 확인됨, 하지만 토큰이 없음");
+            // 여기서 저장된 자격 증명으로 로그인 시도 로직을 추가할 수 있음
+          }
+          
+          setIsAuthenticated(false);
         }
-        
-        // 토큰이 유효하면 사용자 정보 로드 및 타이머 설정
-        console.log("초기 로드 - 저장된 토큰 존재");
-        setIsAuthenticated(true);
-        
-        // 토큰 만료 확인 타이머 설정
-        setupTokenExpiryCheck();
-        
-        // 사용자 정보 가져오기
-        try {
-          await fetchUserData();
-          console.log("사용자 정보 로드 성공");
-        } catch (error) {
-          console.error("사용자 정보 로드 실패", error);
-          await refreshToken();
-        }
-        
-        // 토큰 갱신 타이머 설정
-        setupRefreshTimer(3000); // 5분마다 토큰 갱신 시도
-      } else {
-        // 토큰이 없지만 자동 로그인 설정이 있는 경우
-        if (autoLogin) {
-          console.log("자동 로그인 설정 확인됨, 하지만 토큰이 없음");
-          // 여기서 저장된 자격 증명으로 로그인 시도 로직을 추가할 수 있음
-        }
-        
+      } catch (error) {
+        console.error("인증 상태 확인 중 오류 발생:", error);
         setIsAuthenticated(false);
+      } finally {
+        setLoading(false); // 로딩 상태 종료
       }
-    } catch (error) {
-      console.error("인증 상태 확인 중 오류 발생:", error);
-      setIsAuthenticated(false);
-    } finally {
-      setLoading(false); // 로딩 상태 종료
-    }
-  };
-  
-  checkAuthStatus();
-  
-  // 컴포넌트 언마운트 시 타이머 정리
-  return () => {
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-    }
-    if (tokenCheckIntervalRef.current) {
-      clearInterval(tokenCheckIntervalRef.current);
-    }
-  };
-}, []);
+    };
+    
+    checkAuthStatus();
+    
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+      if (tokenCheckIntervalRef.current) {
+        clearInterval(tokenCheckIntervalRef.current);
+      }
+    };
+  }, []);
 
   // 반환 객체 - 모든 필요한 함수와 상태 포함
   return {
