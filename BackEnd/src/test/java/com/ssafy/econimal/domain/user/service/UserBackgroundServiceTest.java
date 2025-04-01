@@ -43,14 +43,14 @@ class UserBackgroundServiceTest {
 	}
 
 	@Test
-	void 배경변경() {
+	void 배경변경성공() {
 		Product product = productRepository.findById(6L).get();
 		// 새 배경 추가
-		UserBackground userBackground = UserBackground.builder()
-			.product(product)
-			.user(user)
-			.isMain(false)
-			.build();
+		UserBackground userBackground = UserBackground.createUserBackground(
+			user,
+			product,
+			product.getName()
+		);
 
 		UserBackground updateBackground = userBackgroundRepository.save(userBackground);
 		UserBackground originBackground = userBackgroundRepository.findByUserAndMainIsTrue(user).get();
