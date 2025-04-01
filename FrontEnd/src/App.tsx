@@ -25,8 +25,6 @@ const App = () => {
         pauseOnHover={false}
       />
 
-      <ToastContainer />
-
       <ReactQueryDevtools />
     </QueryClientProvider>
   );
