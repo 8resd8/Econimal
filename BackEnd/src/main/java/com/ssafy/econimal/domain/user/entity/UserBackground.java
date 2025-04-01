@@ -50,11 +50,18 @@ public class UserBackground extends BaseTimeEntity {
 		this.name = name;
 	}
 
-	public static UserBackground createUserBackground(User user, Product product, boolean isMain, String name) {
+	/**
+	 * 기본 생성시 isMain = false
+	 * @param user 만드는유저
+	 * @param product 제품
+	 * @param name 제품 이름
+	 * @return
+	 */
+	public static UserBackground createUserBackground(User user, Product product, String name) {
 		return UserBackground.builder()
 			.user(user)
+			.isMain(false)
 			.product(product)
-			.isMain(isMain)
 			.name(name)
 			.build();
 	}
