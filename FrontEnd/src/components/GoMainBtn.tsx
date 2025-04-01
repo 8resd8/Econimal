@@ -7,7 +7,8 @@ const GoMainBtn = () => {
   return (
     <button
       onClick={() => navigate('/')}
-      className='w-[30%] h-[50%] bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-lg flex items-center justify-center transition-transform transform hover:scale-110 border-2 border-white'
+      // className='w-[30%] h-[50%] bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-lg flex items-center justify-center transition-transform transform hover:scale-110 border-2 border-white'
+      className='w-12 h-12 bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-lg flex items-center justify-center transition-transform transform hover:scale-110 border-2 border-white'
       aria-label='홈으로 가기'
     >
       <PawPrint className='w-[70%] h-[70%]' strokeWidth={2} />
