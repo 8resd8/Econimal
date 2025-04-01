@@ -4,8 +4,8 @@ import com.querydsl.core.annotations.QueryProjection;
 
 public record ProductBackgroundDto(
 	Long productId,
+	String productName,
 	Long userBackgroundId,
-	String userBackgroundName,
 	boolean owned,
 	int price
 ) {
