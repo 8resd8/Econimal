@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ssafy.econimal.domain.town.entity.EcoAnswer;
-import com.ssafy.econimal.domain.town.entity.EcoQuiz;
 
 public interface EcoAnswerRepository extends JpaRepository<EcoAnswer, Long> {
 	@Query("SELECT a FROM EcoAnswer a WHERE a.ecoQuiz.id = :quizId")

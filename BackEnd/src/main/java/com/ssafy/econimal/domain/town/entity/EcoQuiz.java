@@ -36,7 +36,7 @@ public class EcoQuiz extends BaseTimeEntity {
 	private String description;
 
 	@Builder
-	public EcoQuiz(Facility facility, String description) {
+	private EcoQuiz(Facility facility, String description) {
 		this.facility = facility;
 		this.description = description;
 	}

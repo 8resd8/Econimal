@@ -190,28 +190,21 @@ export const useAuth = () => {
       expiresIn * 0.8
     );
     
-    console.log(`토큰 만료 시간: ${expiresIn}ms, ${refreshDelay}ms 후 갱신 예정`);
+    console.log(`토큰 만료 시간: ${expiresIn}ms, ${refreshDelay}ms 후 갱신 예정 (만료 ${Math.min(10000, expiresIn)}ms 전)`);
     
     refreshTimerRef.current = setTimeout(() => {
       console.log("자동 토큰 갱신 시도:", new Date().toISOString());
-      let retries = 0;
-      const maxRetries = 3;
-      
-      const attemptRefresh = () => {
-        refreshToken().then(success => {
-          if (!success && retries < maxRetries) {
-            retries++;
-            console.log(`토큰 갱신 실패, ${retries}번째 재시도 중...`);
-            // 지수 백오프로 재시도 간격 증가
-            setTimeout(attemptRefresh, 1000 * Math.pow(2, retries));
-          } else if (!success) {
-            console.log("모든 재시도 실패, 로그아웃 처리");
-            handleLogout();
-          }
-        });
-      };
-      
-      attemptRefresh();
+      refreshToken().then(isSuccess => {
+        if (!isSuccess) {
+          console.log("토큰 갱신 실패, 재시도 중...");
+          // 실패 시 즉시 재시도
+          refreshToken();
+        } else {
+          console.log("토큰 갱신 성공");
+        }
+      }).catch(error => {
+        console.error("토큰 갱신 중 오류 발생:", error);
+      });
     }, refreshDelay);
   };
 

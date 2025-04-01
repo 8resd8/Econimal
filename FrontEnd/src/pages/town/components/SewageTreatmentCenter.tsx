@@ -4,6 +4,7 @@ import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import sewageImg from '@/assets/town/sewage-treatment-center.png';
+import EventAlert from './EventAlert';
 
 const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,19 +14,21 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const isOptimal = useTownStore((state) => state.infraStatus.WATER);
 
   return (
-    <div
-      className={`relative ${className || ''} ${
-        isActive ? 'animate-pulse' : ''
-      }`}
-    >
+    <div className={`relative ${className || ''}`}>
       <img
         className={`w-full h-auto cursor-pointer ${
-          isActive ? 'animate-pulse' : ''
-        } ${!isOptimal ? 'brightness-50 grayscale-[100%]' : ''}`}
+          !isOptimal ? 'brightness-50 grayscale-[100%]' : ''
+        }`}
         src={sewageImg}
         alt='하수처리장'
         onClick={() => setIsModalOpen(true)}
       />
+
+      <EventAlert
+        isActive={isActive}
+        className='top-14 left-10 w-[29%] h-[20%]'
+      />
+
       <NormalModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}

@@ -86,13 +86,13 @@ public class ChecklistService {
 	private void completeDailyChecklist(User user, Long checklistId) {
 		UserChecklist userChecklist = userChecklistRepository.findByUserAndChecklistId(user, checklistId)
 			.orElseThrow(() -> new IllegalArgumentException("해당하는 체크리스트가 없습니다"));
-		userChecklistRepository.completeChecklist(userChecklist.getId());
+
+		userChecklist.updateComplete();
 
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
 			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(userChecklist.getChecklist().getExp(), userCharacter);
 
-		userChecklist.updateCompletionDate();
 	}
 
 	private void completeCustomChecklist(User user, String checklistId) {

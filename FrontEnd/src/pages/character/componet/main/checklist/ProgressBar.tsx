@@ -4,12 +4,14 @@ interface ProgressBarProps {
 
 const ProgressBar = ({ progress }: ProgressBarProps) => {
   return (
-    <div className='w-full bg-gray-200 rounded-full h-4'>
-      {/* 자연스러운 애니메이션 추가를 위해 transition-all : 전환을 사용 && 인라인 스타일 적용*/}
+    <div className='relative w-full bg-gray-200 rounded-full h-6 shadow-inner'>
       <div
-        className='bg-green-500 h-4 rounded-full transition-all' //transition-all : 모든 속성에 전환효과
+        className='bg-gradient-to-r from-blue-400 to-green-400 h-6 rounded-full transition-all'
         style={{ width: `${progress}%` }}
       ></div>
+      <div className='absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-2'>
+        {/* 🌟 {progress}% */}
+      </div>
     </div>
   );
 };

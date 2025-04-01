@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -17,6 +17,8 @@ import {
 } from '../features/useInfraQuery';
 import ResultModal from './ResultModal';
 import { InfraSubmitResponse } from '../features/infraApi';
+import { X } from 'lucide-react';
+import { setModalOpen } from '@/components/EventDetector';
 
 interface CourtModalProps {
   open: boolean;
@@ -25,8 +27,7 @@ interface CourtModalProps {
 }
 
 interface ExtendedInfraSubmitResponse extends InfraSubmitResponse {
-  selectedAnswerId: number;
-  correctDescription: string | null;
+  selectedAnswerId: number; // 사용자가 선택한 답안 ID -> 제거해도 될듯?
 }
 
 const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
@@ -36,38 +37,32 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   );
 
   // 인프라 이벤트 상세 조회 쿼리
-  // Loading을 써 말아
+  // isLoading 사용할 경우 LoadingScreen
   const { data: eventData } = useGetInfraEvent(infraEventId || 0);
 
   // 인프라 이벤트 선택지 제출 뮤테이션
   const submitInfraResult = useSubmitInfraResult();
+
+  // 모달 열림/닫힘 상태 전역 변수에 반영
+  useEffect(() => {
+    setModalOpen(open);
+    return () => setModalOpen(false);
+  }, [open]);
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
     submitInfraResult(ecoAnswerId, 'COURT', {
       onSuccess: (data) => {
         if (data) {
-          // API 응답 데이터를 상태에 저장해? 말아?
-          // 정답 설명 매칭
-          const correctAnswer = answers.find(
-            (a) => a.ecoAnswerId === Number(data.answerId),
-          );
-
-          // description만 따로 저장
-          const resultWithDescription: ExtendedInfraSubmitResponse = {
+          // 사용자가 선택한 ID만 추가
+          const resultWithSelection: ExtendedInfraSubmitResponse = {
             ...data,
             selectedAnswerId: ecoAnswerId,
-            correctDescription: correctAnswer?.description ?? null,
           };
 
-          setResult(resultWithDescription); // result는 이제 description 포함
-
-          // useTownStore 업데이트?
-          // 퀴즈 결과가 스토어에 있던가
-
+          setResult(resultWithSelection);
           onOpenChange(false); // 현재 모달 닫히면서
           // 약간의 애니메이션 효과를 줄까?
-
           setShowResult(true); // 결과 모달 표시
         }
       },
@@ -77,6 +72,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
+    setModalOpen(false);
   };
 
   const fallbackAnswers = [
@@ -95,36 +91,40 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
-        <AlertDialogContent className='p-10'>
+        {/* <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'> */}
+        {/* <AlertDialogContent className='p-3 sm:p-5 md:p-6 w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[50vw] max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto mx-auto !rounded-lg'> */}
+        {/* <AlertDialogContent className='p-3 text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center overflow-y-auto mx-auto !rounded-lg'>
+          <AlertDialogCancel className='absolute right-4 top-4 px-2 py-0 m-2 border-none'> */}
+        <AlertDialogContent className='p-4 sm:p-6 md:p-8 z-50 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
-            X
+            <X />
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-4xl m-6'>
+            {/* <AlertDialogTitle className='text-lg sm:text-xl md:text-2xl lg:text-3xl mx-2 sm:mx-2 md:mx-4 break-keep text-center'> */}
+            <AlertDialogTitle className='text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center'>
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className='space-y-4'>
-            <div className='flex flex-col w-full gap-4'>
+          <div className='space-y-2 sm:space-y-3 md:space-y-4'>
+            <div className='flex flex-wrap gap-4'>
+              {/* <div className='flex flex-col w-full gap-4'> */}
+              {/* <div className='flex flex-col w-full gap-2 sm:gap-3 md:gap-4'> */}
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoAnswerId}
-                  className='flex-1 py-3 text-2xl'
+                  className='flex-1 basis-[calc(50%-0.5rem)] py-4 sm:py-4 md:py-8 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
+                  // className='flex-1 py-1 sm:py-2 text-sm sm:text-base md:text-lg whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
-                  {/* 결과 모달에서 몇번이 정답인지 알려주려면 
-                  선택 모달에서 선택지 내용뿐만이 아니라 번호도 알려줘야함 */}
-                  {/* {answer.ecoAnswerId}. */}
                   {answer.description}
                 </Button>
               ))}
             </div>
-          </AlertDialogDescription>
+          </div>
 
           <AlertDialogFooter>
-            {/* 컨티뉴 버튼이 필요할까? */}
             {/* <AlertDialogAction>Continue</AlertDialogAction> */}
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -136,7 +136,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
           open={showResult}
           onOpenChange={handleResultClose}
           result={result}
-          ecoType='COURT' // [수정] 에코 타입 전달
+          ecoType='COURT' // 에코 타입 전달
         />
       )}
     </>

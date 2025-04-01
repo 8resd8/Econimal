@@ -1,12 +1,10 @@
 package com.ssafy.econimal.domain.town.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
 import com.ssafy.econimal.domain.carbonlog.util.CarbonLogUtil;
 import com.ssafy.econimal.domain.character.util.ExpUtil;
 import com.ssafy.econimal.domain.town.dto.response.EcoAnswerResponse;
@@ -31,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class TownEventAnswerService {
 
-	private final InfrastructureEventRepository infrastructureEventRepository;
+	private final InfrastructureEventRepository infraEventRepository;
 	private final EcoAnswerRepository ecoAnswerRepository;
 	private final UserCharacterRepository userCharacterRepository;
 	private final InfrastructureRepository infrastructureRepository;
@@ -75,7 +73,7 @@ public class TownEventAnswerService {
 			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터가 존재하지 않습니다."));
 	}
 
-	// 법원(COURT)에 대해서 ecoQuizeId를 이용해서 정답인 선지 설명 반환
+	// 법원(COURT)에 대해서 ecoQuizId를 이용해서 정답인 선지 설명 반환
 	private String getEcoAnswerDescription(Long ecoQuizId) {
 		List<EcoAnswer> answerList = ecoAnswerRepository.findAllByEcoQuizId(ecoQuizId);
 		for (EcoAnswer answer : answerList) {
@@ -97,11 +95,7 @@ public class TownEventAnswerService {
 		List<Infrastructure> infrastructures = infrastructureRepository.findByTown(user.getTown());
 
 		// 각 시설에서 ecoQuiz와 매칭되는 이벤트를 찾아 반환
-		return infrastructures.stream()
-			.map(infra -> infrastructureEventRepository.findByInfrastructureAndEcoQuiz(infra, answer.getEcoQuiz()))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.findFirst()
+		return infraEventRepository.findByEcoQuizAndTown(answer.getEcoQuiz().getId(), user.getTown().getId())
 			.orElseThrow(() -> new InvalidArgumentException("해당 유저의 타운 인프라 중 연결된 퀴즈 이벤트가 없습니다."));
 	}
 

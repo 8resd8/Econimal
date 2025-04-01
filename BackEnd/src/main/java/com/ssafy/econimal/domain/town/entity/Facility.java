@@ -35,7 +35,7 @@ public class Facility extends BaseTimeEntity {
 	private EcoType ecoType;
 
 	@Builder
-	public Facility(String facilityName, EcoType ecoType) {
+	private Facility(String facilityName, EcoType ecoType) {
 		this.facilityName = facilityName;
 		this.ecoType = ecoType;
 	}

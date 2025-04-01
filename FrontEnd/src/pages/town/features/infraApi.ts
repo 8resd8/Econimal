@@ -25,7 +25,7 @@ export interface InfraSubmitResponse {
   coin: number; // 경험치하고 동일값, 재화
   expression: 'JOY' | 'SADNESS' | 'NEUTRAL'; // 캐릭터 표정
   isOptimal: boolean; // 최적 답안 여부
-  answerId: number; // 정답 선지 ID
+  description: string; // 정답 설명
   message?: string;
 }
 

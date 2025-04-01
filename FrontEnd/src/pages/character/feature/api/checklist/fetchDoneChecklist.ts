@@ -6,6 +6,7 @@ export const fetchDoneChecklist = async (checklistId: string, type: string) => {
     return response.data;
   } catch (error) {
     console.log('체크리스트를 완료하는 과정에서 에러가 발생했습니다.');
+    console.log(error);
     throw error;
   }
 };

@@ -1,15 +1,9 @@
-// interface CharButtonProps {
-//   handleEvent: () => void;
-//   isSelect: boolean;
-// }
-
-const CharButton = ({
-  handleEvent,
-  isSelect,
-}: {
+interface CharButtonProps {
   handleEvent: () => void;
   isSelect: boolean;
-}) => {
+}
+
+const CharButton = ({ handleEvent, isSelect }: CharButtonProps) => {
   return (
     <button
       onClick={(e) => {
