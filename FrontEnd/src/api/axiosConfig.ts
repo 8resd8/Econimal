@@ -152,22 +152,11 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     console.error('API 요청 오류:', error);
-    // console.error('API 요청 오류:', error);
 
-    // 중앙화된 에러 처리 함수 호출
-    handleApiError(error);
-
-    // 401 오류 로깅
-    // if (error.response?.status === 401) {
-    //   console.log('401 인증 오류 발생');
-    // }
-
+    handleApiError(error); // 중앙화된 에러 처리 함수 호출
     return Promise.reject(error);
   },
 );
-
-// -------------------- 에러 중앙 관리 --------------------
-// 에러 발견되면 해당 에러 코드에 맞는 페이지로 보내기
 
 // 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
 // ------------------------- 서버 fetching api 로직 ---------------------------
