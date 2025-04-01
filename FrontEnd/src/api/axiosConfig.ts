@@ -142,17 +142,14 @@ axiosInstance.interceptors.response.use(
   response => {
     console.log('전체 응답:', response);
     console.log('응답 헤더:', response.headers);
-    console.log('Set-Cookie:', response.headers['set-cookie']);
+    
+    // 현재 쿠키 상태 확인 (HttpOnly 쿠키는 보이지 않음)
+    console.log('현재 쿠키:', document.cookie);
+    
     return response;
   },
   (error) => {
     console.error('API 요청 오류:', error);
-
-    // 401 오류 로깅
-    if (error.response?.status === 401) {
-      console.log('401 인증 오류 발생');
-    }
-
     return Promise.reject(error);
   },
 );
