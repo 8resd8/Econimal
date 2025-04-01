@@ -1,10 +1,10 @@
 package com.ssafy.econimal.domain.town.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.town.repository.EcoAnswerRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureEventRepository;
-import com.ssafy.econimal.domain.town.util.InfraEventInitializer;
+import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.common.enums.EcoType;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
@@ -33,25 +33,20 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class TownEventService {
 
+	private final InfrastructureRepository infraRepository;
 	private final InfrastructureEventRepository infraEventRepository;
 	private final EcoAnswerRepository ecoAnswerRepository;
-	private final InfraEventInitializer infraEventInitializer;
 
 	public TownStatusResponse getTownStatus(User user) {
+
 		Town town = user.getTown();
 
-		// 내부 InfraEvent 조회하기 전 없을 경우 InfraEvent 추가
-		infraEventInitializer.createMissingEventsForTown(town);
-
 		// InfraEvent 조회
-		List<InfrastructureEvent> events = infraEventRepository.findByInfraEventTownId(town.getId());
-		System.out.println("town.getId() = " + town.getId());
-		System.out.println("events.size() = " + events.size());
-		updateInactiveEvents(events);
+		List<InfrastructureEvent> events = infraEventRepository.findLatestByTown(town);
 
 		List<InfrastructureEventResponse> responseList = events.stream()
 			.map(InfrastructureEventResponse::from)
-			.toList();
+			.collect(Collectors.toList());
 
 		return new TownStatusResponse(town.getName(), responseList);
 	}
@@ -105,19 +100,11 @@ public class TownEventService {
 				break;
 		}
 
-		return Stream.of(positive, negative)
+		List<EcoAnswerDto> generalAnswers = new ArrayList<>(Stream.of(positive, negative)
 			.filter(Objects::nonNull)
-			.toList();
-	}
+			.toList());
 
-	private void updateInactiveEvents(List<InfrastructureEvent> events) {
-		LocalDateTime now = LocalDateTime.now();
-		events.forEach(event -> {
-			// 활성화 되어 있지 않고 1분이 넘었을 경우 활성화, 배경은 그대로
-			if (!event.isActive() && event.getUpdatedAt().isBefore(now.minusMinutes(1))) {
-				event.updateActive(event.getInfrastructure().isClean(), true);
-			}
-		});
+		Collections.shuffle(generalAnswers);
+		return generalAnswers;
 	}
-
 }

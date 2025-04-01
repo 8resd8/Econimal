@@ -10,7 +10,7 @@ export const useEditCusChecklist = () => {
       checklistId,
       description,
     }: {
-      checklistId: number;
+      checklistId: string;
       description: string;
     }) => {
       return fetchEditCustomCheck(checklistId, description);
@@ -22,7 +22,7 @@ export const useEditCusChecklist = () => {
   });
 
   const handleEditCustomChecklist = (
-    checklistId: number,
+    checklistId: string,
     description: string,
   ) => {
     mutate({ checklistId, description });

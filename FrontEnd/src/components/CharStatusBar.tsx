@@ -29,7 +29,7 @@ const CharStatusBar = () => {
         <CharProfile level={level} profileImg={myChar.profileImg} />
         <ExpBar current={exp} max={100} />
       </div>
-      <CharCoin coin={coin} />
+      {/* <CharCoin coin={coin} /> */}
     </div>
   );
 };

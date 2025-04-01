@@ -1,5 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { InfraSubmitResponse, InfraEventResponse } from '../features/infraApi';
+import ResultModal from './ResultModal';
+import { setModalOpen } from '@/components/EventDetector';
+import { X } from 'lucide-react';
+
 import {
   AlertDialog,
   // AlertDialogAction,
@@ -16,8 +20,6 @@ import {
   useGetInfraEvent,
   useSubmitInfraResult,
 } from '../features/useInfraQuery';
-// import { useTownStore } from '@/store/useTownStore';
-import ResultModal from './ResultModal';
 
 interface NormalModalProps {
   open: boolean;
@@ -36,16 +38,18 @@ const NormalModal = ({
   // const [result, setResult] = useState(null); // 타입지정... <InfraSubmitResponse> import해서 사용...?
   const [result, setResult] = useState<InfraSubmitResponse | null>(null); // api 응답 받을때 검증한거 아닌가... 왜 또 해야하지
 
-  // useTownStore에서 액션을 가져오는 로직으로 구현한다면
-  // const { addCarbon, addExp, addCoin, setExpression } = useTownStore();
-  // -> 스토어 말고 백에서 api 응답 받은 값으로 처리
-
   // 인프라 이벤트 상세 조회 쿼리
   // const { data: eventData, isLoading, error } = useGetInfraEvent(infraEventId);
   const { data: eventData } = useGetInfraEvent(infraEventId || 0);
 
   // 인프라 이벤트 선택지 제출 뮤테이션
   const submitInfraResult = useSubmitInfraResult();
+
+  // 모달 열림/닫힘 상태 전역 변수에 반영
+  useEffect(() => {
+    setModalOpen(open);
+    return () => setModalOpen(false);
+  }, [open]);
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
@@ -59,6 +63,7 @@ const NormalModal = ({
           // addExp(data.exp);
           // addCoin(data.coin);
           // setExpression(data.expression);
+          // 모달 닫히면 /towns/events 응답와서 그쪽 로직에서 처리되는듯?
 
           // 선택지 모달 닫고 결과 모달 표시
           onOpenChange(false);
@@ -71,7 +76,7 @@ const NormalModal = ({
   // 결과 모달 닫기 핸들러
   const handleResultClose = () => {
     setShowResult(false);
-    onOpenChange(false); // 원래 모달도 닫기? 이미 닫혀있는데?
+    setModalOpen(false);
   };
 
   // // 로딩 중이거나 에러 발생 시 처리
@@ -94,33 +99,30 @@ const NormalModal = ({
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger></AlertDialogTrigger> */}
-        <AlertDialogContent className='p-10 z-50'>
+        <AlertDialogContent className='p-4 sm:p-6 md:p-8 z-50 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
-            X
+            <X />
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            <AlertDialogTitle className='text-4xl m-6 break-keep'>
-              {/* <AlertDialogTitle className='text-4xl m-6'> */}
+            <AlertDialogTitle className='text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center'>
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription className='space-y-4'>
+          <div className='space-y-4'>
             <div className='flex flex-col w-full gap-4'>
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoAnswerId}
-                  className='flex-1 py-5 text-2xl'
+                  className='flex-1 py-4 sm:py-4 md:py-6 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
-                  {/* 선지 번호, 내용 */}
-                  {/* {answer.ecoAnswerId}. */}
                   {answer.description}
                 </Button>
               ))}
             </div>
-          </AlertDialogDescription>
+          </div>
 
           <AlertDialogFooter></AlertDialogFooter>
         </AlertDialogContent>

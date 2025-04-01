@@ -26,6 +26,7 @@ const useCharStore = create<PersistedCharState>(
           ...char,
           id: char.id || char.userCharacterId || 1,
           userCharacterId: char.userCharacterId || char.id || 1,
+          backgroundId: char.backgroundId || 1,
         };
 
         set({ myChar: validatedChar });

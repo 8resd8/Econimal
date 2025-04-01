@@ -3,6 +3,7 @@ import { characterConfig } from '@/config/characterConfig';
 import { useProcessedCharList } from '../../feature/hooks/reuse/useProcessedCharList';
 
 const CharacterCardsList = () => {
+  // 캐릭터 list 전달(가공 받은 데이터, 정적 + server)
   const { processedData, isLoading } = useProcessedCharList(); //가공한 데이터 -> 서버에서 fetching 받아온 데이터들 기반으로
 
   // 로딩중의 경우 로딩중임을 명시한다.
@@ -28,17 +29,20 @@ const CharacterCardsList = () => {
   }
 
   // 따라서 가공된 데이터의 processedData의 값을 하위에 mapping으로 뿌려줌
-  // 서버에서 받은 ip값을 우선적으로 진행하고 있음
+  // 서버에서 받은값을 우선적으로 진행하고 있음
   return (
-    <div className='flex-col justify-center items-center'>
-      <h2 className='flex mb-6 flex-1 text-4xl text-center justify-center items-center text-white'>
-        환경 위기에서 구해줄 친구를 골라주세요!
+    <div className='flex flex-col items-center min-h-screen px-4 py-8 overflow-auto'>
+      {/* 제목 */}
+      <h2 className='text-2xl sm:text-3xl font-bold text-center text-white mb-6 leading-snug'>
+        🌎 환경 위기에서 구해줄 친구를 골라주세요!
       </h2>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+
+      {/* 카드 리스트 */}
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl'>
         {dataToRender.map((item) => (
           <div
             key={item.userCharacterId || item.id || item.name}
-            className='flex-1 justify-center items-center gap-3'
+            className='flex justify-center items-center'
           >
             <CharacterCards {...item} />
           </div>

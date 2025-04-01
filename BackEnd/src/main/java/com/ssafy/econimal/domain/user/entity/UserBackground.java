@@ -40,7 +40,7 @@ public class UserBackground extends BaseTimeEntity {
 	private boolean isMain;
 
 	@Builder
-	public UserBackground(User user, Product product, boolean isMain) {
+	private UserBackground(User user, Product product, boolean isMain) {
 		this.user = user;
 		this.product = product;
 		this.isMain = isMain;
