@@ -1,16 +1,22 @@
 import axios, { AxiosError } from 'axios';
 
 // 에러 타입 정의
-type ErrorType = 'network' | 'server' | 'permission' | 'notFound' | 'timeout';
+type ErrorType =
+  | 'network'
+  | 'server'
+  | 'permission'
+  | 'notFound'
+  | 'timeout'
+  | 'general';
 
-// 백엔드 에러 응답 인터페이스
-// interface ErrorResponse {
-//   timestamp: string;
-//   status: number;
-//   error: string;
-//   message: string;
-//   path: string;
-// }
+// 에러 응답 인터페이스
+interface ErrorResponse {
+  timestamp: string;
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+}
 
 // unknown을 꼭 사용해야할까
 export const handleApiError = (error: Error | AxiosError | unknown): void => {
@@ -26,6 +32,22 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     if (axiosError.response) {
       // 서버 응답이 있는 경우 (4xx, 5xx 상태 코드)
       const status: number = axiosError.response.status;
+
+      // 백엔드 에러 응답 데이터 추출
+      try {
+        const errorData = axiosError.response.data as ErrorResponse;
+
+        // 상세 에러 정보 로깅 - 개발자 디버깅용
+        console.error('백엔드 에러 상세정보:', {
+          timestamp: errorData.timestamp,
+          status: errorData.status,
+          error: errorData.error,
+          message: errorData.message,
+          path: errorData.path,
+        });
+      } catch (parseError) {
+        console.error('에러 응답 파싱 실패:', parseError);
+      }
 
       // 에러 유형 결정
       if (status === 401 || status === 403) {
@@ -52,6 +74,7 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
   } else if (error instanceof Error) {
     // 일반 JavaScript Error
     console.error('일반 에러:', error.message);
+    errorType = 'general';
   }
 
   // 에러 페이지로 리다이렉션 (에러 타입만 전달)

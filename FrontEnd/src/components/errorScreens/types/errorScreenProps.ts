@@ -4,6 +4,12 @@ export interface ErrorScreenProps {
   subMessage: string;
   retryText: string;
   onRetry?: () => void;
-  iconType: 'network' | 'server' | 'permission' | 'notFound' | 'timeout';
+  iconType:
+    | 'network'
+    | 'server'
+    | 'permission'
+    | 'notFound'
+    | 'timeout'
+    | 'general';
   tipType?: 'eco' | 'energy' | 'water' | 'recycle';
 }

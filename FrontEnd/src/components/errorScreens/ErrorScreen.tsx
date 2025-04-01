@@ -1,4 +1,3 @@
-// src/components/ErrorScreen.tsx
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import NetworkErrorIcon from '@/components/errorScreens/icons/NetworkErrorIcon';
@@ -6,6 +5,7 @@ import ServerErrorIcon from '@/components/errorScreens/icons/ServerErrorIcon';
 import PermissionErrorIcon from '@/components/errorScreens/icons/PermissionErrorIcon';
 import NotFoundErrorIcon from '@/components/errorScreens/icons/NotFoundErrorIcon';
 import TimeoutErrorIcon from '@/components/errorScreens/icons/TimeOutErrorIcon';
+import GeneralErrorIcon from '@/components/errorScreens/icons/GeneralErrorIcon';
 import { ErrorScreenProps } from '@/components/errorScreens/types/errorScreenProps';
 
 // 에러 스크린 컴포넌트
@@ -84,6 +84,14 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
         newProps.iconType = 'timeout';
         newProps.tipType = 'eco';
         break;
+
+      case 'general':
+        newProps.message = '오류가 발생했어요';
+        newProps.subMessage = '에코니멀에 문제가 생겼어요. 다시 시도해 볼까요?';
+        newProps.retryText = '다시 시도하기';
+        newProps.iconType = 'general';
+        newProps.tipType = 'eco';
+        break;
     }
 
     // props로 전달된 값이 있으면 우선 적용
@@ -105,6 +113,7 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
         {screenProps.iconType === 'permission' && <PermissionErrorIcon />}
         {screenProps.iconType === 'notFound' && <NotFoundErrorIcon />}
         {screenProps.iconType === 'timeout' && <TimeoutErrorIcon />}
+        {screenProps.iconType === 'general' && <GeneralErrorIcon />}
       </div>
 
       {/* 에러 메시지 */}
