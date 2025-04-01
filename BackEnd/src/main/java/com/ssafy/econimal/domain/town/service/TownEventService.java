@@ -21,7 +21,6 @@ import com.ssafy.econimal.domain.town.entity.InfrastructureEvent;
 import com.ssafy.econimal.domain.town.entity.Town;
 import com.ssafy.econimal.domain.town.repository.EcoAnswerRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureEventRepository;
-import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.global.common.enums.EcoType;
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
@@ -33,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class TownEventService {
 
-	private final InfrastructureRepository infraRepository;
 	private final InfrastructureEventRepository infraEventRepository;
 	private final EcoAnswerRepository ecoAnswerRepository;
 
@@ -67,7 +65,7 @@ public class TownEventService {
 		List<EcoAnswerDto> selectedAnswers =
 			quiz.getFacility().getEcoType() == EcoType.COURT
 				? selectCourtAnswers(shuffledAnswers)
-				: selectGeneralAnswers(shuffledAnswers, quiz);
+				: selectGeneralAnswers(shuffledAnswers);
 
 		return new InfraEventDetailResponse(quizDto, selectedAnswers);
 	}
@@ -85,7 +83,7 @@ public class TownEventService {
 			.toList();
 	}
 
-	private List<EcoAnswerDto> selectGeneralAnswers(List<EcoAnswer> answers, EcoQuiz quiz) {
+	private List<EcoAnswerDto> selectGeneralAnswers(List<EcoAnswer> answers) {
 		EcoAnswerDto positive = null;
 		EcoAnswerDto negative = null;
 

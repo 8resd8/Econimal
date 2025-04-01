@@ -53,11 +53,7 @@ public class TownEventAnswerService {
 		InfrastructureEvent event = getEventForAnswer(user, answer);
 
 		// 정답 여부에 따른 배경 변경
-		if (response.isOptimal()) {
-			event.getInfrastructure().updateClean(true);
-		} else {
-			event.getInfrastructure().updateClean(false);
-		}
+		event.getInfrastructure().updateClean(response.isOptimal());
 
 		event.deactivate();
 		return response;
