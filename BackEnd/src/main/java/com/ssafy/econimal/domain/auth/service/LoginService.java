@@ -80,7 +80,7 @@ public class LoginService {
 			.path("/")
 			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
 			.secure(isProduction)
-			.sameSite("Lax") // Strict, Lax, None
+			.sameSite("None") // Strict, Lax, None
 			.build();
 		return refreshTokenCookie;
 	}
