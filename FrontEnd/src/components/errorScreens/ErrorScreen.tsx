@@ -6,6 +6,7 @@ import PermissionErrorIcon from '@/components/errorScreens/icons/PermissionError
 import NotFoundErrorIcon from '@/components/errorScreens/icons/NotFoundErrorIcon';
 import TimeoutErrorIcon from '@/components/errorScreens/icons/TimeOutErrorIcon';
 import GeneralErrorIcon from '@/components/errorScreens/icons/GeneralErrorIcon';
+import BadRequestErrorIcon from '@/components/errorScreens/icons/BadRequestErrorIcon';
 import { ErrorScreenProps } from '@/components/errorScreens/types/errorScreenProps';
 
 // 에러 스크린 컴포넌트
@@ -17,7 +18,7 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
     subMessage: props.subMessage || '잠시 후 다시 시도해 주세요.',
     retryText: props.retryText || '다시 시도하기',
     onRetry: props.onRetry || (() => window.location.reload()),
-    iconType: props.iconType || 'server',
+    iconType: props.iconType || 'general',
     tipType: props.tipType || 'eco',
   });
 
@@ -30,6 +31,8 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
       | 'permission'
       | 'notFound'
       | 'timeout'
+      | 'general'
+      | 'badRequest'
       | null;
 
     if (!errorType && !props.iconType) return;
@@ -85,6 +88,17 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
         newProps.tipType = 'eco';
         break;
 
+      // 클라이언트 측 오류(400) 케이스 추가
+      case 'badRequest':
+        newProps.message = '요청에 문제가 있습니다';
+        newProps.subMessage =
+          '입력한 정보나 요청 형식에 오류가 있습니다. 다시 확인해 주세요.';
+        newProps.retryText = '이전 페이지로 돌아가기';
+        newProps.onRetry = () => window.history.back();
+        newProps.iconType = 'badRequest';
+        newProps.tipType = 'recycle';
+        break;
+
       case 'general':
         newProps.message = '오류가 발생했어요';
         newProps.subMessage = '에코니멀에 문제가 생겼어요. 다시 시도해 볼까요?';
@@ -113,6 +127,7 @@ const ErrorScreen = (props: Partial<ErrorScreenProps>) => {
         {screenProps.iconType === 'permission' && <PermissionErrorIcon />}
         {screenProps.iconType === 'notFound' && <NotFoundErrorIcon />}
         {screenProps.iconType === 'timeout' && <TimeoutErrorIcon />}
+        {screenProps.iconType === 'badRequest' && <BadRequestErrorIcon />}
         {screenProps.iconType === 'general' && <GeneralErrorIcon />}
       </div>
 

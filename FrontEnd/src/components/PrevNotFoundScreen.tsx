@@ -10,12 +10,13 @@ interface NotFoundScreenProps {
  * - 초등학생 타겟으로 친환경 요소를 반영한 디자인
  * - 페이지를 찾을 수 없을 때 사용자에게 친근한 안내 제공
  */
-const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
+
+const NotFoundScreen = ({
   message = '페이지를 찾을 수 없습니다',
   subMessage = '요청하신 페이지가 삭제되었거나 주소가 변경되었어요.',
-  homeText = '홈으로 돌아가기',
+  homeText = '메인으로 이동',
   onGoHome = () => (window.location.href = '/'),
-}) => {
+}: NotFoundScreenProps) => {
   return (
     <div className='fixed inset-0 flex flex-col items-center justify-center w-full h-screen bg-green-50'>
       {/* 404 애니메이션 아이콘 */}
@@ -52,7 +53,7 @@ const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
         {subMessage}
       </p>
 
-      {/* 홈으로 버튼 */}
+      {/* 메인으로 버튼 */}
       <button
         className='px-8 py-3 bg-teal-500 text-white rounded-full font-medium flex items-center shadow-md hover:bg-teal-600 transition-colors'
         onClick={onGoHome}

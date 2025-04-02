@@ -1,7 +1,7 @@
 // axiosConfig.ts
 import axios from 'axios';
 import { API } from './apiConfig';
-import { handleApiError } from '@/utils/errorHandler';
+import { handleApiError, handleMinorError } from '@/utils/errorHandler';
 
 // 환경 변수에서 API 도메인 가져오기
 const DOMAIN = import.meta.env.VITE_API_DOMAIN;
@@ -104,7 +104,7 @@ axiosInstance.interceptors.request.use(
         const refreshResponse = await axiosInstance.post('/users/refresh', {});
 
         console.log('토큰 갱신 성공:', refreshResponse.data);
-        
+
         const newToken = refreshResponse.data.accessToken;
 
         // 새 토큰 저장
@@ -115,9 +115,14 @@ axiosInstance.interceptors.request.use(
         }
 
         // 이벤트 발행: 토큰이 갱신되었음을 알림
-        window.dispatchEvent(new CustomEvent('token-refreshed', { 
-          detail: { accessToken: newToken, timeToLive: refreshResponse.data.timeToLive } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent('token-refreshed', {
+            detail: {
+              accessToken: newToken,
+              timeToLive: refreshResponse.data.timeToLive,
+            },
+          }),
+        );
 
         // 원래 요청 헤더에 새 토큰 설정
         if (config.headers) {

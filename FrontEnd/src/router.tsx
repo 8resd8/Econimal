@@ -12,9 +12,9 @@ import MyCharacter from './pages/character/MyCharacter';
 import CharacterShop from './pages/character/feature/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
 
-import ErrorScreen from '@/components/errorScreens/ErrorScreen';
+// import ErrorScreen from '@/components/errorScreens/ErrorScreen';
 import LoadingScreen from './components/LoadingScreen';
-// import NotFoundScreen from './components/PrevNotFoundScreen';
+import NotFoundScreen from './components/PrevNotFoundScreen';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -43,21 +43,21 @@ const publicRoutes = [
     ),
   },
   // 에러 및 로딩 페이지
-  {
-    path: '/error',
-    element: <ErrorScreen />,
-  },
+  // {
+  //   path: '/error',
+  //   element: <ErrorScreen />,
+  // },
   {
     path: '/loading', // 로딩은 라우팅할 필요 없긴 함
     element: <LoadingScreen />,
   },
-  // {
-  //   path: '*',
-  //   element: <NotFoundScreen />,
-  // },
+  {
+    path: '*',
+    element: <NotFoundScreen />,
+  },
 ];
 
-// 보호된 라우트트(인증 필요)
+// 보호된 라우트 (인증 필요)
 const protectedRoutes = [
   {
     index: true,
@@ -102,7 +102,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />, // 루트 레이아웃(이벤트 감지기)으로 모든 라우트를 감싸기
-    errorElement: <ErrorScreen iconType='notFound' />,
+    // errorElement: <ErrorScreen iconType='notFound' />,
     children: [
       // 인증이 필요한 라우트는 ProtectedRoute로 감싸기
       {

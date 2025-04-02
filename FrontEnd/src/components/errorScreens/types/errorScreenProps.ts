@@ -10,6 +10,7 @@ export interface ErrorScreenProps {
     | 'permission'
     | 'notFound'
     | 'timeout'
-    | 'general';
+    | 'general'
+    | 'badRequest';
   tipType?: 'eco' | 'energy' | 'water' | 'recycle';
 }

@@ -17,6 +17,40 @@ export const defaultOptions: ToastOptions = {
   containerId: TOAST_CONTAINER_ID, // 컨테이너 ID 추가
 };
 
+// -------------------- 기본 토스트 --------------------
+// 성공 토스트 메시지
+export const showSuccessToast = (message: string, options?: ToastOptions) => {
+  return toast.success(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 에러 토스트 메시지
+export const showErrorToast = (message: string, options?: ToastOptions) => {
+  return toast.error(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 정보 토스트 메시지
+export const showInfoToast = (message: string, options?: ToastOptions) => {
+  return toast.info(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 경고 토스트 메시지
+export const showWarningToast = (message: string, options?: ToastOptions) => {
+  return toast.warning(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// -------------------- 인프라 이벤트 발생 관련 --------------------
 // 인프라 타입별 메시지 맵
 const infraEventMessages: Record<EcoType, string> = {
   ELECTRICITY: '가정에 문제가 발생했습니다!',
