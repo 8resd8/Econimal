@@ -7,7 +7,7 @@ import {
 import { useErrorStore } from '@/store/errorStore';
 import { showErrorToast } from '@/components/toast/toastUtil';
 
-// [여기] 에러 핸들링 함수
+// 에러 핸들링 함수
 export const handleApiError = (error: Error | AxiosError | unknown): void => {
   console.error('API 에러 발생:', error);
 
@@ -28,7 +28,7 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
       try {
         const errorData = axiosError.response.data as ErrorResponse;
 
-        // 상세 에러 정보 로깅 - 개발자 디버깅용
+        // 상세 에러 정보 디버깅용
         console.error('백엔드 에러 상세정보:', {
           timestamp: errorData.timestamp,
           status: errorData.status,
@@ -80,7 +80,7 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     errorSubMessage = error.message;
   }
 
-  // [여기] Zustand 스토어를 직접 호출하여 에러 상태 업데이트
+  // Zustand 스토어를 직접 호출하여 에러 상태 업데이트
   useErrorStore.getState().showError({
     errorType,
     errorMessage,
@@ -98,9 +98,10 @@ export const handleMinorError = (error: Error | AxiosError | unknown): void => {
     // 400 에러는 토스트 메시지로만 처리
     if (status === 400) {
       try {
-        const errorData = error.response.data as ErrorResponse;
+        // const errorData = error.response.data as ErrorResponse;
         // 토스트 메시지로 에러 표시
-        showErrorToast(errorData.message || '입력 정보를 확인해주세요');
+        // showErrorToast(errorData.message || '입력 정보를 확인해주세요');
+        showErrorToast('잘못된 요청입니다.');
         return; // 추가 처리 없이 종료
       } catch (e) {
         console.error('에러 데이터 파싱 실패:', e);

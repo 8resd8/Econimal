@@ -118,6 +118,7 @@ export const showInfraResultNotice = (
     style: { whiteSpace: 'pre-line' },
   });
 };
+
 // 마을 이름 변경 알림
 // export const showTownNameChangeNotice = (newName: string, options?: ToastOptions) => {
 //   return toast.success(`마을 이름이 "${newName}"으로 변경되었습니다.`, {
