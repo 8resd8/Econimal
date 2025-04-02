@@ -125,28 +125,58 @@ const DataTypeButton = styled.button<{ active: boolean }>`
 interface CountryData {
   co2Level?: number;
   temperature?: number;
+  humidity?: number;
   [key: string]: any;
 }
 
 // 데이터 타입 옵션
-type DataType = 'co2' | 'temperature';
+type DataType = 'temperature' | 'humidity' | 'co2';
 
 interface WorldMapProps {
   data: any;
   countriesData?: Record<string, CountryData>;
   timeRange: TimeRange;
   timeValue: number;
-  dataType?: DataType;
-  onDataTypeChange?: (type: DataType) => void;
+  dataType: DataType;
+  onDataTypeChange: (type: DataType) => void;
   onRegionSelect: (region: string) => void;
 }
+
+// 국가 코드와 이름 매핑
+const countryCodeToName: Record<string, string> = {
+  "KR": "South Korea",
+  "JP": "Japan",
+  "US": "United States",
+  "CN": "China",
+  "RU": "Russia",
+  "GB": "United Kingdom",
+  "FR": "France",
+  "DE": "Germany",
+  "IT": "Italy",
+  "CA": "Canada",
+  "AU": "Australia",
+  "IN": "India",
+  "BR": "Brazil",
+  // 필요한 만큼 추가
+};
+
+// 국가 이름으로 코드 찾기 함수
+const getCountryCodeByName = (name: string): string | null => {
+  const entry = Object.entries(countryCodeToName).find(([_, countryName]) => countryName === name);
+  return entry ? entry[0] : null;
+};
+
+// 국가 코드로 이름 찾기 함수
+const getCountryNameByCode = (code: string): string => {
+  return countryCodeToName[code] || code;
+};
 
 const WorldMap: React.FC<WorldMapProps> = ({
   data,
   countriesData = {},
   timeRange,
   timeValue,
-  dataType = 'co2',
+  dataType = 'temperature', // 기본값을 temperature로 변경
   onDataTypeChange,
   onRegionSelect
 }) => {
@@ -154,11 +184,16 @@ const WorldMap: React.FC<WorldMapProps> = ({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [worldData, setWorldData] = useState<any>(null);
   
+  // 디버깅용 로그 추가
+  useEffect(() => {
+    console.log('countriesData 업데이트됨:', countriesData);
+  }, [countriesData]);
+  
   // 지도 데이터 로드
   useEffect(() => {
     const loadWorldData = async () => {
       try {
-        // TopoJSON 데이터 로드 (일반적으로 외부에서 가져옴)
+        // TopoJSON 데이터 로드
         const response = await fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json');
         const topology = await response.json();
         
@@ -175,20 +210,31 @@ const WorldMap: React.FC<WorldMapProps> = ({
   
   // 색상 스케일 및 범례 설정
   const getColorScale = () => {
-    if (dataType === 'co2') {
-      // CO2 농도에 따른 색상 스케일 (350ppm ~ 450ppm)
-      return d3.scaleSequential(d3.interpolateBlues)
-        .domain([350, 450]);
-    } else {
-      // 온도에 따른 색상 스케일 (0°C ~ 30°C)
-      return d3.scaleSequential(d3.interpolateReds)
-        .domain([0, 30]);
+    switch (dataType) {
+      case 'co2':
+        // CO2 농도에 따른 색상 스케일 (350ppm ~ 450ppm)
+        return d3.scaleSequential(d3.interpolateBlues)
+          .domain([350, 450]);
+      case 'temperature':
+        // 온도에 따른 색상 스케일 (0°C ~ 30°C)
+        return d3.scaleSequential(d3.interpolateReds)
+          .domain([0, 30]);
+      case 'humidity':
+        // 습도에 따른 색상 스케일 (0% ~ 100%)
+        return d3.scaleSequential(d3.interpolateGreens)
+          .domain([0, 100]);
+      default:
+        return d3.scaleSequential(d3.interpolateReds)
+          .domain([0, 30]);
     }
   };
   
   // 지도 렌더링
   useEffect(() => {
     if (!worldData || !svgRef.current) return;
+    
+    console.log('지도 렌더링 - 데이터 타입:', dataType);
+    console.log('국가 데이터:', countriesData);
     
     const svg = d3.select(svgRef.current);
     const tooltip = d3.select(tooltipRef.current);
@@ -228,32 +274,76 @@ const WorldMap: React.FC<WorldMapProps> = ({
       .append('path')
       .attr('d', pathGenerator as any)
       .attr('fill', (d: any) => {
+        const countryId = d.id; // GeoJSON에서의 국가 ID
         const countryName = d.properties.name;
-        const countryData = countriesData[countryName];
         
-        if (!countryData) return '#e2e8f0'; // 데이터가 없는 국가
+        // 국가 이름으로 코드 찾기
+        const countryCode = getCountryCodeByName(countryName);
         
-        const value = dataType === 'co2'
-          ? countryData.co2Level
-          : countryData.temperature;
+        console.log(`국가: ${countryName}, 코드: ${countryCode}`);
+        
+        // 국가 코드가 있고 해당 코드의 데이터가 있는지 확인
+        if (countryCode && countriesData[countryCode]) {
+          const countryData = countriesData[countryCode];
           
-        return value ? colorScale(value) : '#e2e8f0';
+          // 데이터 타입에 따른 값 선택
+          let value;
+          switch (dataType) {
+            case 'co2':
+              value = countryData.co2Level;
+              break;
+            case 'temperature':
+              value = countryData.temperature;
+              break;
+            case 'humidity':
+              value = countryData.humidity;
+              break;
+            default:
+              value = countryData.temperature;
+          }
+          
+          // 값이 있으면 색상 적용, 없으면 회색
+          return value !== undefined ? colorScale(value) : '#e2e8f0';
+        }
+        
+        // 데이터가 없는 경우 회색 반환
+        return '#e2e8f0';
       })
       .attr('stroke', '#fff')
       .attr('stroke-width', 0.5)
       .on('mouseover', (event, d: any) => {
         const countryName = d.properties.name;
-        const countryData = countriesData[countryName];
+        const countryCode = getCountryCodeByName(countryName);
         
         d3.select(event.currentTarget)
           .attr('stroke', '#000')
           .attr('stroke-width', 1);
           
-        const tooltipContent = countryData
-          ? `${countryName}<br>${dataType === 'co2' 
-              ? `CO2: ${countryData.co2Level?.toFixed(1) || 'N/A'} ppm` 
-              : `온도: ${countryData.temperature?.toFixed(1) || 'N/A'} °C`}`
-          : `${countryName}<br>데이터 없음`;
+        let tooltipContent;
+        
+        if (countryCode && countriesData[countryCode]) {
+          const countryData = countriesData[countryCode];
+          
+          // 데이터 타입에 따른 값과 단위 설정
+          let valueText;
+          switch (dataType) {
+            case 'co2':
+              valueText = `CO2: ${countryData.co2Level?.toFixed(1) || 'N/A'} ppm`;
+              break;
+            case 'temperature':
+              valueText = `온도: ${countryData.temperature?.toFixed(1) || 'N/A'} °C`;
+              break;
+            case 'humidity':
+              valueText = `습도: ${countryData.humidity?.toFixed(1) || 'N/A'} %`;
+              break;
+            default:
+              valueText = '데이터 없음';
+          }
+          
+          tooltipContent = `${countryName}<br>${valueText}`;
+        } else {
+          tooltipContent = `${countryName}<br>데이터 없음`;
+        }
           
         tooltip
           .style('display', 'block')
@@ -274,10 +364,42 @@ const WorldMap: React.FC<WorldMapProps> = ({
         tooltip.style('display', 'none');
       })
       .on('click', (event, d: any) => {
-        onRegionSelect(d.properties.name || '알 수 없는 지역');
+        const countryName = d.properties.name;
+        const countryCode = getCountryCodeByName(countryName);
+        
+        // 국가 코드가 있으면 코드를, 없으면 이름을 리전으로 선택
+        onRegionSelect(countryCode || countryName);
       });
       
-    // 범례 그리기
+    // 범례 업데이트
+    updateLegend(dataType, colorScale);
+    
+    // 리사이징 핸들러
+    const handleResize = () => {
+      if (!svgRef.current) return;
+      
+      const newWidth = svgRef.current.clientWidth;
+      const newHeight = svgRef.current.clientHeight;
+      
+      projection
+        .fitSize([newWidth, newHeight], worldData)
+        .scale(newWidth / 6.5)
+        .center([0, 40])
+        .translate([newWidth / 2, newHeight / 2]);
+        
+      svg.selectAll('path')
+        .attr('d', pathGenerator as any);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [worldData, countriesData, dataType, onRegionSelect]);
+  
+  // 범례 업데이트 함수
+  const updateLegend = (dataType: DataType, colorScale: d3.ScaleSequential<string, never>) => {
     const legendSvg = d3.select('#legend-scale')
       .selectAll('*')
       .remove();
@@ -316,60 +438,35 @@ const WorldMap: React.FC<WorldMapProps> = ({
       .attr('height', 20)
       .style('fill', `url(#${gradientId})`);
       
-    // 범례 레이블 업데이트
-    d3.select('#legend-min')
-      .text(dataType === 'co2' ? '350 ppm' : '0 °C');
-      
-    d3.select('#legend-max')
-      .text(dataType === 'co2' ? '450 ppm' : '30 °C');
-      
-    d3.select('#legend-title')
-      .text(dataType === 'co2' ? '이산화탄소 농도' : '평균 온도');
-      
-    // 리사이징 핸들러
-    const handleResize = () => {
-      if (!svgRef.current) return;
-      
-      const newWidth = svgRef.current.clientWidth;
-      const newHeight = svgRef.current.clientHeight;
-      
-      projection
-        .fitSize([newWidth, newHeight], worldData)
-        .scale(newWidth / 6.5)
-        .center([0, 40])
-        .translate([newWidth / 2, newHeight / 2]);
-        
-      svg.selectAll('path')
-        .attr('d', pathGenerator as any);
-    };
+    // 범례 레이블 및 제목 설정
+    let min, max, title;
     
-    window.addEventListener('resize', handleResize);
+    switch (dataType) {
+      case 'co2':
+        min = '350 ppm';
+        max = '450 ppm';
+        title = '이산화탄소 농도';
+        break;
+      case 'temperature':
+        min = '0 °C';
+        max = '30 °C';
+        title = '평균 온도';
+        break;
+      case 'humidity':
+        min = '0 %';
+        max = '100 %';
+        title = '습도';
+        break;
+      default:
+        min = '0';
+        max = '100';
+        title = '값';
+    }
     
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [worldData, countriesData, dataType, onRegionSelect]);
-  
-  // const handleZoomIn = () => {
-  //   if (!svgRef.current) return;
-    
-  //   d3.select(svgRef.current).transition()
-  //     .call((d3.zoom() as any).scaleBy, 1.5);
-  // };
-  
-  // const handleZoomOut = () => {
-  //   if (!svgRef.current) return;
-    
-  //   d3.select(svgRef.current).transition()
-  //     .call((d3.zoom() as any).scaleBy, 0.75);
-  // };
-  
-  // const handleReset = () => {
-  //   if (!svgRef.current) return;
-    
-  //   d3.select(svgRef.current).transition()
-  //     .call((d3.zoom() as any).transform, d3.zoomIdentity);
-  // };
+    d3.select('#legend-min').text(min);
+    d3.select('#legend-max').text(max);
+    d3.select('#legend-title').text(title);
+  };
   
   const handleDataTypeChange = (type: DataType) => {
     if (onDataTypeChange) {
@@ -383,33 +480,40 @@ const WorldMap: React.FC<WorldMapProps> = ({
       
       <DataTypeSelector>
         <DataTypeButton 
-          active={dataType === 'co2'} 
-          onClick={() => handleDataTypeChange('co2')}
-        >
-          이산화탄소
-        </DataTypeButton>
-        <DataTypeButton 
           active={dataType === 'temperature'} 
           onClick={() => handleDataTypeChange('temperature')}
         >
           온도
         </DataTypeButton>
+        <DataTypeButton 
+          active={dataType === 'humidity'} 
+          onClick={() => handleDataTypeChange('humidity')}
+        >
+          습도
+        </DataTypeButton>
+        <DataTypeButton 
+          active={dataType === 'co2'} 
+          onClick={() => handleDataTypeChange('co2')}
+        >
+          이산화탄소
+        </DataTypeButton>
       </DataTypeSelector>
-      
-      {/* <ControlPanel>
-        <ZoomButton onClick={handleZoomIn}>확대</ZoomButton>
-        <ZoomButton onClick={handleZoomOut}>축소</ZoomButton>
-        <ZoomButton onClick={handleReset}>초기화</ZoomButton>
-      </ControlPanel> */}
       
       <Legend>
         <LegendTitle id="legend-title">
-          {dataType === 'co2' ? '이산화탄소 농도' : '평균 온도'}
+          {dataType === 'temperature' ? '평균 온도' : 
+           dataType === 'humidity' ? '습도' : '이산화탄소 농도'}
         </LegendTitle>
         <LegendScale id="legend-scale"></LegendScale>
         <LegendLabels>
-          <span id="legend-min">{dataType === 'co2' ? '350 ppm' : '0 °C'}</span>
-          <span id="legend-max">{dataType === 'co2' ? '450 ppm' : '30 °C'}</span>
+          <span id="legend-min">
+            {dataType === 'temperature' ? '0 °C' : 
+             dataType === 'humidity' ? '0 %' : '350 ppm'}
+          </span>
+          <span id="legend-max">
+            {dataType === 'temperature' ? '30 °C' : 
+             dataType === 'humidity' ? '100 %' : '450 ppm'}
+          </span>
         </LegendLabels>
       </Legend>
       

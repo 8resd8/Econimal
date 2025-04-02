@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import bgImage from "@/assets/auth_background.png"; // 배경 이미지
+import bgImage from "@/assets/auth_background.png";
 import GoMainBtn from '@/components/GoMainBtn';
 
 // Components
@@ -10,22 +10,18 @@ import { TimeRange } from './components/TimeSlider';
 import MapLayout from './components/EarthLayout';
 
 // Features (API 관련)
-import { fetchWorldData, fetchWorldDataByTime } from './features/worldDataApi';
+import { 
+  fetchWorldData, 
+  CountryData as WorldCountryData 
+} from './features/worldDataApi';
 import { 
   fetchRegionInfo, 
   fetchHistoricalData, 
   RegionData 
 } from './features/regionInfoApi';
 
-// 국가별 데이터 인터페이스
-interface CountryData {
-  co2Level?: number;
-  temperature?: number;
-  [key: string]: any;
-}
-
 // 데이터 타입 옵션
-type DataType = 'co2' | 'temperature';
+type DataType = 'temperature' | 'humidity' | 'co2';
 
 const Earth: React.FC = () => {
   // 각 기능별 상태 관리
@@ -38,32 +34,45 @@ const Earth: React.FC = () => {
   const [timeValue, setTimeValue] = useState<number>(0);
   
   // 데이터 타입 상태
-  const [dataType, setDataType] = useState<DataType>('co2');
+  const [dataType, setDataType] = useState<DataType>('temperature');
+  
   
   // 모든 국가에 대한 데이터
-  const [globalData, setGlobalData] = useState<Record<string, CountryData>>({});
+  const [globalData, setGlobalData] = useState<Record<string, WorldCountryData>>({});
   
   // 히스토리 데이터
   const [historicalData, setHistoricalData] = useState<{
-    co2Levels: { timestamp: string; value: number }[];
     temperatures: { timestamp: string; value: number }[];
+    co2Levels: { timestamp: string; value: number }[];
   }>({
-    co2Levels: [],
-    temperatures: []
+    temperatures: [],
+    co2Levels: []
   });
   
   // 초기 데이터 로딩
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // 세계 데이터 로드
-        const worldDataResponse = await fetchWorldData();
-        setWorldData(worldDataResponse);
+        const currentDate = new Date().toISOString();
+        const startDate = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
         
-        // 전역 데이터 로드
-        const globalDataResponse = await fetchWorldDataByTime(timeRange, timeValue);
-        if (globalDataResponse && globalDataResponse.countries) {
-          setGlobalData(globalDataResponse.countries);
+        // 세계 데이터 로드
+        const worldDataResponse = await fetchWorldData(startDate, currentDate, 'HOUR');
+        
+        // groupByDateTime에서 최신 데이터 추출
+        const latestTimestamp = Object.keys(worldDataResponse.groupByDateTime).pop();
+        
+        if (latestTimestamp) {
+          // 최신 타임스탬프의 국가별 데이터 추출
+          const latestData = worldDataResponse.groupByDateTime[latestTimestamp];
+          
+          // 데이터 설정
+          setWorldData(worldDataResponse);
+          setGlobalData(latestData);
+          
+          console.log('로드된 데이터:', latestTimestamp, latestData);
+        } else {
+          console.warn('타임스탬프 데이터가 없습니다');
         }
       } catch (error) {
         console.error('초기 데이터 로딩 실패:', error);
@@ -74,13 +83,31 @@ const Earth: React.FC = () => {
   }, []);
   
   // 시간 및 데이터 타입 변경 시 글로벌 데이터 업데이트
+  // 코드 수정
   useEffect(() => {
     const updateGlobalData = async () => {
       try {
-        // 전역 데이터 업데이트
-        const globalDataResponse = await fetchWorldDataByTime(timeRange, timeValue);
-        if (globalDataResponse && globalDataResponse.countries) {
-          setGlobalData(globalDataResponse.countries);
+        const currentDate = new Date().toISOString();
+        const startDate = new Date(Date.now() - timeValue * getTimeMultiplier(timeRange)).toISOString();
+        
+        const worldDataResponse = await fetchWorldData(startDate, currentDate, timeRange.toUpperCase() as 'HOUR');
+        
+        // groupByDateTime 객체가 있는지 확인
+        if (worldDataResponse && worldDataResponse.groupByDateTime) {
+          const timestamps = Object.keys(worldDataResponse.groupByDateTime);
+          console.log('응답 타임스탬프:', timestamps);
+          
+          if (timestamps.length > 0) {
+            const latestTimestamp = timestamps[timestamps.length - 1];
+            const latestData = worldDataResponse.groupByDateTime[latestTimestamp];
+            
+            console.log('업데이트된 데이터:', latestTimestamp, latestData);
+            setGlobalData(latestData);
+          } else {
+            console.warn('타임스탬프 데이터가 없습니다');
+          }
+        } else {
+          console.warn('API 응답에 groupByDateTime이 없습니다:', worldDataResponse);
         }
       } catch (error) {
         console.error('글로벌 데이터 업데이트 실패:', error);
@@ -88,7 +115,7 @@ const Earth: React.FC = () => {
     };
     
     updateGlobalData();
-  }, [timeRange, timeValue, dataType]);
+  }, [timeRange, timeValue]);
   
   // 지역 선택 시 히스토리 데이터 로드
   useEffect(() => {
@@ -118,6 +145,17 @@ const Earth: React.FC = () => {
     }
   }, [selectedRegion, timeRange, timeValue]);
   
+  // 시간 승수 계산 함수
+  const getTimeMultiplier = (range: TimeRange): number => {
+    switch (range) {
+      case 'hour': return 1000 * 60 * 60;
+      case 'day': return 1000 * 60 * 60 * 24;
+      case 'month': return 1000 * 60 * 60 * 24 * 30;
+      case 'all': return 1000 * 60 * 60 * 24 * 365;
+      default: return 1000 * 60 * 60;
+    }
+  };
+  
   // 지역 선택 핸들러
   const handleRegionSelect = (region: string) => {
     setSelectedRegion(region);
@@ -144,7 +182,7 @@ const Earth: React.FC = () => {
     setTimeRange(range);
     setTimeValue(0);
   };
-  
+
   // 지도 컴포넌트 구성
   const mapContent = (
     <>
@@ -153,7 +191,7 @@ const Earth: React.FC = () => {
         countriesData={globalData}
         timeRange={timeRange}
         timeValue={timeValue}
-        dataType={dataType}
+        dataType={dataType}  // 여기서 타입이 명확히 지정됨
         onDataTypeChange={handleDataTypeChange}
         onRegionSelect={handleRegionSelect} 
       />
@@ -163,7 +201,7 @@ const Earth: React.FC = () => {
         <RegionInfo 
           data={regionInfo} 
           onClose={handleCloseRegionInfo}
-          showCharts={false} // 차트는 사이드 패널에 표시되므로 여기서는 숨김
+          showCharts={false}
         />
       )}
     </>
@@ -174,19 +212,17 @@ const Earth: React.FC = () => {
       className="fixed inset-0 w-full h-full bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
+      {/* 기존 레이아웃 그대로 유지 */}
       <div className='absolute top-4 left-4 z-30'>
         <GoMainBtn />
       </div>
-      {/* 독립적인 스크롤 컨테이너 */}
+      
       <div 
         className="absolute inset-0 overflow-y-auto overflow-x-hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {/* 내부 콘텐츠 */}
         <div className="p-4 pb-16 min-h-full">
-          {/* 메인 컨텐츠 컨테이너 - 좌우 배치 */}
           <div className="flex flex-col lg:flex-row items-start justify-center">
-            {/* 왼쪽: 지도 컨테이너 */}
             <div className="w-full lg:w-2/3 h-[75vh] rounded-xl">
               <MapLayout
                 mapContent={mapContent}
@@ -195,7 +231,6 @@ const Earth: React.FC = () => {
               />
             </div>
             
-            {/* 오른쪽: 타임 슬라이더 컨테이너 */}
             <div className="w-full lg:w-1/3 mt-4 lg:mt-0 scale-90">
               <TimeSlider
                 timeRange={timeRange}
