@@ -2,6 +2,9 @@ package com.ssafy.econimal.global.common.enums;
 
 import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
+import lombok.Getter;
+
+@Getter
 public enum EcoType {
 	ELECTRICITY("ELECTRICITY"),
 	GAS("GAS"),
@@ -12,10 +15,6 @@ public enum EcoType {
 
 	EcoType(String type) {
 		this.type = type;
-	}
-
-	public String getType() {
-		return type;
 	}
 
 	public static EcoType fromString(String input) {
