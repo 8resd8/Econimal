@@ -58,7 +58,7 @@ logging:
 jwt:
   secret-key: ${jwt.secret}
   refresh-expiration: ${jwt.refresh-expiration}
-  pass-url: ${jwt.pass-url}
+  pass-url: ${jwt.passUrl}
 
 cors:
   allowed-origins: ${cors.allowed-origins}
