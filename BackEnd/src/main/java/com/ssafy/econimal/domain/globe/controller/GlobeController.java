@@ -9,6 +9,7 @@ import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeResponse;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,7 +20,7 @@ public class GlobeController {
 	private final GlobeService globeService;
 
 	@GetMapping
-	public GlobeResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
+	public GlobeResponse getGlobeInfo(@Valid @RequestBody GlobeInfoRequest globeInfoRequest) {
 		return globeService.getGlobeInfoByRDB(globeInfoRequest);
 	}
 }
