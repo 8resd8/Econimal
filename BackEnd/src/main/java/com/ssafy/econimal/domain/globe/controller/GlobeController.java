@@ -9,6 +9,7 @@ import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeResponse;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
