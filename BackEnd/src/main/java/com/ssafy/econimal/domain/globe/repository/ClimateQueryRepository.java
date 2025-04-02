@@ -13,7 +13,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
-import com.ssafy.econimal.global.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +26,7 @@ public class ClimateQueryRepository {
 
 		// 날짜 형식 동적 처리
 		String format = "";
-		switch (request.type()) {
+		switch (request.type().name()) {
 			case "HOUR" -> {
 				format = "%Y-%m-%d %H:00:00";
 			}
@@ -37,7 +36,6 @@ public class ClimateQueryRepository {
 			case "MONTH" -> {
 				format = "%Y-%m-01 00:00:00";
 			}
-			default -> throw new InvalidArgumentException("Invaild type : " + request.type());
 		}
 
 		DateTemplate<String> formattedDate = Expressions.dateTemplate(
