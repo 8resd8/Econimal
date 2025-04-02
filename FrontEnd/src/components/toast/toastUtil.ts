@@ -1,7 +1,6 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
-// import { useNavigate } from 'react-router-dom';
 
 // 토스트 컨테이너 ID - 로그아웃 시 모든 토스트를 제거하기 위해 사용
 export const TOAST_CONTAINER_ID = 'app-toast-container';

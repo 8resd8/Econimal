@@ -13,12 +13,18 @@ const RootLayout = () => {
   useEffect(() => {
     hideError();
   }, [location.pathname, hideError]);
+
   // 로그인 페이지로 이동 시 토스트 제거
+  // useEffect(() => {
+  //   if (location.pathname === '/login') {
+  //     clearAllToasts();
+  //   }
+  // }, [location]);
+
+  // 라우트 변경 시 모든 토스트 제거
   useEffect(() => {
-    if (location.pathname === '/login') {
-      clearAllToasts();
-    }
-  }, [location]);
+    clearAllToasts();
+  }, [location.pathname]);
 
   return (
     <>
