@@ -1,7 +1,5 @@
 package com.ssafy.econimal.domain.auth.service;
 
-import static org.springframework.boot.web.server.Cookie.SameSite.*;
-
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +13,7 @@ import com.ssafy.econimal.domain.auth.dto.request.LoginRequest;
 import com.ssafy.econimal.domain.auth.dto.response.LoginResponse;
 import com.ssafy.econimal.domain.auth.dto.response.RefreshResponse;
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
+import com.ssafy.econimal.domain.auth.util.RefreshHelper;
 import com.ssafy.econimal.domain.user.entity.User;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.global.common.enums.UserType;
@@ -34,6 +33,7 @@ public class LoginService {
 	private final AuthValidator validator;
 	private final JwtProperties jwtProperties;
 	private final UserCharacterRepository userCharacterRepository;
+	private final RefreshHelper refreshHelper;
 
 	private static final String REFRESH_TOKEN_PREFIX = "RT:";
 
@@ -50,7 +50,10 @@ public class LoginService {
 			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
-		ResponseCookie refreshTokenCookie = getResponseCookie(refreshToken);
+		ResponseCookie refreshTokenCookie = refreshHelper.getResponseCookie(
+			refreshToken,
+			TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()));
+
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
 		user.updateLastLoginAt();
@@ -69,21 +72,12 @@ public class LoginService {
 			jwtProperties.getRefreshExpiration(), TimeUnit.MILLISECONDS);
 
 		// 쿠키에 저장
-		ResponseCookie refreshTokenCookie = getResponseCookie(newRefreshToken);
+		ResponseCookie refreshTokenCookie = refreshHelper.getResponseCookie(
+			newRefreshToken,
+			TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()));
+
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
 		return new RefreshResponse(newAccessToken, jwtUtil.getAccessExpireTime());
-	}
-
-	// 쿠키 설정
-	private ResponseCookie getResponseCookie(String refreshToken) {
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-			.httpOnly(true)
-			.path("/")
-			.maxAge(TimeUnit.MILLISECONDS.toSeconds(jwtProperties.getRefreshExpiration()))
-			.secure(true)
-			.sameSite(NONE.name()) // Strict, Lax, None
-			.build();
-		return refreshTokenCookie;
 	}
 }
