@@ -1,0 +1,78 @@
+spring:
+  config:
+    import:
+      - classpath:secret.yml
+  product: true
+
+  datasource:
+    url: ${database.url}
+    username: ${database.name}
+    password: ${database.password}
+    driver-class-name: ${database.driver-class-name}
+
+  data:
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      password: ${redis.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+      format_sql: true
+
+  mail:
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: ${mail.properties.mail.smtp.auth}
+          starttls:
+            enable: ${mail.properties.mail.smtp.starttls.enable}
+  ai:
+    openai:
+      api-key: ${ai.gpt.api-key}
+      options:
+        model: ${ai.gpt.model}
+
+server:
+  http2:
+    enabled: true
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: info
+    com.ssafy.econimal: info
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql: info
+
+jwt:
+  secret-key: ${jwt.secret}
+  refresh-expiration: ${jwt.refresh-expiration}
+  pass-url: ${jwt.pass-url}
+
+cors:
+  allowed-origins: ${cors.allowed-origins}
+  allowed-methods: ${cors.allowed-methods}
+  allowed-headers: ${cors.allowed-headers}
+  exposed-headers: ${cors.exposed-headers}
+  allow-credentials: ${cors.allow-credentials}
+  max-age: ${cors.max-age}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers,prometheus
+  endpoint:
+    health:
+      show-details: always
