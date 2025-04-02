@@ -43,6 +43,8 @@ spring:
         model: ${ai.gpt.model}
 
 server:
+  http2:
+    enabled: true
   servlet:
     context-path: /api
 
