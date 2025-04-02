@@ -52,7 +52,7 @@ public class ServiceTime {
 				.append("▶ [HTTP Method]: ").append(request.getMethod()).append("\n")
 				.append("▶ [Request URI]: ").append(request.getRequestURI()).append("\n")
 				.append("▶ [Method]     : ").append(methodName).append("\n")
-				.append("▶ [Exception]  : ").append(e.getClass().getSimpleName()).append("\n")
+				.append("▶ [Exception-Find]: ").append(e.getClass().getSimpleName()).append("\n")
 				.append("▶ [Message]    : ").append(exceptionMessage == null ? "예외 메시지 없음" : exceptionMessage).append("\n")
 				.append(LINE_SEPARATOR);
 			log.error(exceptionLog.toString(), e);

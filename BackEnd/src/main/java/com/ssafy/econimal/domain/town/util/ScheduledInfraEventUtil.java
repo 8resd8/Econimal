@@ -38,7 +38,7 @@ public class ScheduledInfraEventUtil {
 	 * 	- 업데이트된 지 1분 이상 지남
 	 */
 	@Scheduled(fixedRate = 60000)
-	public void scheduledInsertInfraEvent() {
+	private void scheduledInsertInfraEvent() {
 
 		// Hibernate SQL 로거의 기존 레벨을 저장하고 OFF로 변경
 		Logger sqlLogger = (Logger)LoggerFactory.getLogger("org.hibernate.SQL");
@@ -78,13 +78,12 @@ public class ScheduledInfraEventUtil {
 
 		// 이벤트가 없거나 마지막 이벤트가 비활성 상태이고 업데이트된 지 1분 이상 지난 경우
 		if (lastEvent == null ||
-			(!lastEvent.isActive() &&
-				lastEvent.getUpdatedAt().isBefore(LocalDateTime.now().minusMinutes(1)))
+			(!lastEvent.isActive() && lastEvent.getUpdatedAt().isBefore(LocalDateTime.now().minusMinutes(1)))
 		) {
 			List<EcoQuiz> ecoQuizList = ecoQuizRepository.findByFacility(infra.getFacility());
 
 			// 조건에 맞는 EcoQuiz가 없으면 이벤트 미생성
-			if (ecoQuizList == null || ecoQuizList.isEmpty()) {
+			if (ecoQuizList.isEmpty()) {
 				return null;
 			}
 
