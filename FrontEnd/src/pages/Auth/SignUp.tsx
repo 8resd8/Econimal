@@ -225,12 +225,12 @@ const Signup = () => {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
+      className="flex items-center justify-center min-h-screen w-screen bg-cover bg-center relative"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
 
       {/* 회원가입 폼 */}
-      <div className="relative p-8 text-center w-96">
+      <div className="relative p-8 text-center w-96 scale-[55%]">
         <h2 className="text-2xl font-bold mb-4 text-white">회원가입</h2>
         <div className="flex flex-col space-y-3">
           <form onSubmit={handleSubmit} className="flex flex-col space-y-4 p-2">

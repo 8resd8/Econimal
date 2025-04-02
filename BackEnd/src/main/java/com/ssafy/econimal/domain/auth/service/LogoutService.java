@@ -7,6 +7,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.econimal.domain.auth.util.AuthValidator;
+import com.ssafy.econimal.domain.auth.util.RefreshHelper;
 import com.ssafy.econimal.global.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ public class LogoutService {
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final AuthValidator validator;
+	private final RefreshHelper refreshHelper;
 	private static final String REFRESH_TOKEN_PREFIX = "RT:";
 
 	@Value("${spring.product}")
@@ -33,13 +35,8 @@ public class LogoutService {
 		redisTemplate.delete(redisKey);
 
 		// 쿠키 만료
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
-			.httpOnly(true)
-			.path("/")
-			.maxAge(0)
-			.secure(isProduction)
-			.sameSite("Strict")
-			.build();
+		ResponseCookie refreshTokenCookie = refreshHelper.getResponseCookie("", 0);
+
 		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 	}
 }

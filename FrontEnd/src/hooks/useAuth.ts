@@ -8,7 +8,8 @@ import axiosInstance, {
   getAccessToken,
   setTokenExpiry,
   isTokenExpired,
-  clearTokenData
+  clearTokenData,
+  clearAllCookies  // 추가된 import
 } from "@/api/axiosConfig";
 
 interface User {
@@ -53,6 +54,9 @@ export const useAuth = () => {
   // useRef를 사용하여 타이머 ID 관리
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const tokenCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 로그인 없이 접근 가능한 경로 목록
+  const publicPaths = ['/signup', '/login', '/password-reset', '/email-verification'];
   
   // 토큰 만료 확인 및 자동 로그아웃 함수
   const checkTokenExpiry = () => {
@@ -266,15 +270,22 @@ export const useAuth = () => {
   // 로그아웃 함수
   const logout = async () => {
     try {
-      // 서버에 로그아웃 요청 (리프레시 토큰 무효화)
+      // 1. 먼저 직접 쿠키 삭제 시도
+      clearAllCookies();
+      
+      // 2. 서버에 로그아웃 요청 (리프레시 토큰 무효화)
       await axiosInstance.post("/users/logout", {}, {
         withCredentials: true
       });
+  
+      // 3. 다시 한번 쿠키 삭제 시도
+      clearAllCookies();
       
+      // 4. 로컬 클리어
       handleLogout(true);
     } catch (error) {
       console.error("로그아웃 요청 실패", error);
-      // 서버 요청이 실패해도 클라이언트에서는 로그아웃
+      clearAllCookies();
       handleLogout(true);
     }
   };
@@ -295,6 +306,10 @@ export const useAuth = () => {
     
     // 자동 로그인 설정 제거 (명시적으로 로그아웃한 경우)
     localStorage.removeItem('autoLogin');
+    localStorage.removeItem('userEmail');
+    
+    // 쿠키 삭제 함수 호출
+    clearAllCookies();
     
     // 메모리에서 토큰 제거
     clearTokenData();
@@ -549,6 +564,18 @@ export const useAuth = () => {
       setLoading(true); // 명시적으로 로딩 상태 설정
       
       try {
+        // 현재 경로 확인
+        const currentPath = window.location.pathname;
+        const isPublicPath = publicPaths.some(path => currentPath.includes(path));
+        
+        // 회원가입 또는 로그인 페이지와 같은 공개 경로인 경우 로그인 상태 확인을 건너뜀
+        if (isPublicPath) {
+          console.log('공개 경로 감지, 자동 로그인 처리 건너뜀:', currentPath);
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+        
         // 메모리에 토큰이 있으면 인증된 상태로 간주
         const currentToken = getAccessToken();
         const autoLogin = localStorage.getItem('autoLogin') === 'true';

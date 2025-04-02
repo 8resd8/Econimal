@@ -68,6 +68,71 @@ export const clearTokenData = () => {
   sessionStorage.removeItem('tokenExpiry');
 };
 
+export const clearAllCookies = () => {
+  const cookieNames = ['refreshToken', 'JSESSIONID']; // 알려진 쿠키 이름들 추가
+
+  // 가능한 모든 경로 조합
+  const paths = [
+    '/',
+    '/api',
+    '/api/',
+    '',
+    '/j12a504.p.ssafy.io',
+    '/j12a504.p.ssafy.io/api',
+  ];
+
+  // 가능한 모든 도메인 조합
+  const domain = window.location.hostname;
+  let domains = [domain, `.${domain}`, ''];
+
+  // 서브도메인이 있을 경우 루트 도메인도 시도
+  const domainParts = domain.split('.');
+  if (domainParts.length > 2) {
+    const rootDomain = `.${domainParts.slice(-2).join('.')}`;
+    domains.push(rootDomain);
+  }
+
+  // 모든 쿠키 이름 가져오기
+  document.cookie.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    const name = parts[0].trim();
+    if (name) cookieNames.push(name);
+  });
+
+  // 중복 제거
+  const uniqueCookieNames = [...new Set(cookieNames)];
+
+  // 다양한 옵션 조합으로 쿠키 삭제 시도
+  uniqueCookieNames.forEach((name) => {
+    // 기본 삭제
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+
+    // 모든 경로와 도메인 조합으로 삭제 시도
+    for (const path of paths) {
+      for (const dom of domains) {
+        // 다양한 보안 옵션으로 시도
+        const sameSiteOptions = [
+          '',
+          'SameSite=None;',
+          'SameSite=Lax;',
+          'SameSite=Strict;',
+        ];
+        const secureOptions = ['', 'Secure;'];
+
+        for (const sameSite of sameSiteOptions) {
+          for (const secure of secureOptions) {
+            if (dom) {
+              document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${dom}; ${sameSite} ${secure}`;
+            } else {
+              document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; ${sameSite} ${secure}`;
+            }
+          }
+        }
+      }
+    }
+  });
+};
+
 // -------------------- axios 인스턴스, 인터셉터 --------------------
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
@@ -79,6 +144,17 @@ export const axiosInstance = axios.create({
 axiosInstance.defaults.withCredentials = true;
 axiosInstance.defaults.baseURL = 'https://j12a504.p.ssafy.io/api';
 
+// 인증이 필요 없는 요청 경로 목록
+const noAuthRequired = [
+  '/users/refresh',
+  '/users/login',
+  '/users/signup',
+  '/users/email-validation',
+  '/users/password/reset/request',
+  '/users/email/password/reset/request',
+  '/users/email/password/reset/confirm',
+];
+
 // 요청 인터셉터 수정
 axiosInstance.interceptors.request.use(
   async (config) => {
@@ -86,13 +162,14 @@ axiosInstance.interceptors.request.use(
     console.log(`요청 URL: ${config.url}`);
     console.log(`withCredentials 설정: ${config.withCredentials}`);
 
-    // 리프레시 요청 자체는 체크하지 않음
-    if (config.url?.includes('/users/refresh')) {
-      return config;
-    }
+    // 인증이 필요 없는 요청인지 확인
+    const currentPath = config.url || '';
+    const isAuthExempt = noAuthRequired.some((path) =>
+      currentPath.includes(path),
+    );
 
-    // 로그인 요청도 체크하지 않음
-    if (config.url?.includes('/users/login')) {
+    // 인증이 필요 없는 요청이면 토큰 검사 건너뛰기
+    if (isAuthExempt) {
       return config;
     }
 
@@ -157,6 +234,12 @@ axiosInstance.interceptors.response.use(
     console.log('전체 응답:', response);
     console.log('응답 헤더:', response.headers);
 
+    // 로그아웃 요청에 대한 응답인 경우
+    if (response.config.url?.includes('/users/logout')) {
+      console.log('로그아웃 응답 감지, 쿠키 삭제 시도');
+      clearAllCookies();
+    }
+
     // 현재 쿠키 상태 확인 (HttpOnly 쿠키는 보이지 않음)
     console.log('현재 쿠키:', document.cookie);
 
@@ -171,6 +254,7 @@ axiosInstance.interceptors.response.use(
 );
 
 // 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
+
 // ------------------------- 서버 fetching api 로직 ---------------------------
 export const characterListAPI = {
   //캐릭터 리스트 조회 -> 보유한 캐릭터 목록 조회
