@@ -72,4 +72,20 @@ public class GlobeService {
 			new GroupByCountryDto(groupedByCountry)
 		);
 	}
+
+	@Transactional(readOnly = true)
+	public GlobeResponse getGlobeInfoByRDBV2(GlobeInfoRequest request) {
+		List<GlobeInfoDto> globes = climateQueryRepository.findClimateAverageByTimeV2(request);
+
+		// 날짜별 그룹핑 처리
+		Map<String, Map<String, GlobeDataDto>> groupedByDateTime = groupByDateTime(globes);
+
+		// 국가별 그룹핑 처리
+		Map<String, Map<String, GlobeDataDto>> groupedByCountry = groupByCountry(globes);
+
+		return new GlobeResponse(
+			new GroupByDateTimeDto(groupedByDateTime),
+			new GroupByCountryDto(groupedByCountry)
+		);
+	}
 }
