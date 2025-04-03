@@ -1,175 +1,238 @@
+// worldDataApi.ts 수정
+
 import axios from 'axios';
 
-// API 기본 설정 - 환경 변수 대신 하드코딩된 URL 사용
+// API 클라이언트 생성 - 토큰 관리 개선
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api', // 실제 API URL로 변경 필요
+  baseURL: import.meta.env.VITE_API_DOMAIN,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 전역 국가 데이터 인터페이스
+// 요청 인터셉터 추가 (세션스토리지와 로컬스토리지 모두 체크)
+apiClient.interceptors.request.use(
+  (config) => {
+    // 먼저 세션스토리지에서 토큰 확인
+    let token = sessionStorage.getItem('accessToken');
+    
+    // 없으면 로컬스토리지에서 확인
+    if (!token) {
+      token = localStorage.getItem('accessToken');
+    }
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// 국가 데이터 인터페이스
 export interface CountryData {
-  co2Level: number;
-  temperature: number;
-  environmentalIndex?: number;
-  biodiversityCount?: number;
-  threatLevel?: number;
+  temperature?: number;
+  humidity?: number;
+  co2Level?: number;
 }
 
 // 세계 데이터 인터페이스
 export interface WorldData {
-  timestamp: string;
-  countries: Record<string, CountryData>;
+  groupByDateTime: {
+    [timestamp: string]: {
+      [countryCode: string]: CountryData;
+    };
+  };
+  groupByCountry: {
+    [countryCode: string]: {
+      [timestamp: string]: CountryData;
+    };
+  };
 }
 
-// 임시 국가 목록 - 실제 구현 시 확장 필요
-const COUNTRIES = [
-  "United States", "Canada", "Mexico", "Brazil", "Argentina", 
-  "United Kingdom", "France", "Germany", "Spain", "Italy", 
-  "Russia", "China", "Japan", "India", "South Korea", 
-  "Australia", "New Zealand", "South Africa", "Egypt", "Nigeria", 
-  "Saudi Arabia", "Israel", "Turkey", "Indonesia", "Thailand", 
-  "Vietnam", "Malaysia", "Singapore", "Philippines", "Pakistan",
-  "Colombia", "Chile", "Peru", "Venezuela", "Bolivia",
-  "Morocco", "Kenya", "Ethiopia", "Ghana", "Tanzania",
-  "Iran", "Iraq", "Kazakhstan", "Mongolia", "Afghanistan"
-];
-
-// 세계 데이터 가져오기
-export const fetchWorldData = async (): Promise<WorldData> => {
-  try {
-    // 실제 API 연동 시 아래 주석을 해제
-    // const response = await apiClient.get('/world-data');
-    // return response.data;
-    
-    // 임시로 모의 데이터 반환
-    return generateMockWorldData();
-  } catch (error) {
-    console.error('세계 데이터 가져오기 실패:', error);
-    // 오류 발생 시에도 모의 데이터 반환
-    return generateMockWorldData();
-  }
-};
-
-// 모의 세계 데이터 생성
-const generateMockWorldData = (): WorldData => {
-  const countries: Record<string, CountryData> = {};
-  
-  // 각 국가에 대한 모의 데이터 생성
-  COUNTRIES.forEach(country => {
-    // 랜덤 값이지만 국가 이름 길이를 기반으로 하여 일관성 부여
-    const countryFactor = country.length % 10;
-    
-    // CO2 농도: 350ppm ~ 450ppm 사이
-    const co2Level = 380 + countryFactor * 5 + Math.random() * 20;
-    
-    // 온도: 5°C ~ 30°C 사이
-    const temperature = 5 + countryFactor * 2 + Math.random() * 10;
-    
-    // 환경 지수: 1 ~ 10 사이
-    const environmentalIndex = 3 + (countryFactor / 10) * 7 + Math.random() * 2;
-    
-    // 생물다양성: 10,000 ~ 60,000
-    const biodiversityCount = 10000 + countryFactor * 3000 + Math.floor(Math.random() * 20000);
-    
-    // 위협 수준: 1 ~ 10 사이
-    const threatLevel = 3 + (countryFactor / 10) * 6 + Math.random() * 2;
-    
-    countries[country] = {
-      co2Level,
-      temperature,
-      environmentalIndex,
-      biodiversityCount,
-      threatLevel
-    };
-  });
-  
-  return {
-    timestamp: new Date().toISOString(),
-    countries
-  };
-};
-
-// 특정 시간대의 세계 데이터 가져오기
-export const fetchWorldDataByTime = async (
-  timeRange: 'hour' | 'day' | 'month' | 'all',
-  timeValue: number
+// 세계 데이터 가져오기 함수
+export const fetchWorldData = async (
+  startDateParam: Date | string, 
+  endDateParam: Date | string, 
+  type: 'HOUR' | 'DAY' | 'MONTH' | 'ALL'
 ): Promise<WorldData> => {
   try {
-    // 실제 API 연동 시 아래 주석을 해제
-    // const response = await apiClient.get(`/world-data?range=${timeRange}&value=${timeValue}`);
-    // return response.data;
+    // 인증 토큰 확인
+    const sessionToken = sessionStorage.getItem('accessToken');
+    const localToken = localStorage.getItem('accessToken');
+    const token = sessionToken || localToken;
     
-    // 임시로 모의 데이터 반환 (시간에 따라 변화)
-    return generateMockWorldDataByTime(timeRange, timeValue);
+    if (!token) {
+      console.warn('인증 토큰이 없습니다. API 호출이 실패할 수 있습니다.');
+    }
+
+    // 날짜 형식 변환 (ISO 형식으로 통일)
+    const formatDate = (date: Date | string): string => {
+      const d = typeof date === 'string' ? new Date(date) : date;
+      return d.toISOString();
+    };
+
+    const startDate = formatDate(startDateParam);
+    const endDate = formatDate(endDateParam);
+    
+    // 요청 본문 구성
+    const requestData = {
+      startDate,
+      endDate,
+      type
+    };
+    
+    console.log('API 요청 데이터:', requestData);
+
+    // API 호출
+    const response = await apiClient.post('/globe', requestData);
+    
+    // 응답 데이터 로깅 추가
+    console.log('API 원본 응답:', response.data);
+    
+    // 응답 데이터 검증 및 변환
+    const responseData = response.data;
+    
+    // 응답 데이터를 확인하여 적절한 구조로 변환
+    let formattedData: WorldData = {
+      groupByDateTime: {},
+      groupByCountry: {}
+    };
+    
+    // API 응답 구조에 따라 데이터 변환
+    if (responseData && typeof responseData === 'object') {
+      // 응답에 groupByDateTime이 있는 경우 그대로 사용
+      if (responseData.groupByDateTime) {
+        formattedData.groupByDateTime = responseData.groupByDateTime;
+      }
+      
+      // 응답에 groupByCountry가 있는 경우 그대로 사용
+      if (responseData.groupByCountry) {
+        formattedData.groupByCountry = responseData.groupByCountry;
+      }
+      
+      // 다른 형태의 응답일 경우 데이터 변환
+      // 예: 타임스탬프가 최상위 키인 경우
+      else if (Object.keys(responseData).some(key => key.match(/^\d{4}-\d{2}-\d{2}/))) {
+        const tempGroupByDateTime: {[key: string]: any} = {};
+        
+        // 각 타임스탬프에 대해 처리
+        Object.entries(responseData).forEach(([timestamp, countryData]) => {
+          if (typeof countryData === 'object') {
+            tempGroupByDateTime[timestamp] = countryData;
+          }
+        });
+        
+        formattedData.groupByDateTime = tempGroupByDateTime;
+        
+        // groupByCountry 구조 생성
+        const tempGroupByCountry: {[key: string]: any} = {};
+        
+        Object.entries(tempGroupByDateTime).forEach(([timestamp, countries]) => {
+          Object.entries(countries as object).forEach(([countryCode, data]) => {
+            if (!tempGroupByCountry[countryCode]) {
+              tempGroupByCountry[countryCode] = {};
+            }
+            tempGroupByCountry[countryCode][timestamp] = data;
+          });
+        });
+        
+        formattedData.groupByCountry = tempGroupByCountry;
+      }
+    }
+    
+    console.log('API 응답 변환 결과:', formattedData);
+    return formattedData;
   } catch (error) {
     console.error('세계 데이터 가져오기 실패:', error);
-    // 오류 발생 시에도 모의 데이터 반환
-    return generateMockWorldDataByTime(timeRange, timeValue);
-  }
-};
-
-// 시간에 따른 모의 세계 데이터 생성
-const generateMockWorldDataByTime = (
-  timeRange: 'hour' | 'day' | 'month' | 'all',
-  timeValue: number
-): WorldData => {
-  const countries: Record<string, CountryData> = {};
-  
-  // 시간 추세 계산 (0 = 현재, 1 = 과거)
-  // 범위에 따라 시간 값 정규화
-  const maxTime = timeRange === 'hour' ? 72 : timeRange === 'day' ? 90 : 12;
-  const timeFactor = timeValue / maxTime;
-  
-  // 각 국가에 대한 모의 데이터 생성
-  COUNTRIES.forEach(country => {
-    const countryFactor = country.length % 10;
     
-    // 시간에 따라 CO2 감소 (과거로 갈수록 낮은 CO2 농도)
-    const co2Trend = 30 * timeFactor; // 최대 30ppm 차이
-    const co2Level = 380 + countryFactor * 5 + Math.random() * 20 - co2Trend;
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('응답 상태 코드:', error.response.status);
+      console.error('응답 데이터:', error.response.data);
+    }
     
-    // 시간에 따라 온도 감소 (과거로 갈수록 낮은 온도)
-    const tempTrend = 3 * timeFactor; // 최대 3도 차이
-    const temperature = 5 + countryFactor * 2 + Math.random() * 10 - tempTrend;
-    
-    // 환경 지수 증가 (과거로 갈수록 좋은 환경)
-    const envTrend = 2 * timeFactor; // 최대 2포인트 차이
-    const environmentalIndex = Math.min(10, 3 + (countryFactor / 10) * 7 + Math.random() * 2 + envTrend);
-    
-    // 생물다양성 증가 (과거로 갈수록 더 높은 생물다양성)
-    const bioTrend = 10000 * timeFactor; // 최대 10,000 차이
-    const biodiversityCount = 10000 + countryFactor * 3000 + Math.floor(Math.random() * 20000) + bioTrend;
-    
-    // 위협 수준 감소 (과거로 갈수록 낮은 위협)
-    const threatTrend = 4 * timeFactor; // 최대 4포인트 차이
-    const threatLevel = Math.max(1, 3 + (countryFactor / 10) * 6 + Math.random() * 2 - threatTrend);
-    
-    countries[country] = {
-      co2Level,
-      temperature,
-      environmentalIndex,
-      biodiversityCount,
-      threatLevel
+    // 오류 시 빈 데이터 반환
+    return {
+      groupByDateTime: {},
+      groupByCountry: {}
     };
-  });
-  
-  // 과거 날짜 계산
-  const date = new Date();
-  if (timeRange === 'hour') {
-    date.setHours(date.getHours() - timeValue);
-  } else if (timeRange === 'day') {
-    date.setDate(date.getDate() - timeValue);
-  } else if (timeRange === 'month') {
-    date.setMonth(date.getMonth() - timeValue);
   }
-  
-  return {
-    timestamp: date.toISOString(),
-    countries
-  };
 };
 
-// 추가 API 함수들...
-// 필요한 경우 확장
+// 특정 국가 데이터 가져오기 함수
+export const fetchCountryData = async (
+  countryCode: string,
+  startDate: string, 
+  endDate: string, 
+  type: 'HOUR' | 'DAY' | 'MONTH' | 'ALL'
+): Promise<CountryData[]> => {
+  try {
+    const response = await apiClient.post('/globe', {
+      startDate,
+      endDate,
+      type,
+      countryCode
+    });
+    
+    // 응답 데이터 형식에 따라 변환
+    let resultData: CountryData[] = [];
+    
+    if (response.data && response.data.groupByDateTime) {
+      // 타임스탬프별로 데이터를 배열로 변환
+      Object.entries(response.data.groupByDateTime).forEach(([timestamp, countries]: [string, any]) => {
+        if (countries[countryCode]) {
+          resultData.push({
+            ...countries[countryCode],
+            timestamp: timestamp
+          });
+        }
+      });
+    }
+    
+    return resultData;
+  } catch (error) {
+    console.error(`${countryCode} 국가 데이터 가져오기 실패:`, error);
+    return [];
+  }
+};
+
+// 모든 국가 코드 가져오기 함수
+export const fetchAllCountryCodes = async (): Promise<string[]> => {
+  try {
+    // 샘플 요청으로 사용 가능한 국가 코드 확인
+    const currentDate = new Date().toISOString();
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    
+    const response = await apiClient.post('/globe', {
+      startDate,
+      endDate: currentDate,
+      type: 'HOUR'
+    });
+    
+    const countryCodes = new Set<string>();
+    
+    // 응답에서 모든 국가 코드 추출
+    if (response.data && response.data.groupByDateTime) {
+      const latestTimestamp = Object.keys(response.data.groupByDateTime).pop();
+      
+      if (latestTimestamp) {
+        const countries = response.data.groupByDateTime[latestTimestamp];
+        Object.keys(countries).forEach(code => countryCodes.add(code));
+      }
+    }
+    
+    return Array.from(countryCodes);
+  } catch (error) {
+    console.error('국가 코드 가져오기 실패:', error);
+    return [];
+  }
+};
+
+export default {
+  fetchWorldData,
+  fetchCountryData,
+  fetchAllCountryCodes
+};

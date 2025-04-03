@@ -93,7 +93,7 @@ const Login = () => {
       className="flex items-center justify-center min-h-screen bg-cover bg-center w-full h-full"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="p-8 rounded-lg text-center scale-75">
+      <div className="p-8 rounded-lg text-center scale-[65%]">
         <img src={logoImage} alt="에코니멀 로고" className="mx-auto w-32 mb-4" />
         <div className="text-white font-extrabold text-4xl mb-5">
           ECONIMAL
