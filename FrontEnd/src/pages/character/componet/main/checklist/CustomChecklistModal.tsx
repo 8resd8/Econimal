@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Check } from 'lucide-react';
 
 interface CustomChecklistModalProps {
   newItemDescription: string;
@@ -47,7 +47,7 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
         <div className='text-center mb-6'>
           <div className='flex justify-center mb-4'>
             <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center'>
-              <Plus className='h-10 w-10 text-blue-500' />
+              <Check className='h-10 w-10 text-blue-500' />
             </div>
           </div>
           <h2 className='text-2xl font-bold text-gray-800 mb-4'>
