@@ -3,22 +3,23 @@ import { TimeRange } from './TimeSlider';
 
 // 지역 데이터 인터페이스
 export interface RegionData {
+  countryCode: string;
   name: string;
-  description: string;
-  co2Level?: number;
   temperature?: number;
-  population?: number;
-  area?: number;
+  humidity?: number;
+  co2Level?: number;
+  description?: string;
   environmentalIndex?: number;
   biodiversityCount?: number;
-  threatLevel?: number;
+  population?: number;
+  area?: number;
   conservationEfforts?: string[];
+  threatLevel?: number;
   historicalData?: {
-    co2Levels: { timestamp: string; value: number }[];
     temperatures: { timestamp: string; value: number }[];
+    co2Levels: { timestamp: string; value: number }[];
   };
 }
-
 // API 호출 파라미터 인터페이스
 interface FetchRegionDataParams {
   region: string;
@@ -62,6 +63,7 @@ export const fetchRegionData = async ({
     // 에러 발생 시 기본 데이터 반환 (실제 구현 시 적절한 에러 처리 필요)
     return {
       name: region,
+      countryCode: '', // 빈 문자열이나 적절한 기본값 추가
       description: `${region}에 대한 정보를 가져오는 중 오류가 발생했습니다.`,
       co2Level: 0,
       temperature: 0
