@@ -1,21 +1,30 @@
+// worldDataApi.ts 수정
+
 import axios from 'axios';
 
-// apiClient 설정에 인증 토큰 추가
+// API 클라이언트 생성 - 토큰 관리 개선
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_DOMAIN,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('accessToken')}` // 토큰 추가
   },
 });
 
-// 요청 인터셉터 추가
+// 요청 인터셉터 추가 (세션스토리지와 로컬스토리지 모두 체크)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('accessToken');
+    // 먼저 세션스토리지에서 토큰 확인
+    let token = sessionStorage.getItem('accessToken');
+    
+    // 없으면 로컬스토리지에서 확인
+    if (!token) {
+      token = localStorage.getItem('accessToken');
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   },
   (error) => {
@@ -23,17 +32,14 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 국가 데이터 인터페이스 수정
+// 국가 데이터 인터페이스
 export interface CountryData {
-  temperature: number;
-  humidity: number;
+  temperature?: number;
+  humidity?: number;
   co2Level?: number;
 }
 
-// 데이터 타입 추가
-export type DataType = 'temperature' | 'humidity' | 'co2';
-
-// 세계 데이터 인터페이스 수정
+// 세계 데이터 인터페이스
 export interface WorldData {
   groupByDateTime: {
     [timestamp: string]: {
@@ -230,5 +236,3 @@ export default {
   fetchCountryData,
   fetchAllCountryCodes
 };
-// 추가 API 함수들...
-// 필요한 경우 확장

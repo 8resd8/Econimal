@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
 import { TimeRange } from './TimeSlider';
+import { getCountryCodeByName, getCountryNameByCode } from '../utils/countryUtils';
 
+// 스타일 컴포넌트 정의
 const MapContainer = styled.div`
   width: 90%;
   height: 80vh;
@@ -21,32 +23,6 @@ const MapSvg = styled.svg`
   background-color: #f0f8ff;
   border-radius: 10px;
 `;
-
-// const ControlPanel = styled.div`
-//   position: absolute;
-//   top: 20px;
-//   right: 20px;
-//   display: flex;
-//   flex-direction: column;
-//   background-color: rgba(255, 255, 255, 0.8);
-//   padding: 10px;
-//   border-radius: 5px;
-//   z-index: 10;
-// `;
-
-// const ZoomButton = styled.button`
-//   margin: 5px;
-//   padding: 5px 10px;
-//   background-color: #4caf50;
-//   color: white;
-//   border: none;
-//   border-radius: 3px;
-//   cursor: pointer;
-  
-//   &:hover {
-//     background-color: #3e8e41;
-//   }
-// `;
 
 const Tooltip = styled.div`
   position: absolute;
@@ -132,6 +108,7 @@ interface CountryData {
 // 데이터 타입 옵션
 type DataType = 'temperature' | 'humidity' | 'co2';
 
+// 컴포넌트 프롭스 정의
 interface WorldMapProps {
   data: any;
   countriesData?: Record<string, CountryData>;
@@ -142,41 +119,12 @@ interface WorldMapProps {
   onRegionSelect: (region: string) => void;
 }
 
-// 국가 코드와 이름 매핑
-const countryCodeToName: Record<string, string> = {
-  "KR": "South Korea",
-  "JP": "Japan",
-  "US": "United States",
-  "CN": "China",
-  "RU": "Russia",
-  "GB": "United Kingdom",
-  "FR": "France",
-  "DE": "Germany",
-  "IT": "Italy",
-  "CA": "Canada",
-  "AU": "Australia",
-  "IN": "India",
-  "BR": "Brazil",
-  // 필요한 만큼 추가
-};
-
-// 국가 이름으로 코드 찾기 함수
-const getCountryCodeByName = (name: string): string | null => {
-  const entry = Object.entries(countryCodeToName).find(([_, countryName]) => countryName === name);
-  return entry ? entry[0] : null;
-};
-
-// 국가 코드로 이름 찾기 함수
-const getCountryNameByCode = (code: string): string => {
-  return countryCodeToName[code] || code;
-};
-
 const WorldMap: React.FC<WorldMapProps> = ({
   data,
   countriesData = {},
   timeRange,
   timeValue,
-  dataType = 'temperature', // 기본값을 temperature로 변경
+  dataType = 'temperature',
   onDataTypeChange,
   onRegionSelect
 }) => {
@@ -186,8 +134,31 @@ const WorldMap: React.FC<WorldMapProps> = ({
   
   // 디버깅용 로그 추가
   useEffect(() => {
-    console.log('countriesData 업데이트됨:', countriesData);
+    if (Object.keys(countriesData).length > 0) {
+      console.log('국가 데이터 업데이트됨. 샘플:', 
+        Object.entries(countriesData).slice(0, 3));
+    } else {
+      console.log('국가 데이터가 비어 있음');
+    }
   }, [countriesData]);
+  
+  // 더미 데이터 생성 (API가 동작하지 않을 때 테스트용)
+  const generateDummyData = (): Record<string, CountryData> => {
+    const dummyData: Record<string, CountryData> = {};
+    
+    // 백엔드에서 제공하는 국가 코드에 대한 더미 데이터 생성
+    const countries = ["KR", "JP", "US", "CN", "RU", "GB", "FR", "DE", "IT", "CA", "AU", "IN", "BR"];
+    
+    countries.forEach(code => {
+      dummyData[code] = {
+        temperature: 15 + Math.random() * 15, // 15~30도 사이 랜덤 온도
+        humidity: 40 + Math.random() * 60,    // 40~100% 사이 랜덤 습도
+        co2Level: 350 + Math.random() * 100   // 350~450ppm 사이 랜덤 CO2 농도
+      };
+    });
+    
+    return dummyData;
+  };
   
   // 지도 데이터 로드
   useEffect(() => {
@@ -200,6 +171,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
         // TopoJSON에서 GeoJSON으로 변환
         const countries = feature(topology, topology.objects.countries);
         setWorldData(countries);
+        
+        console.log('지도 데이터 로드 성공');
       } catch (error) {
         console.error('지도 데이터 로드 실패:', error);
       }
@@ -233,8 +206,16 @@ const WorldMap: React.FC<WorldMapProps> = ({
   useEffect(() => {
     if (!worldData || !svgRef.current) return;
     
-    console.log('지도 렌더링 - 데이터 타입:', dataType);
-    console.log('국가 데이터:', countriesData);
+    console.log('지도 렌더링 시작 - 데이터 타입:', dataType);
+    
+    // 실제 데이터가 없으면 더미 데이터로 테스트 (개발 중에만 사용)
+    const effectiveData = Object.keys(countriesData).length > 0 
+      ? countriesData 
+      : generateDummyData();
+    
+    console.log('사용할 데이터:', Object.keys(effectiveData).length > 0 
+      ? `${Object.keys(effectiveData).length}개 국가 데이터 있음` 
+      : '데이터 없음');
     
     const svg = d3.select(svgRef.current);
     const tooltip = d3.select(tooltipRef.current);
@@ -274,17 +255,15 @@ const WorldMap: React.FC<WorldMapProps> = ({
       .append('path')
       .attr('d', pathGenerator as any)
       .attr('fill', (d: any) => {
-        const countryId = d.id; // GeoJSON에서의 국가 ID
+        // GeoJSON에서의 국가 이름
         const countryName = d.properties.name;
         
         // 국가 이름으로 코드 찾기
         const countryCode = getCountryCodeByName(countryName);
         
-        console.log(`국가: ${countryName}, 코드: ${countryCode}`);
-        
-        // 국가 코드가 있고 해당 코드의 데이터가 있는지 확인
-        if (countryCode && countriesData[countryCode]) {
-          const countryData = countriesData[countryCode];
+        // 국가 코드가 있고, 해당 코드의 데이터가 있으면 색상 지정
+        if (countryCode && effectiveData[countryCode]) {
+          const countryData = effectiveData[countryCode];
           
           // 데이터 타입에 따른 값 선택
           let value;
@@ -321,8 +300,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
           
         let tooltipContent;
         
-        if (countryCode && countriesData[countryCode]) {
-          const countryData = countriesData[countryCode];
+        if (countryCode && effectiveData[countryCode]) {
+          const countryData = effectiveData[countryCode];
           
           // 데이터 타입에 따른 값과 단위 설정
           let valueText;
@@ -367,8 +346,12 @@ const WorldMap: React.FC<WorldMapProps> = ({
         const countryName = d.properties.name;
         const countryCode = getCountryCodeByName(countryName);
         
-        // 국가 코드가 있으면 코드를, 없으면 이름을 리전으로 선택
-        onRegionSelect(countryCode || countryName);
+        if (countryCode) {
+          console.log(`국가 선택: ${countryName} (${countryCode})`);
+          onRegionSelect(countryCode);
+        } else {
+          console.log(`국가 코드를 찾을 수 없음: ${countryName}`);
+        }
       });
       
     // 범례 업데이트
@@ -468,6 +451,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
     d3.select('#legend-title').text(title);
   };
   
+  // 데이터 타입 변경 핸들러
   const handleDataTypeChange = (type: DataType) => {
     if (onDataTypeChange) {
       onDataTypeChange(type);
