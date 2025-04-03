@@ -25,7 +25,7 @@ public class AuthExceptionHandler {
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleMissingCookieException(MissingRequestCookieException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(),
+		return ErrorResponse.toResponseEntity(HttpStatus.UNAUTHORIZED, ex.getMessage(),
 			request.getRequestURI());
 	}
 
