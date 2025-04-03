@@ -1,3 +1,4 @@
+import { useCharacterCoin } from '@/store/useCharStatusStore';
 import { useNavigate } from 'react-router-dom';
 
 const ErrorCoinModal = ({
@@ -35,8 +36,8 @@ const ErrorCoinModal = ({
           </div>
           <h2 className='text-xl font-bold text-gray-800 mb-4'>코인 부족!</h2>
           <p className='text-gray-600 text-sm mb-2'>
-            <span className='font-semibold text-red-600'>
-              {Math.abs(requiredCoins - coin)}
+            <span className='font-semibold text-red-600 text-xl'>
+              {Math.abs(requiredCoins - coin)} 코인
             </span>{' '}
           </p>
           <p className='text-gray-500 text-sm'>코인을 더 획득하시겠습니까?</p>
