@@ -80,7 +80,7 @@ public class ChecklistService {
 		if (request.type().equals("DAILY")) {
 			completeDailyChecklist(user, Long.parseLong(checklistId));
 		} else {
-			completeCustomChecklist(user, checklistId, request.expId());
+			completeCustomChecklist(user, checklistId);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class ChecklistService {
 
 	}
 
-	private void completeCustomChecklist(User user, String checklistId, String uuid) {
+	private void completeCustomChecklist(User user, String checklistId) {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
 
 		Boolean isExist = redisTemplate.hasKey(hashKey);
@@ -109,7 +109,7 @@ public class ChecklistService {
 		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
 
 		// 경험치 업데이트
-		String getExp = redisTemplate.opsForValue().get(EXP_PREFIX + user.getId() + uuid);
+		String getExp = (String)redisTemplate.opsForHash().get(hashKey, "exp");
 		int exp = Integer.parseInt(getExp == null ? "0" : getExp);
 
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
