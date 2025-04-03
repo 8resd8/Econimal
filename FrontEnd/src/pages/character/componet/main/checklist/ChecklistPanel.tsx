@@ -7,6 +7,7 @@ import ValidationResultModal from './ValidationResultModal';
 import CompleteChecklistModal from './CompleteChecklistModal';
 import CompleteConfirmModal from './CompleteConfirmModal';
 import { Plus, Edit, Trash, Check, LockIcon } from 'lucide-react';
+import DeleteConfirmModal from './DeleteConfirmModal';
 
 interface ChecklistItemType {
   checklistId: string;
@@ -55,6 +56,8 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null,
   );
+  const [deleteConfirmItem, setDeleteConfirmItem] =
+    useState<ChecklistItemType | null>(null);
 
   const debugRef = useRef({
     validationAttempts: 0,
@@ -133,17 +136,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
 
   const handleDeleteClick = (item: ChecklistItemType) => {
     if (item.isComplete) return;
-
-    if (showDeleteConfirm === item.checklistId) {
-      if (onDeleteItem) {
-        onDeleteItem(item.checklistId);
-        console.log('항목 삭제됨:', item.checklistId);
-      }
-      setShowDeleteConfirm(null);
-    } else {
-      setShowDeleteConfirm(item.checklistId);
-      console.log('삭제 확인 표시:', item.checklistId);
-    }
+    setDeleteConfirmItem(item);
   };
 
   const handleCompleteStart = (item: ChecklistItemType) => {
@@ -170,6 +163,12 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   const handleCompleteCancel = () => {
     setIsCompleteConfirmOpen(false);
     setCompletePendingItem(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteConfirmItem || !onDeleteItem) return;
+    onDeleteItem(deleteConfirmItem.checklistId);
+    setDeleteConfirmItem(null);
   };
 
   const isMaxItemsReached = items.length >= MAX_CUSTOM_ITEMS;
@@ -332,6 +331,15 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
           onClose={() => {
             setIsCompleteModalOpen(false);
           }}
+        />
+      )}
+
+      {deleteConfirmItem && (
+        <DeleteConfirmModal
+          isOpen={!!deleteConfirmItem}
+          onClose={() => setDeleteConfirmItem(null)}
+          onConfirm={handleDeleteConfirm}
+          itemDescription={deleteConfirmItem.description}
         />
       )}
     </div>
