@@ -59,7 +59,7 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
         <div className='mb-6'>
           <input
             type='text'
-            placeholder='나만의 체크리스트 내용을 작성해주세요 (최소 5글자)'
+            placeholder='오늘은 어떠한 행동으로 지구를 지킬까요?'
             value={newItemDescription}
             onChange={(e) => {
               setNewDescription(e.target.value);

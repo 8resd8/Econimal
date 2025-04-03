@@ -8,6 +8,7 @@ const ErrorCoinModal = ({
   onClose: () => void;
 }) => {
   const nav = useNavigate();
+  const coin = useCharacterCoin();
 
   return (
     <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4'>
@@ -34,8 +35,9 @@ const ErrorCoinModal = ({
           </div>
           <h2 className='text-xl font-bold text-gray-800 mb-4'>코인 부족!</h2>
           <p className='text-gray-600 text-sm mb-2'>
-            <span className='font-semibold text-red-600'>{requiredCoins}</span>{' '}
-            코인이 필요합니다.
+            <span className='font-semibold text-red-600'>
+              {Math.abs(requiredCoins - coin)}
+            </span>{' '}
           </p>
           <p className='text-gray-500 text-sm'>코인을 더 획득하시겠습니까?</p>
         </div>
