@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { InfraSubmitResponse, InfraEventResponse } from '../features/infraApi';
+import { InfraSubmitResponse } from '../features/infraApi';
 import ResultModal from './ResultModal';
 import { setModalOpen } from '@/components/EventDetector';
 import { X } from 'lucide-react';
@@ -9,11 +9,10 @@ import {
   // AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
+  // AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,7 +34,6 @@ const NormalModal = ({
   ecoType,
 }: NormalModalProps) => {
   const [showResult, setShowResult] = useState(false);
-  // const [result, setResult] = useState(null); // 타입지정... <InfraSubmitResponse> import해서 사용...?
   const [result, setResult] = useState<InfraSubmitResponse | null>(null); // api 응답 받을때 검증한거 아닌가... 왜 또 해야하지
 
   // 인프라 이벤트 상세 조회 쿼리

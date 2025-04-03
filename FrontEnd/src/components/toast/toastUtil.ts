@@ -1,7 +1,6 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
-// import { useNavigate } from 'react-router-dom';
 
 // 토스트 컨테이너 ID - 로그아웃 시 모든 토스트를 제거하기 위해 사용
 export const TOAST_CONTAINER_ID = 'app-toast-container';
@@ -17,6 +16,40 @@ export const defaultOptions: ToastOptions = {
   containerId: TOAST_CONTAINER_ID, // 컨테이너 ID 추가
 };
 
+// -------------------- 기본 토스트 --------------------
+// 성공 토스트 메시지
+export const showSuccessToast = (message: string, options?: ToastOptions) => {
+  return toast.success(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 에러 토스트 메시지
+export const showErrorToast = (message: string, options?: ToastOptions) => {
+  return toast.error(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 정보 토스트 메시지
+export const showInfoToast = (message: string, options?: ToastOptions) => {
+  return toast.info(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 경고 토스트 메시지
+export const showWarningToast = (message: string, options?: ToastOptions) => {
+  return toast.warning(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// -------------------- 인프라 이벤트 발생 관련 --------------------
 // 인프라 타입별 메시지 맵
 const infraEventMessages: Record<EcoType, string> = {
   ELECTRICITY: '가정에 문제가 발생했습니다!',
@@ -84,6 +117,7 @@ export const showInfraResultNotice = (
     style: { whiteSpace: 'pre-line' },
   });
 };
+
 // 마을 이름 변경 알림
 // export const showTownNameChangeNotice = (newName: string, options?: ToastOptions) => {
 //   return toast.success(`마을 이름이 "${newName}"으로 변경되었습니다.`, {

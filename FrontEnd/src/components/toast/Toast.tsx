@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { Button } from '../ui/button';
 import { showNotice } from './toastUtil';
 
@@ -15,7 +15,7 @@ interface ToastProps {
   autoClose?: number;
   className?: string;
   buttonText?: string;
-  onToastClick?: () => void; // 클릭 이벤트 핸들러 추가
+  onToastClick?: () => void;
 }
 
 const Toast =

@@ -54,15 +54,3 @@ export const getTownEvents = async () => {
   }
   return response.data;
 };
-
-// 마을 상황 조회 API에서 마을 이름 가져오기
-// export const getTownName = async () => {
-//   const response = await axiosInstance.get('/towns/events');
-
-//   if (!response || !response.data) {
-//     throw new Error(
-//       response?.data?.message || '마을 이름 조회 중 오류가 발생했습니다.',
-//     );
-//   }
-//   return response.data;
-// };
