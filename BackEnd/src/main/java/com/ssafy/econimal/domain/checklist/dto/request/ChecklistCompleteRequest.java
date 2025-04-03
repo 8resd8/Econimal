@@ -10,6 +10,10 @@ public record ChecklistCompleteRequest(
 
 	@NotBlank(message = "{required}")
 	@Size(max = 255, message = "{max.length}")
-	String checklistId
+	String checklistId,
+
+	@NotBlank(message = "{required}")
+	@Size(max = 50, message = "{max.length}")
+	String uuid
 ) {
 }
