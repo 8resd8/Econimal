@@ -42,7 +42,7 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
-        display: 'standalone',
+        display: 'fullscreen',
         orientation: 'landscape', // 가로 모드로 설정
         start_url: '/',
         scope: './',
