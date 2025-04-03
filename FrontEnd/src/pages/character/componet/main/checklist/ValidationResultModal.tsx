@@ -11,6 +11,7 @@ interface ValidationResultModalProps {
   onClose: () => void;
   onConfirm: () => void;
   onDelete: () => void;
+  isEdit?: boolean;
 }
 
 const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
@@ -19,14 +20,15 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   onClose,
   onConfirm,
   onDelete,
+  isEdit = false,
 }) => {
   if (!isOpen || !validationData) return null;
 
-  // 검증 결과 스타일 결정
   const isValid = validationData.result;
   const iconBgColor = isValid ? 'bg-green-100' : 'bg-yellow-100';
   const iconColor = isValid ? 'text-green-500' : 'text-yellow-500';
   const borderColor = isValid ? 'border-green-200' : 'border-yellow-200';
+  const confirmButtonText = isEdit ? '수정하기' : '추가하기';
 
   return (
     <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
@@ -36,7 +38,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
       >
         {/* 헤더 */}
         <div className='flex flex-col justify-center items-center mb-1'>
-          <div className='flex justify-center  mb-3'>
+          <div className='flex justify-center mb-3'>
             <div
               className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}
             >
@@ -50,11 +52,6 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
           {/* 검증 내용 */}
           <div className='bg-gray-100 p-3 rounded-lg mb-3 text-left text-xs max-w-full'>
             <p className='text-gray-700'>{validationData.aiResponse.reason}</p>
-            {/* {!isValid && (
-              <p className='text-xs text-red-500 mt-2'>
-                환경 관련 체크리스트가 아니면 불합격 처리될 수 있어요.
-              </p>
-            )} */}
           </div>
         </div>
 
@@ -92,7 +89,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
               onClick={onConfirm}
               className='w-full sm:w-[35%] py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition mt-1'
             >
-              추가하기
+              {confirmButtonText}
             </button>
           </div>
         </div>
