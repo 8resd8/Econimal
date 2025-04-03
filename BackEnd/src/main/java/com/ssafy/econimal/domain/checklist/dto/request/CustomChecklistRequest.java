@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Size;
 public record CustomChecklistRequest(
 	@NotBlank(message = "{required}")
 	@Size(max = 50, message = "{max.length}")
-	String description
+	String description,
+
+	@NotBlank(message = "{required}")
+	@Size(max = 50, message = "{max.length}")
+	String expId
 ) {
 }
