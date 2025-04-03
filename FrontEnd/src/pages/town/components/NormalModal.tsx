@@ -105,6 +105,9 @@ const NormalModal = ({
       ? eventData.ecoAnswer
       : fallbackAnswers;
 
+  // 실제 선택지가 있는지 확인
+  const hasRealAnswers = eventData?.ecoAnswer && eventData.ecoAnswer.length > 0;
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -127,6 +130,7 @@ const NormalModal = ({
                   key={answer.ecoAnswerId}
                   className='flex-1 py-4 sm:py-4 md:py-6 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
+                  disabled={!hasRealAnswers}
                 >
                   {answer.description}
                 </Button>

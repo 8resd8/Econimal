@@ -95,6 +95,9 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
       ? eventData.ecoAnswer
       : fallbackAnswers;
 
+  // 실제 선택지가 있는지 확인
+  const hasRealAnswers = eventData?.ecoAnswer && eventData.ecoAnswer.length > 0;
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -117,6 +120,7 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
                   key={answer.ecoAnswerId}
                   className='flex-1 basis-[calc(50%-0.5rem)] py-4 sm:py-4 md:py-10 text-base sm:text-lg md:text-2xl whitespace-pre-line break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
+                  disabled={!hasRealAnswers}
                 >
                   {answer.description}
                 </Button>
