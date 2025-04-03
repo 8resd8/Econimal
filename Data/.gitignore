@@ -2,3 +2,4 @@
 .env
 */temphum/bulkdata
 */temphum/*.csv
+*/bulkdata
