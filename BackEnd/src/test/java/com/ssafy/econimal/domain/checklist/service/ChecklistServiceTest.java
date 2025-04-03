@@ -134,7 +134,7 @@ public class ChecklistServiceTest {
 		assertEquals(1, uuids.size());
 
 		uuids.forEach(uuid -> {
-			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid, "uuiduuid");
+			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid);
 			checklistService.completeChecklist(user, completeRequest);
 			Assertions.assertThatThrownBy(() -> customChecklistService.deleteCustomChecklist(user, uuid))
 				.isInstanceOf(InvalidArgumentException.class)
@@ -185,7 +185,7 @@ public class ChecklistServiceTest {
 		});
 
 		uuids.forEach(uuid -> {
-			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid, "uuiduuid");
+			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid);
 			checklistService.completeChecklist(user, completeRequest);
 
 			CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기", "uuiduuid");
@@ -209,7 +209,7 @@ public class ChecklistServiceTest {
 		});
 
 		uuids.forEach(uuid -> {
-			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid, "uuiduuid");
+			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid);
 			checklistService.completeChecklist(user, completeRequest);
 		});
 
