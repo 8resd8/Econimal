@@ -16,6 +16,7 @@ import { setModalOpen } from '@/components/EventDetector';
 import { useLocation } from 'react-router-dom';
 import { showInfraResultNotice } from '@/components/toast/toastUtil';
 import { useMyCharName } from '@/store/useMyCharStore'; // 사용자 캐릭터 이름 가져오기
+import { useErrorStore } from '@/store/errorStore';
 
 interface ResultModalProps {
   open: boolean;
@@ -42,14 +43,21 @@ const ResultModal = ({
   const location = useLocation();
   const isTownPage = location.pathname.includes('/town');
 
+  // [여기] 에러 상태 감지
+  const isError = useErrorStore((state) => state.isError);
+
   // 캐릭터 이름 가져오기
   const characterName = useMyCharName() || '캐릭터'; // 이름이 없을 경우 기본값 제공
 
   // 모달 열림/닫힘 상태 전역 변수에 반영 => 토스트 창이랑 같이 사용안하면 불필요한듯
   useEffect(() => {
+    // [여기] 에러 발생 시 모달 닫기
+    if (isError && open) {
+      onOpenChange(false);
+    }
     setModalOpen(open);
     return () => setModalOpen(false);
-  }, [open]);
+  }, [open, isError, onOpenChange]);
 
   // 결과 모달이 열릴 때 탄소가 감소했으면 효과 표시
   useEffect(() => {
@@ -140,7 +148,7 @@ const ResultModal = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open && !isError} onOpenChange={onOpenChange}>
       {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
       <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
         <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>

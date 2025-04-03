@@ -7,6 +7,7 @@ import {
 import { useErrorStore } from '@/store/errorStore';
 import { showErrorToast } from '@/components/toast/toastUtil';
 import { clearTokenData } from '@/api/axiosConfig';
+import { setModalOpen } from '@/components/EventDetector'; // [여기] 모달 상태 관리 함수 import
 
 // 에러 핸들러가 호출된 횟수를 추적하는 변수
 let tokenRefreshErrorCount = 0;
@@ -16,6 +17,9 @@ let lastTokenRefreshErrorTime = 0;
 // 에러 핸들링 함수
 export const handleApiError = (error: Error | AxiosError | unknown): void => {
   console.error('API 에러 발생:', error);
+
+  // 에러 발생 시 모든 모달 닫기 - 에러 스토어를 통해 처리하기 전에 선제적으로 닫음
+  setModalOpen(false);
 
   // 리프레시 요청 관련 에러 처리 개선
   if (
@@ -137,6 +141,9 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
 export const handleMinorError = (error: Error | AxiosError | unknown): void => {
   console.error('Minor API 에러 발생:', error);
 
+  // 경미한 에러 발생 시에도 모든 모달 닫기
+  setModalOpen(false);
+
   // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
   if (
     axios.isAxiosError(error) &&
@@ -175,6 +182,8 @@ export const handleMinorError = (error: Error | AxiosError | unknown): void => {
 
 // 탠스택쿼리 에러 핸들러 함수
 export const queryErrorHandler = (error: unknown) => {
+  // 탠스택쿼리 에러 발생 시에도 모든 모달 닫기
+  setModalOpen(false);
   // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
   if (
     axios.isAxiosError(error) &&

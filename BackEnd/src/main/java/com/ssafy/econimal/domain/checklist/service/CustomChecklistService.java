@@ -32,6 +32,7 @@ public class CustomChecklistService {
 
 	private static final int MAX_CHECKLIST_PER_DAY = 5;
 	private static final String CHECKLIST_PREFIX = "CC:";
+	private static final String EXP_PREFIX = "EE:";
 
 	// AI 환경내용 검사
 	public CustomChecklistResponse CustomChecklistValidation(User user, CustomChecklistValidationRequest request) {
@@ -53,7 +54,7 @@ public class CustomChecklistService {
 
 		// 경험치 저장
 		String uuid = getUuid();
-		redisTemplate.opsForValue().set(user.getId() + uuid, String.valueOf(exp));
+		redisTemplate.opsForValue().set(EXP_PREFIX + user.getId() + uuid, String.valueOf(exp));
 
 		return new CustomChecklistResponse(response, result, exp, uuid);
 	}
@@ -77,12 +78,14 @@ public class CustomChecklistService {
 		// 고유 값을 키로 해서 체크리스트 저장
 		String uuid = getUuid();
 		String hashKey = CHECKLIST_PREFIX + uuid;
-		// String exp = redisTemplate.opsForValue().get(request.uuid());
 
 		redisTemplate.opsForHash().put(hashKey, "userId", user.getId().toString());
 		redisTemplate.opsForHash().put(hashKey, "description", description);
 		redisTemplate.opsForHash().put(hashKey, "isComplete", "false");
-		redisTemplate.opsForHash().put(hashKey, "exp", "30");
+
+		// AI 검증에서 경험치 가져와서 입력
+		String exp = redisTemplate.opsForValue().get(EXP_PREFIX + user.getId() + request.expId());
+		redisTemplate.opsForHash().put(hashKey, "exp", exp == null ? "0" : exp);
 
 		// 체크리스트 입력 순서
 		long score = System.currentTimeMillis();
