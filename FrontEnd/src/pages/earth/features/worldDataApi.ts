@@ -57,7 +57,7 @@ export interface WorldData {
 export const fetchWorldData = async (
   startDateParam: Date | string, 
   endDateParam: Date | string, 
-  type: 'HOUR' | 'DAY' | 'MONTH' | 'ALL'
+  type: 'HOUR' | 'DAY' | 'MONTH' | 'YEAR'
 ): Promise<WorldData> => {
   try {
     // 인증 토큰 확인
