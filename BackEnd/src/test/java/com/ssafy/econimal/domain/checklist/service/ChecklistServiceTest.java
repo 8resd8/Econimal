@@ -73,7 +73,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트생성() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 		assertEquals(1, redisTemplate.opsForZSet().size(userKey));
@@ -91,7 +91,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트생성_실패_중복내용() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 		assertEquals(1, redisTemplate.opsForZSet().size(userKey));
@@ -107,7 +107,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트삭제() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
@@ -125,7 +125,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트삭제_실패_완료된체크리스트() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
@@ -147,7 +147,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트수정() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
@@ -158,7 +158,7 @@ public class ChecklistServiceTest {
 			assertEquals("형광등 전원 끄기", actualDescription);
 		});
 
-		CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기");
+		CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기", "uuiduuid");
 		uuids.forEach(uuid -> {
 			customChecklistService.updateCustomChecklist(user, uuid, newRequest);
 		});
@@ -173,7 +173,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트수정_실패_완료된체크리스트() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
@@ -188,7 +188,7 @@ public class ChecklistServiceTest {
 			ChecklistCompleteRequest completeRequest = new ChecklistCompleteRequest("CUSTOM", uuid, "uuiduuid");
 			checklistService.completeChecklist(user, completeRequest);
 
-			CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기");
+			CustomChecklistRequest newRequest = new CustomChecklistRequest("수도꼭지 잠그기", "uuiduuid");
 			Assertions.assertThatThrownBy(() -> customChecklistService.updateCustomChecklist(user, uuid, newRequest))
 				.isInstanceOf(InvalidArgumentException.class)
 				.hasMessage("이미 완료된 체크리스트입니다.");
@@ -197,7 +197,7 @@ public class ChecklistServiceTest {
 
 	@Test
 	void 커스텀체크리스트완료() {
-		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기");
+		CustomChecklistRequest request = new CustomChecklistRequest("형광등 전원 끄기", "uuiduuid");
 		customChecklistService.addCustomChecklist(user, request);
 		String userKey = CustomChecklistUtil.buildUserKey(user);
 
