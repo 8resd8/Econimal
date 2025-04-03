@@ -8,12 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
   // DialogClose,
-  // DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePatchTownName } from '../features/useTownQuery';
-// import { TownNameData } from '../features/townApi';
 // import { X } from 'lucide-react';
 
 interface TownNameEditModalProps {
@@ -29,7 +27,7 @@ export const TownNameEditModal = ({
   currentTownName,
 }: TownNameEditModalProps) => {
   const [townName, setTownName] = useState(currentTownName); // currentTownName이 townName의 초기값
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const patchTownName = usePatchTownName();
 
   // 모달이 열릴 때 마다 현재 마을 이름을 상태에 반영
@@ -55,9 +53,6 @@ export const TownNameEditModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* <DialogTrigger asChild>
-        <Button variant='outline'>Edit Profile</Button>
-      </DialogTrigger> */}
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>마을 이름을 수정해주세요</DialogTitle>

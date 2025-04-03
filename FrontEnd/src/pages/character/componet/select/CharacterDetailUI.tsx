@@ -42,13 +42,13 @@ const CharacterDetailUI = ({
         {/* ✅ 버튼을 아래로 정렬 (mt-auto) */}
         <div className='mt-auto flex flex-row justify-center w-full gap-4 pb-6'>
           <CharNextChap
-            text={`${name} 돕기`}
-            handleChar={handleHelpChar}
+            text='다른 친구 돕기'
+            handleChar={handleHelpAnotherChar}
             className='w-1/2 h-8'
           />
           <CharNextChap
-            text='다른 친구 돕기'
-            handleChar={handleHelpAnotherChar}
+            text={`${name} 돕기`}
+            handleChar={handleHelpChar}
             className='w-1/2 h-8'
           />
         </div>

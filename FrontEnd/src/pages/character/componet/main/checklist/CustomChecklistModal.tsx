@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Check } from 'lucide-react';
 
 interface CustomChecklistModalProps {
   newItemDescription: string;
@@ -47,7 +47,7 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
         <div className='text-center mb-6'>
           <div className='flex justify-center mb-4'>
             <div className='w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center'>
-              <Plus className='h-10 w-10 text-blue-500' />
+              <Check className='h-10 w-10 text-blue-500' />
             </div>
           </div>
           <h2 className='text-2xl font-bold text-gray-800 mb-4'>
@@ -59,7 +59,7 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
         <div className='mb-6'>
           <input
             type='text'
-            placeholder='나만의 체크리스트 내용을 작성해주세요 (최소 5글자)'
+            placeholder='오늘은 어떠한 행동으로 지구를 지킬까요?'
             value={newItemDescription}
             onChange={(e) => {
               setNewDescription(e.target.value);

@@ -34,7 +34,7 @@ public class CustomChecklistService {
 	private static final String CHECKLIST_PREFIX = "CC:";
 
 	// AI 환경내용 검사
-	public CustomChecklistResponse CustomChecklistValidation(CustomChecklistValidationRequest request) {
+	public CustomChecklistResponse CustomChecklistValidation(User user, CustomChecklistValidationRequest request) {
 		String aiResponse = chatModel.call(environmentPrompt(request.description()));
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -48,10 +48,14 @@ public class CustomChecklistService {
 				exp = response.point() * 2;
 			}
 		} catch (JsonProcessingException e) {
-			return new CustomChecklistResponse(new CustomChecklistAIDto(0, "파싱 실패"), result, exp);
+			return new CustomChecklistResponse(new CustomChecklistAIDto(0, "파싱 실패"), result, exp, "Not Created UUID");
 		}
 
-		return new CustomChecklistResponse(response, result, exp);
+		// 경험치 저장
+		String uuid = getUuid();
+		redisTemplate.opsForValue().set(user.getId() + uuid, String.valueOf(exp));
+
+		return new CustomChecklistResponse(response, result, exp, uuid);
 	}
 
 	public void addCustomChecklist(User user, CustomChecklistRequest request) {
@@ -71,8 +75,9 @@ public class CustomChecklistService {
 		CustomChecklistUtil.assertDescriptionUnique(isMember);
 
 		// 고유 값을 키로 해서 체크리스트 저장
-		String uuid = UUID.randomUUID().toString();
+		String uuid = getUuid();
 		String hashKey = CHECKLIST_PREFIX + uuid;
+		// String exp = redisTemplate.opsForValue().get(request.uuid());
 
 		redisTemplate.opsForHash().put(hashKey, "userId", user.getId().toString());
 		redisTemplate.opsForHash().put(hashKey, "description", description);
@@ -143,4 +148,7 @@ public class CustomChecklistService {
 		}
 	}
 
+	private static String getUuid() {
+		return UUID.randomUUID().toString();
+	}
 }
