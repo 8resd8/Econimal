@@ -2,7 +2,7 @@ spring:
   config:
     import:
       - classpath:secret.yml
-  product: false
+  product: true
 
   datasource:
     url: ${database.url}
@@ -18,7 +18,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
@@ -51,9 +51,9 @@ server:
 logging:
   level:
     root: info
-    com.ssafy.econimal: debug
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql: debug
+    com.ssafy.econimal: info
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql: info
 
 jwt:
   secret-key: ${jwt.secret}
