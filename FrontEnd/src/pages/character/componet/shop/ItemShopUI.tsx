@@ -38,6 +38,11 @@ const ItemShopUI = ({
     const selectedItem = currentItems.find(
       (item) => item.productId === productId,
     );
+    console.log(
+      productId,
+      '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
+      '선택을 누르면 같이 발생되는게 맞는거가? => 현재 선택을 누르면 호버가 처음에 발생',
+    );
 
     if (selectedItem) {
       if (selectedTab === 'characters' && selectedItem.userCharacterId) {
