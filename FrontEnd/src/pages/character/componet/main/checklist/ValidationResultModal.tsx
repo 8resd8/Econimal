@@ -11,6 +11,7 @@ interface ValidationResultModalProps {
   onClose: () => void;
   onConfirm: () => void;
   onDelete: () => void;
+  isEdit?: boolean;
 }
 
 const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
@@ -19,6 +20,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   onClose,
   onConfirm,
   onDelete,
+  isEdit = false,
 }) => {
   if (!isOpen || !validationData) return null;
 
@@ -27,6 +29,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   const iconBgColor = isValid ? 'bg-green-100' : 'bg-yellow-100';
   const iconColor = isValid ? 'text-green-500' : 'text-yellow-500';
   const borderColor = isValid ? 'border-green-200' : 'border-yellow-200';
+  const confirmButtonText = isEdit ? '수정하기' : '추가하기';
 
   return (
     <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
@@ -92,7 +95,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
               onClick={onConfirm}
               className='w-full sm:w-[35%] py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition mt-1'
             >
-              추가하기
+              {confirmButtonText}
             </button>
           </div>
         </div>

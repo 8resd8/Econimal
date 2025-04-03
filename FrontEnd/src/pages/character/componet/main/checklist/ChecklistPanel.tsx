@@ -58,6 +58,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
   );
   const [deleteConfirmItem, setDeleteConfirmItem] =
     useState<ChecklistItemType | null>(null);
+  const [isEditValidation, setIsEditValidation] = useState(false);
 
   const debugRef = useRef({
     validationAttempts: 0,
@@ -75,6 +76,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
       isCompleteModalOpen,
       isCompleteConfirmOpen,
       completePendingItem,
+      isEditValidation,
     });
   }, [
     isValidationModalOpen,
@@ -85,6 +87,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
     isCompleteModalOpen,
     isCompleteConfirmOpen,
     completePendingItem,
+    isEditValidation,
   ]);
 
   useEffect(() => {
@@ -102,16 +105,20 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
     }
   }, [validationData]);
 
-  const handleValidationResult = async (description: string) => {
+  const handleEditValidationResult = async (description: string) => {
     try {
-      console.log('유효성 검증 시작:', description);
+      console.log('수정 항목 유효성 검증 시작:', description);
       debugRef.current.validationAttempts++;
       console.log(`검증 시도 #${debugRef.current.validationAttempts}`);
 
       setPendingValidation(description);
+      setIsEditValidation(true);
 
       setValidationData(null);
       setIsValidationModalOpen(false);
+
+      // 수정 모달 닫기
+      setIsEditModalOpen(false);
 
       const data = await onValidateItem(description);
       console.log('검증 결과 데이터:', data);
@@ -274,7 +281,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               newItemDescription={newItemDescription}
               setIsModalOpen={setIsModalOpen}
               setNewDescription={setNewItemDescription}
-              onValidateItem={handleValidationResult}
+              onValidateItem={handleEditValidationResult}
               onAddItem={onAddItem}
             />
           )}
@@ -300,18 +307,31 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
           }}
           onConfirm={() => {
             console.log('사용자가 확인을 눌렀습니다.');
-            if (pendingValidation && onAddItem) {
+            if (
+              isEditValidation &&
+              editingItem &&
+              pendingValidation &&
+              onEditItem
+            ) {
+              // 수정 로직 실행
+              onEditItem(editingItem.checklistId, pendingValidation);
+              setEditingItem(null);
+            } else if (!isEditValidation && pendingValidation && onAddItem) {
+              // 추가 로직 실행
+
               onAddItem(pendingValidation);
-              setPendingValidation('');
             }
+            setPendingValidation('');
             setIsValidationModalOpen(false);
             setValidationData(null);
+            setIsEditValidation(false);
           }}
           onDelete={() => {
             console.log('사용자가 삭제를 눌렀습니다.');
             setPendingValidation('');
             setIsValidationModalOpen(false);
             setValidationData(null);
+            setIsEditValidation(false);
           }}
         />
       )}
