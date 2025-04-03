@@ -38,7 +38,7 @@ const CharacterCardsList = () => {
       </h2>
 
       {/* 카드 리스트 */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl'>
+      <div className='grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 sm:gap-3 w-full max-w-4xl'>
         {dataToRender.map((item) => (
           <div
             key={item.userCharacterId || item.id || item.name}
