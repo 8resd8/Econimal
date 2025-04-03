@@ -79,7 +79,7 @@ public class ChecklistService {
 		if (request.type().equals("DAILY")) {
 			completeDailyChecklist(user, Long.parseLong(checklistId));
 		} else {
-			completeCustomChecklist(user, checklistId);
+			completeCustomChecklist(user, checklistId, request.uuid());
 		}
 	}
 
@@ -95,7 +95,7 @@ public class ChecklistService {
 
 	}
 
-	private void completeCustomChecklist(User user, String checklistId) {
+	private void completeCustomChecklist(User user, String checklistId, String uuid) {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
 
 		Boolean isExist = redisTemplate.hasKey(hashKey);
@@ -108,8 +108,9 @@ public class ChecklistService {
 		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
 
 		// 경험치 업데이트
-		String expStr = (String)redisTemplate.opsForHash().get(hashKey, "exp");
-		int exp = expStr != null ? Integer.parseInt(expStr) : 0;
+		String getExp = redisTemplate.opsForValue().get(user.getId() + uuid);
+		int exp = Integer.parseInt(getExp == null ? "0" : getExp);
+
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)
 			.orElseThrow(() -> new InvalidArgumentException("메인 캐릭터를 먼저 골라주세요."));
 		ExpUtil.addExp(exp, userCharacter);

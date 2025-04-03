@@ -29,8 +29,9 @@ public class CustomChecklistController {
 
 	@PostMapping("/validate")
 	public CustomChecklistResponse CustomChecklistValidation(
+		@Login User user,
 		@Valid @RequestBody CustomChecklistValidationRequest request) {
-		return customChecklistService.CustomChecklistValidation(request);
+		return customChecklistService.CustomChecklistValidation(user, request);
 	}
 
 	@PostMapping
