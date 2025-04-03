@@ -6,10 +6,56 @@ import {
 } from '@/components/errorScreens/types/error';
 import { useErrorStore } from '@/store/errorStore';
 import { showErrorToast } from '@/components/toast/toastUtil';
+import { clearTokenData } from '@/api/axiosConfig';
+
+// 에러 핸들러가 호출된 횟수를 추적하는 변수
+let tokenRefreshErrorCount = 0;
+const MAX_TOKEN_REFRESH_ERRORS = 3;
+let lastTokenRefreshErrorTime = 0;
 
 // 에러 핸들링 함수
 export const handleApiError = (error: Error | AxiosError | unknown): void => {
   console.error('API 에러 발생:', error);
+
+  // 리프레시 요청 관련 에러 처리 개선
+  if (
+    axios.isAxiosError(error) &&
+    error.config?.url?.includes('/users/refresh')
+  ) {
+    const now = Date.now();
+
+    // 마지막 에러로부터 10초가 지났으면 카운터 리셋
+    if (now - lastTokenRefreshErrorTime > 10000) {
+      tokenRefreshErrorCount = 0;
+    }
+
+    // 카운터 증가 및 시간 갱신
+    tokenRefreshErrorCount++;
+    lastTokenRefreshErrorTime = now;
+
+    console.log(
+      `토큰 리프레시 에러 카운트: ${tokenRefreshErrorCount}/${MAX_TOKEN_REFRESH_ERRORS}`,
+    );
+
+    // 에러가 여러 번 반복되면 토큰 데이터 정리
+    if (tokenRefreshErrorCount >= MAX_TOKEN_REFRESH_ERRORS) {
+      console.log('토큰 리프레시 에러 한계에 도달, 토큰 데이터 정리');
+      clearTokenData();
+
+      // 이후 요청에서 새로 로그인하도록 유도 (선택 사항)
+      // window.location.href = '/login';
+    }
+
+    // 토큰 리프레시 에러는 사용자에게 표시하지 않음
+    console.log('토큰 리프레시 요청 실패, 유저에게 에러 표시 생략');
+    return;
+  }
+
+  // Token refresh failed 에러 메시지도 차단
+  if (error instanceof Error && error.message === 'Token refresh failed') {
+    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
+    return;
+  }
 
   // 기본 에러 유형
   let errorType: ErrorType = 'general';
@@ -24,7 +70,6 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
       // 서버 응답이 있는 경우 (4xx, 5xx 상태 코드)
       const status: number = axiosError.response.status;
 
-      // 백엔드 에러 응답 데이터 추출
       try {
         const errorData = axiosError.response.data as ErrorResponse;
 
@@ -92,6 +137,21 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
 export const handleMinorError = (error: Error | AxiosError | unknown): void => {
   console.error('Minor API 에러 발생:', error);
 
+  // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
+  if (
+    axios.isAxiosError(error) &&
+    error.config?.url?.includes('/users/refresh')
+  ) {
+    console.log('토큰 리프레시 요청 실패, 무시');
+    return;
+  }
+
+  // Token refresh failed 에러 메시지도 차단
+  if (error instanceof Error && error.message === 'Token refresh failed') {
+    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
+    return;
+  }
+
   if (axios.isAxiosError(error) && error.response) {
     const status = error.response.status;
 
@@ -115,6 +175,20 @@ export const handleMinorError = (error: Error | AxiosError | unknown): void => {
 
 // 탠스택쿼리 에러 핸들러 함수
 export const queryErrorHandler = (error: unknown) => {
+  // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
+  if (
+    axios.isAxiosError(error) &&
+    error.config?.url?.includes('/users/refresh')
+  ) {
+    console.log('토큰 리프레시 요청 실패, 무시');
+    return;
+  }
+
+  // Token refresh failed 에러 메시지도 차단
+  if (error instanceof Error && error.message === 'Token refresh failed') {
+    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
+    return;
+  }
   // unknown이 최선이야?
   if (axios.isAxiosError(error) && error.response?.status === 400) {
     handleMinorError(error);
