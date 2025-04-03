@@ -1,10 +1,12 @@
 // axiosConfig.ts
 import axios from 'axios';
 import { API } from './apiConfig';
+import { handleApiError, handleMinorError } from '@/utils/errorHandler';
 
 // 환경 변수에서 API 도메인 가져오기
 const DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
+// -------------------- 토큰 관련 --------------------
 // 전역 액세스 토큰 저장소 (메모리에만 존재)
 let accessToken: string | null = null;
 // 토큰 만료 시간 저장
@@ -25,10 +27,10 @@ export const getAccessToken = () => {
   if (!accessToken) {
     // 메모리에 없으면 sessionStorage에서 복원
     accessToken = sessionStorage.getItem('accessToken');
-    
+
     // 복원 시 토큰 만료 여부 즉시 확인
     if (accessToken && isTokenExpired()) {
-      console.log("복원된 토큰이 이미 만료됨");
+      console.log('복원된 토큰이 이미 만료됨');
       clearTokenData();
       return null;
     }
@@ -68,14 +70,21 @@ export const clearTokenData = () => {
 
 export const clearAllCookies = () => {
   const cookieNames = ['refreshToken', 'JSESSIONID']; // 알려진 쿠키 이름들 추가
-  
+
   // 가능한 모든 경로 조합
-  const paths = ['/', '/api', '/api/', '', '/j12a504.p.ssafy.io', '/j12a504.p.ssafy.io/api'];
-  
+  const paths = [
+    '/',
+    '/api',
+    '/api/',
+    '',
+    '/j12a504.p.ssafy.io',
+    '/j12a504.p.ssafy.io/api',
+  ];
+
   // 가능한 모든 도메인 조합
   const domain = window.location.hostname;
-  let domains = [domain, `.${domain}`, '']; 
-  
+  let domains = [domain, `.${domain}`, ''];
+
   // 서브도메인이 있을 경우 루트 도메인도 시도
   const domainParts = domain.split('.');
   if (domainParts.length > 2) {
@@ -84,7 +93,7 @@ export const clearAllCookies = () => {
   }
 
   // 모든 쿠키 이름 가져오기
-  document.cookie.split(';').forEach(cookie => {
+  document.cookie.split(';').forEach((cookie) => {
     const parts = cookie.split('=');
     const name = parts[0].trim();
     if (name) cookieNames.push(name);
@@ -92,19 +101,24 @@ export const clearAllCookies = () => {
 
   // 중복 제거
   const uniqueCookieNames = [...new Set(cookieNames)];
-  
+
   // 다양한 옵션 조합으로 쿠키 삭제 시도
-  uniqueCookieNames.forEach(name => {
+  uniqueCookieNames.forEach((name) => {
     // 기본 삭제
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-    
+
     // 모든 경로와 도메인 조합으로 삭제 시도
     for (const path of paths) {
       for (const dom of domains) {
         // 다양한 보안 옵션으로 시도
-        const sameSiteOptions = ['', 'SameSite=None;', 'SameSite=Lax;', 'SameSite=Strict;'];
+        const sameSiteOptions = [
+          '',
+          'SameSite=None;',
+          'SameSite=Lax;',
+          'SameSite=Strict;',
+        ];
         const secureOptions = ['', 'Secure;'];
-        
+
         for (const sameSite of sameSiteOptions) {
           for (const secure of secureOptions) {
             if (dom) {
@@ -119,7 +133,7 @@ export const clearAllCookies = () => {
   });
 };
 
-// axios 인스턴스 생성
+// -------------------- axios 인스턴스, 인터셉터 --------------------
 export const axiosInstance = axios.create({
   baseURL: DOMAIN,
   timeout: 5000,
@@ -138,7 +152,7 @@ const noAuthRequired = [
   '/users/email-validation',
   '/users/password/reset/request',
   '/users/email/password/reset/request',
-  '/users/email/password/reset/confirm'
+  '/users/email/password/reset/confirm',
 ];
 
 // 요청 인터셉터 수정
@@ -150,8 +164,10 @@ axiosInstance.interceptors.request.use(
 
     // 인증이 필요 없는 요청인지 확인
     const currentPath = config.url || '';
-    const isAuthExempt = noAuthRequired.some(path => currentPath.includes(path));
-    
+    const isAuthExempt = noAuthRequired.some((path) =>
+      currentPath.includes(path),
+    );
+
     // 인증이 필요 없는 요청이면 토큰 검사 건너뛰기
     if (isAuthExempt) {
       return config;
@@ -165,7 +181,7 @@ axiosInstance.interceptors.request.use(
         const refreshResponse = await axiosInstance.post('/users/refresh', {});
 
         console.log('토큰 갱신 성공:', refreshResponse.data);
-        
+
         const newToken = refreshResponse.data.accessToken;
 
         // 새 토큰 저장
@@ -176,9 +192,14 @@ axiosInstance.interceptors.request.use(
         }
 
         // 이벤트 발행: 토큰이 갱신되었음을 알림
-        window.dispatchEvent(new CustomEvent('token-refreshed', { 
-          detail: { accessToken: newToken, timeToLive: refreshResponse.data.timeToLive } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent('token-refreshed', {
+            detail: {
+              accessToken: newToken,
+              timeToLive: refreshResponse.data.timeToLive,
+            },
+          }),
+        );
 
         // 원래 요청 헤더에 새 토큰 설정
         if (config.headers) {
@@ -209,46 +230,30 @@ axiosInstance.interceptors.request.use(
 
 // 응답 인터셉터
 axiosInstance.interceptors.response.use(
-  response => {
+  (response) => {
     console.log('전체 응답:', response);
     console.log('응답 헤더:', response.headers);
-    
+
     // 로그아웃 요청에 대한 응답인 경우
     if (response.config.url?.includes('/users/logout')) {
       console.log('로그아웃 응답 감지, 쿠키 삭제 시도');
       clearAllCookies();
     }
-    
+
     // 현재 쿠키 상태 확인 (HttpOnly 쿠키는 보이지 않음)
     console.log('현재 쿠키:', document.cookie);
-    
+
     return response;
   },
   (error) => {
     console.error('API 요청 오류:', error);
+
+    handleApiError(error); // 중앙화된 에러 처리 함수 호출
     return Promise.reject(error);
   },
 );
 
-// 로그아웃 인터셉터 설정 함수
-export const setupLogoutInterceptor = () => {
-  // 로그아웃 성공 응답에 대한 인터셉터 추가
-  const interceptorId = axiosInstance.interceptors.response.use(
-    response => {
-      // 로그아웃 요청에 대한 응답인 경우
-      if (response.config.url?.includes('/users/logout')) {
-        console.log('로그아웃 응답 감지, 쿠키 삭제 시도');
-        clearAllCookies();
-      }
-      return response;
-    },
-    error => {
-      return Promise.reject(error);
-    }
-  );
-  
-  return interceptorId;
-};
+// 이전 코드는 그대로 두고, 파일 끝부분에 다음을 추가합니다
 
 // ------------------------- 서버 fetching api 로직 ---------------------------
 export const characterListAPI = {

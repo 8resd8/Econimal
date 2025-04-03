@@ -10,12 +10,13 @@ interface NotFoundScreenProps {
  * - 초등학생 타겟으로 친환경 요소를 반영한 디자인
  * - 페이지를 찾을 수 없을 때 사용자에게 친근한 안내 제공
  */
-const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
+
+const NotFoundScreen = ({
   message = '페이지를 찾을 수 없습니다',
   subMessage = '요청하신 페이지가 삭제되었거나 주소가 변경되었어요.',
-  homeText = '홈으로 돌아가기',
+  homeText = '메인으로 이동',
   onGoHome = () => (window.location.href = '/'),
-}) => {
+}: NotFoundScreenProps) => {
   return (
     <div className='fixed inset-0 flex flex-col items-center justify-center w-full h-screen bg-green-50'>
       {/* 404 애니메이션 아이콘 */}
@@ -52,7 +53,7 @@ const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
         {subMessage}
       </p>
 
-      {/* 홈으로 버튼 */}
+      {/* 메인으로 버튼 */}
       <button
         className='px-8 py-3 bg-teal-500 text-white rounded-full font-medium flex items-center shadow-md hover:bg-teal-600 transition-colors'
         onClick={onGoHome}
@@ -73,29 +74,8 @@ const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
         </svg>
         {homeText}
       </button>
-
-      {/* 환경 꿀팁 */}
-      {/* <div className='absolute bottom-20 left-0 right-0 text-center'>
-        <p className='text-sm text-green-700 max-w-xs mx-auto'>{getTip()}</p>
-      </div> */}
     </div>
   );
 };
-
-// 환경 관련 꿀팁 랜덤 제공 (기존 LoadingScreen과 동일하게 유지)
-// const getTip = () => {
-//   const tips = [
-//     '알고 계셨나요? 이면지를 재활용하면 나무를 보호할 수 있어요!',
-//     '전기를 절약하면 이산화탄소 배출량을 줄일 수 있어요!',
-//     '물을 아껴 쓰면 소중한 지구 자원을 보호할 수 있어요!',
-//     '분리수거는 지구를 깨끗하게 만드는 첫걸음이에요!',
-//     '가까운 거리는 걸어다니면 공기가 맑아져요!',
-//     '장바구니를 사용하면 비닐봉지 사용을 줄일 수 있어요!',
-//     '음식물 쓰레기를 줄이면 메탄가스 발생을 줄일 수 있어요!',
-//     '재활용품은 새로운 보물로 태어날 수 있어요!',
-//   ];
-
-//   return tips[Math.floor(Math.random() * tips.length)];
-// };
 
 export default NotFoundScreen;

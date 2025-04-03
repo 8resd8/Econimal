@@ -4,11 +4,10 @@ import {
   // AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
+  // AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -91,17 +90,12 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
     <>
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         {/* <AlertDialogTrigger>법원 퀴즈</AlertDialogTrigger> */}
-        {/* <AlertDialogContent className='p-4 sm:p-6 md:p-8 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto'> */}
-        {/* <AlertDialogContent className='p-3 sm:p-5 md:p-6 w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[50vw] max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto mx-auto !rounded-lg'> */}
-        {/* <AlertDialogContent className='p-3 text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center overflow-y-auto mx-auto !rounded-lg'>
-          <AlertDialogCancel className='absolute right-4 top-4 px-2 py-0 m-2 border-none'> */}
         <AlertDialogContent className='p-4 sm:p-6 md:p-8 z-50 max-w-[95vw] md:max-w-[80vw] lg:max-w-[60vw] max-h-[90vh] overflow-y-auto rounded-lg'>
           <AlertDialogCancel className='absolute right-4 top-4 p-2 border-none'>
             <X />
           </AlertDialogCancel>
 
           <AlertDialogHeader>
-            {/* <AlertDialogTitle className='text-lg sm:text-xl md:text-2xl lg:text-3xl mx-2 sm:mx-2 md:mx-4 break-keep text-center'> */}
             <AlertDialogTitle className='text-xl sm:text-2xl md:text-4xl mx-2 sm:m-4 md:m-6 break-keep text-center'>
               {eventData?.ecoQuiz?.quizDescription ||
                 '문제가 도착하지 않았어요😢'}
@@ -109,13 +103,10 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
           </AlertDialogHeader>
           <div className='space-y-2 sm:space-y-3 md:space-y-4'>
             <div className='flex flex-wrap gap-4'>
-              {/* <div className='flex flex-col w-full gap-4'> */}
-              {/* <div className='flex flex-col w-full gap-2 sm:gap-3 md:gap-4'> */}
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoAnswerId}
                   className='flex-1 basis-[calc(50%-0.5rem)] py-4 sm:py-4 md:py-8 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
-                  // className='flex-1 py-1 sm:py-2 text-sm sm:text-base md:text-lg whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
                 >
                   {answer.description}
