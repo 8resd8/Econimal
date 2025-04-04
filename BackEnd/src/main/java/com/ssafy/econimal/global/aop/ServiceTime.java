@@ -24,7 +24,8 @@ public class ServiceTime {
 	private static final String LINE_SEPARATOR = "============================================================";
 
 
-	@Around("execution(* com.ssafy.econimal..service..*(..))")
+	// @Around("execution(* com.ssafy.econimal..service..*(..))")
+	@Around("execution(* com.ssafy.econimal..service..*(..)) && !execution(* com.ssafy.econimal.domain.globe.service.GlobeService.*(..))")
 	public Object serviceTime(ProceedingJoinPoint joinPoint) throws Throwable {
 		String fullPathClassName = joinPoint.getSignature().getDeclaringTypeName();
 		String className = fullPathClassName.substring(fullPathClassName.lastIndexOf(".") + 1);
@@ -66,7 +67,7 @@ public class ServiceTime {
 		endLog.append("\n").append(END_SEPARATOR).append(SERVICE_LOG_PREFIX).append(END_SEPARATOR).append("\n")
 			.append("▶ [Method]   : ").append(methodName).append("\n")
 			.append("▶ [실행시간]  : ").append(executionTime).append(" ms").append("\n")
-			// .append("▶ [Response] : ").append(result != null ? result : "리턴 값 없음").append("\n")
+			.append("▶ [Response] : ").append(result != null ? result : "리턴 값 없음").append("\n")
 			.append(LINE_SEPARATOR).append("\n");
 		log.debug(endLog.toString());
 
