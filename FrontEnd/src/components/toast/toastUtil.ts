@@ -1,19 +1,35 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
+import { useErrorStore } from '@/store/errorStore';
 
 // 토스트 컨테이너 ID - 로그아웃 시 모든 토스트를 제거하기 위해 사용
 export const TOAST_CONTAINER_ID = 'app-toast-container';
 
-// 기본 토스트 옵션
+// 기본 토스트 옵션 - 성능 및 UX 개선
 export const defaultOptions: ToastOptions = {
   position: 'top-right',
   autoClose: 3000,
   hideProgressBar: false,
   closeOnClick: true,
-  pauseOnHover: false, // false로 변경하여 hover 시 일시정지되지 않도록 함
-  draggable: false, // false로 변경하여 드래그로 토스트가 계속 떠있지 않도록 함
-  containerId: TOAST_CONTAINER_ID, // 컨테이너 ID 추가
+  pauseOnHover: false, // 호버 시 일시정지 방지
+  draggable: false, // 드래그 방지
+  containerId: TOAST_CONTAINER_ID,
+  closeButton: true, // 닫기 버튼 표시
+  rtl: false, // 왼쪽에서 오른쪽으로 텍스트 표시
+  // theme: 'colored', // 색상이 강조된 테마 사용
+};
+
+// 토스트 표시 여부를 결정하는 함수
+export const shouldShowToast = (): boolean => {
+  const isError = useErrorStore.getState().isError; // 에러 스토어 상태 확인
+
+  // 모달이 열려있거나 에러 상태인 경우 토스트를 표시하지 않음
+  if (isModalOpen || isError) {
+    return false;
+  }
+
+  return true;
 };
 
 // -------------------- 기본 토스트 --------------------
@@ -58,32 +74,35 @@ const infraEventMessages: Record<EcoType, string> = {
   COURT: '법원에 문제가 발생했습니다!',
 };
 
-// 인프라 이벤트 알림 함수
+// 인프라 이벤트 알림 함수 - 개선된 버전
 export const showInfraEventNotice = (
   ecoType: string,
-  options?: ToastOptions, // 추가 토스트 옵션
-  onClick?: () => void, // 클릭 이벤트 핸들러 추가
-) => {
+  options?: ToastOptions,
+  onClick?: () => void,
+): string | number => {
   // 모달이 열려있다면 토스트를 표시하지 않음
   if (isModalOpen) {
-    return null;
+    return -1;
   }
-  const message =
-    infraEventMessages[
-      (ecoType as EcoType) || '마을에 새로운 문제가 발생했습니다!'
-    ];
 
-  // onClick 이벤트 핸들러를 합쳐서 전달
+  const message =
+    infraEventMessages[ecoType as EcoType] ||
+    '마을에 새로운 문제가 발생했습니다!';
+
+  // onClick 핸들러 통합
   const finalOptions = {
     ...defaultOptions,
     ...options,
+    // 기본 옵션 덮어쓰기 방지를 위해 onClick을 마지막에 추가
     onClick:
       onClick ||
       (() => {
-        // 토스트 클릭 시 town 페이지로 이동하는 기본 동작 추가
-        window.location.href = '/town'; // 간단한 리디렉션 방식 사용
+        window.location.href = '/town';
       }),
+    // 페이지 이동 시에도 토스트가 유지되도록 설정
+    autoClose: options?.autoClose || 5000, // 기본 5초
   };
+
   return toast.info(message, finalOptions);
 };
 
@@ -113,8 +132,9 @@ export const showInfraResultNotice = (
   return toastFn(fullMessage, {
     ...defaultOptions,
     ...options,
-    // react-toastify CSS에서 줄바꿈을 인식하도록 스타일 추가
-    style: { whiteSpace: 'pre-line' },
+    // 페이지 이동 시에도 토스트가 유지되도록 설정
+    autoClose: options?.autoClose || 5000,
+    style: { whiteSpace: 'pre-line' }, // react-toastify CSS에서 줄바꿈을 인식하도록 스타일 추가
   });
 };
 
@@ -136,7 +156,12 @@ export const showNotice = (
   if (isModalOpen) {
     return -1; // 토스트가 표시되지 않았음을 나타내는 임의의 값
   }
-  return toast[type](message, { ...defaultOptions, ...options });
+  return toast[type](message, {
+    ...defaultOptions,
+    ...options,
+    // 페이지 이동 시에도 토스트가 유지되도록 설정
+    autoClose: options?.autoClose || 3000,
+  });
 };
 
 // 로그아웃 시 모든 토스트 제거 함수

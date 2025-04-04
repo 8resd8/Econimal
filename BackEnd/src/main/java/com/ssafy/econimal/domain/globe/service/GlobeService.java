@@ -16,12 +16,11 @@ import com.ssafy.econimal.domain.globe.dto.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.dto.GroupByCountryDto;
 import com.ssafy.econimal.domain.globe.dto.GroupByDateTimeDto;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
-import com.ssafy.econimal.global.common.enums.TimeType;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class GlobeService {
 
@@ -76,10 +75,32 @@ public class GlobeService {
 		);
 	}
 
+	// 1년 단위
 	@Transactional(readOnly = true)
-	public GlobeV2Response getGlobeInfoByRDBV2(TimeType type) {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByTimeV2(type);
+	public GlobeV2Response getGlobeInfoYear() {
+		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
+		return getGlobeV2Response(climates);
+	}
+
+	// 3달단위
+	@Transactional(readOnly = true)
+	public GlobeV2Response getGlobeInfoMonth() {
+		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
+
+		return getGlobeV2Response(climates);
+	}
+
+	// 3일단위
+	@Transactional(readOnly = true)
+	public GlobeV2Response getGlobeInfoDay() {
+		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
+
+		return getGlobeV2Response(climates);
+	}
+
+	// 동일한 출력결과 사용
+	private GlobeV2Response getGlobeV2Response(List<GlobeInfoV2Dto> climates) {
 		Map<String, Map<String, Map<String, Double>>> groupedData = climates.stream()
 			.collect(Collectors.groupingBy(
 				GlobeInfoV2Dto::formattedDateHour, // 최상위 키: 날짜

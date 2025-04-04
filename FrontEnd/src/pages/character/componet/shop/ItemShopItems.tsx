@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import { Lock, Check } from 'lucide-react';
 import ShopCoin from './ShopCoinUI';
-import FeedbackModal from './FeedBackModal';
+import SelectionModal from './SelectModal';
 
 interface Props {
   setHoveredItemId: (productId: number) => void;
@@ -40,16 +40,12 @@ const ItemShopItems = ({
   itemType = 'character',
 }: Props) => {
   const isSelected = selectedItemId === productId;
-  const [showModal, setShowModal] = useState(false);
-  const [modalState, setModalState] = useState<{
-    message: string;
-    status: 'success' | 'error' | 'loading';
-  }>({
-    message: '',
-    status: 'loading',
-  });
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [selectionStatus, setSelectionStatus] = useState<'loading' | 'success'>(
+    'loading',
+  );
 
-  // 아이템 선택 처리 함수
+  // 아이템 선택 처리 함수 - 소유한 아이템만 선택 가능
   const handleItemSelection = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -58,11 +54,9 @@ const ItemShopItems = ({
       // UI 표시를 위해 먼저 아이템 선택 상태 업데이트
       selectOwnedItem(productId);
 
-      setShowModal(true);
-      setModalState({
-        message: '선택 중...',
-        status: 'loading',
-      });
+      // 선택 모달 표시
+      setShowSelectionModal(true);
+      setSelectionStatus('loading');
 
       // 아이템 타입에 따라 서버로 최종 선택 전송
       try {
@@ -70,98 +64,49 @@ const ItemShopItems = ({
         setTimeout(() => {
           if (itemType === 'character' && selectCharacter && characterId) {
             selectCharacter(characterId);
-            setModalState({
-              message: '선택 완료',
-              status: 'success',
-            });
+            setSelectionStatus('success');
           } else if (
             itemType === 'background' &&
             selectBackground &&
             backgroundId
           ) {
             selectBackground(backgroundId);
-            setModalState({
-              message: '선택 완료',
-              status: 'success',
-            });
+            setSelectionStatus('success');
           }
 
-          // 1.5초 후 자동으로 모달 닫기
+          // 성공 상태를 잠시 표시한 후 자동으로 모달 닫기
           setTimeout(() => {
-            setShowModal(false);
-          }, 1500);
+            if (selectionStatus === 'success') {
+              setShowSelectionModal(false);
+            }
+          }, 2000);
         }, 800); // 0.8초 후 성공 처리 (실제로는 서버 응답 대기)
       } catch (error) {
-        // 오류 발생 시
-        setModalState({
-          message: '선택에 실패했습니다.',
-          status: 'error',
-        });
+        console.error('선택 실패:', error);
+        setShowSelectionModal(false);
       }
     }
   };
 
-  // 구매 처리 함수
+  // 구매 처리 함수 - 구매 모달은 부모 컴포넌트로 처리 위임
   const handleBuyItem = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (!owned) {
-      setShowModal(true);
-      setModalState({
-        message: '구매 중...',
-        status: 'loading',
+      // 구매 처리를 위해 부모 컴포넌트에 데이터 전달만 하고, 모달은 부모에서 처리
+      handlePurchaseClick({
+        productId,
+        price,
+        owned,
+        image,
+        characterName,
       });
-
-      // 구매 로직 시뮬레이션
-      setTimeout(() => {
-        try {
-          // 실제 구현에서는 응답에 따라 성공/실패 처리
-          const success = true; // 테스트용 성공 플래그
-          const hasEnoughCoins = true; // 테스트용 코인 충분 플래그
-
-          if (success && hasEnoughCoins) {
-            handlePurchaseClick({
-              productId,
-              price,
-              owned,
-              image,
-              characterName,
-            });
-            setModalState({
-              message: '구매 완료',
-              status: 'success',
-            });
-
-            // 1.5초 후 자동으로 모달 닫기
-            setTimeout(() => {
-              setShowModal(false);
-            }, 1500);
-          } else if (!hasEnoughCoins) {
-            // 코인 부족 오류 처리
-            setModalState({
-              message: '코인이 부족합니다',
-              status: 'error',
-            });
-          } else {
-            // 기타 오류 처리
-            setModalState({
-              message: '구매에 실패했습니다.',
-              status: 'error',
-            });
-          }
-        } catch (error) {
-          setModalState({
-            message: '구매에 실패했습니다.',
-            status: 'error',
-          });
-        }
-      }, 800);
     }
   };
 
-  // 모달 닫기 함수
-  const closeModal = () => {
-    setShowModal(false);
+  // 선택 모달 닫기
+  const closeSelectionModal = () => {
+    setShowSelectionModal(false);
   };
 
   return (
@@ -237,12 +182,12 @@ const ItemShopItems = ({
         </div>
       </div>
 
-      {/* 피드백 모달 */}
-      {showModal && (
-        <FeedbackModal
-          message={modalState.message}
-          status={modalState.status}
-          onClose={closeModal}
+      {/* 선택 모달 */}
+      {showSelectionModal && (
+        <SelectionModal
+          status={selectionStatus}
+          characterName={characterName}
+          onClose={closeSelectionModal}
         />
       )}
     </>

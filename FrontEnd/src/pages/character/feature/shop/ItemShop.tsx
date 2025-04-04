@@ -34,7 +34,7 @@ const ItemShopLogic = () => {
   const [currentItems, setCurrentItems] = useState();
   // 아이템 호버시 발생되는 이벤트를 위한 상태관리
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null);
-  // 모달 창 열고 / 닫기
+  // 구매 모달 창 열고 / 닫기
   const [showModal, setShowModal] = useState<boolean>(false);
   // 구매 상품 선택 여부
   const [selectedItemForPurchase, setSelectedItemForPurchase] =
@@ -56,10 +56,6 @@ const ItemShopLogic = () => {
   //상점에서 캐릭터/배경 선택
   const { handleFetchShopChar } = useShopFetchMyChar();
   const { handleFetchShopBack } = useShopFetchMyBack();
-
-  if (charShopList) {
-    console.log(charShopList, 'charshoplist');
-  }
 
   // 서버 패칭시에도 발생되는 상태관리에 대비
   useEffect(() => {
@@ -96,18 +92,18 @@ const ItemShopLogic = () => {
     return <div>Loading...</div>;
   }
 
-  // 상품 구매 관련 alert 발송
+  // 상품 구매 관련 모달 표시 - 구매 버튼 클릭 시 호출됨
   const handlePurchaseClick = (item: ShopItemTypes) => {
     if (item.productId === -1 || item.owned) {
       alert('구매할 수 없는 상품입니다!');
       return;
     }
-    console.log(item.productId); //productId가 들어감 => 구매하기 클릭 시
+    // 구매 모달 상태 설정
     setSelectedItemForPurchase(item);
     setShowModal(true);
   };
 
-  // 상품 구매 완료 관련 내용 전달
+  // 상품 구매 완료 관련 내용 전달 - BuyModal에서 확인 버튼 클릭 시 호출됨
   const confirmPurchase = async () => {
     if (!selectedItemForPurchase) return;
 
@@ -118,6 +114,7 @@ const ItemShopLogic = () => {
         setLocalCoin(newCoinAmount); // 로컬 상태 먼저 업데이트
         setCoin(newCoinAmount); // Zustand 상태도 업데이트
 
+        // 아이템 소유 상태 업데이트
         const updatedItems = currentItems.map((item) => {
           if (item.productId === selectedItemForPurchase.productId) {
             return { ...item, owned: true };
@@ -131,13 +128,16 @@ const ItemShopLogic = () => {
           selectedItemForPurchase.productId,
         );
 
+        // 구매 모달 닫기
+        setShowModal(false);
+
         if (success) {
-          setSuccessModal(true); // 성공 모달 표시
-          setShowModal(false);
+          // 구매 성공 모달 표시
+          setSuccessModal(true);
           setSelectedItemForPurchase(null); // 구매 후 초기화
         } else {
           // 실패 시 복구 처리
-          const originalCoin = localCoin;
+          const originalCoin = localCoin + selectedItemForPurchase.price;
           setLocalCoin(originalCoin);
           setCoin(originalCoin);
           setErrorModal(true);
@@ -147,9 +147,14 @@ const ItemShopLogic = () => {
         // 에러 발생 시 이전 상태로 복구
         setLocalCoin(coin);
         setErrorModal(true);
+        // 구매 모달 닫기
+        setShowModal(false);
       }
     } else {
-      setErrorModal(true); // 에러 모달 표시
+      // 코인 부족 시 에러 모달 표시
+      setErrorModal(true);
+      // 구매 모달 닫기
+      setShowModal(false);
     }
   };
 
@@ -173,9 +178,6 @@ const ItemShopLogic = () => {
     }
   };
 
-  // 디버깅 정보 출력
-  console.log('현재 코인 상태:', { zustandCoin: coin, localCoin });
-
   return (
     <div>
       <ItemShopUI
@@ -193,13 +195,17 @@ const ItemShopLogic = () => {
         selectedItemForPurchase={selectedItemForPurchase}
         confirmPurchase={confirmPurchase}
       />
-      {successModal && (
+
+      {/* 성공 모달 - 구매 성공 시에만 표시 */}
+      {successModal && selectedItemForPurchase && (
         <SuccessPurchaseModal
           characterName={selectedItemForPurchase?.characterName}
           onClose={() => setSuccessModal(false)}
         />
       )}
-      {errorModal && (
+
+      {/* 에러 모달 - 코인 부족 등 구매 실패 시 표시 */}
+      {errorModal && selectedItemForPurchase && (
         <ErrorCoinModal
           requiredCoins={selectedItemForPurchase?.price}
           onClose={() => setErrorModal(false)}

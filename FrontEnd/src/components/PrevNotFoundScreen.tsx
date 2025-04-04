@@ -1,3 +1,7 @@
+import { useEffect } from 'react';
+import { useErrorStore } from '@/store/errorStore';
+import { clearAllToasts } from '@/components/toast/toastUtil';
+
 interface NotFoundScreenProps {
   message?: string;
   subMessage?: string;
@@ -5,18 +9,33 @@ interface NotFoundScreenProps {
   onGoHome?: () => void;
 }
 
-/**
- * 에코니멀 서비스를 위한 404 에러 스크린 컴포넌트
- * - 초등학생 타겟으로 친환경 요소를 반영한 디자인
- * - 페이지를 찾을 수 없을 때 사용자에게 친근한 안내 제공
- */
-
 const NotFoundScreen = ({
   message = '페이지를 찾을 수 없습니다',
   subMessage = '요청하신 페이지가 삭제되었거나 주소가 변경되었어요.',
   homeText = '메인으로 이동',
   onGoHome = () => (window.location.href = '/'),
 }: NotFoundScreenProps) => {
+  // [여기] 에러 스토어 훅 사용
+  const showError = useErrorStore((state) => state.showError);
+
+  // [여기] 컴포넌트 마운트 시 에러 상태 설정 및 토스트 제거
+  useEffect(() => {
+    // 즉시 모든 토스트 제거
+    clearAllToasts();
+
+    // 에러 상태 설정 (404 페이지)
+    showError({
+      errorType: 'notFound',
+      errorMessage: message,
+      errorSubMessage: subMessage,
+    });
+
+    // 언마운트 시 클린업 함수
+    return () => {
+      // 필요한 경우 추가 정리 작업
+    };
+  }, [showError, message, subMessage]);
+
   return (
     <div className='fixed inset-0 flex flex-col items-center justify-center w-full h-screen bg-green-50'>
       {/* 404 애니메이션 아이콘 */}
