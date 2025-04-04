@@ -14,7 +14,7 @@ export const useFetchMyChar = () => {
   //메인 캐릭터 패칭
   const { mutate, isPending } = useMutation({
     mutationFn: (userCharacterId: number) => {
-      console.log(`서버에 characterId 전송: ${userCharacterId}`);
+      console.log(`서버에 characterId 최초 전송: ${userCharacterId}`);
       return fetchMyChar(userCharacterId); //서버에 나만의 캐릭터 정보 전달
     },
     onSuccess: () => {

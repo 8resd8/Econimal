@@ -21,7 +21,7 @@ const CharacterCards = ({
   const myCharacterId = useMyCharacterId();
   const { setResetData, setAllData } = userMyCharActions();
 
-  const { myChar, setMyChar, resetMyChar } = useCharStore(); //zustand에 저장된 데이터와 zustand에 저장하기 위한 로직
+  // const { myChar, setMyChar, resetMyChar } = useCharStore(); //zustand에 저장된 데이터와 zustand에 저장하기 위한 로직
   // const { myChar, setMyChar, resetMyChar } = useCharStore(); //zustand에 저장된 데이터와 zustand에 저장하기 위한 로직
   // 해당 내용은 서버에 확실하게 전달하기 전에 사용됨 (선택할 시에 활성화되게 됨)
 

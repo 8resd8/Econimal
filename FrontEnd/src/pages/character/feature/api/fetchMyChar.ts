@@ -2,6 +2,7 @@ import { characterListAPI } from '@/api/axiosConfig';
 
 export const fetchMyChar = async (userCharacterId: number) => {
   try {
+    //최초등록
     const response = await characterListAPI.patchMyChar(userCharacterId);
     return response.data;
   } catch (error) {

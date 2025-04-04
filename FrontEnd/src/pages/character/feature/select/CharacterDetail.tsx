@@ -1,4 +1,4 @@
-import useCharStore from '@/store/useCharStore';
+// import useCharStore from '@/store/useCharStore';
 import { CharacterDetailProps } from '@/pages/character/types/CharacterDetailProps';
 import { useNavigate } from 'react-router-dom';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
@@ -14,7 +14,7 @@ const CharacterDetail = ({
   subStory: initialSubStory,
   detailStory: initialDetailStory,
 }: CharacterDetailProps<number>) => {
-  const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
+  // const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
   const characterId = useMyCharacterId();
   const { setResetData } = userMyCharActions();
 
@@ -37,13 +37,16 @@ const CharacterDetail = ({
     console.log(characterId, 'characterId, characterId값 확인');
 
     const effectiveId = id; //zustand에 담긴 서버의 charId값
-    // const myCharId = myChar?.userCharacterId || myChar?.id;
     const myCharId = characterId;
 
-    //모두 일치하다면 구하기
+    // 모두 일치하다면 구하기
     if (effectiveId && effectiveId === myCharId) {
-      handleFetchMyChar(); //탠스택 쿼리에서 사용될 데이터
-      nav('/');
+      handleFetchMyChar(); // 탠스택 쿼리에서 사용될 데이터
+
+      // 지연 로직 추가 (3초 뒤에 페이지 이동)
+      setTimeout(() => {
+        nav('/');
+      }, 100); // 3000ms = 3초
     } else {
       console.warn('선택된 캐릭터와 현재 캐릭터 ID가 일치하지 않습니다.');
     }
