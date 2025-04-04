@@ -46,7 +46,7 @@ const CharacterDetail = ({
       // 지연 로직 추가 (3초 뒤에 페이지 이동)
       setTimeout(() => {
         nav('/');
-      }, 1000); // 3000ms = 3초
+      }, 300); // 3000ms = 3초
     } else {
       console.warn('선택된 캐릭터와 현재 캐릭터 ID가 일치하지 않습니다.');
     }
