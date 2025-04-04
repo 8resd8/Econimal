@@ -1,12 +1,12 @@
 // 공장
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import factoryImg from '@/assets/town/factory.png';
 import EventAlert from './EventAlert';
 
-const Factory = ({ infraEventId, className }: TownProps) => {
+const Factory = memo(({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
 
@@ -38,5 +38,6 @@ const Factory = ({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-};
+});
+
 export default Factory;

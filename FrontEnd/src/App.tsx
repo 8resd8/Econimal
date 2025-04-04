@@ -7,15 +7,24 @@ import { TOAST_CONTAINER_ID } from './components/toast/toastUtil';
 import AspectRatioContainer from '@/components/AspectRatioContainer'; // 16:9 비율 유지
 import ErrorOverlay from './components/ErrorOverlay';
 import queryClient from '@/lib/queryClient';
-import QueryDevtools from '@/utils/dev/QueryDevtools'; // 개발환경에서만
-import { RotateCcw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+// import QueryDevtools from '@/utils/dev/QueryDevtools'; // 개발환경에서만 -> 제대로 적용안되네
 import RotateScreenNotice from './components/lotate-screen/RotateScreenNote';
 import PWAInstallNotice from './components/installNotice/PWAInstallNotice';
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
+      {/* <QueryDevtools> */}
+      <AspectRatioContainer>
+        <RouterProvider router={router} />
+      </AspectRatioContainer>
+      {/* 토스트 컨테이너에 ID 추가 및 옵션 명시적 설정 */}
+      <ToastContainer
+        containerId={TOAST_CONTAINER_ID}
+        draggable={false}
+        pauseOnHover={false}
+      />
+      <ErrorOverlay />
       <QueryDevtools>
         <AspectRatioContainer>
           <RouterProvider router={router} />
@@ -29,7 +38,7 @@ const App = () => {
           pauseOnHover={false}
         />
         <ErrorOverlay />
-      </QueryDevtools>
+        {/* </QueryDevtools> */}
     </QueryClientProvider>
   );
 };
