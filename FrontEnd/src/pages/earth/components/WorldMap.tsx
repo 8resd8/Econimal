@@ -7,21 +7,24 @@ import { getCountryCodeByName, getCountryNameByCode } from '../utils/countryUtil
 
 // 스타일 컴포넌트 정의
 const MapContainer = styled.div`
-  width: 90%;
-  height: 80vh;
+  width: 100%; // 90%에서 100%로 변경
+  height: 100%; // 80vh에서 100%로 변경
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-left: 40px;
+  margin: 0; // 마진 제거
+  overflow: hidden; // 넘치는 부분 숨김
+  border-radius: 10px; // 모서리 둥글게
 `;
 
 const MapSvg = styled.svg`
   width: 100%;
-  height: 85%;
+  height: 100%;
   background-color: #f0f8ff;
   border-radius: 10px;
+  display: block; // 추가: 불필요한 여백 제거
 `;
 
 const Tooltip = styled.div`
@@ -39,14 +42,15 @@ const Tooltip = styled.div`
 const Legend = styled.div`
   position: absolute;
   bottom: 35px;
-  left: 0px;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 10px;
+  left: 20px; // 좌측에서 여백 증가
+  background-color: rgba(255, 255, 255, 0.9); // 불투명도 약간 증가
+  padding: 8px 10px;
   border-radius: 5px;
   z-index: 10;
   display: flex;
   flex-direction: column;
   scale: 90%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // 그림자 추가
 `;
 
 const LegendTitle = styled.div`
@@ -72,14 +76,15 @@ const LegendLabels = styled.div`
 
 const DataTypeSelector = styled.div`
   position: absolute;
-  top: 10px;
-  left: -10px;
+  top: 15px;
+  left: 15px; // 위치 조정
   display: flex;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9); // 불투명도 증가
+  padding: 8px;
   border-radius: 5px;
   z-index: 10;
   scale: 90%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // 그림자 추가
 `;
 
 const DataTypeButton = styled.button<{ active: boolean }>`
@@ -240,11 +245,14 @@ const WorldMap: React.FC<WorldMapProps> = ({
     const width = svgRef.current.clientWidth;
     const height = svgRef.current.clientHeight;
     
-    // 지도 프로젝션 (메르카토르)
+    // 이전 요소 제거
+    svg.selectAll('*').remove();
+    
+    // 지도 프로젝션 (메르카토르) - 개선된 설정
     const projection = d3.geoMercator()
       .fitSize([width, height], worldData)
-      .scale(width / 6.5)
-      .center([0, 40])
+      .scale(width / 6.1) // 스케일 조정 - 화면에 딱 맞게
+      .center([0, 35]) // 중심점 약간 조정
       .translate([width / 2, height / 2]);
       
     // 지리 경로 생성기
@@ -262,9 +270,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
       });
       
     svg.call(zoom as any);
-    
-    // 이전 경로 삭제
-    svg.selectAll('path').remove();
     
     // 국가 경로 추가
     svg.selectAll('path')
@@ -318,6 +323,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
       })
       .attr('stroke', '#fff')
       .attr('stroke-width', 0.5)
+      .attr('vector-effect', 'non-scaling-stroke') // 줌 시에도 테두리 두께 유지
       .on('mouseover', (event, d: any) => {
         const countryName = d.properties.name;
         const countryCode = getCountryCodeByName(countryName);
@@ -335,13 +341,28 @@ const WorldMap: React.FC<WorldMapProps> = ({
           let valueText;
           switch (dataType) {
             case 'co2':
-              valueText = `CO2: ${countryData.co2Level?.toFixed(1) || 'N/A'} ppm`;
+              // 숫자 타입 확인 후 toFixed 사용
+              valueText = `CO2: ${
+                typeof countryData.co2Level === 'number' 
+                  ? countryData.co2Level.toFixed(1) 
+                  : countryData.co2Level || 'N/A'
+              } ppm`;
               break;
             case 'temperature':
-              valueText = `온도: ${countryData.temperature?.toFixed(1) || 'N/A'} °C`;
+              // 숫자 타입 확인 후 toFixed 사용
+              valueText = `온도: ${
+                typeof countryData.temperature === 'number' 
+                  ? countryData.temperature.toFixed(1) 
+                  : countryData.temperature || 'N/A'
+              } °C`;
               break;
             case 'humidity':
-              valueText = `습도: ${countryData.humidity?.toFixed(1) || 'N/A'} %`;
+              // 숫자 타입 확인 후 toFixed 사용
+              valueText = `습도: ${
+                typeof countryData.humidity === 'number' 
+                  ? countryData.humidity.toFixed(1) 
+                  : countryData.humidity || 'N/A'
+              } %`;
               break;
             default:
               valueText = '데이터 없음';
@@ -394,8 +415,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
       
       projection
         .fitSize([newWidth, newHeight], worldData)
-        .scale(newWidth / 6.5)
-        .center([0, 40])
+        .scale(newWidth / 6.1) // 스케일 일관성 유지
+        .center([0, 35]) // 중심점 일관성 유지
         .translate([newWidth / 2, newHeight / 2]);
         
       svg.selectAll('path')
@@ -488,7 +509,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   
   return (
     <MapContainer>
-      <MapSvg ref={svgRef} />
+      <MapSvg ref={svgRef} preserveAspectRatio="xMidYMid meet" /> {/* preserveAspectRatio 추가 */}
       
       <DataTypeSelector>
         <DataTypeButton 
