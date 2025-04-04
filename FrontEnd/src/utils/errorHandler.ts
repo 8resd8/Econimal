@@ -7,7 +7,7 @@ import {
 import { useErrorStore } from '@/store/errorStore';
 import { showErrorToast } from '@/components/toast/toastUtil';
 import { clearTokenData } from '@/api/axiosConfig';
-import { setModalOpen } from '@/components/EventDetector'; // [여기] 모달 상태 관리 함수 import
+import { setModalOpen } from '@/components/EventDetector';
 
 // 에러 핸들러가 호출된 횟수를 추적하는 변수
 let tokenRefreshErrorCount = 0;
@@ -37,13 +37,13 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     tokenRefreshErrorCount++;
     lastTokenRefreshErrorTime = now;
 
-    console.log(
-      `토큰 리프레시 에러 카운트: ${tokenRefreshErrorCount}/${MAX_TOKEN_REFRESH_ERRORS}`,
-    );
+    // console.log(
+    //   `토큰 리프레시 에러 카운트: ${tokenRefreshErrorCount}/${MAX_TOKEN_REFRESH_ERRORS}`,
+    // );
 
     // 에러가 여러 번 반복되면 토큰 데이터 정리
     if (tokenRefreshErrorCount >= MAX_TOKEN_REFRESH_ERRORS) {
-      console.log('토큰 리프레시 에러 한계에 도달, 토큰 데이터 정리');
+      // console.log('토큰 리프레시 에러 한계에 도달, 토큰 데이터 정리');
       clearTokenData();
 
       // 이후 요청에서 새로 로그인하도록 유도 (선택 사항)
@@ -175,7 +175,6 @@ export const handleMinorError = (error: Error | AxiosError | unknown): void => {
       }
     }
   }
-
   // 400 에러가 아니거나 파싱에 실패한 경우 기본 에러 핸들러로 처리
   handleApiError(error);
 };
@@ -198,7 +197,6 @@ export const queryErrorHandler = (error: unknown) => {
     console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
     return;
   }
-  // unknown이 최선이야?
   if (axios.isAxiosError(error) && error.response?.status === 400) {
     handleMinorError(error);
   } else {
