@@ -36,11 +36,15 @@ const PickChar = () => {
   const { effectiveId, hasValidSelection } = useEffectiveId(characterId);
   const nav = useNavigate();
   useEffect(() => {
-    if (effectiveId) {
-      //보유하고있따면?
-      nav('/');
+    if (characterId && characterId > 0) {
+      // 이미 선택된 캐릭터가 있으면 메인 페이지로 이동
+      const timer = setTimeout(() => {
+        nav('/');
+      }, 300); // 약간의 지연을 주어 상태 업데이트 시간 확보
+
+      return () => clearTimeout(timer);
     }
-  }, [effectiveId]);
+  }, [characterId, nav]);
 
   if (!hasValidSelection) {
     //그렇다면, 선택을 하지 않은 것으로 간주되기 떄문에 전체 캐릭터 리스트 확인 가능(캐릭 선택)

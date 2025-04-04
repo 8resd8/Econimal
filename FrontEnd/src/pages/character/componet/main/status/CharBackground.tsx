@@ -27,7 +27,7 @@ import {
 } from '@/store/useMyCharStore';
 
 const CharBackground = () => {
-  const { myChar } = useCharStore();
+  // const { myChar } = useCharStore();
   const { isLoading, isError } = useMyCharInfo();
   const level = useCharacterLevel();
   const exp = useCharacterExp();
@@ -51,22 +51,30 @@ const CharBackground = () => {
 
   const nav = useNavigate();
 
-  // 캐릭터 정보 설정
   useEffect(() => {
     if (processedData) {
       const myCharInfo = processedData.find(
         (item) => item.userCharacterId === myCharacterId,
       );
-      setMyCharacterInfo(myCharInfo);
+      if (myCharInfo) {
+        setMyCharacterInfo(myCharInfo);
+      } else if (myCharacterId && processedData.length > 0) {
+        // 캐릭터 ID는 있지만 processedData에서 찾을 수 없는 경우
+        console.warn('캐릭터 정보를 찾을 수 없습니다:', myCharacterId);
+      }
     }
   }, [processedData, myCharacterId]);
 
-  // 캐릭터 선택 확인
+  // 캐릭터 선택 확인 - 약간 지연시키기
   useEffect(() => {
-    if (!myCharacterId) { //내 캐릭터 정보가 없으면 보내는 것
-      nav('/charsel');
-    }
-  }, [myCharacterId, nav]);
+    const timer = setTimeout(() => {
+      if (!myCharacterId && processedData && processedData.length > 0) {
+        nav('/charsel');
+      }
+    }, 500); // 0.5초 지연
+
+    return () => clearTimeout(timer);
+  }, [myCharacterId, nav, processedData]);
 
   if (isLoading || isEmotionLoading || isFootLoading)
     return <div>...로딩중</div>;
@@ -77,7 +85,7 @@ const CharBackground = () => {
     exp === undefined ||
     coin === undefined ||
     !expression ||
-    !myChar ||
+    // !myChar ||
     !myCharacterId ||
     !myCharacterInfo
   ) {

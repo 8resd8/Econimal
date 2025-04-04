@@ -4,30 +4,30 @@ import { CharacterStatusType } from '@/pages/character/types/CharacterStatusType
 
 //상태 객체 전체 구독 + action 함수 생명주기 변경X
 export const useCharStatusStore = create<CharacterStatusType>()(
-  // persist(
-  (set) => ({
-    level: 0,
-    exp: 0,
-    coin: 0,
-    expression: 'NEUTRAL',
-    actions: {
-      setLevel: (nowLv: number) => set({ level: nowLv }),
-      setExp: (nowExp: number) => set({ exp: nowExp }),
-      setCoin: (nowCoin: number) => set({ coin: nowCoin }),
-      setExpression: (nowExpres: string) => set({ expression: nowExpres }),
+  persist(
+    (set) => ({
+      level: 0,
+      exp: 0,
+      coin: 0,
+      expression: 'NEUTRAL',
+      actions: {
+        setLevel: (nowLv: number) => set({ level: nowLv }),
+        setExp: (nowExp: number) => set({ exp: nowExp }),
+        setCoin: (nowCoin: number) => set({ coin: nowCoin }),
+        setExpression: (nowExpres: string) => set({ expression: nowExpres }),
+      },
+    }),
+    {
+      name: 'char-status',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        level: state.level,
+        exp: state.exp,
+        coin: state.coin,
+        expression: state.expression,
+      }),
     },
-  }),
-  //   {
-  //     name: 'char-status',
-  //     storage: createJSONStorage(() => localStorage),
-  //     partialize: (state) => ({
-  //       level: state.level,
-  //       exp: state.exp,
-  //       coin: state.coin,
-  //       expression: state.expression,
-  //     }),
-  //   },
-  // ),
+  ),
 );
 
 // 상태 선택자
