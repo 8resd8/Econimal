@@ -63,7 +63,7 @@ const CharBackground = () => {
 
   // 캐릭터 선택 확인
   useEffect(() => {
-    if (!myCharacterId) {
+    if (!myCharacterId) { //내 캐릭터 정보가 없으면 보내는 것
       nav('/charsel');
     }
   }, [myCharacterId, nav]);

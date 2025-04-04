@@ -1,4 +1,4 @@
-import useCharStore from '@/store/useCharStore';
+// import useCharStore from '@/store/useCharStore';
 import { CharacterDetailProps } from '@/pages/character/types/CharacterDetailProps';
 import { useNavigate } from 'react-router-dom';
 import { useFetchMyChar } from '../hooks/useFetchMyChar';
@@ -14,7 +14,7 @@ const CharacterDetail = ({
   subStory: initialSubStory,
   detailStory: initialDetailStory,
 }: CharacterDetailProps<number>) => {
-  const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
+  // const { myChar, resetMyChar } = useCharStore(); //id 관련 값과 캐릭 관련 데이터가 저장될 공간
   const characterId = useMyCharacterId();
   const { setResetData } = userMyCharActions();
 
