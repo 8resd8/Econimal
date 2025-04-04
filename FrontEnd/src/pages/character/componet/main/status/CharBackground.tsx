@@ -76,11 +76,11 @@ const CharBackground = () => {
     return () => clearTimeout(timer);
   }, [myCharacterId, nav, processedData]);
 
+  // -------계속 여기로 보내지는문제
+
   if (isLoading || isEmotionLoading || isFootLoading)
     return <div>...로딩중</div>;
-  if (footImg === undefined || faceImg === undefined) {
-    return <div>hello~</div>;
-  }
+
   if (isError) return <div>데이터 불러오기 실패</div>;
 
   if (
