@@ -71,7 +71,7 @@ const CharBackground = () => {
       if (!myCharacterId && processedData && processedData.length > 0) {
         nav('/charsel');
       }
-    }, 500); // 0.5초 지연
+    }, 100); // 0.5초 지연
 
     return () => clearTimeout(timer);
   }, [myCharacterId, nav, processedData]);
