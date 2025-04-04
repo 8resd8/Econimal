@@ -89,8 +89,8 @@ const ItemShopItems = ({
           // 1.5초 후 자동으로 모달 닫기
           setTimeout(() => {
             setShowModal(false);
-          }, 500);
-        }, 200); // 0.8초 후 성공 처리 (실제로는 서버 응답 대기)
+          }, 1500);
+        }, 800); // 0.8초 후 성공 처리 (실제로는 서버 응답 대기)
       } catch (error) {
         // 오류 발생 시
         setModalState({
