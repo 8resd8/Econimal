@@ -78,6 +78,9 @@ const CharBackground = () => {
 
   if (isLoading || isEmotionLoading || isFootLoading)
     return <div>...로딩중</div>;
+  if (footImg === undefined || faceImg === undefined) {
+    return <div>hello~</div>;
+  }
   if (isError) return <div>데이터 불러오기 실패</div>;
 
   if (
