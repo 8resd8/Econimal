@@ -1,18 +1,20 @@
 import { checklistAPI } from '@/api/axiosConfig';
 
 export const fetchEditCustomCheck = async (
-  checklistId: string,
+  id: string,
   description: string,
+  expId?: string,
 ) => {
   try {
-    const response = await checklistAPI.pathEditCheckList(
-      checklistId,
-      description,
-    );
+    // expId가 있으면 함께 전송
+    const payload = expId ? { id, description, expId } : { id, description };
+
+    const response = await checklistAPI.pathEditCheckList(id, payload);
     return response.data;
   } catch (error) {
-    console.log('커스텀 체크리스트 수정 과정에서 에러가 발생했습니다.');
-    console.log(error.message)
+    console.log('체크리스트 수정 과정에서 에러가 발생했습니다.');
+    console.log(error.message);
+    console.log(error);
     throw Error;
   }
 };

@@ -288,8 +288,8 @@ export const checklistAPI = {
       checklistId,
     }),
   //커스텀 체크리스트 추가
-  postAddCheckList: (description: string) =>
-    axiosInstance.post(`${API.CHECKLIST.CUSTOM}`, { description }),
+  postAddCheckList: (payload) =>
+    axiosInstance.post(`${API.CHECKLIST.CUSTOM}`, payload),
   //커스텀 체크리스트 수정
   pathEditCheckList: (checklistId: string, description: string) =>
     axiosInstance.patch(`${API.CHECKLIST.CUSTOM}/${checklistId}`, {
