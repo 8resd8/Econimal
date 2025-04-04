@@ -1,9 +1,16 @@
 package com.ssafy.econimal.bigdata;
 
+import static com.ssafy.econimal.domain.carbonlog.entity.QCarbonLog.*;
 import static com.ssafy.econimal.domain.globe.entity.QClimates.*;
+import static com.ssafy.econimal.domain.town.entity.QFacility.*;
+import static com.ssafy.econimal.domain.town.entity.QInfrastructure.*;
+import static com.ssafy.econimal.domain.town.entity.QInfrastructureEvent.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -15,11 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.econimal.domain.globe.dto.LogInfoDto;
 import com.ssafy.econimal.domain.globe.entity.QClimates;
+import com.ssafy.econimal.global.common.enums.EcoType;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -151,4 +161,50 @@ public class QueryTest {
 		results.forEach(System.out::println);
 	}
 
+	@Test
+	@Disabled
+	void 유저의_모든_로그_정답_전체개수_조회() {
+		Long userId = 3110L;
+
+		// carbonQuantity가 음수인 경우 1, 그렇지 않으면 0을 반환
+		NumberExpression<Long> correctSum = new CaseBuilder()
+			.when(carbonLog.carbonQuantity.lt(0))
+			.then(1L)
+			.otherwise(0L)
+			.sum();
+		NumberExpression<Long> correctExpr = correctSum.as("correct");
+		NumberExpression<Long> totalExpr = carbonLog.count().as("total");
+
+		// Tuple 형태로 결과를 fetch() 합니다.
+		List<Tuple> results = queryFactory
+			.select(
+				facility.ecoType,
+				correctSum.as("correct"),
+				carbonLog.count().as("total")
+			)
+			.from(carbonLog)
+			.join(carbonLog.infrastructureEvent, infrastructureEvent)
+			.join(infrastructureEvent.infrastructure, infrastructure)
+			.join(infrastructure.facility, facility)
+			.where(carbonLog.user.id.eq(3110L))
+			.groupBy(facility.ecoType)
+			.fetch();
+
+		// fetch() 결과를 Map<EcoType, LogInfoDto>로 변환
+		Map<EcoType, LogInfoDto> logs = results.stream()
+			.collect(Collectors.toMap(
+				tuple -> tuple.get(facility.ecoType),
+				tuple -> new LogInfoDto(
+					Optional.ofNullable(tuple.get(correctExpr)).orElse(0L),
+					Optional.ofNullable(tuple.get(totalExpr)).orElse(0L)
+				)
+			));
+
+		for (EcoType ecoType : logs.keySet()) {
+			System.out.println("ecoType = " + ecoType);
+			System.out.println("correct = " + logs.get(ecoType).correct());
+			System.out.println("total = " + logs.get(ecoType).total());
+			System.out.println();
+		}
+	}
 }
