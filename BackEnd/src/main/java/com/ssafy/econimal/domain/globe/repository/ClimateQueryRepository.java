@@ -17,7 +17,6 @@ import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoV2Dto;
-import com.ssafy.econimal.global.common.enums.TimeType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -65,19 +64,22 @@ public class ClimateQueryRepository {
 			.fetch();
 	}
 
-	public List<GlobeInfoV2Dto> findClimateAverageByTimeV2(TimeType type) {
+	// 1년
+	public List<GlobeInfoV2Dto> findClimateAverageByYearV2() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime beforeNow = now.minusYears(1);
+		int fixedDay = 1; // 1일 고정
+
 		StringTemplate formattedDate = Expressions.stringTemplate(
-			"CONCAT(CAST({0} AS char), '-', LPAD(CAST({1} AS char), 2, '0'))",
-			climates.year, climates.month
+			"CONCAT(CAST({0} AS char), '-', LPAD(CAST({1} AS char), 2, '0'), '-', LPAD(CAST({2} AS char), 2, '0'), ' 00:00:00')",
+			climates.year, climates.month, Expressions.constant(fixedDay)
 		);
 
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime beforeNow = now.minusDays(3); // 기본: 3일
-		if (type == TimeType.MONTH) { // 3달
-			beforeNow = now.minusMonths(3);
-		} else if (type == TimeType.YEAR) { // 1년
-			beforeNow = now.minusYears(1);
-		}
+		// 1년 12달 개수, 12개
+		// 2024-01-01 00:00:00
+		// 2024-02-01 00:00:00
+		// 2024-03-01 00:00:00
+		// 2025-01-01 00:00:00
 
 		return queryFactory
 			.select(new QGlobeInfoV2Dto(
@@ -96,4 +98,66 @@ public class ClimateQueryRepository {
 			.fetch();
 	}
 
+	public List<GlobeInfoV2Dto> findClimateAverageByMonthV2() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime beforeNow = now.minusMonths(3); // 3달치
+
+		StringTemplate formattedDate = Expressions.stringTemplate(
+			"CONCAT(CAST({0} AS char), '-', LPAD(CAST({1} AS char), 2, '0'), '-', LPAD(CAST({2} AS char), 2, '0'), ' 00:00:00')",
+			climates.year, climates.month, climates.day);
+
+		// 3달 30일 * 3달 = 약 90개
+		// 2024-01-01 00:00:00
+		// 2024-01-02 00:00:00
+		// 2024-01-03 00:00:00
+
+		return queryFactory
+			.select(new QGlobeInfoV2Dto(
+				climates.countryCode.as("country"),
+				formattedDate,                    // 포맷팅된 날짜
+				climates.temperature.avg(),       // 평균 온도
+				climates.humidity.avg()           // 평균 습도
+			))
+			.from(climates)
+			.where(climates.referenceDate.between(beforeNow, now))
+			.groupBy(
+				climates.countryCode,
+				climates.year,
+				climates.month,
+				climates.day
+			)
+			.fetch();
+	}
+
+	public List<GlobeInfoV2Dto> findClimateAverageByDayV2() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime beforeNow = now.minusDays(3); // 3일
+
+		StringTemplate formattedDate = Expressions.stringTemplate(
+			"CONCAT(CAST({0} AS char), '-', LPAD(CAST({1} AS char), 2, '0'), '-', LPAD(CAST({2} AS char), 2, '0'), ' ' , LPAD(CAST({3} AS char), 2, '0'), ':00:00')",
+			climates.year, climates.month, climates.day, climates.hour);
+
+		// 72시간 24시간 * 3일 = 약 72개
+		// 2024-01-01 00:00:00
+		// 2024-01-01 01:00:00
+		// 2024-01-01 02:00:00
+
+		return queryFactory
+			.select(new QGlobeInfoV2Dto(
+				climates.countryCode.as("country"),
+				formattedDate,                    // 포맷팅된 날짜
+				climates.temperature.avg(),       // 평균 온도
+				climates.humidity.avg()           // 평균 습도
+			))
+			.from(climates)
+			.where(climates.referenceDate.between(beforeNow, now))
+			.groupBy(
+				climates.countryCode,
+				climates.year,
+				climates.month,
+				climates.day,
+				climates.hour
+			)
+			.fetch();
+	}
 }
