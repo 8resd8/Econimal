@@ -18,27 +18,17 @@ const App = () => {
       <AspectRatioContainer>
         <RouterProvider router={router} />
       </AspectRatioContainer>
-      {/* 토스트 컨테이너에 ID 추가 및 옵션 명시적 설정 */}
+
+      <RotateScreenNotice />
+      <PWAInstallNotice />
       <ToastContainer
         containerId={TOAST_CONTAINER_ID}
         draggable={false}
         pauseOnHover={false}
       />
+
       <ErrorOverlay />
-      <QueryDevtools>
-        <AspectRatioContainer>
-          <RouterProvider router={router} />
-        </AspectRatioContainer>
-        {/* 토스트 컨테이너에 ID 추가 및 옵션 명시적 설정 */}
-        <RotateScreenNotice />
-        <PWAInstallNotice />
-        <ToastContainer
-          containerId={TOAST_CONTAINER_ID}
-          draggable={false}
-          pauseOnHover={false}
-        />
-        <ErrorOverlay />
-        {/* </QueryDevtools> */}
+      {/* </QueryDevtools> */}
     </QueryClientProvider>
   );
 };
