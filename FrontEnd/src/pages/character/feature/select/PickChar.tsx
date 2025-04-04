@@ -15,6 +15,8 @@ import {
   useMyCharName,
   useMyCharSubStory,
 } from '@/store/useMyCharStore';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PickChar = () => {
   //맨처음에는 myChar에 대한 정보가 없을 것
@@ -30,17 +32,15 @@ const PickChar = () => {
   const footImg = useCharFootImg();
   const backImg = useBackImg();
 
-  if (characterId && name && description) {
-    console.log(
-      characterId,
-      name,
-      description,
-      '새로운 Zustand 값 잘들어가는가?',
-    );
-  }
-
   // const { effectiveId, hasValidSelection } = useEffectiveId(myChar);
   const { effectiveId, hasValidSelection } = useEffectiveId(characterId);
+  const nav = useNavigate();
+  useEffect(() => {
+    if (effectiveId) {
+      //보유하고있따면?
+      nav('/');
+    }
+  }, [effectiveId]);
 
   if (!hasValidSelection) {
     //그렇다면, 선택을 하지 않은 것으로 간주되기 떄문에 전체 캐릭터 리스트 확인 가능(캐릭 선택)

@@ -3,32 +3,43 @@ import { fetchEditCustomCheck } from '../../api/checklist/fetchEditCustomCheck';
 
 export const useEditCusChecklist = () => {
   const queryClient = useQueryClient();
-  //mutation함수가 단일 객체로 전달받기 떄문에 => 래핑
-  //구조분해할당
+
   const { mutate } = useMutation({
-    mutationFn: ({
-      checklistId,
-      description,
-    }: {
-      checklistId: string;
+    mutationFn: (params: {
+      id: string;
       description: string;
+      expId?: string;
     }) => {
-      return fetchEditCustomCheck(checklistId, description);
+      return fetchEditCustomCheck(params.id, params.description, params.expId);
     },
     onSuccess: () => {
-      console.log('체크리스트 수정에 성공했습니다.');
+      console.log('체크리스트 수정 성공');
       queryClient.invalidateQueries({ queryKey: ['checklist'] });
+    },
+    onError: (error) => {
+      console.error(
+        '체크리스트 수정 과정에서 에러가 발생했습니다.',
+        error.message,
+      );
+      throw Error;
     },
   });
 
   const handleEditCustomChecklist = (
-    checklistId: string,
+    id: string,
     description: string,
+    expId?: string,
   ) => {
-    mutate({ checklistId, description });
+    return new Promise((resolve, reject) => {
+      mutate(
+        { id, description, expId },
+        {
+          onSuccess: (data) => resolve(data),
+          onError: (error) => reject(error),
+        },
+      );
+    });
   };
 
-  return {
-    handleEditCustomChecklist,
-  };
+  return { handleEditCustomChecklist };
 };

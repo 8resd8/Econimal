@@ -8,6 +8,10 @@ import AspectRatioContainer from '@/components/AspectRatioContainer'; // 16:9 �
 import ErrorOverlay from './components/ErrorOverlay';
 import queryClient from '@/lib/queryClient';
 import QueryDevtools from '@/utils/dev/QueryDevtools'; // 개발환경에서만
+import { RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import RotateScreenNotice from './components/lotate-screen/RotateScreenNote';
+import PWAInstallNotice from './components/installNotice/PWAInstallNotice';
 
 const App = () => {
   return (
@@ -17,6 +21,8 @@ const App = () => {
           <RouterProvider router={router} />
         </AspectRatioContainer>
         {/* 토스트 컨테이너에 ID 추가 및 옵션 명시적 설정 */}
+        <RotateScreenNotice />
+        <PWAInstallNotice />
         <ToastContainer
           containerId={TOAST_CONTAINER_ID}
           draggable={false}

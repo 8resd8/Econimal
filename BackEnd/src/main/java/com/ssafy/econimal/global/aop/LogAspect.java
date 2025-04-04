@@ -55,7 +55,7 @@ public class LogAspect {
 		logMessage.append("\n").append(CONTROLLER_LOG_END).append("\n") // 구분선 및 접두사 추가
 			.append("▶ [Request ID] : ").append(requestId).append("\n")
 			.append("▶ [Method]     : ").append(methodName).append("\n")
-			.append("▶ [Response]   : ").append(result != null ? result : "반환값 없음").append("\n")
+			// .append("▶ [Response]   : ").append(result != null ? result : "반환값 없음").append("\n")
 			.append(LINE_SEPARATOR).append("\n");
 
 		log.info(logMessage.toString());
