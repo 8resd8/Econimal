@@ -2,18 +2,43 @@ import { useState, useEffect } from 'react';
 
 const RotateScreenNotice = () => {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [isPortrait, setIsPortrait] = useState(
-    window.innerHeight > window.innerWidth,
-  );
+  const [isPortrait, setIsPortrait] = useState(false);
   const [isWaving, setIsWaving] = useState(false);
 
+  // 화면 방향 확인 함수
+  const checkOrientation = () => {
+    // screen.orientation API 사용 (최신 브라우저)
+    if (window.screen && window.screen.orientation) {
+      return window.screen.orientation.type.includes('portrait');
+    }
+    // window.orientation 사용 (iOS 지원)
+    else if (window.orientation !== undefined) {
+      return window.orientation === 0 || window.orientation === 180;
+    }
+    // 마지막 대안으로 창 크기 비율 사용
+    else {
+      return window.innerHeight > window.innerWidth;
+    }
+  };
+
   useEffect(() => {
+    // 초기 방향 설정
+    setIsPortrait(checkOrientation());
+
     const handleResize = () => {
       setViewportHeight(window.innerHeight);
-      setIsPortrait(window.innerHeight > window.innerWidth);
+      setIsPortrait(checkOrientation());
+    };
+
+    const handleOrientationChange = () => {
+      // 방향 변경 이벤트에 약간의 지연을 주어 안정성 확보
+      setTimeout(() => {
+        setIsPortrait(checkOrientation());
+      }, 100);
     };
 
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleOrientationChange);
 
     // 귀여운 애니메이션을 위한 웨이브 효과
     const waveInterval = setInterval(() => {
@@ -22,10 +47,12 @@ const RotateScreenNotice = () => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleOrientationChange);
       clearInterval(waveInterval);
     };
   }, []);
 
+  // 가로 모드일 때는 아무것도 표시하지 않음
   if (!isPortrait) {
     return null;
   }
@@ -156,6 +183,12 @@ const RotateScreenNotice = () => {
         <p className='text-base text-green-500 mb-3'>
           더 재미있게 볼 수 있어요
         </p>
+      </div>
+
+      {/* 디버그 정보 (테스트 중에만 사용, 실제로는 제거) */}
+      <div className='text-xs text-gray-500 mb-2'>
+        {`화면 방향: ${isPortrait ? '세로' : '가로'}, 
+         크기: ${window.innerWidth}x${window.innerHeight}`}
       </div>
 
       {/* 귀여운 버튼 */}
