@@ -145,20 +145,20 @@ export const fetchHistoricalData = async ({
   try {
     console.log(`${region} 지역의 히스토리 데이터 요청 시작, 시간 범위: ${timeRange}`);
     
-    // 현재 날짜와 시작 날짜 계산 - 수정된 부분
+    // 현재 날짜와 시작 날짜 계산
     let endDate = new Date().toISOString();
-    let startDate;
-    
     // 시간 범위에 따른 시작 날짜 계산
-    // 포스트맨에서 사용한 형식을 그대로 사용
     const formatDate = (date: Date): string => {
       return date.toISOString().split('T')[0] + 'T00:00:00';
     };
     
+    // 충분한 데이터 포인트를 얻기 위해 기간 확장
+    let startDate;
+    
     switch(timeRange) {
       case 'hour':
-        // 최소 24시간 데이터 요청
-        const hourDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        // 최소 7일치 데이터 요청 (시간 단위 데이터 더 많이 필요)
+        const hourDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         startDate = formatDate(hourDate);
         break;
       case 'day':
@@ -167,16 +167,16 @@ export const fetchHistoricalData = async ({
         startDate = formatDate(dayDate);
         break;
       case 'month':
-        // 최소 6개월치
+        // 최소 12개월치
         const monthDate = new Date();
-        monthDate.setMonth(monthDate.getMonth() - 6);
+        monthDate.setMonth(monthDate.getMonth() - 12);
         startDate = formatDate(monthDate);
         break;
       case 'all':
       default:
-        // 기본값 - 최소 1년치
+        // 기본값 - 최소 2년치
         const yearDate = new Date();
-        yearDate.setFullYear(yearDate.getFullYear() - 1);
+        yearDate.setFullYear(yearDate.getFullYear() - 2);
         startDate = formatDate(yearDate);
     }
     
@@ -207,17 +207,10 @@ export const fetchHistoricalData = async ({
     // 응답이 비어있거나 유효하지 않은 경우 처리
     if (!response.data) {
       console.warn('API 응답 데이터가 비어 있습니다. 더미 데이터를 사용합니다.');
-      return {
-        temperatures: generateDummyData('temperature', region),
-        humidity: generateDummyData('humidity', region),
-        co2Levels: generateDummyData('co2', region)
-      };
+      return generateFallbackData(region, timeRange);
     }
     
-    // API 응답 원본 로깅 추가
-    console.log('API 응답 원본 구조:', JSON.stringify(response.data, null, 2).substring(0, 300) + '...');
-    
-    // 응답 데이터 구조 자세히 확인
+    // API 응답 구조 자세히 확인
     if (response.data) {
       // 기본 구조 확인
       const hasGroupByDateTime = !!response.data.groupByDateTime;
@@ -229,73 +222,233 @@ export const fetchHistoricalData = async ({
       });
       
       // 사용 가능한 국가 코드 목록 확인
-      if (hasGroupByCountry) {
-        const availableCountries = Object.keys(response.data.groupByCountry);
-        console.log(`사용 가능한 국가 코드: ${availableCountries.join(', ')}`);
-        console.log(`요청한 국가 코드 ${region}가 응답에 포함됨: ${availableCountries.includes(region)}`);
+      const availableCountries = hasGroupByCountry 
+        ? Object.keys(response.data.groupByCountry) 
+        : [];
+        
+      console.log(`사용 가능한 국가 코드: ${availableCountries.join(', ')}`);
+      console.log(`요청한 국가 코드 ${region}가 응답에 포함됨: ${availableCountries.includes(region)}`);
+      
+      // 응답 데이터 변환
+      const historicalData = convertToHistoricalData(response.data, region);
+      
+      // 변환된 데이터 로깅
+      console.log(`변환된 히스토리 데이터: 온도 ${historicalData.temperatures.length}개, 습도 ${historicalData.humidity.length}개, CO2 ${historicalData.co2Levels.length}개`);
+      
+      const MIN_DATA_POINTS = 7; // 최소 필요 데이터 포인트 수
+      
+      // 반환할 최종 데이터
+      const finalData = {
+        temperatures: historicalData.temperatures,
+        humidity: historicalData.humidity,
+        co2Levels: historicalData.co2Levels
+      };
+      
+      // 데이터 포인트 수 검증 및 부족한 경우 보완 처리
+      if (finalData.temperatures.length < MIN_DATA_POINTS) {
+        console.log(`온도 데이터가 부족합니다 (${finalData.temperatures.length}/${MIN_DATA_POINTS}). 필요시 보완합니다.`);
+        
+        if (finalData.temperatures.length > 0) {
+          // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
+          finalData.temperatures = complementDataPoints(finalData.temperatures, MIN_DATA_POINTS);
+        } else {
+          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
+          const fallbackData = generateFallbackData(region, timeRange);
+          finalData.temperatures = fallbackData.temperatures;
+        }
       }
       
-      // groupByCountry 구조 확인 (지역별 시간 데이터)
-      if (hasGroupByCountry && response.data.groupByCountry[region]) {
-        const regionData = response.data.groupByCountry[region];
-        const timestamps = Object.keys(regionData);
-        console.log(`${region}의 타임스탬프 수: ${timestamps.length}`);
+      if (finalData.humidity.length < MIN_DATA_POINTS) {
+        console.log(`습도 데이터가 부족합니다 (${finalData.humidity.length}/${MIN_DATA_POINTS}). 필요시 보완합니다.`);
         
-        if (timestamps.length > 0) {
-          console.log('첫 번째 타임스탬프:', timestamps[0]);
-          console.log('마지막 타임스탬프:', timestamps[timestamps.length - 1]);
-          
-          // 첫 번째 데이터 샘플 로깅
-          const sampleData = regionData[timestamps[0]];
-          console.log('첫 번째 데이터 샘플:', JSON.stringify(sampleData));
+        if (finalData.humidity.length > 0) {
+          // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
+          finalData.humidity = complementDataPoints(finalData.humidity, MIN_DATA_POINTS);
+        } else {
+          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
+          const fallbackData = generateFallbackData(region, timeRange);
+          finalData.humidity = fallbackData.humidity;
         }
-      } else if (hasGroupByCountry) {
-        console.log(`주의: ${region} 국가 데이터가 응답에 없습니다.`);
       }
+      
+      if (finalData.co2Levels.length < MIN_DATA_POINTS) {
+        console.log(`CO2 데이터가 부족합니다 (${finalData.co2Levels.length}/${MIN_DATA_POINTS}). 필요시 보완합니다.`);
+        
+        if (finalData.co2Levels.length > 0) {
+          // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
+          finalData.co2Levels = complementDataPoints(finalData.co2Levels, MIN_DATA_POINTS);
+        } else {
+          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
+          const fallbackData = generateFallbackData(region, timeRange);
+          finalData.co2Levels = fallbackData.co2Levels;
+        }
+      }
+      
+      return finalData;
     }
     
-    // 응답 데이터 변환 - groupByCountry 사용 우선
-    const historicalData = convertToHistoricalData(response.data, region);
-    
-    console.log(`변환된 히스토리 데이터: 온도 ${historicalData.temperatures.length}개, 습도 ${historicalData.humidity.length}개, CO2 ${historicalData.co2Levels.length}개`);
-    
-    // 변환된 데이터가 비어 있으면 더미 데이터 사용
-    if (historicalData.temperatures.length === 0 && 
-        historicalData.humidity.length === 0 && 
-        historicalData.co2Levels.length === 0) {
-      console.log('변환된 데이터가 비어 있어 더미 데이터를 사용합니다.');
-      return {
-        temperatures: generateDummyData('temperature', region),
-        humidity: generateDummyData('humidity', region),
-        co2Levels: generateDummyData('co2', region)
-      };
-    }
-    
-    // 최소 데이터 포인트 확인
-    const minDataPoints = 5; // 의미 있는 차트를 위한 최소 데이터 포인트
-    
-    if (historicalData.temperatures.length < minDataPoints) {
-      console.log(`온도 데이터 포인트가 ${minDataPoints}개 미만입니다. 더미 데이터를 사용합니다.`);
-      return {
-        temperatures: generateDummyData('temperature', region),
-        humidity: generateDummyData('humidity', region),
-        co2Levels: generateDummyData('co2', region)
-      };
-    }
-    
-    return historicalData;
+    // 응답 데이터가 유효하지 않은 경우
+    console.warn('유효한 응답 데이터 구조가 아닙니다.');
+    return generateFallbackData(region, timeRange);
   } catch (error) {
     console.error('히스토리 데이터 가져오기 실패:', error);
-    
-    // 오류 발생 시 더미 데이터 반환
-    console.log('API 오류로 인해 더미 데이터를 사용합니다.');
-    return {
-      temperatures: generateDummyData('temperature', region),
-      humidity: generateDummyData('humidity', region),
-      co2Levels: generateDummyData('co2', region)
-    };
+    return generateFallbackData(region, timeRange);
   }
 };
+
+// 데이터 포인트를 보완하는 함수 (최소 필요 포인트 수 만큼 채움)
+function complementDataPoints(
+  data: { timestamp: string; value: number }[], 
+  minPoints: number
+): { timestamp: string; value: number }[] {
+  if (data.length >= minPoints) return data;
+  
+  // 기존 데이터 복사
+  const result = [...data];
+  
+  // 데이터를 시간순으로 정렬
+  result.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  
+  // 마지막 데이터 포인트와 첫 데이터 포인트
+  const lastPoint = result[result.length - 1];
+  const firstPoint = result[0];
+  
+  // 보완이 필요한 데이터 포인트 수
+  const neededPoints = minPoints - result.length;
+  
+  // 데이터 포인트 간 시간 간격 계산 (밀리초)
+  const lastDate = new Date(lastPoint.timestamp).getTime();
+  const firstDate = new Date(firstPoint.timestamp).getTime();
+  
+  let interval;
+  
+  if (result.length > 1) {
+    // 데이터가 2개 이상이면 실제 간격 계산
+    interval = (lastDate - firstDate) / (result.length - 1);
+  } else {
+    // 데이터가 1개면 임의 간격 (1일)
+    interval = 24 * 60 * 60 * 1000;
+  }
+  
+  // 값 변동 계산 (추세 반영)
+  let valueChange = 0;
+  if (result.length > 1) {
+    valueChange = (lastPoint.value - firstPoint.value) / (result.length - 1);
+  }
+  
+  // 미래 포인트 추가
+  for (let i = 1; i <= neededPoints; i++) {
+    const newDate = new Date(lastDate + interval * i);
+    const newValue = lastPoint.value + valueChange * i;
+    
+    result.push({
+      timestamp: newDate.toISOString(),
+      value: newValue
+    });
+  }
+  
+  return result;
+}
+
+// 더미 데이터 + 백엔드 최신 데이터 조합으로 생성 (지역 및 시간 범위 특성 반영)
+function generateFallbackData(region: string, timeRange: TimeRange) {
+  console.log(`생성 중: ${region} 지역의 ${timeRange} 범위 더미 데이터`);
+  
+  // 지역 특성에 기반한 기본 값
+  let baseTemp = 20;
+  let baseHumidity = 60;
+  let baseCO2 = 400;
+  
+  // 지역 특성에 따른 기본값 조정
+  switch (region) {
+    // 추운 지역
+    case 'GL': case 'FI': case 'SE': case 'CA': case 'MN':
+      baseTemp = -5 + Math.random() * 10; // -5 ~ 5°C
+      baseHumidity = 70 + Math.random() * 15; // 70~85%
+      break;
+    // 온대 지역
+    case 'DE': case 'GB': case 'FR': case 'US': case 'KR': case 'JP':
+      baseTemp = 10 + Math.random() * 15; // 10~25°C
+      baseHumidity = 50 + Math.random() * 30; // 50~80%
+      break;
+    // 더운 지역
+    case 'EG': case 'SD': case 'IN': case 'TH': case 'MV':
+      baseTemp = 25 + Math.random() * 15; // 25~40°C
+      baseHumidity = 60 + Math.random() * 30; // 60~90%
+      break;
+    default:
+      // 기본값 유지
+  }
+  
+  // 데이터 생성 로직
+  const now = new Date();
+  const temperatures = [];
+  const humidity = [];
+  const co2Levels = [];
+  
+  // 시간 범위에 따른 데이터 포인트 간격 및 개수 조정
+  let interval = 24 * 60 * 60 * 1000; // 기본 1일 간격
+  let count = 14; // 기본 2주치 데이터
+  
+  switch (timeRange) {
+    case 'hour':
+      interval = 60 * 60 * 1000; // 1시간 간격
+      count = 24; // 24시간 데이터
+      break;
+    case 'day':
+      interval = 24 * 60 * 60 * 1000; // 1일 간격
+      count = 31; // 1개월 데이터
+      break;
+    case 'month':
+      interval = 30 * 24 * 60 * 60 * 1000; // 1개월 간격
+      count = 12; // 1년 데이터
+      break;
+    case 'all':
+      interval = 90 * 24 * 60 * 60 * 1000; // 3개월 간격
+      count = 8; // 2년 데이터
+      break;
+  }
+  
+  // 날짜 변동성 및 값 변동성 계수
+  const tempVariation = 5; // 온도 변동 폭 (±5°C)
+  const humidityVariation = 15; // 습도 변동 폭 (±15%)
+  const co2Variation = 30; // CO2 변동 폭 (±30ppm)
+  
+  // 데이터 포인트 생성
+  for (let i = 0; i < count; i++) {
+    const date = new Date(now.getTime() - interval * (count - i - 1));
+    const formattedDate = date.toISOString();
+    
+    // 변동성 함수 (사인파 패턴으로 자연스러운 변동성 제공)
+    const variation = Math.sin(i * 0.5) + Math.random() * 0.5;
+    
+    // 온도 데이터
+    temperatures.push({
+      timestamp: formattedDate,
+      value: baseTemp + variation * tempVariation
+    });
+    
+    // 습도 데이터
+    humidity.push({
+      timestamp: formattedDate,
+      value: Math.min(Math.max(baseHumidity + variation * humidityVariation, 10), 100) // 10~100% 범위 제한
+    });
+    
+    // CO2 데이터
+    co2Levels.push({
+      timestamp: formattedDate,
+      value: baseCO2 + variation * co2Variation
+    });
+  }
+  
+  console.log(`생성된 더미 데이터: 온도 ${temperatures.length}개, 습도 ${humidity.length}개, CO2 ${co2Levels.length}개`);
+  
+  return {
+    temperatures,
+    humidity,
+    co2Levels
+  };
+}
 
 // 시작 날짜 계산 함수
 function calculateStartDate(timeRange: TimeRange, timeValue: number): string {

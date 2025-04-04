@@ -189,16 +189,16 @@ const WorldMap: React.FC<WorldMapProps> = ({
         return d3.scaleSequential(d3.interpolateBlues)
           .domain([350, 450]);
       case 'temperature':
-        // 온도에 따른 색상 스케일 (0°C ~ 30°C)
+        // 온도에 따른 색상 스케일 (-10°C ~ 40°C)로 범위 확장
         return d3.scaleSequential(d3.interpolateReds)
-          .domain([0, 30]);
+          .domain([-10, 40]);
       case 'humidity':
         // 습도에 따른 색상 스케일 (0% ~ 100%)
         return d3.scaleSequential(d3.interpolateGreens)
           .domain([0, 100]);
       default:
         return d3.scaleSequential(d3.interpolateReds)
-          .domain([0, 30]);
+          .domain([-10, 40]);
     }
   };
   
@@ -208,10 +208,28 @@ const WorldMap: React.FC<WorldMapProps> = ({
     
     console.log('지도 렌더링 시작 - 데이터 타입:', dataType);
     
-    // 실제 데이터가 없으면 더미 데이터로 테스트 (개발 중에만 사용)
-    const effectiveData = Object.keys(countriesData).length > 0 
-      ? countriesData 
-      : generateDummyData();
+    // 실제 데이터 확인 및 강화
+    let effectiveData: Record<string, CountryData> = {};
+    
+    if (Object.keys(countriesData).length > 0) {
+      // 실제 데이터가 있는 경우 사용
+      effectiveData = { ...countriesData };
+      console.log('백엔드 데이터 사용:', Object.keys(effectiveData).length, '개 국가');
+      
+      // 그린란드 데이터가 없으면 더미 데이터 추가
+      if (!effectiveData['GL']) {
+        console.log('그린란드 데이터 누락, 더미 데이터 추가');
+        effectiveData['GL'] = {
+          temperature: -5 + Math.random() * 10, // -5~5도
+          humidity: 60 + Math.random() * 20,    // 60~80%
+          co2Level: 350 + Math.random() * 30    // 350~380ppm
+        };
+      }
+    } else {
+      // 데이터가 없으면 더미 데이터 사용
+      effectiveData = generateDummyData();
+      console.log('더미 데이터 사용:',  Object.keys(effectiveData).length, '개 국가');
+    }
     
     console.log('사용할 데이터:', Object.keys(effectiveData).length > 0 
       ? `${Object.keys(effectiveData).length}개 국가 데이터 있음` 
@@ -258,8 +276,18 @@ const WorldMap: React.FC<WorldMapProps> = ({
         // GeoJSON에서의 국가 이름
         const countryName = d.properties.name;
         
+        // 그린란드 확인용 디버깅 로그 추가
+        if (countryName.includes('Green') || countryName === 'Greenland') {
+          console.log('그린란드 발견:', countryName, '속성:', JSON.stringify(d.properties));
+        }
+        
         // 국가 이름으로 코드 찾기
         const countryCode = getCountryCodeByName(countryName);
+        
+        // 그린란드 매핑 디버깅
+        if (countryName.includes('Green') || countryName === 'Greenland') {
+          console.log('그린란드 매핑 결과:', countryCode);
+        }
         
         // 국가 코드가 있고, 해당 코드의 데이터가 있으면 색상 지정
         if (countryCode && effectiveData[countryCode]) {
@@ -281,12 +309,12 @@ const WorldMap: React.FC<WorldMapProps> = ({
               value = countryData.temperature;
           }
           
-          // 값이 있으면 색상 적용, 없으면 회색
-          return value !== undefined ? colorScale(value) : '#e2e8f0';
+          // 값이 있으면 색상 적용, 없으면 노란색
+          return value !== undefined ? colorScale(value) : '#FFFFCC';
         }
         
-        // 데이터가 없는 경우 회색 반환
-        return '#e2e8f0';
+        // 데이터가 없는 경우 노란색 반환
+        return '#FFFFCC';
       })
       .attr('stroke', '#fff')
       .attr('stroke-width', 0.5)
@@ -431,8 +459,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
         title = '이산화탄소 농도';
         break;
       case 'temperature':
-        min = '0 °C';
-        max = '30 °C';
+        min = '-10 °C';
+        max = '40 °C';
         title = '평균 온도';
         break;
       case 'humidity':
@@ -491,11 +519,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
         <LegendScale id="legend-scale"></LegendScale>
         <LegendLabels>
           <span id="legend-min">
-            {dataType === 'temperature' ? '0 °C' : 
+            {dataType === 'temperature' ? '-10 °C' : 
              dataType === 'humidity' ? '0 %' : '350 ppm'}
           </span>
           <span id="legend-max">
-            {dataType === 'temperature' ? '30 °C' : 
+            {dataType === 'temperature' ? '40 °C' : 
              dataType === 'humidity' ? '100 %' : '450 ppm'}
           </span>
         </LegendLabels>

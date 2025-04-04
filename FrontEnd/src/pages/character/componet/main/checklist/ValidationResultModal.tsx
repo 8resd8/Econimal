@@ -7,9 +7,11 @@ interface ValidationResultModalProps {
     aiResponse: { reason: string };
     result: boolean;
     exp: number;
+    uuid?: string; // uuid 필드 추가
+    expId?: string; // expId 필드 추가
   } | null;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (expId?: string) => void; // expId 매개변수 추가
   onDelete: () => void;
   isEdit?: boolean;
 }
@@ -29,6 +31,13 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   const iconColor = isValid ? 'text-green-500' : 'text-yellow-500';
   const borderColor = isValid ? 'border-green-200' : 'border-yellow-200';
   const confirmButtonText = isEdit ? '수정하기' : '추가하기';
+
+  // uuid가 있으면 expId로 사용
+  const expId = validationData.uuid || validationData.expId;
+
+  const handleConfirm = () => {
+    onConfirm(expId); // expId 전달
+  };
 
   return (
     <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
@@ -86,7 +95,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
               삭제하기
             </button>
             <button
-              onClick={onConfirm}
+              onClick={handleConfirm}
               className='w-full sm:w-[35%] py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition mt-1'
             >
               {confirmButtonText}
