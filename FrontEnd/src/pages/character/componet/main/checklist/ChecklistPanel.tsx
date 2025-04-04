@@ -15,15 +15,14 @@ interface ChecklistItemType {
   exp: number;
   isComplete: boolean;
 }
-
 interface ChecklistPanelProps {
   items: ChecklistItemType[];
   isEditable?: boolean;
   activateTab?: string;
   onValidateItem: (description: string) => Promise<any>;
-  onAddItem?: (description: string) => void;
+  onAddItem?: (description: string, expId?: string) => void; // expId 매개변수 추가
   onCompleteItem?: (id: string, type: string) => void;
-  onEditItem?: (id: string, description: string) => void;
+  onEditItem?: (id: string, description: string, expId?: string) => void; // expId 매개변수 추가
   onDeleteItem?: (id: string) => void;
 }
 
@@ -334,18 +333,22 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
           }}
           onConfirm={() => {
             console.log('사용자가 확인을 눌렀습니다.');
+            // uuid 정보 추출
+            const uuid = validationData.uuid;
+            console.log('사용할 UUID:', uuid);
+
             if (
               isEditValidation &&
               editingItem &&
               pendingValidation &&
               onEditItem
             ) {
-              // 수정 로직 실행
-              onEditItem(editingItem.checklistId, pendingValidation);
+              // 수정 로직 실행 - uuid 전달
+              onEditItem(editingItem.checklistId, pendingValidation, uuid);
               setEditingItem(null);
             } else if (!isEditValidation && pendingValidation && onAddItem) {
-              // 추가 로직 실행
-              onAddItem(pendingValidation);
+              // 추가 로직 실행 - uuid 전달
+              onAddItem(pendingValidation, uuid);
             }
             setPendingValidation('');
             setIsValidationModalOpen(false);
