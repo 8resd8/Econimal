@@ -1,12 +1,16 @@
 package com.ssafy.econimal.domain.globe.service;
 
+import static com.ssafy.econimal.global.util.Prompt.*;
+
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
 import com.ssafy.econimal.domain.carbonlog.repository.UserLogQueryRepository;
-import com.ssafy.econimal.domain.globe.dto.GlobeAIFeedbackDto;
+import com.ssafy.econimal.domain.globe.dto.GlobeAIResponseDto;
 import com.ssafy.econimal.domain.globe.dto.UserLogDto;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeFeedbackResponse;
 import com.ssafy.econimal.domain.user.entity.User;
@@ -26,9 +30,8 @@ public class GlobeFeedbackService {
 	@Transactional(readOnly = true)
 	public GlobeFeedbackResponse getFeedback(User user) {
 		UserLogDto userLogDto = getUserLog(user);
-		Long totalCarbon = getUserCarbonTotal(user);
-		System.out.println(totalCarbon);
-		GlobeAIFeedbackDto globeAIFeedbackDto = getAIFeedback(userLogDto, totalCarbon);
+		Double totalCarbon = getUserCarbonTotal(user);
+		GlobeAIResponseDto globeAIFeedbackDto = getAIFeedback(userLogDto, totalCarbon);
 		return new GlobeFeedbackResponse(userLogDto, globeAIFeedbackDto);
 	}
 
@@ -38,12 +41,21 @@ public class GlobeFeedbackService {
 	}
 
 	// 유저의 총 탄소 변화량을 합산
-	private Long getUserCarbonTotal(User user) {
+	private Double getUserCarbonTotal(User user) {
 		return carbonLogRepository.getUserCarbonTotal(user.getId());
 	}
 
 	// chatGPT 프롬프팅을 통한 피드백 제공
-	private GlobeAIFeedbackDto getAIFeedback(UserLogDto userLogDto, Long totalCarbon) {
-		return null;
+	private GlobeAIResponseDto getAIFeedback(UserLogDto userLogDto, Double totalCarbon) {
+		String aiResponse = chatModel.call(globeFeedbackPrompt(userLogDto, totalCarbon));
+		System.out.println(aiResponse);
+		ObjectMapper objectMapper = new ObjectMapper();
+		GlobeAIResponseDto response = null;
+		try {
+			response = objectMapper.readValue(aiResponse, GlobeAIResponseDto.class);
+			return response;
+		} catch (JsonProcessingException e) {
+			return new GlobeAIResponseDto("파싱 실패", 0.0, 0.0);
+		}
 	}
 }

@@ -14,5 +14,5 @@ public interface CarbonLogRepository extends JpaRepository<CarbonLog, Long> {
 		+ "join Facility f on i.facility.id = f.id "
 		+ "where cl.user.id = :userId "
 		+ "and f.ecoType != 'COURT'")
-	Long getUserCarbonTotal(@Param("userId") Long userId);
+	Double getUserCarbonTotal(@Param("userId") Long userId);
 }
