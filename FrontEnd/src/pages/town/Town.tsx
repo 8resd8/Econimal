@@ -1,3 +1,4 @@
+import { useEffect, useState, Suspense } from 'react';
 import Court from './components/Court';
 import MyHouse from './components/MyHouse';
 import SewageTreatmentCenter from './components/SewageTreatmentCenter';
@@ -7,15 +8,10 @@ import town from '@/assets/town/baisc-town.png'; // 배경
 import GoMainBtn from '@/components/GoMainBtn';
 import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
-import { TownEvent } from './features/townApi';
+import { TownEvent, TownEventsResponse } from './features/townApi';
 import pollutedImg from '@/assets/town/polluted-river.png';
 
 import LoadingScreen from '@/components/LoadingScreen';
-
-import { useEffect } from 'react';
-// import { setIsTownPage } from '@/components/EventDetector';
-// import RecyclingCenter from './components/RecyclingCenter';
-// import Vehicle from './components/Vehicle';
 
 // 하위 컴포넌트로 전달할 인프라 아이디 타입
 export interface TownProps {
@@ -24,37 +20,20 @@ export interface TownProps {
   onClick?: () => void;
 }
 
-const Town = () => {
-  // useEffect(() => {
-  //   // 컴포넌트 마운트 시 마을 페이지로 설정
-  //   setIsTownPage(true);
+// TownContent에 전달할 props 타입 정의
+interface TownContentProps {
+  data: TownEventsResponse; // 타입 명시적 지정
+}
 
-  //   // 컴포넌트 언마운트 시 마을 페이지 아님으로 설정
-  //   return () => setIsTownPage(false);
-  // }, []);
-
-  
-  // 마을 상황 조회
-  const { data, isLoading, error } = useGetTownEvents(); // error 상태도 추가
-
-  // Zustand 스토어에서 인프라 상태 가져오기 - 항상 호출해야 함(조건부 이전에)
+// 실제 마을 컨텐츠 분리 - 이 컴포넌트는 데이터가 준비된 경우에만 렌더링됨
+const TownContent = ({ data }: TownContentProps) => {
   const infraStatus = useTownStore((state) => state.infraStatus);
-
-  // 로딩 페이지 표시 - 항상 같은 수의 훅이 호출된 후에 조건부 반환
-  if (isLoading || !data) {
-    return <LoadingScreen />; // 로딩 중이거나 데이터가 없을 때 LoadingScreen 표시
-  }
-
-  // 에러 발생 시 에러 메시지 표시
-  if (error) {
-    return <div>오류가 발생했습니다: {(error as Error).message}</div>;
-  }
 
   const townEventsData = data;
 
   // 각 인프라에 해당 이벤트ID 전달하는 함수
   const getInfraEventId = (ecoType: string) => {
-    if (!townEventsData?.townStatus) return undefined; // undefined 처리가 맞을까?
+    if (!townEventsData?.townStatus) return undefined;
 
     const infraEvent = townEventsData.townStatus.find(
       (e: TownEvent) => e.ecoType === ecoType && e.isActive,
@@ -64,7 +43,7 @@ const Town = () => {
 
   return (
     // 전체 화면을 차지하는 고정 컨테이너
-    <div className='fixed inset-0 overflow-hidden '>
+    <div className='fixed inset-0 overflow-hidden'>
       <div className='absolute inset-0'>
         <img
           src={town}
@@ -79,8 +58,8 @@ const Town = () => {
           <img
             src={town}
             alt='마을'
-            // className='max-w-full max-h-screen object-contain filter saturate-[.9] brightness-[.95]'
             className='max-w-full max-h-screen object-contain filter saturate-[.75]'
+            loading='eager' // [여기] 이미지 우선 로딩
           />
 
           {/* 컴포넌트 배치를 위한 절대 위치 오버레이 (이미지와 정확히 동일한 위치와 크기) */}
@@ -122,16 +101,81 @@ const Town = () => {
             <div className='absolute top-[84%] left-[19%] transform -translate-x-1/2 -translate-y-1/2 w-[14%] z-20'>
               <Court infraEventId={getInfraEventId('COURT')} />
             </div>
-            {/* <div className="absolute top-[20%] right-[5%] transform -translate-y-1/2 w-[12%] z-10">
-              <RecyclingCenter />
-            </div> */}
-            {/* <div className="absolute bottom-[25%] right-[30%] transform -translate-x-1/2 w-[12%] z-10">
-              <Vehicle />
-            </div> */}
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+// 메인 Town 컴포넌트 - 로딩 상태 관리 및 데이터 페칭
+const Town = () => {
+  // 로딩 완료 여부를 추적하는 상태
+  const [isAppReady, setIsAppReady] = useState(false);
+
+  // 마을 상황 조회
+  const { data, isLoading, error } = useGetTownEvents();
+
+  // 이미지 사전 로딩
+  useEffect(() => {
+    // 주요 이미지들 사전 로딩
+    const preloadImages = async () => {
+      const imagesToPreload = [town, pollutedImg];
+
+      const preloadPromises = imagesToPreload.map((imgSrc) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = imgSrc;
+          img.onload = resolve;
+          img.onerror = resolve; // 에러가 나도 계속 진행
+        });
+      });
+
+      // 모든 이미지 로딩 대기
+      await Promise.all(preloadPromises);
+    };
+
+    // 데이터가 있고 로딩이 완료됐을 때만 준비 상태로 설정
+    if (!isLoading && data) {
+      // 이미지 프리로딩 및 렌더링 지연
+      preloadImages().then(() => {
+        // 약간의 지연을 추가하여 로딩 화면이 깔끔하게 전환되도록 함
+        setTimeout(() => {
+          setIsAppReady(true);
+        }, 300);
+      });
+    }
+  }, [isLoading, data]);
+
+  // 로딩 중이거나 준비되지 않은 경우 로딩 화면 표시
+  if (isLoading || !data || !isAppReady) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 10000,
+          backgroundColor: '#ffffff',
+        }}
+      >
+        <LoadingScreen />
+      </div>
+    );
+  }
+
+  // 에러 발생 시 에러 메시지 표시
+  if (error) {
+    return <div>오류가 발생했습니다: {(error as Error).message}</div>;
+  }
+
+  // 준비되었을 때만 마을 콘텐츠 렌더링
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <TownContent data={data} />
+    </Suspense>
   );
 };
 

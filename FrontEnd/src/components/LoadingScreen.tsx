@@ -2,17 +2,19 @@ interface LoadingScreenProps {
   message?: string;
 }
 
-/**
- * 에코니멀 서비스를 위한 로딩 스크린 컴포넌트
- * - 초등학생 타겟으로 친환경 요소를 반영한 애니메이션
- * - Suspense 경계에서 fallback으로 사용됨
+/*
+ 에코니멀 서비스를 위한 로딩 스크린 컴포넌트
+ - 초등학생 타겟으로 친환경 요소를 반영한 애니메이션
+ - Suspense 경계에서 fallback으로 사용됨
  */
-const LoadingScreen: React.FC<LoadingScreenProps> = ({
+
+const LoadingScreen = ({
   message = '에코니멀 세상을 불러오는 중...',
-}) => {
+}: LoadingScreenProps) => {
   console.log('LoadingScreen rendered!'); // 이 로그가 표시되면 작동 중
+  // z-index를 9999로 높여서 다른 모든 요소보다 위에 표시되도록 함
   return (
-    <div className='fixed inset-0 flex flex-col items-center justify-center w-full h-screen bg-green-50 z-50'>
+    <div className='fixed inset-0 flex flex-col items-center justify-center w-full h-screen bg-green-50 z-[9999]'>
       <div className='relative w-32 h-32 mb-6'>
         {/* 나뭇잎 스피너 */}
         <div className='absolute top-1/2 left-1/4 w-10 h-10 bg-green-500 rounded-br-full rounded-bl-full rounded-tr-full animate-[spin_3s_ease-in-out_infinite] origin-center'>
