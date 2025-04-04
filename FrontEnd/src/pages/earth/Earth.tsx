@@ -36,7 +36,6 @@ const Earth: React.FC = () => {
   // 데이터 타입 상태
   const [dataType, setDataType] = useState<DataType>('temperature');
   
-  
   // 모든 국가에 대한 데이터
   const [globalData, setGlobalData] = useState<Record<string, WorldCountryData>>({});
   
@@ -44,10 +43,17 @@ const Earth: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<{
     temperatures: { timestamp: string; value: number }[];
     co2Levels: { timestamp: string; value: number }[];
+    humidity: { timestamp: string; value: number }[]; 
   }>({
     temperatures: [],
-    co2Levels: []
+    co2Levels: [],
+    humidity: []
   });
+  
+  // 데이터 로드 상태 추가
+  const [dataLoading, setDataLoading] = useState<boolean>(false);
+  // 데이터 없음 상태 추가
+  const [noDataAvailable, setNoDataAvailable] = useState<boolean>(false);
   
   // 초기 데이터 로딩
   useEffect(() => {
@@ -165,9 +171,8 @@ const Earth: React.FC = () => {
     // 더미 데이터 설정
     setGlobalData(dummyData);
   };
-    
+  
   // 시간 및 데이터 타입 변경 시 글로벌 데이터 업데이트
-  // 코드 수정
   useEffect(() => {
     const updateGlobalData = async () => {
       try {
@@ -206,6 +211,17 @@ const Earth: React.FC = () => {
     if (selectedRegion) {
       const loadRegionData = async () => {
         try {
+          // 로딩 상태 시작
+          setDataLoading(true);
+          setNoDataAvailable(false);
+          
+          // 이전 데이터 초기화 - 중요! 이전 데이터가 표시되지 않도록 함
+          setHistoricalData({
+            temperatures: [],
+            co2Levels: [],
+            humidity: []
+          });
+          
           // 지역 정보 로드
           const regionData = await fetchRegionInfo({
             region: selectedRegion,
@@ -219,9 +235,29 @@ const Earth: React.FC = () => {
             region: selectedRegion,
             timeRange
           });
-          setHistoricalData(histData);
+          
+          // 데이터 유효성 검사: 데이터가 비어 있는지 확인
+          const hasTemperatureData = histData.temperatures && histData.temperatures.length > 0;
+          const hasHumidityData = histData.humidity && histData.humidity.length > 0;
+          const hasCO2Data = histData.co2Levels && histData.co2Levels.length > 0;
+          
+          // 모든 데이터가 비어 있으면 '데이터 없음' 상태 설정
+          if (!hasTemperatureData && !hasHumidityData && !hasCO2Data) {
+            console.log('모든 데이터가 비어 있음: 데이터 없음 표시');
+            setNoDataAvailable(true);
+          } else {
+            // 데이터가 하나라도 있으면 히스토리 데이터 설정
+            setHistoricalData(histData);
+            setNoDataAvailable(false);
+          }
+          
+          // 로딩 상태 종료
+          setDataLoading(false);
         } catch (error) {
           console.error('지역 데이터 로드 실패:', error);
+          // 오류 발생 시에도 로딩 상태 종료 및 데이터 없음 표시
+          setDataLoading(false);
+          setNoDataAvailable(true);
         }
       };
       
@@ -242,7 +278,19 @@ const Earth: React.FC = () => {
   
   // 지역 선택 핸들러
   const handleRegionSelect = (region: string) => {
+    // 새 지역 선택 시 이전 데이터 초기화 (중요)
+    setHistoricalData({
+      temperatures: [],
+      co2Levels: [],
+      humidity: []
+    });
+    
+    // 선택된 지역 설정
     setSelectedRegion(region);
+    
+    // 로딩 상태 시작
+    setDataLoading(true);
+    setNoDataAvailable(false);
   };
   
   // 데이터 타입 변경 핸들러
@@ -252,8 +300,9 @@ const Earth: React.FC = () => {
   
   // 지역 정보 닫기 핸들러
   const handleCloseRegionInfo = () => {
-    setSelectedRegion(null);
+    // setSelectedRegion(null);
     setRegionInfo(null);
+    setNoDataAvailable(false); // 데이터 없음 상태 초기화
   };
   
   // 시간 값 변경 핸들러
@@ -269,26 +318,15 @@ const Earth: React.FC = () => {
 
   // 지도 컴포넌트 구성
   const mapContent = (
-    <>
-      <WorldMap 
-        data={worldData} 
-        countriesData={globalData}
-        timeRange={timeRange}
-        timeValue={timeValue}
-        dataType={dataType}  // 여기서 타입이 명확히 지정됨
-        onDataTypeChange={handleDataTypeChange}
-        onRegionSelect={handleRegionSelect} 
-      />
-      
-      {/* 지역 정보 패널 (선택된 지역이 있을 때만 표시) */}
-      {selectedRegion && regionInfo && (
-        <RegionInfo 
-          data={regionInfo} 
-          onClose={handleCloseRegionInfo}
-          showCharts={false}
-        />
-      )}
-    </>
+    <WorldMap 
+      data={worldData} 
+      countriesData={globalData}
+      timeRange={timeRange}
+      timeValue={timeValue}
+      dataType={dataType}
+      onDataTypeChange={handleDataTypeChange}
+      onRegionSelect={handleRegionSelect} 
+    />
   );
   
   return (
@@ -307,11 +345,32 @@ const Earth: React.FC = () => {
       >
         <div className="p-4 pb-16 min-h-full">
           <div className="flex flex-col lg:flex-row items-start justify-center">
+            {/* RegionInfo는 regionInfo가 있을 때만 표시 (selectedRegion과 무관하게) */}
+            {regionInfo && (
+              <div className="w-full mb-4">
+                <RegionInfo 
+                  data={{
+                    ...regionInfo,
+                    historicalData: regionInfo.historicalData ? {
+                      ...regionInfo.historicalData,
+                      humidity: historicalData.humidity || []
+                    } : undefined
+                  }} 
+                  onClose={handleCloseRegionInfo}
+                  showCharts={!noDataAvailable}
+                  loading={dataLoading}
+                  noData={noDataAvailable}
+                />
+              </div>
+            )}
+            
             <div className="w-full lg:w-2/3 h-[75vh] rounded-xl">
               <MapLayout
                 mapContent={mapContent}
                 historicalData={historicalData}
                 selectedRegion={selectedRegion}
+                loading={dataLoading} // 로딩 상태 전달
+                noData={noDataAvailable} // 데이터 없음 상태 전달
               />
             </div>
             

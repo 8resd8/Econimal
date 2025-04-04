@@ -1,12 +1,12 @@
 // 법원
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import CourtModal from './CourtModal';
 import courtImg from '@/assets/town/court.png';
 import EventAlert from './EventAlert';
 
-const Court = ({ infraEventId, className }: TownProps) => {
+const Court = memo(({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
 
@@ -36,5 +36,6 @@ const Court = ({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-};
+});
+
 export default Court;

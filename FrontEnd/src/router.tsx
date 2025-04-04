@@ -13,7 +13,7 @@ import CharacterShop from './pages/character/feature/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
 
 // import ErrorScreen from '@/components/errorScreens/ErrorScreen';
-import LoadingScreen from './components/LoadingScreen';
+// import LoadingScreen from './components/LoadingScreen';
 import NotFoundScreen from './components/PrevNotFoundScreen';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -47,10 +47,6 @@ const publicRoutes = [
   //   path: '/error',
   //   element: <ErrorScreen />,
   // },
-  {
-    path: '/loading', // 로딩은 라우팅할 필요 없긴 함
-    element: <LoadingScreen />,
-  },
   {
     path: '*',
     element: <NotFoundScreen />,
