@@ -53,6 +53,8 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // 차트 데이터 상태
   const [chartData, setChartData] = useState({
     labels: [] as string[],
     datasets: [
@@ -69,6 +71,96 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
       }
     ]
   });
+
+  // 반응형 포인트 너비 상태 추가
+  const [pointWidth, setPointWidth] = useState(40);
+  
+  // 차트 너비 상태
+  const [chartWidth, setChartWidth] = useState(300);
+
+  // 차트 포인트당 너비 계산 (화면 크기에 따라 조정)
+  const calculatePointWidth = () => {
+    if (!window.innerWidth) return 40;
+    
+    // 화면 크기에 따른 기본 포인트 너비 조정
+    if (window.innerWidth < 768) {
+      return 30; // 모바일에서는 좁게
+    } else if (window.innerWidth < 1200) {
+      return 35; // 태블릿에서는 중간
+    } else {
+      return 40; // 데스크탑에서는 넓게
+    }
+  };
+
+  // 컴포넌트 마운트 및 리사이즈 시 포인트 너비 업데이트
+  useEffect(() => {
+    const handleResize = () => {
+      setPointWidth(calculatePointWidth());
+    };
+    
+    // 초기 설정
+    handleResize();
+    
+    // 리사이즈 이벤트 리스너
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // 전체 차트 너비 계산 (최대 컨테이너 너비 제한)
+  const calculateChartWidth = () => {
+    if (!chartRef.current) return 300;
+    
+    // 컨테이너 너비 가져오기
+    const containerWidth = chartRef.current.clientWidth - 60; // Y축 영역 너비 고려
+    
+    // 데이터 포인트 수에 따른 필요 너비
+    const requiredWidth = Math.max(
+      300, // 최소 너비
+      dataPoints.length * pointWidth
+    );
+    
+    // 컨테이너에 맞게 제한
+    return Math.min(requiredWidth, containerWidth * 1.5);
+  };
+
+  // 데이터 포인트나 컨테이너 크기 변경 시 차트 너비 업데이트
+  useEffect(() => {
+    if (dataPoints.length > 0 && chartRef.current) {
+      setChartWidth(calculateChartWidth());
+    }
+  }, [dataPoints.length, pointWidth]);
+  
+  // 창 크기 변경 시 차트 너비 업데이트
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartRef.current) {
+        setChartWidth(calculateChartWidth());
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [dataPoints.length, pointWidth]);
+
+  // 받은 데이터가 유효한지 검증하는 함수 추가
+  const isValidDataArray = (data: DataPoint[]): boolean => {
+    // 1. 배열이 존재하고 비어있지 않은지 확인
+    if (!data || data.length === 0) return false;
+    
+    // 2. 각 요소가 올바른 형식인지 확인
+    return data.every(point => 
+      point && 
+      typeof point.timestamp === 'string' && 
+      typeof point.value === 'number' && 
+      !isNaN(point.value)
+    );
+  };
 
   // 영하 온도를 포함하도록 수정된 Y축 범위
   const getYAxisRange = () => {
@@ -295,21 +387,23 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
   }, [chartData.labels.length]);
 
   // 데이터가 없는 경우 메시지 표시
-  if (!dataPoints || dataPoints.length === 0) {
+  if (!isValidDataArray(dataPoints)) {
     return (
-      <div className="bg-white rounded-lg shadow p-4 h-64 flex items-center justify-center">
-        <p className="text-gray-500">데이터가 없습니다.</p>
+      <div className="bg-white rounded-lg shadow p-4 h-60 flex flex-col items-center justify-center">
+        <p className="text-gray-500 mb-2">데이터가 없습니다.</p>
+        <p className="text-gray-400 text-sm">추후 업데이트 예정입니다.</p>
       </div>
     );
   }
-
+  
   // 데이터 포맷 검증
   const isValidData = chartData.labels.length > 0 && chartData.datasets[0].data.length > 0;
   
   if (!isValidData) {
     return (
-      <div className="bg-white rounded-lg shadow p-4 h-64 flex items-center justify-center">
-        <p className="text-gray-500">데이터 형식이 올바르지 않습니다.</p>
+      <div className="bg-white rounded-lg shadow p-4 h-60 flex flex-col items-center justify-center">
+        <p className="text-gray-500 mb-2">데이터 형식이 올바르지 않습니다.</p>
+        <p className="text-gray-400 text-sm">추후 업데이트 예정입니다.</p>
       </div>
     );
   }
@@ -317,15 +411,6 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
   // 데이터 포인트가 7개 초과인 경우 스크롤 활성화
   const hasScrollBar = dataPoints.length > 7;
   
-  // 데이터 포인트당 너비 계산 (7개 데이터 포인트 기준으로 동일한 간격 유지)
-  const pointWidth = 40; // 각 데이터 포인트당 픽셀 너비 (더 좁게 조정)
-  
-  // 전체 차트 너비 계산 (데이터 포인트 수 * 포인트당 너비)
-  const chartWidth = Math.max(
-    300, // 최소 너비
-    dataPoints.length * pointWidth
-  );
-
   // 스크롤 컨테이너 스타일
   const scrollContainerStyle: React.CSSProperties = {
     position: 'absolute',
@@ -335,26 +420,26 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 h-64 flex flex-col" ref={chartRef}>
+    <div className="bg-white rounded-lg shadow p-3 h-60 flex flex-col" ref={chartRef}>
       {/* 차트 제목 영역 - 고정 */}
-      <div className="flex-none mb-2">
+      <div className="flex-none mb-1">
         <h3 className="text-sm font-medium text-gray-700">{title}</h3>
       </div>
       
       {/* 차트 영역 - CSS grid로 레이아웃 구성 */}
       <div className="flex-grow relative">
         {/* 이 부분이 스크롤 가능한 차트 영역 */}
-        <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '60px 1fr' }}>
+        <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '45px 1fr' }}>
           {/* Y축 영역 (고정) */}
           <div className="bg-white z-10" style={{ 
             gridColumn: '1', 
             overflow: 'hidden', 
             borderRight: '1px solid rgba(0,0,0,0.1)',
-            paddingLeft: '5px',
-            paddingRight: '5px'
+            paddingLeft: '2px',
+            paddingRight: '2px'
           }}>
             {/* Y축만 표시 */}
-            <div style={{ width: '50px', height: '100%' }}>
+            <div style={{ width: '45px', height: '100%' }}>
               <Line 
                 data={{
                   ...chartData,
