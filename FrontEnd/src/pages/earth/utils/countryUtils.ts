@@ -119,11 +119,30 @@ export const backendCountries: Record<string, string> = {
   export const getAllCountryCodes = (): string[] => {
     return Object.keys(backendCountries);
   };
+
+  // regionInfoApi.ts 파일에 아래 함수 추가
+  export const getCountryDescription = (countryCode: string): string => {
+    const descriptions: { [key: string]: string } = {
+      "KR": "대한민국은 동아시아의 기술 혁신과 문화 강국으로, 지속 가능한 발전을 위해 노력하고 있습니다.",
+      "JP": "일본은 첨단 기술과 전통이 공존하는 국가로, 환경 보호와 혁신에 큰 관심을 기울이고 있습니다.",
+      "US": "미국은 다양한 환경과 생태계를 가진 국가로, 환경 정책의 변화를 경험하고 있습니다.",
+      "CN": "중국은 급속한 산업화와 함께 환경 과제에 대응하며 재생 에너지 분야에 투자하고 있습니다.",
+      "RU": "러시아는 광활한 영토와 다양한 기후대를 보유한 국가로, 환경 보전 노력을 확대하고 있습니다.",
+      "GB": "영국은 기후 변화 대응 정책을 선도하며 지속 가능한 발전에 중점을 두고 있습니다.",
+      "FR": "프랑스는 친환경 정책과 재생 에너지 확대를 통해 기후 변화에 대응하고 있습니다.",
+      "DE": "독일은 에너지 전환 정책으로 재생 에너지 비중을 높여가는 환경 선도국입니다.",
+      "IN": "인도는 급속한 경제 성장과 함께 환경 보호와 지속 가능한 발전 사이의 균형을 추구하고 있습니다.",
+      // 필요에 따라 더 많은 국가 추가
+    };
+  
+    return descriptions[countryCode] || `${getCountryNameByCode(countryCode) || countryCode} 국가의 환경과 기후 현황`;
+};
   
   export default {
     getCountryCodeByName,
     getCountryNameByCode,
     getAllCountryCodes,
+    getCountryDescription,
     countryNameToCode,
     countryCodeToName,
     backendCountries

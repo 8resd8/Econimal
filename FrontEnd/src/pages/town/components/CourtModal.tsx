@@ -18,6 +18,7 @@ import ResultModal from './ResultModal';
 import { InfraSubmitResponse } from '../features/infraApi';
 import { X } from 'lucide-react';
 import { setModalOpen } from '@/components/EventDetector';
+import { useErrorStore } from '@/store/errorStore';
 
 interface CourtModalProps {
   open: boolean;
@@ -35,6 +36,9 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
     null,
   );
 
+  // 에러 상태 감지
+  const isError = useErrorStore((state) => state.isError);
+
   // 인프라 이벤트 상세 조회 쿼리
   // isLoading 사용할 경우 LoadingScreen
   const { data: eventData } = useGetInfraEvent(infraEventId || 0);
@@ -44,9 +48,14 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
 
   // 모달 열림/닫힘 상태 전역 변수에 반영
   useEffect(() => {
+    // [여기] 에러 발생 시 모달 닫기
+    if (isError) {
+      onOpenChange(false);
+      setShowResult(false);
+    }
     setModalOpen(open);
     return () => setModalOpen(false);
-  }, [open]);
+  }, [open, isError, onOpenChange]);
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
@@ -75,16 +84,19 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
   };
 
   const fallbackAnswers = [
-    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
-    { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요1' },
-    { ecoAnswerId: 3, description: '잠시 후 다시 시도해 주세요2' },
-    { ecoAnswerId: 4, description: '잠시 후 다시 시도해 주세요3' },
+    { ecoAnswerId: 1, description: '법원에 새로운 사건이 \n 접수되었어요!' },
+    { ecoAnswerId: 2, description: '새로운 환경 퀴즈를 \n 준비 중이에요.' },
+    { ecoAnswerId: 3, description: '문제 업데이트 중 ...' },
+    { ecoAnswerId: 4, description: '잠시 후 다시 시도해 주세요.' },
   ];
 
   const answers =
     eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
       ? eventData.ecoAnswer
       : fallbackAnswers;
+
+  // 실제 선택지가 있는지 확인
+  const hasRealAnswers = eventData?.ecoAnswer && eventData.ecoAnswer.length > 0;
 
   return (
     <>
@@ -106,8 +118,9 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
               {answers.map((answer) => (
                 <Button
                   key={answer.ecoAnswerId}
-                  className='flex-1 basis-[calc(50%-0.5rem)] py-4 sm:py-4 md:py-8 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
+                  className='flex-1 basis-[calc(50%-0.5rem)] py-4 sm:py-4 md:py-10 text-base sm:text-lg md:text-2xl whitespace-pre-line break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
+                  disabled={!hasRealAnswers}
                 >
                   {answer.description}
                 </Button>
@@ -124,10 +137,10 @@ const CourtModal = ({ open, onOpenChange, infraEventId }: CourtModalProps) => {
       {/* 결과 모달 */}
       {result && (
         <ResultModal
-          open={showResult}
+          open={showResult && !isError}
           onOpenChange={handleResultClose}
           result={result}
-          ecoType='COURT' // 에코 타입 전달
+          ecoType='COURT'
         />
       )}
     </>

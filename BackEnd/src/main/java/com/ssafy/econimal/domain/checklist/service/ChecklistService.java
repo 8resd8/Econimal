@@ -38,6 +38,7 @@ public class ChecklistService {
 	private final UserCharacterRepository userCharacterRepository;
 
 	private static final String CHECKLIST_PREFIX = "CC:";
+	private static final String EXP_PREFIX = "EE:";
 
 	public UserChecklistResponse getUserChecklist(User user) {
 		DailyUserChecklistDto dailyUserChecklistDto = getDailyUserChecklist(user);
@@ -79,7 +80,7 @@ public class ChecklistService {
 		if (request.type().equals("DAILY")) {
 			completeDailyChecklist(user, Long.parseLong(checklistId));
 		} else {
-			completeCustomChecklist(user, checklistId, request.uuid());
+			completeCustomChecklist(user, checklistId);
 		}
 	}
 
@@ -95,7 +96,7 @@ public class ChecklistService {
 
 	}
 
-	private void completeCustomChecklist(User user, String checklistId, String uuid) {
+	private void completeCustomChecklist(User user, String checklistId) {
 		String hashKey = CustomChecklistUtil.buildHashKey(checklistId);
 
 		Boolean isExist = redisTemplate.hasKey(hashKey);
@@ -108,7 +109,7 @@ public class ChecklistService {
 		redisTemplate.opsForHash().put(hashKey, "isComplete", "true");
 
 		// 경험치 업데이트
-		String getExp = redisTemplate.opsForValue().get(user.getId() + uuid);
+		String getExp = (String)redisTemplate.opsForHash().get(hashKey, "exp");
 		int exp = Integer.parseInt(getExp == null ? "0" : getExp);
 
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndMainIsTrue(user)

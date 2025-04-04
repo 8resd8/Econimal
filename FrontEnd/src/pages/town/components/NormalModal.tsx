@@ -3,6 +3,7 @@ import { InfraSubmitResponse } from '../features/infraApi';
 import ResultModal from './ResultModal';
 import { setModalOpen } from '@/components/EventDetector';
 import { X } from 'lucide-react';
+import { useErrorStore } from '@/store/errorStore';
 
 import {
   AlertDialog,
@@ -36,6 +37,9 @@ const NormalModal = ({
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<InfraSubmitResponse | null>(null); // api 응답 받을때 검증한거 아닌가... 왜 또 해야하지
 
+  // 에러 상태 감지
+  const isError = useErrorStore((state) => state.isError);
+
   // 인프라 이벤트 상세 조회 쿼리
   // const { data: eventData, isLoading, error } = useGetInfraEvent(infraEventId);
   const { data: eventData } = useGetInfraEvent(infraEventId || 0);
@@ -45,9 +49,14 @@ const NormalModal = ({
 
   // 모달 열림/닫힘 상태 전역 변수에 반영
   useEffect(() => {
+    // 에러 발생 시 모달 닫기
+    if (isError) {
+      onOpenChange(false);
+      setShowResult(false);
+    }
     setModalOpen(open);
     return () => setModalOpen(false);
-  }, [open]);
+  }, [open, isError, onOpenChange]);
 
   // 선택지 제출 핸들러
   const handleSubmit = (ecoAnswerId: number) => {
@@ -83,7 +92,10 @@ const NormalModal = ({
 
   // fallback 선택지: 문제가 없어도 버튼 뜨게 만들기
   const fallbackAnswers = [
-    { ecoAnswerId: 1, description: '아직 문제가 준비 중이에요.' },
+    {
+      ecoAnswerId: 1,
+      description: '에코니멀에서 무슨 일이 벌어지고 있을까요?',
+    },
     { ecoAnswerId: 2, description: '잠시 후 다시 시도해 주세요.' },
   ];
 
@@ -92,6 +104,9 @@ const NormalModal = ({
     eventData?.ecoAnswer && eventData.ecoAnswer.length > 0
       ? eventData.ecoAnswer
       : fallbackAnswers;
+
+  // 실제 선택지가 있는지 확인
+  const hasRealAnswers = eventData?.ecoAnswer && eventData.ecoAnswer.length > 0;
 
   return (
     <>
@@ -115,6 +130,7 @@ const NormalModal = ({
                   key={answer.ecoAnswerId}
                   className='flex-1 py-4 sm:py-4 md:py-6 text-base sm:text-lg md:text-2xl whitespace-normal break-words hyphens-auto'
                   onClick={() => handleSubmit(answer.ecoAnswerId)}
+                  disabled={!hasRealAnswers}
                 >
                   {answer.description}
                 </Button>
@@ -129,7 +145,7 @@ const NormalModal = ({
       {/* 결과 모달 표시 */}
       {result && (
         <ResultModal
-          open={showResult}
+          open={showResult && !isError}
           onOpenChange={handleResultClose}
           result={result}
         />

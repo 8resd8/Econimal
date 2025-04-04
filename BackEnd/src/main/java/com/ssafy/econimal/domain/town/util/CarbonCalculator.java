@@ -4,7 +4,7 @@ import com.ssafy.econimal.global.common.enums.ExpressionType;
 
 public class CarbonCalculator {
 
-	public static final double CARBON_PERCENT_TO_EXP_RATIO = 0.2;
+	public static final double CARBON_PERCENT_TO_EXP_RATIO = 1;
 
 	private static final int ROUNDING_SCALE = 10;
 
