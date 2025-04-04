@@ -120,7 +120,6 @@ export const backendCountries: Record<string, string> = {
     return Object.keys(backendCountries);
   };
 
-  // regionInfoApi.ts 파일에 아래 함수 추가
   export const getCountryDescription = (countryCode: string): string => {
     const descriptions: { [key: string]: string } = {
       "KR": "대한민국은 동아시아의 기술 혁신과 문화 강국으로, 지속 가능한 발전을 위해 노력하고 있습니다.",
