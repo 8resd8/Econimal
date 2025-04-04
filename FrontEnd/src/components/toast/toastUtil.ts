@@ -1,6 +1,7 @@
 import { toast, ToastOptions } from 'react-toastify';
 import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
+import { useErrorStore } from '@/store/errorStore';
 
 // 토스트 컨테이너 ID - 로그아웃 시 모든 토스트를 제거하기 위해 사용
 export const TOAST_CONTAINER_ID = 'app-toast-container';
@@ -18,6 +19,19 @@ export const defaultOptions: ToastOptions = {
   rtl: false, // 왼쪽에서 오른쪽으로 텍스트 표시
   // theme: 'colored', // 색상이 강조된 테마 사용
 };
+
+// 토스트 표시 여부를 결정하는 함수
+export const shouldShowToast = (): boolean => {
+  const isError = useErrorStore.getState().isError; // 에러 스토어 상태 확인
+
+  // 모달이 열려있거나 에러 상태인 경우 토스트를 표시하지 않음
+  if (isModalOpen || isError) {
+    return false;
+  }
+
+  return true;
+};
+
 // -------------------- 기본 토스트 --------------------
 // 성공 토스트 메시지
 export const showSuccessToast = (message: string, options?: ToastOptions) => {

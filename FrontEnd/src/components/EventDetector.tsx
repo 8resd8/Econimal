@@ -4,6 +4,7 @@ import { useGetTownEvents } from '@/pages/town/features/useTownQuery';
 import { showInfraEventNotice, clearAllToasts } from './toast/toastUtil';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TownEvent } from '@/pages/town/features/townApi';
+import { useErrorStore } from '@/store/errorStore';
 
 // 모달 상태를 전역으로 관리하기 위한 변수
 export let isModalOpen = false;
@@ -21,6 +22,7 @@ const TOAST_EXCLUDED_PAGES = [
   '/login', // 로그인 페이지
   '/signup', // 회원가입 페이지
   '/prolog', // 프롤로그 페이지
+  '/town',
 ];
 
 // 마지막으로 알림을 보낸 시간을 추적하는 변수
@@ -35,6 +37,9 @@ const EventDetector = () => {
   // Zustand Store에서 active 이벤트 가져오기
   const activeEvents = useTownStore((state) => state.activeEvents);
 
+  // 에러 스토어에서 에러 상태 가져오기
+  const isError = useErrorStore((state) => state.isError);
+
   // 이미 알림을 보낸 이벤트 ID 추적을 위한 ref
   const notifiedEventsRef = useRef<Set<number>>(new Set());
 
@@ -47,14 +52,54 @@ const EventDetector = () => {
   // 페이지 경로 정확히 일치하는지 확인 (더 엄격한 검사)
   const currentPath = location.pathname;
 
-  // 메모이제이션 사용하여 페이지 체크 성능 최적화
-  const shouldShowToast = useMemo(() => {
-    // 현재 경로가 제외 목록에 있는지 정확히 확인
-    return !TOAST_EXCLUDED_PAGES.includes(currentPath);
+  // ----
+  // [여기] 404 페이지인지 확인
+  // router.tsx에서 path: '*'로 매핑된 경우를 감지
+  const is404Page = useMemo(() => {
+    // 정의된 라우트 중 일치하는 것이 없는지 체크
+    // /login, /signup, /town 등 일반 경로는 이미 정의되어 있음
+    // TOAST_EXCLUDED_PAGES에 포함된 경로가 아니면서
+    // 기본 라우트 패턴과 일치하지 않는 경로를 404로 간주
+
+    // 알려진 기본 경로 패턴들
+    const knownPaths = [
+      '/',
+      '/town',
+      '/charsel',
+      '/my',
+      '/earth',
+      '/animation',
+      '/edit-profile',
+      '/shop',
+      '/store',
+      '/prolog',
+      '/login',
+      '/signup',
+      '/loading',
+      '/error',
+    ];
+
+    // 현재 경로가 알려진 경로 중 하나에 매칭되는지 확인
+    const isKnownPath = knownPaths.some((path) => {
+      if (path === '/') {
+        return currentPath === '/';
+      }
+      return currentPath.startsWith(path);
+    });
+
+    // 알려진 경로가 아니면 404페이지로 간주
+    return !isKnownPath;
   }, [currentPath]);
 
-  // 마을 페이지 여부 확인
-  const isTownPage = currentPath === '/town';
+  // ---------
+  // 메모이제이션 사용하여 페이지 체크 성능 최적화
+  const shouldShowToast = useMemo(() => {
+    // 에러 상태일 때나 404 페이지일 때는 토스트 표시하지 않음
+    if (isError || is404Page) return false;
+
+    // 현재 경로가 제외 목록에 있는지 정확히 확인
+    return !TOAST_EXCLUDED_PAGES.includes(currentPath);
+  }, [currentPath, isError, is404Page]);
 
   // 마을 관련 데이터 쿼리 실행
   const { data: townEventsData } = useGetTownEvents();
@@ -84,16 +129,39 @@ const EventDetector = () => {
     };
   }, [currentPath, shouldShowToast]);
 
+  // 에러 상태 변경 시 토스트 및 이벤트 처리
+  useEffect(() => {
+    if (isError) {
+      // 에러 발생 시 모든 토스트 제거
+      clearAllToasts();
+
+      // 에러 발생 시 알림 기록 초기화
+      notifiedEventsRef.current.clear();
+    }
+  }, [isError]);
+
+  // [여기] 404 페이지가 감지되면 토스트 제거
+  useEffect(() => {
+    if (is404Page) {
+      clearAllToasts();
+      notifiedEventsRef.current.clear();
+    }
+  }, [is404Page]);
+
   // 이벤트 알림 처리 로직 - 타이밍 개선 버전
   const processNewEvents = useCallback(() => {
+    // 에러 상태일 때는 이벤트 처리하지 않음
+    if (isError || is404Page) {
+      return;
+    }
+
     // 페이지 전환 중이면 토스트 표시 지연
     if (isTransitioning) {
       return;
     }
 
-    // 빠른 탈출 조건 확인 - 모든 조건을 한 번에 체크하여 성능 최적화
+    // 빠른 탈출 조건 확인
     if (
-      isTownPage ||
       !shouldShowToast ||
       !activeEvents?.length ||
       !townEventsData?.townStatus ||
@@ -107,7 +175,7 @@ const EventDetector = () => {
       // 이미 알림을 보낸 이벤트 ID Set 생성
       const notifiedSet = new Set(notifiedEventsRef.current);
 
-      // 새로운 이벤트 필터링 최적화 - Set 사용하여 조회 속도 향상
+      // 새로운 이벤트 필터링
       const newUntouchedEvents = activeEvents.filter(
         (eventId) =>
           !notifiedSet.has(eventId) &&
@@ -127,6 +195,11 @@ const EventDetector = () => {
       const eventsToShow = newUntouchedEvents.slice(0, 4); // 한 번에 최대 4개만 표시
 
       eventsToShow.forEach((eventId) => {
+        // 에러 상태나 404 페이지 재확인 (비동기 처리 중 상태가 변경될 수 있음)
+        if (useErrorStore.getState().isError || is404Page) {
+          return;
+        }
+
         // 이벤트 찾기 - 성능 최적화
         const eventInfo = townEventsData.townStatus.find(
           (event: TownEvent) => event.infraEventId === eventId,
@@ -137,7 +210,7 @@ const EventDetector = () => {
           showInfraEventNotice(eventInfo.ecoType, {
             onClick: () => navigate('/town'),
             // 페이지 이동 시에도 토스트가 유지되도록 설정
-            autoClose: 5000, // 5초 후 자동으로 닫힘
+            autoClose: 3000, // 3초 후 자동으로 닫힘
           });
 
           // 알림 보낸 이벤트 ID 추가
@@ -149,15 +222,21 @@ const EventDetector = () => {
     }
   }, [
     activeEvents,
-    isTownPage,
     townEventsData,
     navigate,
     shouldShowToast,
     isTransitioning,
+    isError,
+    is404Page,
   ]);
 
   // 이벤트 처리 로직 실행 - 의존성 배열 최적화 및 타이밍 조정
   useEffect(() => {
+    // 에러 상태나 404 페이지 확인
+    if (isError || is404Page) {
+      return;
+    }
+
     // 페이지 전환 중이 아닐 때만 이벤트 처리 (화면이 먼저 표시된 후 토스트 표시)
     if (!isTransitioning) {
       // 약간의 지연 후 처리하여 화면 렌더링 우선 처리
@@ -167,7 +246,7 @@ const EventDetector = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [processNewEvents, isTransitioning]);
+  }, [processNewEvents, isTransitioning, isError, is404Page]);
 
   // 아무것도 렌더링하지 않음 - 로직만 실행
   return null;
