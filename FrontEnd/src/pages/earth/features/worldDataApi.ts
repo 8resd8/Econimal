@@ -167,7 +167,7 @@ export const fetchCountryData = async (
   countryCode: string,
   startDate: string, 
   endDate: string, 
-  type: 'HOUR' | 'DAY' | 'MONTH' | 'ALL'
+  type: 'HOUR' | 'DAY' | 'MONTH' | 'YEAR'
 ): Promise<CountryData[]> => {
   try {
     const response = await apiClient.post('/globe', {

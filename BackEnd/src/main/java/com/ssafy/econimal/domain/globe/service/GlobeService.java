@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.econimal.domain.globe.dto.GlobeDataDto;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
+import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.GlobeResponse;
+import com.ssafy.econimal.domain.globe.dto.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.dto.GroupByCountryDto;
 import com.ssafy.econimal.domain.globe.dto.GroupByDateTimeDto;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
+import com.ssafy.econimal.global.common.enums.TimeType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -71,5 +74,24 @@ public class GlobeService {
 			new GroupByDateTimeDto(groupedByDateTime),
 			new GroupByCountryDto(groupedByCountry)
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public GlobeV2Response getGlobeInfoByRDBV2(TimeType type) {
+		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByTimeV2(type);
+
+		Map<String, Map<String, Map<String, Double>>> groupedData = climates.stream()
+			.collect(Collectors.groupingBy(
+				GlobeInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
+				Collectors.toMap(
+					GlobeInfoV2Dto::country,       // 내부 키: 국가 코드
+					dto -> Map.of(                 // 내부 값: 온도와 습도 정보를 담은 Map
+						"temperature", dto.temperature(),
+						"humidity", dto.humidity()
+					)
+				)
+			));
+
+		return new GlobeV2Response(groupedData);
 	}
 }

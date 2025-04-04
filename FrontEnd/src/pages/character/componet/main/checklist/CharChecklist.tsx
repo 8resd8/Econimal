@@ -66,21 +66,27 @@ const CharChecklist = () => {
   };
 
   // 체크리스트 항목 추가 함수
-  const onAddItem = async (description: string) => {
+  const onAddItem = async (description: string, uuid?: string) => {
     try {
-      // 문자열만 전달하도록 수정
-      handleSubmitCustomChecklist(description);
-      console.log('체크리스트 항목 추가됨:', description);
+      console.log('체크리스트 추가 시작:', description, 'UUID:', uuid);
+      // uuid도 함께 전달
+      handleSubmitCustomChecklist(description, uuid);
+      console.log('체크리스트 항목 추가 요청 완료');
     } catch (error) {
       console.error('체크리스트 항목 추가 실패:', error);
     }
   };
 
   // 체크리스트 항목 수정 함수
-  const onEditItem = async (id: string, description: string) => {
+  const onEditItem = async (
+    id: string,
+    description: string,
+    expId?: string,
+  ) => {
     try {
-      await handleEditCustomChecklist(id, description);
-      console.log('체크리스트 항목 수정됨:', id, description);
+      // expId도 함께 전달
+      await handleEditCustomChecklist(id, description, expId);
+      console.log('체크리스트 항목 수정됨:', id, description, 'expId:', expId);
     } catch (error) {
       console.error('체크리스트 항목 수정 실패:', error);
     }

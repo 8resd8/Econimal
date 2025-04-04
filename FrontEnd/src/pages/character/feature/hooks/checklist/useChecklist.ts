@@ -20,6 +20,10 @@ export const useChecklist = () => {
     queryFn: fetchChecklist,
   });
 
+  if (data) {
+    console.log(data, '@@@@@@@@@@@@@');
+  }
+
   //zustand에 넣을 데이터
   // useEffect(() => {
   //   if (data && data.checklists) {

@@ -1,11 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAddCustomCheck } from '../../api/checklist/fetchAddCustomCheck';
-
 export const useAddCusChecklist = () => {
   const queryClient = useQueryClient();
+
   const { mutate } = useMutation({
-    mutationFn: (description: string) => {
-      return fetchAddCustomCheck(description);
+    mutationFn: (params: { description: string; uuid?: string }) => {
+      // uuid를 expId로 변환하여 전달
+      const payload = params.uuid
+        ? { description: params.description, expId: params.uuid }
+        : { description: params.description };
+
+      return fetchAddCustomCheck(payload);
     },
     onSuccess: () => {
       console.log('custom 체크리스트 등록 성공');
@@ -20,8 +25,8 @@ export const useAddCusChecklist = () => {
     },
   });
 
-  const handleSubmitCustomChecklist = (description: string) => {
-    mutate(description); //실행
+  const handleSubmitCustomChecklist = (description: string, uuid?: string) => {
+    mutate({ description, uuid }); // uuid 전달
   };
 
   return {
