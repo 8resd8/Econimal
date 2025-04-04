@@ -1,12 +1,12 @@
 // 하수처리장
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import sewageImg from '@/assets/town/sewage-treatment-center.png';
 import EventAlert from './EventAlert';
 
-const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
+const SewageTreatmentCenter = memo(({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
@@ -37,5 +37,6 @@ const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-};
+});
+
 export default SewageTreatmentCenter;
