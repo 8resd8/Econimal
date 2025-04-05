@@ -15,7 +15,7 @@ spark = SparkSession.builder \
             .appName("CalculateTempHumPipeline") \
             .master("spark://spark-master:7077") \
             .config("spark.hadoop.fs.defaultFS", "hdfs://namenode:9000") \
-            .config("spark.redis.host", "43.203.120.223") \
+            .config("spark.redis.host", "YOUR_REDIS_HOST") \
             .config("spark.redis.port", "6379") \
             .config("spark.redis.pipeline.enabled", "true") \
             .config("spark.redis.write.batch.size", "1000")  \
@@ -154,7 +154,7 @@ print("[All] Redis 저장용 데이터 준비 시간: {:.2f}초".format(time.tim
 
 print("[Redis] Redis 저장 시작")
 start_time = time.time()
-redis_client = redis.StrictRedis(host='43.203.120.223', port=6379, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(host='YOUR_REDIS_HOST', port=6379, db=0, decode_responses=True)
 pipe = redis_client.pipeline()
 
 for row in kv_list:
