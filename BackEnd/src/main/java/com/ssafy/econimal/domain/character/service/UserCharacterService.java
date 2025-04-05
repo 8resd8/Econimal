@@ -68,7 +68,7 @@ public class UserCharacterService {
 	// 최초 1회 메인 캐릭터 선택 및 캐릭터마다 배경 지급
 	public void setInitCharacterAndBackground(User user, Long userCharacterId) {
 		if (userCharacterRepository.findByUserAndMainIsTrue(user).isPresent()) {
-			throw new InvalidArgumentException("이미 대표 캐릭터가 설정되어 있습니다.");
+			return; // 예외 발생하지 않고 바로 종료
 		}
 
 		UserCharacter userCharacter = userCharacterRepository.findByUserAndId(user, userCharacterId)
