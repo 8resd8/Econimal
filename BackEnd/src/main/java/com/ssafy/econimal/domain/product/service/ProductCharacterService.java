@@ -41,18 +41,9 @@ public class ProductCharacterService {
 		validator.buyUserCoin(user, wantProductItem.getPrice());
 		validator.alreadyOwned(user, productId);
 
-		UserCharacter userCharacter = createUserCharacter(user, wantProductItem.getCharacter());
+		UserCharacter userCharacter = UserCharacter.createUserCharacter(user, wantProductItem.getCharacter());
 		userCharacterRepository.save(userCharacter);
 
 		buyProductByCoin(user, wantProductItem.getPrice());
-	}
-
-	private UserCharacter createUserCharacter(User user, Character character) {
-		return UserCharacter.builder()
-			.user(user)
-			.character(character)
-			.expression(ExpressionType.SADNESS)
-			.isMain(false)
-			.build();
 	}
 }
