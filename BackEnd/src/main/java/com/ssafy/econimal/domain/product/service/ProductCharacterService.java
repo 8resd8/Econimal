@@ -37,13 +37,13 @@ public class ProductCharacterService {
 	}
 
 	public void buyCharacterProduct(User user, Long productId) {
-		Product wantProductItem = productUtil.findProductById(productId);
-		validator.buyUserCoin(user, wantProductItem.getPrice());
+		Product wantProduct = productUtil.findProductById(productId);
+		validator.buyUserCoin(user, wantProduct.getPrice());
 		validator.alreadyOwned(user, productId);
 
-		UserCharacter userCharacter = UserCharacter.createUserCharacter(user, wantProductItem.getCharacter());
+		UserCharacter userCharacter = UserCharacter.createUserCharacter(user, wantProduct.getCharacter());
 		userCharacterRepository.save(userCharacter);
 
-		buyProductByCoin(user, wantProductItem.getPrice());
+		buyProductByCoin(user, wantProduct.getPrice());
 	}
 }
