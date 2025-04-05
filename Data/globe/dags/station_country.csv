@@ -1,0 +1,28 @@
+STATION_CODE,CITY_NAME,COUNTRY_CODE,COUNTRY_NM_EN,COUNTRY_NM_KR,LATITUDE,LONGITUDE
+02460,Stockholm Arlanda Airport,SE,Sweden,스웨덴,59.65,17.95
+02795,Helsinki Harmaja / Suomenlinna,FI,Finland,핀란드,60.1,24.9833
+03772,London Heathrow Airport,GB,United Kingdom,영국,51.4833,-0.45
+04250,Godthaab / Nuuk,GL,Greenland,그린란드,64.1667,-51.75
+07150,Paris / Le Bourget,FR,France,프랑스,48.9667,2.45
+10384,Berlin / Tempelhof,DE,Germany,독일,52.4667,13.4
+16239,Roma / Ciampino,IT,Italia,이탈리아,41.7833,12.5833
+26063,St. Peterburg,RU,Russia,러시아,59.9667,30.3
+42182,New Delhi / Safdarjung,IN,India,인도,28.5833,77.2
+43555,Male,MV,Maldives,몰디브,4.2,73.5333
+47108,Seoul,KR,Korea,대한민국,37.5667,126.9667
+47662,Tokyo,JP,Japan,일본,35.6833,139.7667
+48455,Bangkok,TH,Thailand,태국,13.7333,100.5667
+54511,Beijing,CN,China,중국,39.9333,116.2833
+62366,Cairo International Airport,EG,Egypt,이집트,30.1333,31.4
+62721,Khartoum,SD,Sudan,수단,15.6,32.55
+65125,Abuja,NG,Nigeria,나이지리아,9.25,7
+65472,Accra,GH,Ghana,가나,5.6,-0.1667
+68816,Cape Town Airport,ZA,South Africa,남아프리카공화국,-33.9833,18.6
+71201,Vancouver Harbour CS,CA,Canada,캐나다,49.3,-123.12
+83741,Rio De Janeiro-Santa Cruz Ab,BR,Brazil,브라질,-22.9333,-43.7167
+87585,Buenos Aires Observatorio,AR,Argentina,아르헨티나,-34.5833,-58.4833
+89009,Amundsen-Scott South Pole Station,AQ,British Antarctic Territory,영국령 남극지역,-90,0
+91643,Funafuti,TV,Tuvalu,투발루,-8.5167,179.2167
+94926,Canberra,AU,Australia,호주,-35.3,149.2
+KNYC0,New York City / Yorkville,US,United States of America,미합중국,40.7789,-73.9692
+ZMUB0,Ulaanbaatar / Ulan Bator / Songiin,MN,Mongolia,몽골,47.85,106.7667
