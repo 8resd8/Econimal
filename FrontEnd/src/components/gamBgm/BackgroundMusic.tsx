@@ -2,21 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 
 const BackgroundMusic = ({
   src = '/assets/sounds/eco_friendly_bgm.mp3',
-  autoPlay = true,
-  initialVolume = 0.5,
+  initialVolume = 0.3,
 }: {
   src?: string;
-  autoPlay?: boolean;
   initialVolume?: number;
 }) => {
-  const audioRef = useRef<HTMLAudioElement>(null); // 타입 명시
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(initialVolume);
+  const [showVolume, setShowVolume] = useState(false);
 
-  // 오디오 이벤트 핸들러
+  // 오디오 초기화
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    audio.volume = volume;
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
@@ -37,64 +38,82 @@ const BackgroundMusic = ({
     }
   }, [volume]);
 
-  // 자동 재생
-  useEffect(() => {
-    if (!autoPlay || !audioRef.current) return;
-
-    const handleFirstClick = () => {
-      audioRef.current?.play();
-      document.removeEventListener('click', handleFirstClick);
-    };
-
-    document.addEventListener('click', handleFirstClick);
-    return () => document.removeEventListener('click', handleFirstClick);
-  }, [autoPlay]);
-
   return (
     <div
       style={{
         position: 'fixed',
         bottom: '20px',
         right: '20px',
-        zIndex: 9999,
-        background: 'rgba(255,255,255,0.9)',
-        padding: '10px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+        zIndex: 9999, // 콘텐츠보다 위에 표시
+        display: 'flex',
+        gap: '10px',
+        alignItems: 'center',
       }}
     >
-      <audio ref={audioRef} src={src} loop />
-
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      {/* 컴팩트한 음악 컨트롤 */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.9)',
+          borderRadius: '50%',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          transition: 'all 0.3s ease',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+        onClick={() => setShowVolume(!showVolume)}
+      >
+        {/* 토글 버튼 */}
         <button
-          onClick={() => {
-            if (audioRef.current?.paused) {
-              audioRef.current.play();
-            } else {
-              audioRef.current?.pause();
-            }
+          onClick={(e) => {
+            e.stopPropagation(); // 클릭 이벤트 전파 방지
+            isPlaying ? audioRef.current?.pause() : audioRef.current?.play();
           }}
           style={{
-            padding: '8px 12px',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: 'none',
             cursor: 'pointer',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
+            background: 'none',
+            fontSize: '24px',
           }}
         >
-          {isPlaying ? '🔊 음악 끄기' : '🔇 음악 켜기'}
+          {isPlaying ? '🔊' : '🔇'}
         </button>
-
-        <input
-          type='range'
-          min='0'
-          max='1'
-          step='0.01'
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          style={{ width: '100px' }}
-        />
-        <span style={{ minWidth: '40px' }}>{Math.round(volume * 100)}%</span>
       </div>
+
+      {/* 볼륨 슬라이더 (클릭 시 표시) */}
+      {showVolume && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '80px', // 버튼 위에 표시
+            right: '20px',
+            backgroundColor: '#fff',
+            padding: '10px',
+            borderRadius: '8px',
+            boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+            zIndex: 9999,
+          }}
+        >
+          <input
+            type='range'
+            min='0'
+            max='1'
+            step='0.01'
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            style={{ width: '150px' }}
+          />
+          <span>{Math.round(volume * 100)}%</span>
+        </div>
+      )}
+
+      <audio ref={audioRef} src={src} loop />
     </div>
   );
 };

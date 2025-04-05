@@ -19,7 +19,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       {/* <QueryDevtools> */}
-      <BackgroundMusic src='/assets/sounds/eco_friendly_bgm.mp3' />
+      <BackgroundMusic
+        src='/assets/sounds/eco_friendly_bgm.mp3'
+        initialVolume={0.3}
+      />
       <AspectRatioContainer>
         <RouterProvider router={router} />
       </AspectRatioContainer>
