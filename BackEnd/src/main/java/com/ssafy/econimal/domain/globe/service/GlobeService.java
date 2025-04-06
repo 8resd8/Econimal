@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,24 +77,27 @@ public class GlobeService {
 		);
 	}
 
-	// 1년 단위
-	@Transactional(readOnly = true)
+	// 1년 단위: 매달 1일 갱신
+	@Cacheable(value = "globeYearCache", key = "'globe:year'")
+	@Scheduled(cron = "0 0 0 1 * *")
 	public GlobeV2Response getGlobeInfoYear() {
 		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
 		return getGlobeV2Response(climates);
 	}
 
-	// 3달단위
-	@Transactional(readOnly = true)
+	// 3달단위: 매일 갱신
+	@Cacheable(value = "globeThreeMonthCache", key = "'globe:three-month'")
+	@Scheduled(cron = "0 0 0 * * *")
 	public GlobeV2Response getGlobeInfoMonth() {
 		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
 		return getGlobeV2Response(climates);
 	}
 
-	// 3일단위
-	@Transactional(readOnly = true)
+	// 3일단위: 1시간 갱신
+	@Cacheable(value = "globeThreeDayCache", key = "'globe:three-day'")
+	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoDay() {
 		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
 
