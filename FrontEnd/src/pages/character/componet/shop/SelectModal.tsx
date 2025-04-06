@@ -33,7 +33,7 @@ const SelectionModal = ({
 
           {/* 설명 */}
           <p className='text-gray-600 text-sm mb-1'>
-            캐릭터: <span className='font-semibold'>{characterName}</span>
+            <span className='font-semibold'>{characterName}</span>
           </p>
         </div>
 
