@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import bgImage from "@/assets/auth_background.png";
 import GoMainBtn from '@/components/GoMainBtn';
+import ContributionButton from '@/components/ContributionButton';
 
 // Components
 import WorldMap from './components/WorldMap';
@@ -448,6 +449,10 @@ const Earth: React.FC = () => {
                 maxYears={maxYears} // 동적으로 백엔드 데이터 최대 연수 전달
               />
             </div>
+
+            {/* 기여도 보기 버튼 추가 */}
+            <ContributionButton />
+            
           </div>
         </div>
       </div>
