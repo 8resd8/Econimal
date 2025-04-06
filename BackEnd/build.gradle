@@ -76,6 +76,9 @@ dependencies {
 
     // Jackson
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 }
 
 tasks.named('test') {
