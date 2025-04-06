@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Check } from 'lucide-react';
 
 interface ValidationResultModalProps {
   isOpen: boolean;
@@ -51,7 +51,11 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
             <div
               className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}
             >
-              <AlertTriangle className={`h-8 w-8 ${iconColor}`} />
+              {isValid ? (
+                <Check className={`h-8 w-8 ${iconColor}`} />
+              ) : (
+                <AlertTriangle className={`h-8 w-8 ${iconColor}`} />
+              )}
             </div>
           </div>
           <h2 className='text-lg font-semibold text-gray-800 mb-3'>

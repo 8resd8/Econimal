@@ -10,6 +10,7 @@ import queryClient from '@/lib/queryClient';
 import RotateScreenNotice from './components/lotate-screen/RotateScreenNote';
 import PWAInstallNotice from './components/installNotice/PWAInstallNotice';
 import { useErrorToastManager } from '@/hooks/useErrorToastManager';
+import BackgroundMusic from './components/gamBgm/BackgroundMusic';
 // import QueryDevtools from '@/utils/dev/QueryDevtools'; // 개발환경에서만 -> 제대로 적용안되네
 
 const App = () => {
@@ -18,6 +19,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       {/* <QueryDevtools> */}
+      <BackgroundMusic
+        src='/assets/sounds/eco_friendly_bgm.mp3'
+        initialVolume={0.3}
+      />
       <AspectRatioContainer>
         <RouterProvider router={router} />
       </AspectRatioContainer>

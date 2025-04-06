@@ -113,7 +113,7 @@ const ItemShopItems = ({
     <>
       <div
         className={`relative w-full max-w-[200px] transition-all duration-200 ${
-          isSelected ? 'border-4 border-yellow-400' : ''
+          isSelected ? 'border-4 border-green-400' : ''
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
@@ -134,11 +134,7 @@ const ItemShopItems = ({
                 ? 'bg-gray-100/10 border-gray-500'
                 : 'bg-gray-800 border-gray-600'
             } 
-            ${
-              hoveredItemId === productId
-                ? 'shadow-lg ring ring-yellow-400'
-                : ''
-            }
+            ${hoveredItemId === productId ? 'shadow-lg ring ring-red-400' : ''}
           `}
         >
           <div className='relative w-full h-full flex items-center justify-center rounded-md'>
