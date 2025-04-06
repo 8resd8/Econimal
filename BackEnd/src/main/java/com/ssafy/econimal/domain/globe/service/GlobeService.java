@@ -77,18 +77,18 @@ public class GlobeService {
 		);
 	}
 
-	// 1년 단위: 매달 1일 갱신
+	// 1년 단위: 1시간 갱신
 	@Cacheable(value = "globeYearCache", key = "'globe:year'")
-	@Scheduled(cron = "0 0 0 1 * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoYear() {
 		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
 		return getGlobeV2Response(climates);
 	}
 
-	// 3달단위: 매일 갱신
+	// 3달단위: 1시간 갱신
 	@Cacheable(value = "globeThreeMonthCache", key = "'globe:three-month'")
-	@Scheduled(cron = "0 0 0 * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoMonth() {
 		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
