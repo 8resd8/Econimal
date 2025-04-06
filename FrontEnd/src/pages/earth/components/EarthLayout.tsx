@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import RegionDataChart from './RegionDataChart';
-import { getCountryNameByCode } from '../utils/countryUtils';
+import { RegionData } from '../features/regionInfoApi';
+import { getCountryDescription, getCountryNameByCode } from '../utils/countryUtils';
+
 
 // 스타일 컴포넌트 정의
 const LayoutContainer = styled.div`
   position: relative;
-  width: 100%;
+  top: 5px;
+  width: calc(100% - 40px);
   height: 100%;
+  margin: 25px auto 0; /* 상단 여백 25px, 좌우 자동(가운데 정렬) */
   border-radius: 10px;
   overflow: hidden; // 넘치는 부분 숨김
   background-color: #f9fafb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center; /* 가로 중앙 */
+  align-items: center;     /* 세로 중앙 */
 `;
 
 const MapArea = styled.div`
@@ -59,7 +66,7 @@ const ChartToggle = styled.button`
 `;
 
 const ChartsHeader = styled.div`
-  padding: 10px 15px;
+  padding: 5px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -67,8 +74,8 @@ const ChartsHeader = styled.div`
 `;
 
 const ChartsTitle = styled.h3`
-  margin-top: 10;
-  font-size: 16px;
+  margin-top: 10px;
+  font-size: 15px;
   font-weight: 500;
   color: #374151;
 `;
@@ -77,7 +84,7 @@ const ChartsTitle = styled.h3`
 const DataSummary = styled.div`
   display: flex;
   gap: 15px;
-  padding: 10px 15px;
+  padding: 8px 15px;
   border-bottom: 1px solid #e5e7eb;
   overflow-x: auto;
   
@@ -100,8 +107,10 @@ const DataItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 6px 10px;
   min-width: 80px;
+  max-height: 45px;
   background-color: #f9fafb;
   border-radius: 6px;
 `;
@@ -113,7 +122,7 @@ const DataLabel = styled.div`
 `;
 
 const DataValue = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #374151;
 `;
@@ -188,11 +197,36 @@ const NoDataContainer = styled.div`
   padding: 20px;
 `;
 
+const DescriptionBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  padding: 8px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #4b5563;
+  max-height: 45px;
+`;
+
+
 // 히스토리 데이터 인터페이스
 interface HistoricalData {
   temperatures: { timestamp: string; value: number }[];
   co2Levels: { timestamp: string; value: number }[];
   humidity: { timestamp: string; value: number }[]; // humidity 필드가 이미 있음
+}
+// 확장된 HistoricalData 인터페이스 정의
+interface ExtendedHistoricalData {
+  temperatures: { timestamp: string; value: number }[];
+  co2Levels: { timestamp: string; value: number }[];
+  humidity: { timestamp: string; value: number }[];
+}
+
+// 확장된 RegionData 인터페이스 정의
+interface ExtendedRegionData extends Omit<RegionData, 'historicalData'> {
+  historicalData?: ExtendedHistoricalData;
 }
 
 // 컴포넌트 프롭스 인터페이스
@@ -202,6 +236,7 @@ interface MapLayoutProps {
   selectedRegion: string | null;
   loading?: boolean;
   noData?: boolean;
+  data: ExtendedRegionData;
 }
 
 const MapLayout: React.FC<MapLayoutProps> = ({
@@ -209,18 +244,48 @@ const MapLayout: React.FC<MapLayoutProps> = ({
   historicalData,
   selectedRegion,
   loading = false,
-  noData = false
+  noData = false,
+  data = {} as ExtendedRegionData
 }) => {
   const [isChartsOpen, setIsChartsOpen] = useState<boolean>(false);
   
+  // 디버깅용 로그 추가
+  useEffect(() => {
+    console.log('MapLayout 컴포넌트 상태:', {
+      selectedRegion,
+      loading,
+      noData,
+      historicalData: {
+        temperatures: historicalData?.temperatures?.length || 0,
+        humidity: historicalData?.humidity?.length || 0,
+        co2Levels: historicalData?.co2Levels?.length || 0
+      }
+    });
+  }, [selectedRegion, loading, noData, historicalData]);
+  
   // 선택된 지역 변경 시 차트 자동 열기 (데이터가 있는 경우에만)
   useEffect(() => {
-    if (selectedRegion && !loading && !noData) {
-      setIsChartsOpen(true);
-    } else if (!selectedRegion) {
+    // 선택된 지역이 있고 로딩 중이 아닐 때
+    if (selectedRegion) {
+      console.log('지역 선택 감지: 차트 표시 여부 결정');
+      // 로딩이 끝난 후에 데이터 여부에 따라 차트 열기/닫기
+      if (!loading) {
+        const hasData = 
+          (historicalData?.temperatures?.length > 0) || 
+          (historicalData?.humidity?.length > 0) || 
+          (historicalData?.co2Levels?.length > 0);
+        
+        console.log('데이터 여부:', hasData, '차트 열기:', hasData && !noData);
+        setIsChartsOpen(hasData && !noData);
+      } else {
+        // 로딩 중에는 차트 영역 보여주기 (로딩 스피너 표시)
+        setIsChartsOpen(true);
+      }
+    } else {
+      // 선택된 지역이 없으면 차트 닫기
       setIsChartsOpen(false);
     }
-  }, [selectedRegion, loading, noData]);
+  }, [selectedRegion, loading, noData, historicalData]);
   
   // 차트 열기/닫기 토글
   const toggleCharts = () => {
@@ -258,6 +323,15 @@ const MapLayout: React.FC<MapLayoutProps> = ({
   const latestHumidity = hasHumidityData ? getLatestValue(historicalData.humidity) : undefined;
   const latestCO2 = hasCO2Data ? getLatestValue(historicalData.co2Levels) : undefined;
   
+  // 디버깅용 로그 추가
+  useEffect(() => {
+    console.log('MapLayout 데이터:', data);
+    console.log('countryCode 존재 여부:', !!data?.countryCode);
+    if (data?.countryCode) {
+      console.log('설명 함수 반환 값:', getCountryDescription(data.countryCode));
+    }
+  }, [data, data?.countryCode]);
+
   return (
     <LayoutContainer>
       <MapArea>
@@ -301,6 +375,13 @@ const MapLayout: React.FC<MapLayoutProps> = ({
                 <DataLabel>현재 CO₂</DataLabel>
                 <DataValue>{formatValue(latestCO2, 'ppm')}</DataValue>
               </DataItem>
+            )}
+
+            {/* 설명 영역 - 가로로 나열하기 위해 DataItem 안에 포함 */}
+            {data && data.countryCode && (
+              <DescriptionBox style={{ flex: '1 1 auto', minWidth: '200px', margin: '0' }}>
+                {getCountryDescription(data.countryCode)}
+              </DescriptionBox>
             )}
           </DataSummary>
         )}

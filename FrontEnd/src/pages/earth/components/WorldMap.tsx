@@ -332,52 +332,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
           .attr('stroke', '#000')
           .attr('stroke-width', 1);
           
-        let tooltipContent;
-        
-        if (countryCode && effectiveData[countryCode]) {
-          const countryData = effectiveData[countryCode];
-          
-          // 데이터 타입에 따른 값과 단위 설정
-          let valueText;
-          switch (dataType) {
-            case 'co2':
-              // 숫자 타입 확인 후 toFixed 사용
-              valueText = `CO2: ${
-                typeof countryData.co2Level === 'number' 
-                  ? countryData.co2Level.toFixed(1) 
-                  : countryData.co2Level || 'N/A'
-              } ppm`;
-              break;
-            case 'temperature':
-              // 숫자 타입 확인 후 toFixed 사용
-              valueText = `온도: ${
-                typeof countryData.temperature === 'number' 
-                  ? countryData.temperature.toFixed(1) 
-                  : countryData.temperature || 'N/A'
-              } °C`;
-              break;
-            case 'humidity':
-              // 숫자 타입 확인 후 toFixed 사용
-              valueText = `습도: ${
-                typeof countryData.humidity === 'number' 
-                  ? countryData.humidity.toFixed(1) 
-                  : countryData.humidity || 'N/A'
-              } %`;
-              break;
-            default:
-              valueText = '데이터 없음';
-          }
-          
-          tooltipContent = `${countryName}<br>${valueText}`;
-        } else {
-          tooltipContent = `${countryName}<br>데이터 없음`;
-        }
-          
-        tooltip
-          .style('display', 'block')
-          .style('left', `${event.pageX + 10}px`)
-          .style('top', `${event.pageY + 10}px`)
-          .html(tooltipContent);
       })
       .on('mousemove', (event) => {
         tooltip
