@@ -13,7 +13,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoV2Dto;
