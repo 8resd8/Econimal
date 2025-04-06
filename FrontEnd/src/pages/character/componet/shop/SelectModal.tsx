@@ -42,7 +42,7 @@ const SelectionModal = ({
           <div className='flex mt-6'>
             <button
               onClick={onClose}
-              className='flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition'
+              className='flex-1 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition'
             >
               확인
             </button>

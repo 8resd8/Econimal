@@ -162,7 +162,7 @@ const ItemShopItems = ({
           {hoveredItemId === productId && productId !== -1 && (
             <button
               onClick={owned ? handleItemSelection : handleBuyItem}
-              className='absolute inset-x-[20%] bottom-[10%] bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700'
+              className='absolute inset-x-[20%] bottom-[10%] bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700'
             >
               {owned ? '선택' : '구매'}
             </button>
