@@ -1,12 +1,12 @@
 // 가정
-import { useState, memo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import houseImg from '@/assets/town/my-house.png';
 import EventAlert from './EventAlert';
 
-const MyHouse = memo(({ infraEventId, className }: TownProps) => {
+const MyHouse = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
   // activeEvents : 현재 마을에서 활성화된 이벤트의 ID 목록을 저장하는 배열
@@ -16,8 +16,13 @@ const MyHouse = memo(({ infraEventId, className }: TownProps) => {
   const isOptimal = useTownStore((state) => state.infraStatus.ELECTRICITY);
 
   // 이벤트가 활성화 되었는지 확인 -> 활성화 됐을 경우 CSS 효과(ex. 반짝반짝)
-  const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
+  // const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
   // includes() : 배열에서 특정 요소가 존재하는지 확인하는 메서드
+  // [수정] useMemo를 사용하여 계산 최적화
+  const isActive = useMemo(
+    () => (infraEventId ? activeEvents.includes(infraEventId) : false),
+    [infraEventId, activeEvents],
+  );
 
   return (
     // 외부에서 전달받은 className이 있으면 적용, 없으면 기본값 사용
@@ -45,6 +50,6 @@ const MyHouse = memo(({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-});
+};
 
 export default MyHouse;

@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useMemo } from 'react';
 import Court from './components/Court';
 import MyHouse from './components/MyHouse';
 import SewageTreatmentCenter from './components/SewageTreatmentCenter';
@@ -30,15 +30,29 @@ const TownContent = ({ data }: TownContentProps) => {
   const infraStatus = useTownStore((state) => state.infraStatus);
 
   const townEventsData = data;
+  // [수정] useMemo로 이벤트 ID 매핑 최적화
+  const infraEventMap = useMemo(() => {
+    if (!townEventsData?.townStatus) return {};
+
+    return townEventsData.townStatus.reduce((acc, event) => {
+      if (event.isActive) {
+        acc[event.ecoType] = event.infraEventId;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+  }, [townEventsData]);
 
   // 각 인프라에 해당 이벤트ID 전달하는 함수
-  const getInfraEventId = (ecoType: string) => {
-    if (!townEventsData?.townStatus) return undefined;
+  // const getInfraEventId = (ecoType: string) => {
+  //   if (!townEventsData?.townStatus) return undefined;
 
-    const infraEvent = townEventsData.townStatus.find(
-      (e: TownEvent) => e.ecoType === ecoType && e.isActive,
-    );
-    return infraEvent ? infraEvent.infraEventId : undefined;
+  //   const infraEvent = townEventsData.townStatus.find(
+  //     (e: TownEvent) => e.ecoType === ecoType && e.isActive,
+  //   );
+  //   return infraEvent ? infraEvent.infraEventId : undefined;
+  // };
+  const getInfraEventId = (ecoType: string): number | undefined => {
+    return infraEventMap[ecoType];
   };
 
   return (
@@ -52,7 +66,7 @@ const TownContent = ({ data }: TownContentProps) => {
           className='w-full h-full object-cover'
           loading='eager'
         />
-        
+
         {/* 오염된 강물 오버레이 - 하수처리장이 오염 상태일 때만 표시 */}
         {!infraStatus.WATER && (
           <img
@@ -81,12 +95,12 @@ const TownContent = ({ data }: TownContentProps) => {
         <div className='absolute top-[51%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 w-[13%] z-20'>
           <SewageTreatmentCenter infraEventId={getInfraEventId('WATER')} />
         </div>
-        
+
         {/* 공장 */}
         <div className='absolute top-[30%] left-[78%] transform -translate-x-1/2 -translate-y-1/2 w-[20%] z-20'>
           <Factory infraEventId={getInfraEventId('GAS')} />
         </div>
-        
+
         {/* 법원 컴포넌트 */}
         <div className='absolute top-[84%] left-[19%] transform -translate-x-1/2 -translate-y-1/2 w-[14%] z-20'>
           <Court infraEventId={getInfraEventId('COURT')} />
