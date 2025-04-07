@@ -15,7 +15,7 @@ import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByCountryDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByDateTimeDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v2.ClimateInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
+import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
 
@@ -61,7 +61,7 @@ public class GlobeService {
 	}
 
 	@Transactional(readOnly = true)
-	public GlobeResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
+	public ClimateResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
 
 		List<ClimateInfoDto> infoList = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
 
@@ -71,7 +71,7 @@ public class GlobeService {
 		// 국가별 그룹핑 처리
 		Map<String, Map<String, ClimateDataDto>> groupedByCountry = groupByCountry(infoList);
 
-		return new GlobeResponse(
+		return new ClimateResponse(
 			new GroupByDateTimeDto(groupedByDateTime),
 			new GroupByCountryDto(groupedByCountry)
 		);

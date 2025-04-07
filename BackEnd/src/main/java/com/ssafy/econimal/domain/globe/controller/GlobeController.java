@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
+import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
@@ -21,7 +21,7 @@ public class GlobeController {
 	private final GlobeService globeService;
 
 	@PostMapping
-	public GlobeResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
+	public ClimateResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
 		return globeService.getGlobeInfoByRDB(globeInfoRequest);
 	}
 
