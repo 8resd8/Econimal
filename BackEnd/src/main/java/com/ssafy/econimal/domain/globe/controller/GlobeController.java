@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
+import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
@@ -21,25 +21,30 @@ public class GlobeController {
 	private final GlobeService globeService;
 
 	@PostMapping
-	public GlobeResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
+	public ClimateResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
 		return globeService.getGlobeInfoByRDB(globeInfoRequest);
 	}
 
 	// 1년
 	@GetMapping("/v2/year")
-	public GlobeV2Response getGlobeInfoYear() {
-		return globeService.getGlobeInfoYear();
+	public GlobeV2Response getClimateInfoYear() {
+		return globeService.getClimateInfoYear();
 	}
 
 	// 3달
 	@GetMapping("/v2/three-month")
-	public GlobeV2Response getGlobeInfoMonth() {
-		return globeService.getGlobeInfoMonth();
+	public GlobeV2Response getClimateInfoMonth() {
+		return globeService.getClimateInfoMonth();
 	}
 
 	// 72시간
 	@GetMapping("/v2/three-day")
-	public GlobeV2Response getGlobeInfoDay() {
-		return globeService.getGlobeInfoDay();
+	public GlobeV2Response getClimateInfoDay() {
+		return globeService.getClimateInfoDay();
+	}
+
+	@GetMapping("/v2/all/carbon")
+	public GlobeV2Response getCarbonCO2InfoAll() {
+		return globeService.getCarbonCO2InfoAll();
 	}
 }
