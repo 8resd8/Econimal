@@ -46,8 +46,7 @@ public class CarbonCO2QueryRepository {
 			.from(carbonCO2)
 			.groupBy(
 				carbonCO2.countryCode,
-				carbonCO2.year,
-				carbonCO2.month
+				carbonCO2.year
 			)
 			.fetch();
 	}
