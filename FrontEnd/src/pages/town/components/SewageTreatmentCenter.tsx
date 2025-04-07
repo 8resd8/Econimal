@@ -1,18 +1,22 @@
 // 하수처리장
-import { useState, memo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import sewageImg from '@/assets/town/sewage-treatment-center.png';
 import EventAlert from './EventAlert';
 
-const SewageTreatmentCenter = memo(({ infraEventId, className }: TownProps) => {
+const SewageTreatmentCenter = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
-  const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
   // 해당 인프라(WATER)의 상태 가져오기
   const isOptimal = useTownStore((state) => state.infraStatus.WATER);
-
+  // [수정] useMemo 추가
+  const isActive = useMemo(
+    () => (infraEventId ? activeEvents.includes(infraEventId) : false),
+    [infraEventId, activeEvents],
+  );
+  // const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
   return (
     <div className={`relative ${className || ''}`}>
       <img
@@ -37,6 +41,6 @@ const SewageTreatmentCenter = memo(({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-});
+};
 
 export default SewageTreatmentCenter;

@@ -1,19 +1,24 @@
 // 공장
-import { useState, memo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTownStore } from '@/store/useTownStore';
 import { TownProps } from '../Town';
 import NormalModal from './NormalModal';
 import factoryImg from '@/assets/town/factory.png';
 import EventAlert from './EventAlert';
 
-const Factory = memo(({ infraEventId, className }: TownProps) => {
+const Factory = ({ infraEventId, className }: TownProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const activeEvents = useTownStore((state) => state.activeEvents);
 
   // 해당 인프라(GAS)의 최적/오염 상태 가져오기
   const isOptimal = useTownStore((state) => state.infraStatus.GAS);
 
-  const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
+  // [수정] useMemo 추가
+  const isActive = useMemo(
+    () => (infraEventId ? activeEvents.includes(infraEventId) : false),
+    [infraEventId, activeEvents],
+  );
+  // const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
 
   return (
     <div className={`relative ${className || ''}`}>
@@ -38,6 +43,6 @@ const Factory = memo(({ infraEventId, className }: TownProps) => {
       />
     </div>
   );
-});
+};
 
 export default Factory;
