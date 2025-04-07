@@ -24,8 +24,8 @@ public class ServiceTime {
 	private static final String LINE_SEPARATOR = "============================================================";
 
 
-	// @Around("execution(* com.ssafy.econimal..service..*(..))")
-	@Around("execution(* com.ssafy.econimal..service..*(..)) && !execution(* com.ssafy.econimal.domain.globe.service.GlobeService.*(..))")
+	@Around("execution(* com.ssafy.econimal..service..*(..))")
+	// @Around("execution(* com.ssafy.econimal..service..*(..)) && !execution(* com.ssafy.econimal.domain.globe.service.GlobeService.*(..))")
 	public Object serviceTime(ProceedingJoinPoint joinPoint) throws Throwable {
 		String fullPathClassName = joinPoint.getSignature().getDeclaringTypeName();
 		String className = fullPathClassName.substring(fullPathClassName.lastIndexOf(".") + 1);

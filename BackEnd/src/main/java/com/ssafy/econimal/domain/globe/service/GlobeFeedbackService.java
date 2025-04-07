@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
 import com.ssafy.econimal.domain.carbonlog.repository.UserLogQueryRepository;
-import com.ssafy.econimal.domain.globe.dto.GlobeAIResponseDto;
+import com.ssafy.econimal.domain.globe.dto.response.GlobeAIResponseDto;
 import com.ssafy.econimal.domain.globe.dto.UserLogDto;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeFeedbackResponse;
 import com.ssafy.econimal.domain.user.entity.User;

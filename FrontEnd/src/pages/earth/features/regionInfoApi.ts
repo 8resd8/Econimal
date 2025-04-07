@@ -172,7 +172,7 @@ export const fetchHistoricalData = async ({
         monthDate.setMonth(monthDate.getMonth() - 12);
         startDate = formatDate(monthDate);
         break;
-      case 'all':
+      case 'year':
       default:
         // 기본값 - 최소 2년치
         const yearDate = new Date();
@@ -403,7 +403,7 @@ function generateFallbackData(region: string, timeRange: TimeRange) {
       interval = 30 * 24 * 60 * 60 * 1000; // 1개월 간격
       count = 12; // 1년 데이터
       break;
-    case 'all':
+    case 'year':
       interval = 90 * 24 * 60 * 60 * 1000; // 3개월 간격
       count = 8; // 2년 데이터
       break;
@@ -465,7 +465,7 @@ function calculateStartDate(timeRange: TimeRange, timeValue: number): string {
     case 'month':
       startDate = new Date(now.getFullYear(), now.getMonth() - timeValue, now.getDate());
       break;
-    case 'all':
+    case 'year':
     default:
       startDate = new Date(now.getFullYear() - timeValue, 0, 1);
   }

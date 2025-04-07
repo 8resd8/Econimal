@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.GlobeResponse;
-import com.ssafy.econimal.domain.globe.dto.GlobeV2Response;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
+import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
+import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
 import lombok.RequiredArgsConstructor;

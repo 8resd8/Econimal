@@ -1,4 +1,4 @@
-package com.ssafy.econimal.domain.globe.dto;
+package com.ssafy.econimal.domain.globe.dto.response;
 
 public record GlobeAIResponseDto(
 	String feedback,

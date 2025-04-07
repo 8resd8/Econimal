@@ -11,6 +11,7 @@ import Edit from './pages/Auth/InfoEdit';
 import MyCharacter from './pages/character/MyCharacter';
 import CharacterShop from './pages/character/feature/shop/ItemShop';
 import PrologVideo from './components/PrologVideo';
+import ContributionPage from './pages/earth/ContributionPage';
 
 // import ErrorScreen from '@/components/errorScreens/ErrorScreen';
 // import LoadingScreen from './components/LoadingScreen';
@@ -91,6 +92,10 @@ const protectedRoutes = [
   {
     path: '/shop',
     element: <CharacterShop />,
+  },
+  {
+    path: '/contribution',
+    element: <ContributionPage />,
   },
 ];
 

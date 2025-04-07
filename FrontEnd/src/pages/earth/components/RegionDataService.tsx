@@ -41,8 +41,8 @@ export const fetchRegionData = async ({
     // 타임라인 파라미터 구성
     const params = new URLSearchParams();
     
-    if (timeRange === 'all') {
-      params.append('range', 'all');
+    if (timeRange === 'year') {
+      params.append('range', 'year');
     } else {
       params.append('range', timeRange);
       params.append('value', timeValue.toString());
