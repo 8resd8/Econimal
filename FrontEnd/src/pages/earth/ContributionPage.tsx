@@ -1,6 +1,6 @@
 // src/pages/ContributionPage.tsx
 import React, { useState, useEffect } from 'react';
-import { fetchFeedbackData, FeedbackData } from './features/FeedbackAPI';
+import { fetchFeedbackData, FeedbackData } from './features/FeedbackApi';
 import ContributionChart from './components/ContributionChart';
 import AIFeedback from './components/AIFeedback';
 import bgImage from "@/assets/auth_background.png";
