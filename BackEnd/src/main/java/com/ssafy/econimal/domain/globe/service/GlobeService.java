@@ -113,39 +113,11 @@ public class GlobeService {
 	public GlobeV2Response getCarbonCO2InfoAll() {
 		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
 
-		return getGlobeV2ResponseCommon(carbonCo2s);
+		return getGlobeV2Response(carbonCo2s);
 	}
 
 	// 동일한 출력결과 사용
-	private GlobeV2Response getGlobeV2Response(List<ClimateInfoV2Dto> climates) {
-		Map<String, Map<String, Map<String, String>>> groupedByCountry = climates.stream()
-			.collect(Collectors.groupingBy(
-				ClimateInfoV2Dto::country, // 최상위 키: 국가 코드
-				Collectors.toMap(
-					ClimateInfoV2Dto::formattedDateHour, // 내부 키: 날짜
-					dto -> Map.of( // 내부 값: 온도와 습도 정보를 담은 Map
-						"temperature", String.valueOf(dto.temperature()),
-						"humidity", String.valueOf(dto.humidity())
-					)
-				)
-			));
-
-		Map<String, Map<String, Map<String, String>>> groupedByDateTime = climates.stream()
-			.collect(Collectors.groupingBy(
-				ClimateInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
-				Collectors.toMap(
-					ClimateInfoV2Dto::country,       // 내부 키: 국가 코드
-					dto -> Map.of(                 // 내부 값: 온도와 습도 정보를 담은 Map
-						"temperature", String.valueOf(dto.temperature()),
-						"humidity", String.valueOf(dto.humidity())
-					)
-				)
-			));
-
-		return new GlobeV2Response(groupedByCountry, groupedByDateTime);
-	}
-
-	private <T extends GlobeData> GlobeV2Response getGlobeV2ResponseCommon(List<T> dataList) {
+	private <T extends GlobeData> GlobeV2Response getGlobeV2Response(List<T> dataList) {
 		Map<String, Map<String, Map<String, String>>> groupedByCountry = dataList.stream()
 			.collect(Collectors.groupingBy(
 				GlobeData::country,
