@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.ssafy.econimal.domain.globe.dto.GlobeData;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
@@ -21,6 +23,7 @@ import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.repository.CarbonCO2QueryRepository;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
+import com.ssafy.econimal.global.config.WebClientConfig;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +31,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class GlobeService {
+
+	@Value("${climate.api-url}")
+	private String climateApiUrl;
 
 	private final ClimateQueryRepository climateQueryRepository;
 	private final CarbonCO2QueryRepository carbonCO2QueryRepository;
@@ -108,12 +114,23 @@ public class GlobeService {
 		return getGlobeV2Response(climates);
 	}
 
-	// 3일단위: 1시간 갱신
+	// 전체 기간 이산화탄소 연도별 평균
 	@Cacheable(value = "carbonAllYearCache", key = "'carbon:all-year'")
 	public GlobeV2Response getCarbonCO2InfoAll() {
 		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
 
 		return getGlobeV2Response(carbonCo2s);
+	}
+
+	// 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
+	// 1시간 갱신
+	@Cacheable(value = "climateAllYearCache", key = "'climate:all-year'")
+	@Scheduled(cron = "0 0 * * * *")
+	public GlobeV2Response getClimateInfoAll() {
+		// Response Type 동일하므로 변환하여 사용
+		WebClient webClient = WebClientConfig.createWebClient(climateApiUrl);
+		return WebClientConfig.get(webClient, "/globe/all/climate", GlobeV2Response.class)
+			.block();
 	}
 
 	// 동일한 출력결과 사용
