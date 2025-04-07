@@ -117,6 +117,11 @@ public class CustomChecklistService {
 			Boolean isExist = redisTemplate.opsForSet().isMember(descKey, newDesc);
 			CustomChecklistUtil.assertDescriptionUnique(isExist);
 
+			// AI 검증에서 경험치 가져와서 입력
+			String exp = redisTemplate.opsForValue().get(EXP_PREFIX + user.getId() + request.expId());
+			System.out.println(exp);
+			redisTemplate.opsForHash().put(hashKey, "exp", exp == null ? "0" : exp);
+
 			redisTemplate.opsForHash().put(hashKey, "description", newDesc);
 			redisTemplate.opsForSet().add(descKey, newDesc);
 			redisTemplate.opsForSet().remove(descKey, oldDesc);
