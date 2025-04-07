@@ -1,14 +1,14 @@
-package com.ssafy.econimal.domain.globe.dto;
+package com.ssafy.econimal.domain.globe.dto.climate.v1;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-public record GlobeInfoV2Dto(
+public record ClimateInfoDto(
 	String country,
-	String formattedDateHour,
+	String dateTime,
 	Double temperature,
 	Double humidity
 ) {
 	@QueryProjection
-	public GlobeInfoV2Dto {
+	public ClimateInfoDto {
 	}
 }
