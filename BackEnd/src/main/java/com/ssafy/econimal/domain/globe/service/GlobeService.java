@@ -9,11 +9,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByCountryDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByDateTimeDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v2.ClimateInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
@@ -81,7 +81,7 @@ public class GlobeService {
 	@Cacheable(value = "globeYearCache", key = "'globe:year'")
 	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoYear() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
 		return getGlobeV2Response(climates);
 	}
@@ -90,7 +90,7 @@ public class GlobeService {
 	@Cacheable(value = "globeThreeMonthCache", key = "'globe:three-month'")
 	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoMonth() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
 		return getGlobeV2Response(climates);
 	}
@@ -99,18 +99,18 @@ public class GlobeService {
 	@Cacheable(value = "globeThreeDayCache", key = "'globe:three-day'")
 	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getGlobeInfoDay() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
 
 		return getGlobeV2Response(climates);
 	}
 
 	// 동일한 출력결과 사용
-	private GlobeV2Response getGlobeV2Response(List<GlobeInfoV2Dto> climates) {
+	private GlobeV2Response getGlobeV2Response(List<ClimateInfoV2Dto> climates) {
 		Map<String, Map<String, Map<String, String>>> groupedByCountry = climates.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoV2Dto::country, // 최상위 키: 국가 코드
+				ClimateInfoV2Dto::country, // 최상위 키: 국가 코드
 				Collectors.toMap(
-					GlobeInfoV2Dto::formattedDateHour, // 내부 키: 날짜
+					ClimateInfoV2Dto::formattedDateHour, // 내부 키: 날짜
 					dto -> Map.of( // 내부 값: 온도와 습도 정보를 담은 Map
 						"temperature", String.valueOf(dto.temperature()),
 						"humidity", String.valueOf(dto.humidity())
@@ -120,9 +120,9 @@ public class GlobeService {
 
 		Map<String, Map<String, Map<String, String>>> groupedByDateTime = climates.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
+				ClimateInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
 				Collectors.toMap(
-					GlobeInfoV2Dto::country,       // 내부 키: 국가 코드
+					ClimateInfoV2Dto::country,       // 내부 키: 국가 코드
 					dto -> Map.of(                 // 내부 값: 온도와 습도 정보를 담은 Map
 						"temperature", String.valueOf(dto.temperature()),
 						"humidity", String.valueOf(dto.humidity())
