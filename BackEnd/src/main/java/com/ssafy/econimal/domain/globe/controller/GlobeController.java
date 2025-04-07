@@ -47,4 +47,9 @@ public class GlobeController {
 	public GlobeV2Response getCarbonCO2InfoAll() {
 		return globeService.getCarbonCO2InfoAll();
 	}
+
+	@GetMapping("/v2/all/climate")
+	public GlobeV2Response getClimateInfoAll() {
+		return globeService.getClimateInfoAll();
+	}
 }
