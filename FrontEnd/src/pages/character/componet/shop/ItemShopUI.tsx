@@ -1,4 +1,3 @@
-// 3. 수정된 ItemShopUI.tsx
 import GoMainBtn from '@/components/GoMainBtn';
 import { ItemShopTypes } from '../../types/shop/ItemShopTypesUI';
 import CharCoin from '../main/status/CharCoin';
