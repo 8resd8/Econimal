@@ -1,6 +1,8 @@
 const CharCoin = ({ coin }: { coin: number }) => {
   return (
-    <div className='flex items-center bg-gradient-to-r from-yellow-200 to-yellow-100 px-3 py-2 rounded-full shadow-lg border-2 border-yellow-400'>
+    <div className='flex items-center h-10 bg-gradient-to-r from-slate-100
+    to-yellow-50 px-3 py-2 rounded-full shadow-lg border-2 border-slate-200
+     scale-75'>
       {/* 동전 아이콘 */}
       <svg
         width='30'
@@ -30,7 +32,7 @@ const CharCoin = ({ coin }: { coin: number }) => {
           $
         </text>
       </svg>
-      <span className='font-bold text-base text-yellow-700'>{coin} 코인</span>
+      <span className='font-bold text-base text-slate-700'>{coin} 코인</span>
     </div>
   );
 };

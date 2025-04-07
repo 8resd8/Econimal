@@ -19,7 +19,8 @@ export function CharMenu() {
     <div>
       {/* 햄버거 메뉴 버튼 */}
       <button
-        className='w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-50 rounded-full flex items-center justify-center shadow-md hover:from-blue-200 hover:to-blue-100 transition-colors border-2 border-blue-300'
+        className='w-16 h-16 bg-gradient-to-r from-slate-100 to-slate-50 rounded-full flex items-center justify-center shadow-md
+        hover:from-blue-200 hover:to-blue-100 transition-colors border-2 border-slate-200'
         onClick={handleOpenChecklist}
       >
         <svg
