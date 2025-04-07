@@ -32,41 +32,39 @@ export const shouldShowToast = (): boolean => {
   return true;
 };
 
-// -------------------- 기본 토스트 --------------------
-// 성공 토스트 메시지
-export const showSuccessToast = (message: string, options?: ToastOptions) => {
-  return toast.success(message, {
-    ...defaultOptions,
-    ...options,
-  });
-};
-
-// 에러 토스트 메시지
-export const showErrorToast = (message: string, options?: ToastOptions) => {
-  return toast.error(message, {
-    ...defaultOptions,
-    ...options,
-  });
-};
-
-// 정보 토스트 메시지
-export const showInfoToast = (message: string, options?: ToastOptions) => {
-  return toast.info(message, {
-    ...defaultOptions,
-    ...options,
-  });
-};
-
-// 경고 토스트 메시지
-export const showWarningToast = (message: string, options?: ToastOptions) => {
-  return toast.warning(message, {
-    ...defaultOptions,
-    ...options,
-  });
-};
-
 // -------------------- 인프라 이벤트 발생 관련 --------------------
-// 인프라 타입별 메시지 맵
+
+// [최적화] 통합된 마을 이벤트 알림 토스트 - 단일 메시지만 표시
+export const showTownEventNotice = (
+  options?: ToastOptions,
+): string | number => {
+  // 모달이 열려있거나 에러 상태인 경우 토스트를 표시하지 않음
+  if (isModalOpen || useErrorStore.getState().isError) {
+    return -1;
+  }
+
+  // 고정된 단일 메시지
+  const message = '마을에 문제가 발생했습니다!';
+
+  // 토스트 옵션 설정
+  const finalOptions = {
+    ...defaultOptions,
+    ...options,
+    // 페이지 이동 시에도 토스트가 유지되도록 설정
+    autoClose: options?.autoClose || 5000, // 기본 5초
+  };
+
+  // 중복 토스트 방지를 위해 기존 토스트 제거
+  toast.dismiss('town-event-toast');
+
+  // 단일 토스트 표시 (고유 ID 부여)
+  return toast.info(message, {
+    ...finalOptions,
+    toastId: 'town-event-toast', // 고유 ID로 중복 방지
+  });
+};
+
+// 인프라 타입별 메시지 맵(이전 코드 용)
 const infraEventMessages: Record<EcoType, string> = {
   ELECTRICITY: '가정에 문제가 발생했습니다!',
   WATER: '하수처리장에 문제가 발생했습니다!',
@@ -74,36 +72,17 @@ const infraEventMessages: Record<EcoType, string> = {
   COURT: '법원에 문제가 발생했습니다!',
 };
 
-// 인프라 이벤트 알림 함수 - 개선된 버전
+// [최적화] 이전 개별 인프라 이벤트 알림 함수를 단일 알림으로 통합
 export const showInfraEventNotice = (
   ecoType: string,
   options?: ToastOptions,
   onClick?: () => void,
 ): string | number => {
-  // 모달이 열려있다면 토스트를 표시하지 않음
-  if (isModalOpen) {
-    return -1;
-  }
-
-  const message =
-    infraEventMessages[ecoType as EcoType] ||
-    '마을에 새로운 문제가 발생했습니다!';
-
-  // onClick 핸들러 통합
-  const finalOptions = {
-    ...defaultOptions,
+  // [최적화] 단일 알림 방식으로 변경 - 개별 타입별 알림 대신 통합 알림 호출
+  return showTownEventNotice({
     ...options,
-    // 기본 옵션 덮어쓰기 방지를 위해 onClick을 마지막에 추가
-    onClick:
-      onClick ||
-      (() => {
-        window.location.href = '/town';
-      }),
-    // 페이지 이동 시에도 토스트가 유지되도록 설정
-    autoClose: options?.autoClose || 5000, // 기본 5초
-  };
-
-  return toast.info(message, finalOptions);
+    onClick: onClick,
+  });
 };
 
 // 인프라 이벤트 선택 결과 알림 함수 => ResultModal롷 대체하면 불필요함
@@ -138,14 +117,6 @@ export const showInfraResultNotice = (
   });
 };
 
-// 마을 이름 변경 알림
-// export const showTownNameChangeNotice = (newName: string, options?: ToastOptions) => {
-//   return toast.success(`마을 이름이 "${newName}"으로 변경되었습니다.`, {
-//     ...defaultOptions,
-//     ...options
-//   });
-// };
-
 // 일반 알림 함수
 export const showNotice = (
   message: string,
@@ -169,20 +140,43 @@ export const clearAllToasts = () => {
   toast.dismiss({ containerId: TOAST_CONTAINER_ID });
 };
 
-// ---------------필요한가?--------------
-// ID로 토스트 업데이트 또는 닫기 유틸리티 함수
-// export const updateToast = (
-//   toastId: string | number,
-//   message: string,
-//   type: 'info' | 'success' | 'warning' | 'error',
-// ) => {
-//   return toast.update(toastId, {
-//     render: message,
-//     type,
-//     autoClose: 5000,
-//   });
-// };
+// -------------------- 기본 토스트 --------------------
+// 성공 토스트 메시지
+export const showSuccessToast = (message: string, options?: ToastOptions) => {
+  return toast.success(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
 
-// export const dismissToast = (toastId: string | number) => {
-//   toast.dismiss(toastId);
+// 에러 토스트 메시지
+export const showErrorToast = (message: string, options?: ToastOptions) => {
+  return toast.error(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 정보 토스트 메시지
+export const showInfoToast = (message: string, options?: ToastOptions) => {
+  return toast.info(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 경고 토스트 메시지
+export const showWarningToast = (message: string, options?: ToastOptions) => {
+  return toast.warning(message, {
+    ...defaultOptions,
+    ...options,
+  });
+};
+
+// 마을 이름 변경 알림
+// export const showTownNameChangeNotice = (newName: string, options?: ToastOptions) => {
+//   return toast.success(`마을 이름이 "${newName}"으로 변경되었습니다.`, {
+//     ...defaultOptions,
+//     ...options
+//   });
 // };
