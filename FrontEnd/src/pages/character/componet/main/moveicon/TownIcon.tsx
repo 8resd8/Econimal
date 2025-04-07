@@ -7,7 +7,9 @@ const TownIcon = ({
 }) => {
   return (
     <button
-      className='group w-28 h-24 bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl flex flex-col items-center justify-center border-4 border-blue-300 shadow-xl hover:from-blue-200 hover:to-blue-100 transition-colors'
+      className='group w-24 h-24 bg-gradient-to-b from-slate-100 to-slate-50 rounded-[50%]
+      flex flex-col items-center justify-center border-4 border-slate-200 shadow-xl
+      hover:from-blue-200 hover:to-blue-100 transition-colors'
       onClick={(e) => {
         console.log('Button clicked');
         if (onClick) onClick(e);
