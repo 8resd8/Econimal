@@ -82,27 +82,27 @@ public class GlobeService {
 	}
 
 	// 1년 단위: 1시간 갱신
-	@Cacheable(value = "globeYearCache", key = "'globe:year'")
+	@Cacheable(value = "climateYearCache", key = "'climate:year'")
 	@Scheduled(cron = "0 0 * * * *")
-	public GlobeV2Response getGlobeInfoYear() {
+	public GlobeV2Response getClimateInfoYear() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
 		return getGlobeV2Response(climates);
 	}
 
 	// 3달단위: 1시간 갱신
-	@Cacheable(value = "globeThreeMonthCache", key = "'globe:three-month'")
+	@Cacheable(value = "climateThreeMonthCache", key = "'climate:three-month'")
 	@Scheduled(cron = "0 0 * * * *")
-	public GlobeV2Response getGlobeInfoMonth() {
+	public GlobeV2Response getClimateInfoMonth() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
 		return getGlobeV2Response(climates);
 	}
 
 	// 3일단위: 1시간 갱신
-	@Cacheable(value = "globeThreeDayCache", key = "'globe:three-day'")
+	@Cacheable(value = "climateThreeDayCache", key = "'climate:three-day'")
 	@Scheduled(cron = "0 0 * * * *")
-	public GlobeV2Response getGlobeInfoDay() {
+	public GlobeV2Response getClimateInfoDay() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
 
 		return getGlobeV2Response(climates);

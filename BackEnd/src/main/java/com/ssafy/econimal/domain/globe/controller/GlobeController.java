@@ -27,20 +27,20 @@ public class GlobeController {
 
 	// 1년
 	@GetMapping("/v2/year")
-	public GlobeV2Response getGlobeInfoYear() {
-		return globeService.getGlobeInfoYear();
+	public GlobeV2Response getClimateInfoYear() {
+		return globeService.getClimateInfoYear();
 	}
 
 	// 3달
 	@GetMapping("/v2/three-month")
-	public GlobeV2Response getGlobeInfoMonth() {
-		return globeService.getGlobeInfoMonth();
+	public GlobeV2Response getClimateInfoMonth() {
+		return globeService.getClimateInfoMonth();
 	}
 
 	// 72시간
 	@GetMapping("/v2/three-day")
-	public GlobeV2Response getGlobeInfoDay() {
-		return globeService.getGlobeInfoDay();
+	public GlobeV2Response getClimateInfoDay() {
+		return globeService.getClimateInfoDay();
 	}
 
 	@GetMapping("/v2/all/carbon")
