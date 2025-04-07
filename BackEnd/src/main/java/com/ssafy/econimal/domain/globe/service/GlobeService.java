@@ -89,7 +89,7 @@ public class GlobeService {
 
 	// 1년 단위: 1시간 갱신
 	@Cacheable(value = "climateYearCache", key = "'climate:year'")
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 2 * * * *")
 	public GlobeV2Response getClimateInfoYear() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
@@ -98,7 +98,7 @@ public class GlobeService {
 
 	// 3달단위: 1시간 갱신
 	@Cacheable(value = "climateThreeMonthCache", key = "'climate:three-month'")
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 2 * * * *")
 	public GlobeV2Response getClimateInfoMonth() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
@@ -107,7 +107,7 @@ public class GlobeService {
 
 	// 3일단위: 1시간 갱신
 	@Cacheable(value = "climateThreeDayCache", key = "'climate:three-day'")
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 2 * * * *")
 	public GlobeV2Response getClimateInfoDay() {
 		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
 
@@ -125,7 +125,7 @@ public class GlobeService {
 	// 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
 	// 1시간 갱신
 	@Cacheable(value = "climateAllYearCache", key = "'climate:all-year'")
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 2 * * * *")
 	public GlobeV2Response getClimateInfoAll() {
 		// Response Type 동일하므로 변환하여 사용
 		WebClient webClient = WebClientConfig.createWebClient(climateApiUrl);
