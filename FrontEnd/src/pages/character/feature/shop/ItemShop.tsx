@@ -14,6 +14,7 @@ import { useShopFetchMyChar } from '../hooks/useShopFetchMyChar';
 import { useShopFetchMyBack } from './../hooks/useShopFetchMyBack';
 import ErrorCoinModal from '../../componet/shop/ErrorCoinModal';
 import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
+import bgThem from '../../../../assets/auth_background.png';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -180,37 +181,47 @@ const ItemShopLogic = () => {
 
   return (
     <div>
-      <ItemShopUI
-        userCoins={localCoin} // 로컬 상태 사용으로 UI 업데이트 보장
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-        currentItems={currentItems}
-        setHoveredItemId={setHoveredItemId}
-        handlePurchaseClick={handlePurchaseClick}
-        hoveredItemId={hoveredItemId}
-        selectCharacter={selectCharacter}
-        selectBackground={selectBackground}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        selectedItemForPurchase={selectedItemForPurchase}
-        confirmPurchase={confirmPurchase}
-      />
-
-      {/* 성공 모달 - 구매 성공 시에만 표시 */}
-      {successModal && selectedItemForPurchase && (
-        <SuccessPurchaseModal
-          characterName={selectedItemForPurchase?.characterName}
-          onClose={() => setSuccessModal(false)}
+      <div
+        className='w-screen h-screen flex items-center justify-center bg-white relative'
+        style={{
+          backgroundImage: `url(${bgThem})`,
+          backgroundSize: 'cover', // 이미지를 화면에 맞게 조정
+          backgroundPosition: 'center', // 이미지를 가운데 정렬
+          backgroundRepeat: 'no-repeat', // 이미지 반복 방지
+        }}
+      >
+        <ItemShopUI
+          userCoins={localCoin} // 로컬 상태 사용으로 UI 업데이트 보장
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+          currentItems={currentItems}
+          setHoveredItemId={setHoveredItemId}
+          handlePurchaseClick={handlePurchaseClick}
+          hoveredItemId={hoveredItemId}
+          selectCharacter={selectCharacter}
+          selectBackground={selectBackground}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          selectedItemForPurchase={selectedItemForPurchase}
+          confirmPurchase={confirmPurchase}
         />
-      )}
 
-      {/* 에러 모달 - 코인 부족 등 구매 실패 시 표시 */}
-      {errorModal && selectedItemForPurchase && (
-        <ErrorCoinModal
-          requiredCoins={selectedItemForPurchase?.price}
-          onClose={() => setErrorModal(false)}
-        />
-      )}
+        {/* 성공 모달 - 구매 성공 시에만 표시 */}
+        {successModal && selectedItemForPurchase && (
+          <SuccessPurchaseModal
+            characterName={selectedItemForPurchase?.characterName}
+            onClose={() => setSuccessModal(false)}
+          />
+        )}
+
+        {/* 에러 모달 - 코인 부족 등 구매 실패 시 표시 */}
+        {errorModal && selectedItemForPurchase && (
+          <ErrorCoinModal
+            requiredCoins={selectedItemForPurchase?.price}
+            onClose={() => setErrorModal(false)}
+          />
+        )}
+      </div>
     </div>
   );
 };
