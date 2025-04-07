@@ -229,7 +229,9 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
                   <Check size={24} className='text-gray-500' />
                 </div>
               )}
-              <span className='text-lg font-semibold'>{item.description}</span>
+              <span className='text-lg font-semibold text-wrap'>
+                {item.description}
+              </span>
             </div>
 
             {/* 🛠️ 수정 & 삭제 버튼 */}
