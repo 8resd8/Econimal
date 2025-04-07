@@ -108,7 +108,7 @@ public class GlobeService {
 		return getGlobeV2Response(climates);
 	}
 
-	// 3일단위: 1시간 갱신
+	// 전체 기간 이산화탄소 연도별 평균
 	@Cacheable(value = "carbonAllYearCache", key = "'carbon:all-year'")
 	public GlobeV2Response getCarbonCO2InfoAll() {
 		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
