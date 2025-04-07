@@ -9,14 +9,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.econimal.domain.globe.dto.GlobeData;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByCountryDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByDateTimeDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v2.ClimateInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.co2.CarbonCO2Dto;
 import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
+import com.ssafy.econimal.domain.globe.repository.CarbonCO2QueryRepository;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class GlobeService {
 
 	private final ClimateQueryRepository climateQueryRepository;
+	private final CarbonCO2QueryRepository carbonCO2QueryRepository;
 
 	// key : 낧짜, value : 해당 날짜의 국가별 기후 데이터
 	private Map<String, Map<String, ClimateDataDto>> groupByDateTime(List<ClimateInfoDto> infoList) {
@@ -104,6 +108,14 @@ public class GlobeService {
 		return getGlobeV2Response(climates);
 	}
 
+	// 3일단위: 1시간 갱신
+	@Cacheable(value = "carbonAllYearCache", key = "'carbon:all-year'")
+	public GlobeV2Response getCarbonCO2InfoAll() {
+		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
+
+		return getGlobeV2ResponseCommon(carbonCo2s);
+	}
+
 	// 동일한 출력결과 사용
 	private GlobeV2Response getGlobeV2Response(List<ClimateInfoV2Dto> climates) {
 		Map<String, Map<String, Map<String, String>>> groupedByCountry = climates.stream()
@@ -127,6 +139,30 @@ public class GlobeService {
 						"temperature", String.valueOf(dto.temperature()),
 						"humidity", String.valueOf(dto.humidity())
 					)
+				)
+			));
+
+		return new GlobeV2Response(groupedByCountry, groupedByDateTime);
+	}
+
+	private <T extends GlobeData> GlobeV2Response getGlobeV2ResponseCommon(List<T> dataList) {
+		Map<String, Map<String, Map<String, String>>> groupedByCountry = dataList.stream()
+			.collect(Collectors.groupingBy(
+				GlobeData::country,
+				Collectors.toMap(
+					GlobeData::formattedDateHour,
+					GlobeData::toValueMap,
+					(existing, replacement) -> replacement // key 중복 방지
+				)
+			));
+
+		Map<String, Map<String, Map<String, String>>> groupedByDateTime = dataList.stream()
+			.collect(Collectors.groupingBy(
+				GlobeData::formattedDateHour,
+				Collectors.toMap(
+					GlobeData::country,
+					GlobeData::toValueMap,
+					(existing, replacement) -> replacement // key 중복 방지
 				)
 			));
 

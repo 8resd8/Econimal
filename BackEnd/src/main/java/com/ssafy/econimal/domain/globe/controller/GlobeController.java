@@ -42,4 +42,9 @@ public class GlobeController {
 	public GlobeV2Response getGlobeInfoDay() {
 		return globeService.getGlobeInfoDay();
 	}
+
+	@GetMapping("/v2/all/carbon")
+	public GlobeV2Response getCarbonCO2InfoAll() {
+		return globeService.getCarbonCO2InfoAll();
+	}
 }
