@@ -9,14 +9,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.econimal.domain.globe.dto.GlobeDataDto;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByCountryDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByDateTimeDto;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
-import com.ssafy.econimal.domain.globe.dto.GroupByCountryDto;
-import com.ssafy.econimal.domain.globe.dto.GroupByDateTimeDto;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,13 +29,13 @@ public class GlobeService {
 	private final ClimateQueryRepository climateQueryRepository;
 
 	// key : 낧짜, value : 해당 날짜의 국가별 기후 데이터
-	private Map<String, Map<String, GlobeDataDto>> groupByDateTime(List<GlobeInfoDto> infoList) {
+	private Map<String, Map<String, ClimateDataDto>> groupByDateTime(List<ClimateInfoDto> infoList) {
 		return infoList.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoDto::dateTime,
+				ClimateInfoDto::dateTime,
 				Collectors.toMap(
-					GlobeInfoDto::country,
-					info -> new GlobeDataDto(
+					ClimateInfoDto::country,
+					info -> new ClimateDataDto(
 						String.valueOf(info.temperature()),
 						String.valueOf(info.humidity())
 					),
@@ -45,13 +45,13 @@ public class GlobeService {
 	}
 
 	// key : 국가, value : 해당 국가의 시간별 기후 데이터
-	private Map<String, Map<String, GlobeDataDto>> groupByCountry(List<GlobeInfoDto> infoList) {
+	private Map<String, Map<String, ClimateDataDto>> groupByCountry(List<ClimateInfoDto> infoList) {
 		return infoList.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoDto::country,
+				ClimateInfoDto::country,
 				Collectors.toMap(
-					GlobeInfoDto::dateTime,
-					info -> new GlobeDataDto(
+					ClimateInfoDto::dateTime,
+					info -> new ClimateDataDto(
 						String.valueOf(info.temperature()),
 						String.valueOf(info.humidity())
 					),
@@ -63,13 +63,13 @@ public class GlobeService {
 	@Transactional(readOnly = true)
 	public GlobeResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
 
-		List<GlobeInfoDto> infoList = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
+		List<ClimateInfoDto> infoList = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
 
 		// 날짜별 그룹핑 처리
-		Map<String, Map<String, GlobeDataDto>> groupedByDateTime = groupByDateTime(infoList);
+		Map<String, Map<String, ClimateDataDto>> groupedByDateTime = groupByDateTime(infoList);
 
 		// 국가별 그룹핑 처리
-		Map<String, Map<String, GlobeDataDto>> groupedByCountry = groupByCountry(infoList);
+		Map<String, Map<String, ClimateDataDto>> groupedByCountry = groupByCountry(infoList);
 
 		return new GlobeResponse(
 			new GroupByDateTimeDto(groupedByDateTime),
@@ -118,7 +118,6 @@ public class GlobeService {
 				)
 			));
 
-
 		Map<String, Map<String, Map<String, String>>> groupedByDateTime = climates.stream()
 			.collect(Collectors.groupingBy(
 				GlobeInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
@@ -130,7 +129,6 @@ public class GlobeService {
 					)
 				)
 			));
-
 
 		return new GlobeV2Response(groupedByCountry, groupedByDateTime);
 	}

@@ -12,11 +12,11 @@ import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
 import com.ssafy.econimal.domain.globe.dto.QGlobeInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ public class ClimateQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
-	public List<GlobeInfoDto> findClimateAverageByTime(GlobeInfoRequest request) {
+	public List<ClimateInfoDto> findClimateAverageByTime(GlobeInfoRequest request) {
 
 		// 날짜 형식 동적 처리
 		String format = "";
