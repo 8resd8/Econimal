@@ -123,6 +123,9 @@ public class GlobeService {
 	}
 
 	// 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
+	// 1시간 갱신
+	@Cacheable(value = "climateAllYearCache", key = "'climate:all-year'")
+	@Scheduled(cron = "0 0 * * * *")
 	public GlobeV2Response getClimateInfoAll() {
 		// Response Type 동일하므로 변환하여 사용
 		WebClient webClient = WebClientConfig.createWebClient(climateApiUrl);
