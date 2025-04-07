@@ -90,11 +90,15 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
           <button
             onClick={handleSubmit}
             className={`flex-1 py-3 rounded-xl font-semibold transition-colors duration-200 ${
-              newItemDescription.trim().length >= 5
+              newItemDescription.trim().length >= 5 &&
+              newItemDescription.trim().length <= 50
                 ? 'bg-blue-500 hover:bg-blue-600 text-white'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
-            disabled={newItemDescription.trim().length < 5}
+            disabled={
+              newItemDescription.trim().length < 5 ||
+              newItemDescription.length > 50
+            }
           >
             추가하기
           </button>

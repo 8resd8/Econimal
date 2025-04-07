@@ -119,13 +119,7 @@ const ItemShopItems = ({
         onMouseLeave={() => setHoveredItemId(null)}
         onClick={owned ? handleItemSelection : undefined}
       >
-        {/* 가격 표시 (미보유 아이템만) */}
-        {!owned && (
-          <div className='absolute top-2 right-2 bg-yellow-200 px-2 py-1 rounded-full flex items-center shadow-md'>
-            <ShopCoin />
-            <span className='font-bold text-yellow-800'>{price}</span>
-          </div>
-        )}
+        {/* 가격 표시 완전 제거 - 잠긴 아이템에는 가격 표시하지 않음 */}
 
         <div
           className={`relative rounded-lg p-4 flex flex-col items-center justify-center aspect-square border 
@@ -162,9 +156,10 @@ const ItemShopItems = ({
           {hoveredItemId === productId && productId !== -1 && (
             <button
               onClick={owned ? handleItemSelection : handleBuyItem}
-              className='absolute inset-x-[20%] bottom-[10%] bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700'
+              className='absolute inset-x-[20%] bottom-[10%] bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700'
             >
               {owned ? '선택' : '구매'}
+              {!owned && <span className='ml-1'>({price})</span>}
             </button>
           )}
 

@@ -37,13 +37,8 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     tokenRefreshErrorCount++;
     lastTokenRefreshErrorTime = now;
 
-    // console.log(
-    //   `토큰 리프레시 에러 카운트: ${tokenRefreshErrorCount}/${MAX_TOKEN_REFRESH_ERRORS}`,
-    // );
-
     // 에러가 여러 번 반복되면 토큰 데이터 정리
     if (tokenRefreshErrorCount >= MAX_TOKEN_REFRESH_ERRORS) {
-      // console.log('토큰 리프레시 에러 한계에 도달, 토큰 데이터 정리');
       clearTokenData();
 
       // 이후 요청에서 새로 로그인하도록 유도 (선택 사항)
@@ -60,7 +55,16 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
     return;
   }
-
+  // 400 에러는 직접 조건 체크하고 토스트로 처리
+  if (
+    axios.isAxiosError(error) &&
+    error.response &&
+    error.response.status === 400
+  ) {
+    console.log('400 에러 감지, 토스트로 처리');
+    showErrorToast('잘못된 요청입니다.');
+    return;
+  }
   // 기본 에러 유형
   let errorType: ErrorType = 'general';
   let errorMessage = '';
@@ -111,9 +115,6 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
         errorType = 'timeout';
       } else if (status >= 500) {
         errorType = 'server';
-      } else if (status >= 400 && status < 500) {
-        // 다른 4xx 에러도 badRequest로 처리
-        errorType = 'badRequest';
       }
     } else if (axiosError.request) {
       // 요청은 보냈지만 응답이 없는 경우
@@ -159,22 +160,21 @@ export const handleMinorError = (error: Error | AxiosError | unknown): void => {
     return;
   }
 
-  if (axios.isAxiosError(error) && error.response) {
-    const status = error.response.status;
-
-    // 400 에러는 토스트 메시지로만 처리
-    if (status === 400) {
-      try {
-        // const errorData = error.response.data as ErrorResponse;
-        // 토스트 메시지로 에러 표시
-        // showErrorToast(errorData.message || '입력 정보를 확인해주세요');
-        showErrorToast('잘못된 요청입니다.');
-        return; // 추가 처리 없이 종료
-      } catch (e) {
-        console.error('에러 데이터 파싱 실패:', e);
-      }
+  // 400 에러는 항상 토스트로 처리
+  if (
+    axios.isAxiosError(error) &&
+    error.response &&
+    error.response.status === 400
+  ) {
+    try {
+      // 토스트 메시지로 에러 표시
+      showErrorToast('잘못된 요청입니다.');
+      return; // 추가 처리 없이 종료
+    } catch (e) {
+      console.error('토스트 표시 실패:', e);
     }
   }
+
   // 400 에러가 아니거나 파싱에 실패한 경우 기본 에러 핸들러로 처리
   handleApiError(error);
 };
@@ -197,8 +197,15 @@ export const queryErrorHandler = (error: unknown) => {
     console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
     return;
   }
-  if (axios.isAxiosError(error) && error.response?.status === 400) {
-    handleMinorError(error);
+
+  // 400 에러는 항상 토스트로 처리
+  if (
+    axios.isAxiosError(error) &&
+    error.response &&
+    error.response.status === 400
+  ) {
+    showErrorToast('잘못된 요청입니다.');
+    return;
   } else {
     handleApiError(error);
   }
