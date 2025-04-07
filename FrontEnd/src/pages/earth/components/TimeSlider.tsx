@@ -55,6 +55,8 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
   // 날짜 범위 계산 함수
   const updateDateRange = (sliderValue: number) => {
     const now = new Date();
+    // 현재 시간을 정각으로 설정 (분, 초, 밀리초를 0으로)
+    now.setMinutes(0, 0, 0);
     const end = now.toISOString();
     setEndDate(formatDateTimeForDisplay(end));
     
@@ -67,15 +69,17 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
         start = new Date(now.getTime() - sliderValue * 24 * 60 * 60 * 1000);
         break;
       case 'month':
-        start = new Date(now.getFullYear(), now.getMonth() - sliderValue, now.getDate());
+        start = new Date(now.getFullYear(), now.getMonth() - sliderValue, now.getDate(), now.getHours());
         break;
       case 'year':
-        start = new Date(now.getFullYear() - sliderValue, 0, 1);
+        start = new Date(now.getFullYear() - sliderValue, 0, 1, 0);
         break;
       default:
         start = new Date(now.getTime() - sliderValue * 60 * 60 * 1000);
     }
     
+    // 시작 시간도 정각으로 설정
+    start.setMinutes(0, 0, 0);
     setStartDate(formatDateTimeForDisplay(start.toISOString()));
   };
   
@@ -99,6 +103,8 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     // 범위 변경 시 자동으로 데이터 조회
     if (onFetchData) {
       const now = new Date();
+      // 현재 시간을 정각으로 설정
+      now.setMinutes(0, 0, 0);
       let startDate: Date;
       
       switch (range) {
@@ -109,15 +115,17 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
           startDate = new Date(now.getTime() - 0 * 24 * 60 * 60 * 1000);
           break;
         case 'month':
-          startDate = new Date(now.getFullYear(), now.getMonth() - 0, now.getDate());
+          startDate = new Date(now.getFullYear(), now.getMonth() - 0, now.getDate(), now.getHours());
           break;
         case 'year':
-          startDate = new Date(now.getFullYear() - 0, 0, 1);
+          startDate = new Date(now.getFullYear() - 0, 0, 1, 0);
           break;
         default:
           startDate = new Date(now.getTime() - 0 * 60 * 60 * 1000);
       }
       
+      // 시작 시간도 정각으로 설정
+      startDate.setMinutes(0, 0, 0);
       onFetchData(range, 0, startDate.toISOString(), now.toISOString());
     }
   };
@@ -129,8 +137,12 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     
     // 날짜 입력에 따른 슬라이더 값 계산
     try {
-      const inputDateTime = new Date(inputDate);
+      // 입력된 날짜를 파싱하고 분을 0으로 설정
+      const inputDateTime = parseDisplayDate(inputDate);
+      inputDateTime.setMinutes(0, 0, 0);
+      
       const now = new Date();
+      now.setMinutes(0, 0, 0);
       
       let newValue = 0;
       switch (timeRange) {
@@ -155,24 +167,44 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
         onChange(newValue);
         setFetchedData(false);
       }
+      
+      // 변환된 정각 시간 표시를 위해 시작 날짜 업데이트
+      setStartDate(formatDateTimeForDisplay(inputDateTime.toISOString()));
     } catch (e) {
       console.error('날짜 파싱 오류:', e);
     }
   };
   
-  // 날짜 입력 핸들러 - 종료일 (항상 현재 시간이므로 사용자가 변경 시 시작일만 조정)
+  // 종료일 핸들러 - 현재 시간으로 고정하되 항상 정각 시간으로 변환
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputDate = e.target.value;
-    setEndDate(inputDate);
-    // 종료일은 현재로 고정되어 있으므로 추가적인 처리는 필요 없음
+    
+    try {
+      // 입력된 날짜 파싱하고 정각으로 설정
+      const inputDateTime = parseDisplayDate(inputDate);
+      inputDateTime.setMinutes(0, 0, 0);
+      
+      setEndDate(formatDateTimeForDisplay(inputDateTime.toISOString()));
+      // 종료일 변경 시 슬라이더 값 재계산 필요 (필요한 경우 추가 로직 구현)
+    } catch (e) {
+      console.error('날짜 파싱 오류:', e);
+    }
   };
   
   // 조회하기 버튼 핸들러
   const handleFetchData = () => {
     if (onFetchData) {
+      // 날짜 문자열을 파싱하여 Date 객체로 변환
+      const startDateTime = parseDisplayDate(startDate);
+      const endDateTime = parseDisplayDate(endDate);
+      
+      // 분, 초, 밀리초를 0으로 설정하여 정각으로 맞춤
+      startDateTime.setMinutes(0, 0, 0);
+      endDateTime.setMinutes(0, 0, 0);
+      
       // ISO 형식으로 변환하여 API 호출
-      const formattedStartDate = formatDateForAPI(startDate);
-      const formattedEndDate = formatDateForAPI(endDate);
+      const formattedStartDate = startDateTime.toISOString();
+      const formattedEndDate = endDateTime.toISOString();
       
       onFetchData(timeRange, value, formattedStartDate, formattedEndDate);
       setFetchedData(true);
@@ -261,23 +293,22 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     }
   };
   
-  // 날짜 표시용 포맷팅
+  // 날짜 표시용 포맷팅 - 항상 정각(00분)으로 표시
   function formatDateTimeForDisplay(isoString: string): string {
     const date = new Date(isoString);
     
-    // 로컬 날짜 포맷 (YYYY-MM-DD HH:MM)
+    // 로컬 날짜 포맷 (YYYY-MM-DD HH:00)
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
     
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+    return `${year}-${month}-${day} ${hours}:00`;
   }
   
-  // API 요청용 날짜 포맷팅
-  function formatDateForAPI(displayDate: string): string {
-    // 표시용 형식(YYYY-MM-DD HH:MM)을 ISO 형식으로 변환
+  // 표시 형식 날짜를 Date 객체로 파싱
+  function parseDisplayDate(displayDate: string): Date {
+    // 표시용 형식(YYYY-MM-DD HH:MM)을 Date 객체로 변환
     try {
       // 입력된 날짜 파싱
       const parts = displayDate.split(' ');
@@ -288,13 +319,12 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       const month = parseInt(dateParts[1]) - 1; // JS에서 월은 0부터 시작
       const day = parseInt(dateParts[2]);
       const hours = parseInt(timeParts[0]);
-      const minutes = parseInt(timeParts[1]);
+      const minutes = parts[1] && timeParts.length > 1 ? parseInt(timeParts[1]) : 0;
       
-      const date = new Date(year, month, day, hours, minutes);
-      return date.toISOString();
+      return new Date(year, month, day, hours, minutes);
     } catch (e) {
       console.error('날짜 변환 오류:', e);
-      return new Date().toISOString(); // 오류 시 현재 날짜 반환
+      return new Date(); // 오류 시 현재 날짜 반환
     }
   }
   
@@ -332,23 +362,24 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       {/* 날짜 입력 필드 추가 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">시작 날짜</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">시작 날짜 (정각)</label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 rounded text-sm"
             value={startDate}
             onChange={handleStartDateChange}
-            placeholder="YYYY-MM-DD HH:MM"
+            placeholder="YYYY-MM-DD HH:00"
           />
+          <p className="text-xs text-gray-500 mt-1">※ 시간은 항상 정각(00분)으로 설정됩니다</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">종료 날짜 (현재)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">종료 날짜 (현재, 정각)</label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 rounded text-sm bg-gray-100"
             value={endDate}
             onChange={handleEndDateChange}
-            placeholder="YYYY-MM-DD HH:MM"
+            placeholder="YYYY-MM-DD HH:00"
             readOnly // 종료 날짜는 현재 시간으로 고정
           />
         </div>
@@ -373,7 +404,7 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
         />
         
         <div className="flex justify-between mt-1">
-          {Array.from({ length: Math.floor(maxValue / stepValue) + 1 }).map((_, i) => (
+          {Array.from({ length: Math.min(11, Math.floor(maxValue / stepValue) + 1) }).map((_, i) => (
             <div key={i} className="h-1 w-1 bg-gray-400 rounded-full" />
           ))}
         </div>

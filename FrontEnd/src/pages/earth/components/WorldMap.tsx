@@ -147,24 +147,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
     }
   }, [countriesData]);
   
-  // 더미 데이터 생성 (API가 동작하지 않을 때 테스트용)
-  const generateDummyData = (): Record<string, CountryData> => {
-    const dummyData: Record<string, CountryData> = {};
-    
-    // 백엔드에서 제공하는 국가 코드에 대한 더미 데이터 생성
-    const countries = ["KR", "JP", "US", "CN", "RU", "GB", "FR", "DE", "IT", "CA", "AU", "IN", "BR"];
-    
-    countries.forEach(code => {
-      dummyData[code] = {
-        temperature: 15 + Math.random() * 15, // 15~30도 사이 랜덤 온도
-        humidity: 40 + Math.random() * 60,    // 40~100% 사이 랜덤 습도
-        co2Level: 350 + Math.random() * 100   // 350~450ppm 사이 랜덤 CO2 농도
-      };
-    });
-    
-    return dummyData;
-  };
-  
   // 지도 데이터 로드
   useEffect(() => {
     const loadWorldData = async () => {
@@ -221,19 +203,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
       effectiveData = { ...countriesData };
       console.log('백엔드 데이터 사용:', Object.keys(effectiveData).length, '개 국가');
       
-      // 그린란드 데이터가 없으면 더미 데이터 추가
-      if (!effectiveData['GL']) {
-        console.log('그린란드 데이터 누락, 더미 데이터 추가');
-        effectiveData['GL'] = {
-          temperature: -5 + Math.random() * 10, // -5~5도
-          humidity: 60 + Math.random() * 20,    // 60~80%
-          co2Level: 350 + Math.random() * 30    // 350~380ppm
-        };
-      }
     } else {
-      // 데이터가 없으면 더미 데이터 사용
-      effectiveData = generateDummyData();
-      console.log('더미 데이터 사용:',  Object.keys(effectiveData).length, '개 국가');
+      console.log('데이터 없음');
     }
     
     console.log('사용할 데이터:', Object.keys(effectiveData).length > 0 
@@ -281,18 +252,18 @@ const WorldMap: React.FC<WorldMapProps> = ({
         // GeoJSON에서의 국가 이름
         const countryName = d.properties.name;
         
-        // 그린란드 확인용 디버깅 로그 추가
-        if (countryName.includes('Green') || countryName === 'Greenland') {
-          console.log('그린란드 발견:', countryName, '속성:', JSON.stringify(d.properties));
-        }
+        // // 그린란드 확인용 디버깅 로그 추가
+        // if (countryName.includes('Green') || countryName === 'Greenland') {
+        //   console.log('그린란드 발견:', countryName, '속성:', JSON.stringify(d.properties));
+        // }
         
         // 국가 이름으로 코드 찾기
         const countryCode = getCountryCodeByName(countryName);
         
-        // 그린란드 매핑 디버깅
-        if (countryName.includes('Green') || countryName === 'Greenland') {
-          console.log('그린란드 매핑 결과:', countryCode);
-        }
+        // // 그린란드 매핑 디버깅
+        // if (countryName.includes('Green') || countryName === 'Greenland') {
+        //   console.log('그린란드 매핑 결과:', countryCode);
+        // }
         
         // 국가 코드가 있고, 해당 코드의 데이터가 있으면 색상 지정
         if (countryCode && effectiveData[countryCode]) {
