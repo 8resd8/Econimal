@@ -7,7 +7,7 @@ import {
 } from './infraApi';
 import { useTownStore } from '@/store/useTownStore';
 import { EcoType } from './infraApi';
-import { showInfraResultNotice } from '@/components/toast/toastUtil';
+// import { showInfraResultNotice } from '@/components/toast/toastUtil';
 
 // 인프라 이벤트 상세 조회
 export const useGetInfraEvent = (infraEventId: number) =>
@@ -44,9 +44,17 @@ export const useSubmitInfraResult = () => {
       // 여기서는 토스트 알림을 표시하지 않고 ResultModal에서 처리
       // showInfraResultNotice(data.isOptimal, data.exp, data.coin);
 
-      queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
-      queryClient.invalidateQueries({ queryKey: ['town-info'] }); // 마을 정보도 함께 갱신
-      queryClient.invalidateQueries({ queryKey: ['myCharInfo'] }); // 캐릭터 정보도 갱신
+      // [수정] 여러 쿼리 무효화를 일괄 처리
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          ['town-events', 'town-info', 'myCharInfo'].includes(
+            query.queryKey[0] as string,
+          ),
+      });
+
+      // queryClient.invalidateQueries({ queryKey: ['town-events'] }); // 마을 전체 이벤트 상태를 다시 불러오도록 무효화
+      // queryClient.invalidateQueries({ queryKey: ['town-info'] }); // 마을 정보도 함께 갱신
+      // queryClient.invalidateQueries({ queryKey: ['myCharInfo'] }); // 캐릭터 정보도 갱신
 
       return data;
     },

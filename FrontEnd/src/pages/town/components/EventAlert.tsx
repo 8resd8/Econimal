@@ -1,41 +1,59 @@
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface EventAlertProps {
   isActive: boolean;
-  className?: string; // 위치 조정을 위한 선택적 props
+  className?: string;
 }
 
-const EventAlert = memo(({ isActive, className = '' }: EventAlertProps) => {
-  console.log('EventAlert rendering, isActive:', isActive); // 디버깅을 위한 로그 추가
-  const [key, setKey] = useState(0); // 애니메이션 리셋을 위한 상태
-  // const [visible, setVisible] = useState(true); // 깜빡임 상태 (fallback 애니메이션)
-  const forceRemount = () => setKey((prev) => prev + 1); // Remount 트리거 함수
+const EventAlert = ({ isActive, className = '' }: EventAlertProps) => {
+  // 디버깅용 로그는 개발환경에서만 출력하도록 변경
+  if (process.env.NODE_ENV === 'development') {
+    console.log('EventAlert rendering, isActive:', isActive);
+  }
 
-  // 초기 마운트와 isActive 변경 시 애니메이션 리셋
+  const [key, setKey] = useState(0);
+  // 이전 isActive 상태를 추적하는 ref 추가
+  const prevIsActiveRef = useRef(isActive);
+  // 인터벌 ID를 저장하는 ref 추가
+  const intervalRef = useRef<number | null>(null);
+
+  // forceRemount를 useCallback으로 최적화
+  const forceRemount = useCallback(() => {
+    setKey((prev) => prev + 1);
+  }, []);
+
+  // isActive 변경 시 애니메이션 리셋 로직 개선
   useEffect(() => {
-    if (!isActive) return;
-    forceRemount();
-  }, [isActive]);
+    // isActive가 false->true로 변경된 경우에만 리마운트
+    if (isActive && !prevIsActiveRef.current) {
+      forceRemount();
+    }
+    prevIsActiveRef.current = isActive;
 
-  // 주기적으로 애니메이션 리셋
-  useEffect(() => {
-    if (!isActive) return;
+    if (isActive) {
+      // 이미 실행 중인 인터벌이 있다면 제거 후 재설정
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
 
-    // 주기적으로 DOM 요소 재생성 (3초마다)
-    const remountInterval = setInterval(forceRemount, 3000);
+      // 참조에 인터벌 ID 저장
+      intervalRef.current = window.setInterval(forceRemount, 3000);
+    }
 
     return () => {
-      clearInterval(remountInterval);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [isActive]);
+  }, [isActive, forceRemount]);
 
-  // 추가 안전장치: 전역 이벤트 리스너를 이용한 가시성 변경 감지
+  // 별도 가시성 변경 이벤트 핸들러 최적화
   useEffect(() => {
     if (!isActive) return;
 
-    // 페이지 가시성 변경 시 (탭 전환 등) 애니메이션 리셋
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && isActive) {
         forceRemount();
       }
     };
@@ -45,7 +63,7 @@ const EventAlert = memo(({ isActive, className = '' }: EventAlertProps) => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isActive]);
+  }, [isActive, forceRemount]);
 
   if (!isActive) return null;
 
@@ -57,6 +75,6 @@ const EventAlert = memo(({ isActive, className = '' }: EventAlertProps) => {
       !
     </div>
   );
-});
+};
 
 export default EventAlert;

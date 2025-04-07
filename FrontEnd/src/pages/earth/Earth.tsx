@@ -19,6 +19,10 @@ import {
   fetchHistoricalData, 
   RegionData 
 } from './features/regionInfoApi';
+import {
+  fetchAllCountriesCO2Data,
+  fetchCountryCO2Data  // 이 부분이 추가되어야 함
+} from './features/co2DataApi';
 
 // 데이터 타입 옵션
 type DataType = 'temperature' | 'humidity' | 'co2';
@@ -64,11 +68,17 @@ const Earth: React.FC = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        setDataLoading(true);
         const currentDate = new Date().toISOString();
         const startDate = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
         
-        // 세계 데이터 로드
+        // 세계 데이터 로드 (온도, 습도 데이터)
         const worldDataResponse = await fetchWorldData(startDate, currentDate, 'HOUR');
+        
+        // [수정] CO2 데이터 로드 (별도 API)
+        console.log('CO2 데이터 로드 시작');
+        const co2Data = await fetchAllCountriesCO2Data();
+        console.log(`CO2 데이터 로드 완료: ${Object.keys(co2Data).length}개 국가`);
         
         // 응답 데이터 디버깅
         console.log('백엔드 응답 데이터:', worldDataResponse);
@@ -116,6 +126,20 @@ const Earth: React.FC = () => {
           }
         }
         
+        // [수정] CO2 데이터에서도 가장 오래된 연도 확인
+        Object.values(co2Data).forEach(countryData => {
+          if (countryData.length > 0) {
+            // 연도순으로 정렬
+            const sortedData = [...countryData].sort((a, b) => a.year - b.year);
+            // 가장 오래된 연도
+            const year = sortedData[0].year;
+            if (year < oldestYear) {
+              oldestYear = year;
+              console.log(`CO2 데이터에서 더 오래된 연도 발견: ${year}`);
+            }
+          }
+        });
+        
         // 최대 연도 범위 계산 (현재 연도 - 가장 오래된 연도 + 1)
         const yearsRange = Math.max(5, currentYear - oldestYear + 1);
         setMaxYears(yearsRange);
@@ -141,7 +165,16 @@ const Earth: React.FC = () => {
             const countries = Object.keys(latestData);
             console.log('최신 데이터에 포함된 국가:', countries.length, '개 국가', countries);
             
-          
+            // [수정] CO2 데이터 통합 (각 국가의 최신 CO2 데이터 추가)
+            countries.forEach(countryCode => {
+              // 해당 국가의 CO2 데이터가 있는지 확인
+              if (co2Data[countryCode] && co2Data[countryCode].length > 0) {
+                // 연도순으로 정렬하여 가장 최신 데이터 사용
+                const sortedCO2Data = [...co2Data[countryCode]].sort((a, b) => b.year - a.year);
+                // 기존 데이터에 CO2 데이터 추가
+                latestData[countryCode].co2Level = sortedCO2Data[0].value;
+              }
+            });
             
             // 데이터 설정
             setWorldData(worldDataResponse);
@@ -149,71 +182,21 @@ const Earth: React.FC = () => {
             
             console.log('최종 사용 데이터:', Object.keys(latestData).length, '개 국가');
           } else {
-            console.warn('타임스탬프 데이터가 없습니다, 더미 데이터 사용');
-            generateAndSetDummyData();
+            console.warn('타임스탬프 데이터가 없습니다');
           }
         } else {
-          console.warn('API 응답에 groupByDateTime이 없습니다, 더미 데이터 사용');
-          generateAndSetDummyData();
+          console.warn('API 응답에 groupByDateTime이 없습니다');
         }
       } catch (error) {
         console.error('초기 데이터 로딩 실패:', error);
-        console.warn('오류로 인해 더미 데이터 사용');
-        generateAndSetDummyData();
+        console.warn('오류');
+      } finally {
+        setDataLoading(false);
       }
     };
     
     loadInitialData();
   }, []);
-
-  // 더미 데이터 생성 및 설정 함수 추가
-  const generateAndSetDummyData = () => {
-    // WorldMap.tsx에 있는 generateDummyData 함수와 유사한 로직
-    const dummyData: Record<string, any> = {};
-    
-    // 더 많은 국가 포함 (그린란드 포함)
-    const countries = [
-      "KR", "JP", "US", "CN", "RU", "GB", "FR", "DE", "IT", "CA", "AU", "IN", "BR", 
-      "GL", "SE", "FI", "EG", "ZA", "AR", "MV", "TH", "SD", "MN"
-    ];
-    
-    countries.forEach(code => {
-      if (code === 'GL') {
-        // 그린란드 - 추운 지역
-        dummyData[code] = {
-          temperature: -10 + Math.random() * 5, // -10~-5도
-          humidity: 70 + Math.random() * 10,    // 70~80%
-          co2Level: 350 + Math.random() * 20    // 350~370ppm
-        };
-      } else if (["SE", "FI", "RU", "CA", "MN"].includes(code)) {
-        // 다른 추운 지역
-        dummyData[code] = {
-          temperature: -5 + Math.random() * 15, // -5~10도
-          humidity: 50 + Math.random() * 40,    // 50~90%
-          co2Level: 350 + Math.random() * 50    // 350~400ppm
-        };
-      } else if (["EG", "SD", "IN", "MV", "TH"].includes(code)) {
-        // 더운 지역
-        dummyData[code] = {
-          temperature: 25 + Math.random() * 15, // 25~40도
-          humidity: 40 + Math.random() * 55,    // 40~95%
-          co2Level: 380 + Math.random() * 70    // 380~450ppm
-        };
-      } else {
-        // 온대 지역
-        dummyData[code] = {
-          temperature: 10 + Math.random() * 20, // 10~30도
-          humidity: 40 + Math.random() * 60,    // 40~100%
-          co2Level: 350 + Math.random() * 100   // 350~450ppm
-        };
-      }
-    });
-    
-    console.log('생성된 더미 데이터:', Object.keys(dummyData).length, '개 국가');
-    
-    // 더미 데이터 설정
-    setGlobalData(dummyData);
-  };
   
   // 시간 값 변경 핸들러
   const handleTimeValueChange = (value: number) => {
@@ -257,12 +240,10 @@ const Earth: React.FC = () => {
           setWorldData(worldDataResponse);
           setGlobalData(latestData);
         } else {
-          console.warn('타임스탬프 데이터가 없습니다, 더미 데이터 사용');
-          generateAndSetDummyData();
+          console.warn('타임스탬프 데이터가 없습니다');
         }
       } else {
-        console.warn('API 응답에 groupByDateTime이 없습니다, 더미 데이터 사용');
-        generateAndSetDummyData();
+        console.warn('API 응답에 groupByDateTime이 없습니다');
       }
       
       // 선택된 지역이 있는 경우 지역 데이터도 업데이트
@@ -323,7 +304,7 @@ const Earth: React.FC = () => {
   };
   
   // 지역 선택 핸들러
-  const handleRegionSelect = (region: string) => {
+  const handleRegionSelect = async (region: string) => {  // [수정] async 추가
     console.log(`지역 선택: ${region}`);
     
     // 새 지역 선택 시 이전 데이터 초기화 (중요)
@@ -361,8 +342,20 @@ const Earth: React.FC = () => {
         startDate = new Date(now.getTime() - timeValue * 60 * 60 * 1000);
     }
     
-    // 선택된 지역에 대한 데이터 자동 조회 (지역 선택 시 바로 데이터 로드)
-    handleFetchData(timeRange, timeValue, startDate.toISOString(), now.toISOString());
+    // [수정] CO2 데이터를 별도로 로드하는 부분 추가
+    try {
+      // CO2 데이터 별도로 로드 (지역 선택 시 바로 가져오기)
+      console.log(`${region} 국가의 CO2 데이터 요청 시작`);
+      const co2Data = await fetchCountryCO2Data(region);
+      console.log(`${region} 국가의 CO2 데이터 가져오기 완료: ${co2Data.length}개 데이터 포인트`);
+      
+      // 선택된 지역에 대한 데이터 자동 조회 (지역 선택 시 바로 데이터 로드)
+      handleFetchData(timeRange, timeValue, startDate.toISOString(), now.toISOString());
+    } catch (error) {
+      console.error(`${region} 국가 CO2 데이터 로드 실패:`, error);
+      // 오류 발생 시에도 기본 데이터는 로드
+      handleFetchData(timeRange, timeValue, startDate.toISOString(), now.toISOString());
+    }
   };
   
   // 데이터 타입 변경 핸들러
@@ -416,28 +409,28 @@ const Earth: React.FC = () => {
           <div className="flex flex-col lg:flex-row items-start justify-center">
             
             <div className="w-full lg:w-2/3 h-[75vh] rounded-xl">
-              <MapLayout
-                mapContent={mapContent}
-                historicalData={historicalData}
-                selectedRegion={selectedRegion}
-                loading={dataLoading}
-                noData={noDataAvailable}
-                data={
-                  regionInfo 
-                    ? {
-                        ...regionInfo,
-                        historicalData: {
-                          temperatures: regionInfo.historicalData?.temperatures || [],
-                          co2Levels: regionInfo.historicalData?.co2Levels || [],
-                          humidity: historicalData.humidity || []
-                        }
+            <MapLayout
+              mapContent={mapContent}
+              historicalData={historicalData}
+              selectedRegion={selectedRegion}
+              loading={dataLoading}
+              noData={noDataAvailable}
+              data={
+                regionInfo 
+                  ? {
+                      ...regionInfo,
+                      historicalData: {
+                        temperatures: regionInfo.historicalData?.temperatures || [],
+                        co2Levels: historicalData.co2Levels || [], // [수정] CO2 데이터는 항상 historialData에서 가져옴
+                        humidity: historicalData.humidity || []
                       }
-                    : { 
-                        countryCode: selectedRegion || '', 
-                        name: selectedRegion || ''
-                      }
-                }
-              />
+                    }
+                  : { 
+                      countryCode: selectedRegion || '', 
+                      name: selectedRegion || ''
+                    }
+              }
+            />
             </div>
             
             <div className="w-full lg:w-1/3 mt-4 lg:mt-0 scale-90">

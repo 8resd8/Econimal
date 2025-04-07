@@ -26,11 +26,6 @@ interface TownActions {
   setCoin: (coin: number) => void;
   setExpression: (expression: TownState['expression']) => void;
   setActiveEvents: (eventIds: number[]) => void; //특정 이벤트를 제거
-  // addCarbon: (carbon: number) => void;
-  // addExp: (exp: number) => void;
-  // addCoin: (coin: number) => void;
-  // addActiveEvent: (eventId: number) => void; // 특정 이벤트를 추가
-  // removeActiveEvent: (eventId: number) => void; // 전체 이벤트 목록을 변경
 
   // 다중 상태 업데이트를 위한 유틸리티 액션
   updateValues: (values: Partial<TownState>) => void; // 이게 필요할까
@@ -44,7 +39,6 @@ type TownStore = TownState & TownActions;
 
 // 초기 상태를 별도의 객체로 분리
 const initialState: TownState = {
-  // TownNameData
   townId: 0,
   townName: '기본',
 
@@ -94,21 +88,6 @@ export const useTownStore = create<TownStore>((set) => ({
   setExp: (exp) => set({ exp }),
   setExpression: (expression) => set({ expression }),
   setActiveEvents: (eventIds) => set({ activeEvents: eventIds }),
-
-  // 계산된 상태 업데이트 액션들
-  // addCarbon: (amount) => set((state) => ({ carbon: state.carbon + amount })),
-  // addExp: (amount) => set((state) => ({ exp: state.exp + amount })),
-  // addCoin: (amount) => set((state) => ({ coin: state.coin + amount })),
-  // addActiveEvent: (eventId) =>
-  //   set((state) => ({
-  //     activeEvents: state.activeEvents.includes(eventId)
-  //       ? state.activeEvents
-  //       : [...state.activeEvents, eventId],
-  //   })),
-  // removeActiveEvent: (eventId) =>
-  //   set((state) => ({
-  //     activeEvents: state.activeEvents.filter((id) => id !== eventId),
-  //   })),
 }));
 
 // 외부에서 사용할 액션 함수 내보내기
@@ -121,11 +100,6 @@ export const {
   setCoin,
   setExpression,
   setActiveEvents,
-  // addExp,
-  // addCoin,
-  // addCarbon,
-  // addActiveEvent,
-  // removeActiveEvent,
   updateValues,
   resetState,
 } = useTownStore.getState();

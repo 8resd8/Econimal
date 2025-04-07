@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { TimeRange } from '../components/TimeSlider';
 import { getCountryNameByCode, getCountryDescription } from '../utils/countryUtils';
+import { fetchCountryCO2Data, CO2Data } from './co2DataApi';
 
 // 지역 데이터 인터페이스 정의
 export interface RegionData {
@@ -19,6 +20,7 @@ export interface RegionData {
   historicalData?: {
     temperatures: { timestamp: string; value: number }[];
     co2Levels: { timestamp: string; value: number }[];
+    humidity: { timestamp: string; value: number }[];
   };
 }
 
@@ -93,6 +95,12 @@ apiClient.interceptors.response.use(
   }
 );
 
+function roundToHour(dateStr: string): string {
+  const date = new Date(dateStr);
+  date.setMinutes(0, 0, 0); // 분, 초, 밀리초를 0으로 설정
+  return date.toISOString();
+}
+
 // 지역 정보 가져오기 함수
 export const fetchRegionInfo = async ({
   region,
@@ -101,8 +109,10 @@ export const fetchRegionInfo = async ({
 }: FetchRegionDataParams): Promise<RegionData> => {
   try {
     // 현재 날짜와 시작 날짜 계산
-    const endDate = new Date().toISOString();
-    const startDate = calculateStartDate(timeRange, timeValue);
+    const now = new Date();
+    now.setMinutes(0, 0, 0); // 정각으로 설정
+    const endDate = now.toISOString();
+    const startDate = calculateStartDate(timeRange, timeValue, true); // 정각 변환 플래그 추가
 
     console.log('지역 정보 요청 파라미터:', {
       startDate,
@@ -121,8 +131,17 @@ export const fetchRegionInfo = async ({
 
     console.log('지역 정보 API 응답 성공:', response.status);
 
-    // 응답 데이터 변환
-    return convertToRegionData(response.data, region);
+    // [수정] CO2 데이터 요청
+    let co2Data: CO2Data[] = [];
+    try {
+      co2Data = await fetchCountryCO2Data(region);
+      console.log(`${region} 국가의 CO2 데이터 가져오기 성공:`, co2Data.length > 0 ? '데이터 있음' : '데이터 없음');
+    } catch (error) {
+      console.error(`${region} 국가의 CO2 데이터 가져오기 실패:`, error);
+    }
+
+    // 응답 데이터 변환 (CO2 데이터 포함)
+    return convertToRegionData(response.data, region, co2Data);
   } catch (error) {
     console.error('지역 데이터 가져오기 실패:', error);
     return generateFallbackRegionData(region);
@@ -149,7 +168,8 @@ export const fetchHistoricalData = async ({
     let endDate = new Date().toISOString();
     // 시간 범위에 따른 시작 날짜 계산
     const formatDate = (date: Date): string => {
-      return date.toISOString().split('T')[0] + 'T00:00:00';
+      date.setMinutes(0, 0, 0); // 정각으로 설정
+      return date.toISOString();
     };
     
     // 충분한 데이터 포인트를 얻기 위해 기간 확장
@@ -204,10 +224,19 @@ export const fetchHistoricalData = async ({
 
     console.log('히스토리 데이터 API 응답 상태:', response.status);
     
+    // [수정] CO2 데이터 가져오기 (별도 API)
+    let co2Data: CO2Data[] = [];
+    try {
+      co2Data = await fetchCountryCO2Data(region);
+      console.log(`${region} 국가의 CO2 데이터 가져오기 성공:`, 
+        co2Data.length > 0 ? `${co2Data.length}개 데이터 포인트` : '데이터 없음');
+    } catch (error) {
+      console.error(`${region} 국가의 CO2 데이터 가져오기 실패:`, error);
+    }
+    
     // 응답이 비어있거나 유효하지 않은 경우 처리
     if (!response.data) {
-      console.warn('API 응답 데이터가 비어 있습니다. 더미 데이터를 사용합니다.');
-      return generateFallbackData(region, timeRange);
+      console.warn('API 응답 데이터가 비어 있습니다.');
     }
     
     // API 응답 구조 자세히 확인
@@ -229,8 +258,8 @@ export const fetchHistoricalData = async ({
       console.log(`사용 가능한 국가 코드: ${availableCountries.join(', ')}`);
       console.log(`요청한 국가 코드 ${region}가 응답에 포함됨: ${availableCountries.includes(region)}`);
       
-      // 응답 데이터 변환
-      const historicalData = convertToHistoricalData(response.data, region);
+      // [수정] 응답 데이터 변환 - co2Data 전달
+      const historicalData = convertToHistoricalData(response.data, region, co2Data);
       
       // 변환된 데이터 로깅
       console.log(`변환된 히스토리 데이터: 온도 ${historicalData.temperatures.length}개, 습도 ${historicalData.humidity.length}개, CO2 ${historicalData.co2Levels.length}개`);
@@ -252,9 +281,7 @@ export const fetchHistoricalData = async ({
           // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
           finalData.temperatures = complementDataPoints(finalData.temperatures, MIN_DATA_POINTS);
         } else {
-          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
-          const fallbackData = generateFallbackData(region, timeRange);
-          finalData.temperatures = fallbackData.temperatures;
+          console.log('데이터가 전혀 없습니다')
         }
       }
       
@@ -265,9 +292,7 @@ export const fetchHistoricalData = async ({
           // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
           finalData.humidity = complementDataPoints(finalData.humidity, MIN_DATA_POINTS);
         } else {
-          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
-          const fallbackData = generateFallbackData(region, timeRange);
-          finalData.humidity = fallbackData.humidity;
+          console.log('데이터가 전혀 없습니다')
         }
       }
       
@@ -278,9 +303,7 @@ export const fetchHistoricalData = async ({
           // 데이터가 있지만 부족한 경우 - 있는 데이터를 기반으로 보완
           finalData.co2Levels = complementDataPoints(finalData.co2Levels, MIN_DATA_POINTS);
         } else {
-          // 데이터가 전혀 없는 경우 - 더미 데이터 사용
-          const fallbackData = generateFallbackData(region, timeRange);
-          finalData.co2Levels = fallbackData.co2Levels;
+          console.log('데이터가 전혀 없습니다')
         }
       }
       
@@ -289,10 +312,20 @@ export const fetchHistoricalData = async ({
     
     // 응답 데이터가 유효하지 않은 경우
     console.warn('유효한 응답 데이터 구조가 아닙니다.');
-    return generateFallbackData(region, timeRange);
+    // 대신 빈 데이터 반환
+    return {
+      temperatures: [],
+      co2Levels: [],
+      humidity: []
+    };
   } catch (error) {
     console.error('히스토리 데이터 가져오기 실패:', error);
-    return generateFallbackData(region, timeRange);
+    // 대신 빈 데이터 반환
+    return {
+      temperatures: [],
+      co2Levels: [],
+      humidity: []
+    };
   }
 };
 
@@ -350,109 +383,12 @@ function complementDataPoints(
   return result;
 }
 
-// 더미 데이터 + 백엔드 최신 데이터 조합으로 생성 (지역 및 시간 범위 특성 반영)
-function generateFallbackData(region: string, timeRange: TimeRange) {
-  console.log(`생성 중: ${region} 지역의 ${timeRange} 범위 더미 데이터`);
-  
-  // 지역 특성에 기반한 기본 값
-  let baseTemp = 20;
-  let baseHumidity = 60;
-  let baseCO2 = 400;
-  
-  // 지역 특성에 따른 기본값 조정
-  switch (region) {
-    // 추운 지역
-    case 'GL': case 'FI': case 'SE': case 'CA': case 'MN':
-      baseTemp = -5 + Math.random() * 10; // -5 ~ 5°C
-      baseHumidity = 70 + Math.random() * 15; // 70~85%
-      break;
-    // 온대 지역
-    case 'DE': case 'GB': case 'FR': case 'US': case 'KR': case 'JP':
-      baseTemp = 10 + Math.random() * 15; // 10~25°C
-      baseHumidity = 50 + Math.random() * 30; // 50~80%
-      break;
-    // 더운 지역
-    case 'EG': case 'SD': case 'IN': case 'TH': case 'MV':
-      baseTemp = 25 + Math.random() * 15; // 25~40°C
-      baseHumidity = 60 + Math.random() * 30; // 60~90%
-      break;
-    default:
-      // 기본값 유지
-  }
-  
-  // 데이터 생성 로직
-  const now = new Date();
-  const temperatures = [];
-  const humidity = [];
-  const co2Levels = [];
-  
-  // 시간 범위에 따른 데이터 포인트 간격 및 개수 조정
-  let interval = 24 * 60 * 60 * 1000; // 기본 1일 간격
-  let count = 14; // 기본 2주치 데이터
-  
-  switch (timeRange) {
-    case 'hour':
-      interval = 60 * 60 * 1000; // 1시간 간격
-      count = 24; // 24시간 데이터
-      break;
-    case 'day':
-      interval = 24 * 60 * 60 * 1000; // 1일 간격
-      count = 31; // 1개월 데이터
-      break;
-    case 'month':
-      interval = 30 * 24 * 60 * 60 * 1000; // 1개월 간격
-      count = 12; // 1년 데이터
-      break;
-    case 'year':
-      interval = 90 * 24 * 60 * 60 * 1000; // 3개월 간격
-      count = 8; // 2년 데이터
-      break;
-  }
-  
-  // 날짜 변동성 및 값 변동성 계수
-  const tempVariation = 5; // 온도 변동 폭 (±5°C)
-  const humidityVariation = 15; // 습도 변동 폭 (±15%)
-  const co2Variation = 30; // CO2 변동 폭 (±30ppm)
-  
-  // 데이터 포인트 생성
-  for (let i = 0; i < count; i++) {
-    const date = new Date(now.getTime() - interval * (count - i - 1));
-    const formattedDate = date.toISOString();
-    
-    // 변동성 함수 (사인파 패턴으로 자연스러운 변동성 제공)
-    const variation = Math.sin(i * 0.5) + Math.random() * 0.5;
-    
-    // 온도 데이터
-    temperatures.push({
-      timestamp: formattedDate,
-      value: baseTemp + variation * tempVariation
-    });
-    
-    // 습도 데이터
-    humidity.push({
-      timestamp: formattedDate,
-      value: Math.min(Math.max(baseHumidity + variation * humidityVariation, 10), 100) // 10~100% 범위 제한
-    });
-    
-    // CO2 데이터
-    co2Levels.push({
-      timestamp: formattedDate,
-      value: baseCO2 + variation * co2Variation
-    });
-  }
-  
-  console.log(`생성된 더미 데이터: 온도 ${temperatures.length}개, 습도 ${humidity.length}개, CO2 ${co2Levels.length}개`);
-  
-  return {
-    temperatures,
-    humidity,
-    co2Levels
-  };
-}
-
 // 시작 날짜 계산 함수
-function calculateStartDate(timeRange: TimeRange, timeValue: number): string {
+function calculateStartDate(timeRange: TimeRange, timeValue: number, roundToFullHour: boolean = true): string {
   const now = new Date();
+  if (roundToFullHour) {
+    now.setMinutes(0, 0, 0); // 정각으로 설정
+  }
   let startDate: Date;
 
   switch (timeRange) {
@@ -470,76 +406,104 @@ function calculateStartDate(timeRange: TimeRange, timeValue: number): string {
       startDate = new Date(now.getFullYear() - timeValue, 0, 1);
   }
 
+  if (roundToFullHour) {
+    startDate.setMinutes(0, 0, 0); // 시작 시간도 정각으로 설정
+  }
+
   return startDate.toISOString();
 }
 
-// 더미 데이터 생성 함수 (지역별로 다른 값)
-function generateDummyData(type: 'temperature' | 'co2' | 'humidity', region?: string, count: number = 7) {
-  const now = new Date();
-  const dummyData = [];
-  
-  // 지역별로 약간 다른 값을 생성하기 위한 시드
-  const regionSeed = region ? 
-    (region.charCodeAt(0) + (region.charCodeAt(1) || 0)) % 10 : 
-    Math.floor(Math.random() * 10);
-  
-  for (let i = 0; i < count; i++) {
-    const date = new Date();
-    date.setDate(now.getDate() - i);
-    
-    // 일별 변동성 추가
-    const dayVariation = Math.sin(i * 0.5) * 3;
-    
-    let value;
-    switch (type) {
-      case 'temperature':
-        value = 20 + regionSeed + dayVariation; // 15~30°C
-        break;
-      case 'co2':
-        value = 380 + (regionSeed * 5) + dayVariation; // 375~435ppm
-        break;
-      case 'humidity':
-        value = 50 + (regionSeed * 5) + dayVariation; // 45~95%
-        break;
-    }
-    
-    dummyData.push({
-      timestamp: date.toISOString(),
-      value
-    });
-  }
-  
-  return dummyData.reverse(); // 날짜순 정렬
-}
-
 // API 응답 데이터를 RegionData로 변환
-function convertToRegionData(apiData: any, region: string): RegionData {
-  // API 응답 구조 확인 - 최신 타임스탬프 가져오기
-  if (!apiData || !apiData.groupByDateTime) {
+function convertToRegionData(apiData: any, region: string, co2Data: CO2Data[] = []): RegionData {
+  // API 응답 구조 확인
+  if (!apiData) {
     console.warn('유효한 API 응답 데이터가 없습니다');
     return generateFallbackRegionData(region);
   }
+  
+  // 직접 날짜 키가 있는지 확인 (최상위 키가 날짜인 경우)
+  const directDateKeys = Object.keys(apiData).filter(key => key.match(/^\d{4}-\d{2}-\d{2}/));
+  
+  // 날짜 키가 직접 있는 경우 데이터 구조 변환
+  if (directDateKeys.length > 0 && !apiData.groupByDateTime) {
+    console.log('날짜 키가 직접 있는 구조 발견, 변환 중...');
+    const tempData = {
+      groupByDateTime: {} as Record<string, Record<string, any>>,
+      groupByCountry: {} as Record<string, Record<string, any>>
+    };
+    
+    directDateKeys.forEach(dateKey => {
+      // 정각으로 날짜 변환
+      const normalizedDate = roundToHour(dateKey);
+      tempData.groupByDateTime[normalizedDate] = apiData[dateKey];
+    });
+    
+    // 국가별 구조 생성
+    Object.entries(tempData.groupByDateTime).forEach(([timestamp, countries]) => {
+      if (typeof countries === 'object' && countries !== null) {
+        Object.entries(countries as Record<string, any>).forEach(([countryCode, data]) => {
+          if (!tempData.groupByCountry[countryCode]) {
+            tempData.groupByCountry[countryCode] = {};
+          }
+          tempData.groupByCountry[countryCode][timestamp] = data;
+        });
+      }
+    });
+    
+    // 원본 데이터 업데이트
+    apiData = tempData;
+  }
+  
+  // groupByDateTime이 존재하지 않거나 객체가 아닌 경우
+  if (!apiData.groupByDateTime || typeof apiData.groupByDateTime !== 'object') {
+    console.warn('변환 후에도 groupByDateTime 데이터가 없습니다');
+    return generateFallbackRegionData(region);
+  }
 
-  const timestamps = Object.keys(apiData.groupByDateTime || {}).sort();
+  // 타임스탬프 목록 추출 및 정렬
+  const timestamps = Object.keys(apiData.groupByDateTime).sort();
+  
   if (timestamps.length === 0) {
     console.warn('타임스탬프 데이터가 없습니다');
     return generateFallbackRegionData(region);
   }
 
+  // 최신 타임스탬프와 해당 데이터 추출
   const latestTimestamp = timestamps[timestamps.length - 1];
-  const countryData = apiData.groupByDateTime[latestTimestamp][region];
-
-  if (!countryData) {
+  
+  // 해당 타임스탬프의 데이터가 없는 경우
+  if (!apiData.groupByDateTime[latestTimestamp] || 
+      typeof apiData.groupByDateTime[latestTimestamp] !== 'object') {
+    console.warn(`${latestTimestamp} 타임스탬프에 대한 데이터가 없습니다`);
+    return generateFallbackRegionData(region);
+  }
+  
+  // 타입 안전하게 데이터 접근
+  const timeData = apiData.groupByDateTime[latestTimestamp] as Record<string, any>;
+  
+  // 해당 국가 데이터가 없는 경우
+  if (!timeData[region]) {
     console.warn(`${region} 국가 데이터가 없습니다`);
     return generateFallbackRegionData(region);
   }
 
+  const countryData = timeData[region];
+  
+  // [수정] CO2 데이터 추가 (가장 최신 데이터 사용)
+  let co2Level = countryData.co2Level;
+  if (co2Data && co2Data.length > 0) {
+    // 연도순으로 정렬하여 가장 최신 데이터 사용
+    const sortedCO2Data = [...co2Data].sort((a, b) => b.year - a.year);
+    co2Level = sortedCO2Data[0].value;
+  }
+  
+  // 데이터 변환 및 반환
   return {
     countryCode: region,
     name: getCountryNameByCode(region),
     temperature: countryData.temperature,
     humidity: countryData.humidity,
-    co2Level: countryData.co2Level,
+    co2Level: co2Level,
     description: getCountryDescription(region),
     environmentalIndex: 5,
     biodiversityCount: 10000,
@@ -554,7 +518,7 @@ function convertToRegionData(apiData: any, region: string): RegionData {
 }
 
 // 히스토리 데이터 변환 함수
-function convertToHistoricalData(apiData: any, region: string) {
+function convertToHistoricalData(apiData: any, region: string, co2Data: CO2Data[] = []) {
   const temperatures: { timestamp: string; value: number }[] = [];
   const co2Levels: { timestamp: string; value: number }[] = [];
   const humidity: { timestamp: string; value: number }[] = [];
@@ -727,17 +691,40 @@ function convertToHistoricalData(apiData: any, region: string) {
     console.error('히스토리 데이터 변환 중 오류:', e);
   }
 
+  // [수정] CO2 데이터 추가 (연도별 데이터)
+  if (co2Data && co2Data.length > 0) {
+    // 연도별 데이터를 타임스탬프 형식으로 변환
+    co2Data.forEach(data => {
+      if (data.year && data.value) {
+        // 각 연도의 1월 1일 기준으로 타임스탬프 생성
+        const timestamp = new Date(data.year, 0, 1).toISOString();
+        co2Levels.push({
+          timestamp,
+          value: data.value
+        });
+      }
+    });
+    
+    console.log(`${co2Levels.length}개의 CO2 데이터 포인트 추가됨`);
+    
+    // 날짜순 정렬
+    co2Levels.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  }
+
   return { temperatures, co2Levels, humidity };
 }
 
 // 폴백 데이터 생성 함수
 function generateFallbackRegionData(region: string): RegionData {
+  // 가상의 CO2 데이터 생성 (국가 코드 기반)
+  const co2Level = 380 + (region.charCodeAt(0) % 40);
+  
   return {
     countryCode: region,
     name: getCountryNameByCode(region),
     temperature: 20 + (region.charCodeAt(0) % 10),
     humidity: 60 + (region.charCodeAt(0) % 30),
-    co2Level: 380 + (region.charCodeAt(0) % 40),
+    co2Level: co2Level,
     description: getCountryDescription(region),
     environmentalIndex: 5,
     biodiversityCount: 10000,
@@ -747,8 +734,36 @@ function generateFallbackRegionData(region: string): RegionData {
       `${getCountryNameByCode(region)} 환경 보존 프로그램`,
       `${getCountryNameByCode(region)} 지속 가능한 개발 이니셔티브`
     ],
-    threatLevel: 3
+    threatLevel: 3,
+    historicalData: {
+      temperatures: generateMockTimeSeriesData(20 + (region.charCodeAt(0) % 10), 7),
+      co2Levels: generateMockTimeSeriesData(co2Level, 7),
+      humidity: generateMockTimeSeriesData(60 + (region.charCodeAt(0) % 30), 7)
+    }
   };
+}
+
+// [추가] 가상의 타임시리즈 데이터 생성 함수
+function generateMockTimeSeriesData(baseValue: number, count: number): { timestamp: string; value: number }[] {
+  const result: { timestamp: string; value: number }[] = [];
+  const now = new Date();
+  
+  for (let i = 0; i < count; i++) {
+    // 최근 날짜부터 과거로 이동
+    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    
+    // 값에 약간의 랜덤 변동 추가
+    const variance = (Math.random() - 0.5) * 5;
+    const value = baseValue + variance;
+    
+    result.push({
+      timestamp: date.toISOString(),
+      value: Number(value.toFixed(1))
+    });
+  }
+  
+  // 과거->현재 순으로 정렬
+  return result.reverse();
 }
 
 export default {
