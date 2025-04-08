@@ -26,9 +26,9 @@ export const usePatchTownName = () => {
 
 // 마을 상황 조회 쿼리
 export const useGetTownEvents = () => {
-  // [수정] 필요한 함수만 선택적으로 가져오기
+  // 필요한 함수만 선택적으로 가져오기
   const { updateValues } = useTownStore();
-  // [수정] 이전 데이터 비교를 위한 ref 추가
+  // 이전 데이터 비교를 위한 ref 추가
   const prevDataRef = useRef<TownEventsResponse | null>(null);
 
   const result = useQuery<TownEventsResponse>({
@@ -36,11 +36,10 @@ export const useGetTownEvents = () => {
     queryFn: () => getTownEvents(),
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    // [수정] staleTime 추가하여 불필요한 네트워크 요청 줄이기
-    staleTime: 10000, // 10초
+    // staleTime: 10000, // 10초
   });
 
-  // [수정] useEffect를 사용하여 데이터 변경 시 상태 업데이트 최적화
+  // useEffect를 사용하여 데이터 변경 시 상태 업데이트 최적화
   useEffect(() => {
     if (!result.data) return;
 
@@ -51,7 +50,7 @@ export const useGetTownEvents = () => {
 
     prevDataRef.current = result.data;
 
-    // [수정] 모든 상태 업데이트를 일괄 처리하기 위한 변경사항 객체
+    // 모든 상태 업데이트를 일괄 처리하기 위한 변경사항 객체 -> 이게 필요해?
     const updates: Partial<any> = {};
 
     // 마을 이름 변경된 경우
@@ -74,7 +73,7 @@ export const useGetTownEvents = () => {
         infraStatusUpdates[event.ecoType] = event.isClean;
       });
 
-      // [수정] 모든 상태를 한 번에 업데이트
+      // 모든 상태를 한 번에 업데이트
       updateValues({
         ...updates,
         infraStatus: {
@@ -83,8 +82,7 @@ export const useGetTownEvents = () => {
         },
       });
     } else {
-      // 인프라 상태가 없는 경우는 이름만 업데이트
-      updateValues(updates);
+      updateValues(updates); // 인프라 상태가 없는 경우는 이름만 업데이트
     }
   }, [result.data, updateValues]);
 
