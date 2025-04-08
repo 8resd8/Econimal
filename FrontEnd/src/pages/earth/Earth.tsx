@@ -532,14 +532,45 @@ const Earth: React.FC = () => {
         const currentYear = new Date().getFullYear();
         const targetYear = currentYear - value;
         
+        console.log(`연도 범위 선택: ${targetYear}년 데이터 사용`);
+        
         // 연도별 데이터 가져오기
         const yearData = getYearlyDataForYear(targetYear);
         
         if (yearData && Object.keys(yearData).length > 0) {
-          console.log(`연도 범위 선택: ${targetYear}년 데이터 사용`);
-          setGlobalData(yearData);
+          // 전체 국가의 CO2 데이터 가져오기
+          try {
+            const co2Data = await fetchAllCountriesCO2Data();
+            console.log(`전체 CO2 데이터 로드 완료: ${Object.keys(co2Data).length}개 국가`);
+            
+            // 연도별 데이터에 CO2 데이터 통합
+            const enhancedYearData = { ...yearData };
+            
+            // 각 국가별로 CO2 데이터 추가
+            Object.keys(enhancedYearData).forEach(countryCode => {
+              if (co2Data[countryCode] && co2Data[countryCode].length > 0) {
+                // 해당 연도와 가장 가까운 CO2 데이터 찾기
+                const countryCO2Data = co2Data[countryCode];
+                const sortedCO2Data = [...countryCO2Data].sort((a, b) => 
+                  Math.abs(a.year - targetYear) - Math.abs(b.year - targetYear)
+                );
+                
+                // 가장 가까운 연도의 데이터 사용
+                enhancedYearData[countryCode].co2Level = sortedCO2Data[0].value;
+                console.log(`${countryCode} 국가에 CO2 데이터 추가: ${sortedCO2Data[0].value} (${sortedCO2Data[0].year}년)`);
+              }
+            });
+            
+            // 통합된 데이터 설정
+            setGlobalData(enhancedYearData);
+            console.log(`연도별 데이터에 CO2 통합 완료: ${Object.keys(enhancedYearData).length}개 국가`);
+          } catch (error) {
+            console.error('CO2 데이터 통합 실패:', error);
+            setGlobalData(yearData); // 오류 발생 시 원본 데이터 사용
+          }
         } else {
           // 연도별 데이터가 없는 경우 일반 데이터 요청
+          console.log('해당 연도의 데이터가 없어 일반 데이터를 요청합니다.');
           const worldDataResponse = await fetchWorldData(startDate, endDate, range.toUpperCase() as 'HOUR');
           
           if (worldDataResponse?.groupByDateTime) {
