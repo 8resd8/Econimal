@@ -1,5 +1,5 @@
-// src/pages/earth/components/AIFeedback.tsx
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/AIFeedback.tsx
+import React, { useState, useEffect } from 'react';
 
 interface AIFeedbackProps {
   feedback: string;
@@ -11,95 +11,46 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({ feedback, carbon, temperature }
   // 애니메이션을 위한 상태값
   const [animatedCarbon, setAnimatedCarbon] = useState(0);
   const [animatedTemperature, setAnimatedTemperature] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const componentRef = useRef<HTMLDivElement>(null);
   
-  // Props 유효성 검사
+  // 데이터 유효성 검사 - 단순화
   const isDataValid = 
-    feedback && typeof feedback === 'string' && 
+    typeof feedback === 'string' && 
     typeof carbon === 'number' && 
     typeof temperature === 'number';
 
-  // Intersection Observer 설정
+  // 컴포넌트 마운트 시 애니메이션 시작
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.disconnect(); // 한 번만 트리거되도록
-          }
-        });
-      },
-      { threshold: 0.4 } // 10% 이상 보일 때 트리거
-    );
-
-    if (componentRef.current) {
-      observer.observe(componentRef.current);
-    }
-
-    return () => {
-      if (componentRef.current) {
-        observer.unobserve(componentRef.current);
-      }
-    };
-  }, []);
-  
-  // 탄소 변화량 애니메이션
-  useEffect(() => {
-    if (!isDataValid || !isVisible) return;
+    if (!isDataValid) return;
     
-    const targetCarbon = carbon;
-    const duration = 3000; // 애니메이션 지속 시간 (ms)
-    const steps = 60; // 애니메이션 단계 수
-    const stepTime = duration / steps;
+    // 애니메이션 시작을 위한 타이머
+    const startAnimationTimer = setTimeout(() => {
+      animateValues();
+    }, 500); // 0.5초 후 애니메이션 시작
+    
+    return () => clearTimeout(startAnimationTimer);
+  }, [carbon, temperature, isDataValid]);
+  
+  // 값 애니메이션 함수
+  const animateValues = () => {
+    const duration = 1500; // 애니메이션 시간 (ms)
+    const steps = 30;
+    const interval = duration / steps;
     let step = 0;
     
-    const timer = setInterval(() => {
+    const animationTimer = setInterval(() => {
       step++;
       const progress = step / steps;
-      const easedProgress = easeOutCubic(progress); // 애니메이션 감속 효과
+      const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
       
-      setAnimatedCarbon(targetCarbon * easedProgress);
-      
-      if (step >= steps) {
-        clearInterval(timer);
-        setAnimatedCarbon(targetCarbon); // 최종값으로 설정
-      }
-    }, stepTime);
-    
-    return () => clearInterval(timer);
-  }, [carbon, isDataValid, isVisible]);
-  
-  // 온도 변화량 애니메이션
-  useEffect(() => {
-    if (!isDataValid || !isVisible) return;
-    
-    const targetTemp = temperature;
-    const duration = 3000; // 애니메이션 지속 시간 (ms)
-    const steps = 60; // 애니메이션 단계 수
-    const stepTime = duration / steps;
-    let step = 0;
-    
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      const easedProgress = easeOutCubic(progress); // 애니메이션 감속 효과
-      
-      setAnimatedTemperature(targetTemp * easedProgress);
+      setAnimatedCarbon(carbon * easedProgress);
+      setAnimatedTemperature(temperature * easedProgress);
       
       if (step >= steps) {
-        clearInterval(timer);
-        setAnimatedTemperature(targetTemp); // 최종값으로 설정
+        clearInterval(animationTimer);
+        setAnimatedCarbon(carbon);
+        setAnimatedTemperature(temperature);
       }
-    }, stepTime);
-    
-    return () => clearInterval(timer);
-  }, [temperature, isDataValid, isVisible]);
-  
-  // 애니메이션 감속 효과 함수 (easing function)
-  const easeOutCubic = (x: number): number => {
-    return 1 - Math.pow(1 - x, 3);
+    }, interval);
   };
 
   // 데이터가 유효하지 않으면 대체 메시지 표시
@@ -108,7 +59,7 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({ feedback, carbon, temperature }
       <div className="w-full p-4 bg-white rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">AI 피드백</h3>
         <div className="p-4 text-center text-gray-600">
-          피드백 데이터를 불러올 수 없습니다.
+          피드백 정보를 불러오는 중입니다...
         </div>
       </div>
     );
@@ -121,11 +72,11 @@ const AIFeedback: React.FC<AIFeedbackProps> = ({ feedback, carbon, temperature }
   const isTempNegative = temperature < 0;
 
   return (
-    <div ref={componentRef} className="w-full p-4 bg-white rounded-lg shadow-md">
+    <div className="w-full p-4 bg-white rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4">AI 피드백</h3>
       
       <div className="mb-4">
-        <p className="text-gray-700 whitespace-pre-line">{feedback}</p>
+        <p className="text-gray-700 whitespace-pre-line">{feedback || "환경 보호에 참여해주셔서 감사합니다."}</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
