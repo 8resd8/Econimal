@@ -79,7 +79,7 @@ export const fetchWorldData = async (
     const formatDate = (date: Date | string): string => {
       const d = typeof date === 'string' ? new Date(date) : date;
       d.setMinutes(0, 0, 0); // 분, 초, 밀리초를 0으로 설정
-      return d.toISOString();
+      return d.toISOString().split('.')[0];
     };
 
     const startDate = formatDate(startDateParam);
