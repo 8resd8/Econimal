@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -51,192 +51,166 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
   yAxisMin,
   yAxisMax
 }) => {
+  // 컴포넌트 ID (고유 식별자)
+  const componentId = useMemo(() => Math.random().toString(36).substr(2, 5), []);
+  
+  // 참조 생성
   const chartRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-  // 차트 데이터 상태
-  const [chartData, setChartData] = useState({
-    labels: [] as string[],
-    datasets: [
-      {
-        label: label,
-        data: [] as number[],
-        borderColor: borderColor,
-        backgroundColor: backgroundColor,
-        borderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        fill: false,
-        tension: 0.1
-      }
-    ]
-  });
-
-  // 반응형 포인트 너비 상태 추가
-  const [pointWidth, setPointWidth] = useState(40);
-  
-  // 차트 너비 상태
-  const [chartWidth, setChartWidth] = useState(300);
-
-  // 차트 포인트당 너비 계산 (화면 크기에 따라 조정)
-  const calculatePointWidth = () => {
-    if (!window.innerWidth) return 40;
-    
-    // 화면 크기에 따른 기본 포인트 너비 조정
-    if (window.innerWidth < 768) {
-      return 30; // 모바일에서는 좁게
-    } else if (window.innerWidth < 1200) {
-      return 35; // 태블릿에서는 중간
-    } else {
-      return 40; // 데스크탑에서는 넓게
-    }
-  };
-
-  // 컴포넌트 마운트 및 리사이즈 시 포인트 너비 업데이트
+  // 컴포넌트 생명주기 로깅
   useEffect(() => {
-    const handleResize = () => {
-      setPointWidth(calculatePointWidth());
-    };
+    console.log(`[Chart-${componentId}] 마운트 - 레이블: ${label}, 데이터 포인트: ${dataPoints?.length || 0}`);
     
-    // 초기 설정
-    handleResize();
-    
-    // 리사이즈 이벤트 리스너
-    window.addEventListener('resize', handleResize);
+    if (dataPoints?.length > 0) {
+      console.log(`[Chart-${componentId}] 데이터 샘플:`, {
+        첫_포인트: dataPoints[0],
+        마지막_포인트: dataPoints[dataPoints.length - 1],
+        총_개수: dataPoints.length
+      });
+    }
     
     return () => {
-      window.removeEventListener('resize', handleResize);
+      console.log(`[Chart-${componentId}] 언마운트 - 레이블: ${label}`);
     };
   }, []);
-
-  // 전체 차트 너비 계산 (최대 컨테이너 너비 제한)
-  const calculateChartWidth = () => {
-    if (!chartRef.current) return 300;
-    
-    // 컨테이너 너비 가져오기
-    const containerWidth = chartRef.current.clientWidth - 60; // Y축 영역 너비 고려
-    
-    // 데이터 포인트 수에 따른 필요 너비
-    const requiredWidth = Math.max(
-      300, // 최소 너비
-      dataPoints.length * pointWidth
-    );
-    
-    // 컨테이너에 맞게 제한
-    return Math.min(requiredWidth, containerWidth * 1.5);
-  };
-
-  // 데이터 포인트나 컨테이너 크기 변경 시 차트 너비 업데이트
-  useEffect(() => {
-    if (dataPoints.length > 0 && chartRef.current) {
-      setChartWidth(calculateChartWidth());
-    }
-  }, [dataPoints.length, pointWidth]);
   
-  // 창 크기 변경 시 차트 너비 업데이트
-  useEffect(() => {
-    const handleResize = () => {
-      if (chartRef.current) {
-        setChartWidth(calculateChartWidth());
-      }
-    };
+  // 차트 데이터 처리 - useMemo로 불필요한 재계산 방지
+  const processedChartData = useMemo(() => {
+    console.log(`[Chart-${componentId}] 차트 데이터 처리 시작`);
     
-    window.addEventListener('resize', handleResize);
+    // 데이터가 유효한지 확인
+    if (!dataPoints || dataPoints.length === 0) {
+      console.log(`[Chart-${componentId}] 유효한 데이터 없음 - 빈 차트 반환`);
+      return {
+        labels: [],
+        datasets: [{
+          label,
+          data: [],
+          borderColor,
+          backgroundColor,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          tension: 0.1
+        }]
+      };
+    }
     
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [dataPoints.length, pointWidth]);
-
-  // 받은 데이터가 유효한지 검증하는 함수 추가
-  const isValidDataArray = (data: DataPoint[]): boolean => {
-    // 1. 배열이 존재하고 비어있지 않은지 확인
-    if (!data || data.length === 0) return false;
-    
-    // 2. 각 요소가 올바른 형식인지 확인
-    return data.every(point => 
-      point && 
-      typeof point.timestamp === 'string' && 
-      typeof point.value === 'number' && 
-      !isNaN(point.value)
-    );
-  };
-
-  // 영하 온도를 포함하도록 수정된 Y축 범위
-  const getYAxisRange = () => {
-    // 데이터 포인트 기반 자동 범위 계산 로직 추가
+    try {
+      // 데이터 정렬 (날짜 오름차순)
+      const sortedData = [...dataPoints].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+      
+      // 레이블 형식화
+      const formattedLabels = sortedData.map(point => {
+        try {
+          const date = new Date(point.timestamp);
+          return date.toLocaleDateString('ko-KR', {
+            month: 'short',
+            day: 'numeric'
+          });
+        } catch (e) {
+          console.error(`[Chart-${componentId}] 날짜 변환 오류:`, e);
+          return point.timestamp;
+        }
+      });
+      
+      // 데이터 값 추출
+      const values = sortedData.map(point => {
+        if (typeof point.value !== 'number') {
+          console.warn(`[Chart-${componentId}] 숫자가 아닌 값:`, point.value);
+          return parseFloat(point.value as any) || 0;
+        }
+        return point.value;
+      });
+      
+      console.log(`[Chart-${componentId}] 차트 데이터 처리 완료: ${values.length}개 포인트`);
+      
+      // 차트 데이터 반환
+      return {
+        labels: formattedLabels,
+        datasets: [{
+          label,
+          data: values,
+          borderColor,
+          backgroundColor,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          tension: 0.1
+        }]
+      };
+    } catch (error) {
+      console.error(`[Chart-${componentId}] 데이터 처리 오류:`, error);
+      return {
+        labels: [],
+        datasets: [{
+          label,
+          data: [],
+          borderColor,
+          backgroundColor,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          tension: 0.1
+        }]
+      };
+    }
+  }, [dataPoints, label, borderColor, backgroundColor, componentId]);
+  
+  // Y축 범위 계산 - useMemo로 최적화
+  const yAxisRange = useMemo(() => {
     if (dataPoints && dataPoints.length > 0) {
       const values = dataPoints.map(point => point.value);
       const minValue = Math.min(...values);
       const maxValue = Math.max(...values);
       
-      // 온도일 경우 영하 값을 적절히 처리
       if (label.includes('온도')) {
-        // 영하 값이 있는 경우 
+        // 영하 값 처리
         if (minValue < 0) {
           return {
-            min: Math.floor(minValue * 1.1), // 데이터의 최저 온도보다 약간 더 낮게
-            max: Math.ceil(maxValue * 1.1)   // 데이터의 최고 온도보다 약간 더 높게
+            min: Math.floor(minValue * 1.1),
+            max: Math.ceil(maxValue * 1.1)
           };
         }
       }
     }
     
-    // 기본값 사용 (yAxisMin, yAxisMax가 제공된 경우)
     return {
       min: yAxisMin,
       max: yAxisMax
     };
-  };
-
-  // 차트 옵션 - Y축 차트용
-  const getYAxisOptions = (): ChartOptions<'line'> => {
-    const yAxisRange = getYAxisRange();
-    
+  }, [dataPoints, yAxisMin, yAxisMax, label]);
+  
+  // 차트 옵션 - Y축 전용
+  const yAxisOptions = useMemo((): ChartOptions<'line'> => {
     return {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false // 범례 숨김
-        },
-        title: {
-          display: false // 제목 숨김
-        },
-        tooltip: {
-          enabled: false // 툴팁 비활성화
-        }
+        legend: { display: false },
+        title: { display: false },
+        tooltip: { enabled: false }
       },
       scales: {
-        x: {
-          display: false // X축 숨김
-        },
+        x: { display: false },
         y: {
           position: 'left',
-          title: {
-            display: false, // Y축 제목 숨김 (공간 확보)
-          },
+          title: { display: false },
           min: yAxisRange.min,
           max: yAxisRange.max,
           ticks: {
-            font: {
-              size: 10
-            },
-            // 텍스트 위치 조정
+            font: { size: 10 },
             align: 'center' as const,
-            padding: 0, // 패딩 줄임
-            // 온도, CO2, 습도에 따라 단위 표시
+            padding: 0,
             callback: function(value) {
               return value + (label.includes('온도') ? '°C' : label.includes('CO2') ? 'ppm' : '%');
             }
           },
-          grid: {
-            color: 'rgba(0, 0, 0, 0.05)'
-          },
-          border: {
-            display: true,
-            color: 'rgba(0, 0, 0, 0.1)'
-          }
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
+          border: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
         }
       },
       interaction: {
@@ -245,12 +219,10 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
         intersect: false
       }
     };
-  };
-
-  // 차트 옵션 - 메인 차트용
-  const getMainChartOptions = (): ChartOptions<'line'> => {
-    const yAxisRange = getYAxisRange();
-    
+  }, [yAxisRange, label]);
+  
+  // 차트 옵션 - 메인 차트
+  const mainChartOptions = useMemo((): ChartOptions<'line'> => {
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -260,48 +232,32 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
           labels: {
             boxWidth: 15,
             padding: 8,
-            font: {
-              size: 11
-            }
+            font: { size: 11 }
           }
         },
-        title: {
-          display: false // 차트 내부 제목 비활성화 (외부에서 제공)
-        },
+        title: { display: false },
         tooltip: {
           mode: 'index',
           intersect: false,
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          titleFont: {
-            size: 12
-          },
-          bodyFont: {
-            size: 12
-          },
+          titleFont: { size: 12 },
+          bodyFont: { size: 12 },
           padding: 8,
           cornerRadius: 4
         }
       },
       scales: {
         x: {
-          grid: {
-            display: true,
-            color: 'rgba(0, 0, 0, 0.05)'
-          },
+          grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' },
           ticks: {
             maxRotation: 45,
             minRotation: 45,
-            font: {
-              size: 10
-            }
+            font: { size: 10 }
           },
-          border: {
-            display: true,
-            color: 'rgba(0, 0, 0, 0.1)'
-          }
+          border: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
         },
         y: {
-          display: false, // Y축 숨김 (왼쪽 고정 영역에 표시됨)
+          display: false,
           min: yAxisRange.min,
           max: yAxisRange.max,
         }
@@ -312,82 +268,73 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
         intersect: false
       }
     };
-  };
-
-  // 데이터 확인 및 로깅 (디버깅용)
-  useEffect(() => {
-    console.log('RegionDataChart - 데이터 포인트:', dataPoints);
-    if (!dataPoints || dataPoints.length === 0) {
-      console.log('차트 데이터가 없습니다.');
+  }, [yAxisRange]);
+  
+  // 반응형 포인트 너비 관련 상태
+  const [pointWidth, setPointWidth] = useState(40);
+  const [chartWidth, setChartWidth] = useState(300);
+  
+  // 포인트 너비 계산 함수
+  const calculatePointWidth = () => {
+    if (!window.innerWidth) return 40;
+    
+    if (window.innerWidth < 768) {
+      return 30; // 모바일
+    } else if (window.innerWidth < 1200) {
+      return 35; // 태블릿
     } else {
-      console.log('첫 번째 데이터 포인트:', dataPoints[0]);
-      console.log('마지막 데이터 포인트:', dataPoints[dataPoints.length - 1]);
+      return 40; // 데스크탑
     }
-  }, [dataPoints]);
-
-  // 데이터 업데이트
+  };
+  
+  // 차트 너비 계산 함수
+  const calculateChartWidth = () => {
+    if (!chartRef.current) return 300;
+    
+    const containerWidth = chartRef.current.clientWidth - 60;
+    const requiredWidth = Math.max(300, dataPoints.length * pointWidth);
+    
+    return Math.min(requiredWidth, containerWidth * 1.5);
+  };
+  
+  // 리사이즈 처리
   useEffect(() => {
-    if (dataPoints && dataPoints.length > 0) {
-      try {
-        // 데이터가 정렬되어 있는지 확인하고 필요시 정렬 (날짜 오름차순)
-        const sortedDataPoints = [...dataPoints].sort((a, b) => 
-          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-        );
-
-        const formattedLabels = sortedDataPoints.map(point => {
-          try {
-            const date = new Date(point.timestamp);
-            return date.toLocaleDateString('ko-KR', {
-              month: 'short',
-              day: 'numeric'
-            });
-          } catch (error) {
-            console.error('날짜 변환 오류:', error, 'timestamp:', point.timestamp);
-            return point.timestamp; // 변환 실패 시 원본 문자열 반환
-          }
-        });
-
-        const formattedData = sortedDataPoints.map(point => {
-          // 숫자가 아닌 경우 처리
-          if (typeof point.value !== 'number') {
-            console.warn('숫자가 아닌 값:', point.value);
-            return parseFloat(point.value) || 0; // 변환 시도 또는 0 반환
-          }
-          return point.value;
-        });
-
-        setChartData({
-          labels: formattedLabels,
-          datasets: [
-            {
-              ...chartData.datasets[0],
-              data: formattedData
-            }
-          ]
-        });
-        
-        console.log('차트 데이터 업데이트 완료:', formattedLabels.length, '개 데이터 포인트');
-      } catch (error) {
-        console.error('차트 데이터 처리 중 오류:', error);
+    const handleResize = () => {
+      setPointWidth(calculatePointWidth());
+      if (chartRef.current) {
+        setChartWidth(calculateChartWidth());
       }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  // 데이터 변경 시 차트 너비 업데이트
+  useEffect(() => {
+    if (dataPoints.length > 0 && chartRef.current) {
+      setChartWidth(calculateChartWidth());
     }
-  }, [dataPoints]);
-
+  }, [dataPoints.length, pointWidth]);
+  
   // 스크롤 컨테이너 초기 스크롤 위치 설정 (최신 데이터 표시)
   useEffect(() => {
-    // 데이터가 로드되고 스크롤 컨테이너가 준비된 경우
-    if (chartData.labels.length > 7 && scrollContainerRef.current) {
+    if (processedChartData.labels.length > 7 && scrollContainerRef.current) {
       // 스크롤을 오른쪽 끝으로 이동 (최신 데이터 표시)
       setTimeout(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
         }
-      }, 100); // 차트가 완전히 렌더링될 시간을 주기 위해 약간의 지연 추가
+      }, 100);
     }
-  }, [chartData.labels.length]);
-
+  }, [processedChartData.labels.length]);
+  
   // 데이터가 없는 경우 메시지 표시
-  if (!isValidDataArray(dataPoints)) {
+  if (!dataPoints || dataPoints.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-4 h-60 flex flex-col items-center justify-center">
         <p className="text-gray-500 mb-2">데이터가 없습니다.</p>
@@ -397,9 +344,7 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
   }
   
   // 데이터 포맷 검증
-  const isValidData = chartData.labels.length > 0 && chartData.datasets[0].data.length > 0;
-  
-  if (!isValidData) {
+  if (processedChartData.labels.length === 0 || processedChartData.datasets[0].data.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-4 h-60 flex flex-col items-center justify-center">
         <p className="text-gray-500 mb-2">데이터 형식이 올바르지 않습니다.</p>
@@ -421,7 +366,7 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow p-3 h-60 flex flex-col" ref={chartRef}>
-      {/* 차트 제목 영역 - 고정 */}
+      {/* 차트 제목 영역 */}
       <div className="flex-none mb-1">
         <h3 className="text-sm font-medium text-gray-700">{title}</h3>
       </div>
@@ -442,10 +387,10 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
             <div style={{ width: '45px', height: '100%' }}>
               <Line 
                 data={{
-                  ...chartData,
-                  datasets: [{ ...chartData.datasets[0], data: [] }] // 데이터 없이 Y축만 표시
+                  ...processedChartData,
+                  datasets: [{ ...processedChartData.datasets[0], data: [] }] // 데이터 없이 Y축만 표시
                 }} 
-                options={getYAxisOptions()}
+                options={yAxisOptions}
               />
             </div>
           </div>
@@ -459,8 +404,8 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
             >
               <div style={{ width: `${chartWidth}px`, height: '100%' }}>
                 <Line 
-                  data={chartData} 
-                  options={getMainChartOptions()}
+                  data={processedChartData} 
+                  options={mainChartOptions}
                 />
               </div>
             </div>
