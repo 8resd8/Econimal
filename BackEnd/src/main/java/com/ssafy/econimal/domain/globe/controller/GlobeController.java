@@ -11,6 +11,7 @@ import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
 import com.ssafy.econimal.domain.globe.service.GlobeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,7 +22,7 @@ public class GlobeController {
 	private final GlobeService globeService;
 
 	@PostMapping
-	public ClimateResponse getGlobeInfo(@RequestBody GlobeInfoRequest globeInfoRequest) {
+	public ClimateResponse getGlobeInfo(@Valid @RequestBody GlobeInfoRequest globeInfoRequest) {
 		return globeService.getGlobeInfoByRDB(globeInfoRequest);
 	}
 
