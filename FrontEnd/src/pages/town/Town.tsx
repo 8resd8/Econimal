@@ -30,7 +30,7 @@ const TownContent = ({ data }: TownContentProps) => {
   const infraStatus = useTownStore((state) => state.infraStatus);
 
   const townEventsData = data;
-  // [수정] useMemo로 이벤트 ID 매핑 최적화
+  // seMemo로 이벤트 ID 매핑 최적화
   const infraEventMap = useMemo(() => {
     if (!townEventsData?.townStatus) return {};
 
@@ -51,6 +51,7 @@ const TownContent = ({ data }: TownContentProps) => {
   //   );
   //   return infraEvent ? infraEvent.infraEventId : undefined;
   // };
+
   const getInfraEventId = (ecoType: string): number | undefined => {
     return infraEventMap[ecoType];
   };
