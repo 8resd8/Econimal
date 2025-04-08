@@ -23,6 +23,12 @@ import {
   fetchAllCountriesCO2Data,
   fetchCountryCO2Data
 } from './features/co2DataApi';
+// 연도별 기후 API 임포트 추가
+import {
+  fetchAllYearlyClimateData,
+  YearlyClimateResponse
+} from './features/yearClimateApi';
+import { getCountryNameByCode, getCountryDescription } from './utils/countryUtils';
 
 // 데이터 타입 옵션
 type DataType = 'temperature' | 'humidity' | 'co2';
@@ -79,6 +85,9 @@ const Earth: React.FC = () => {
   // 데이터 없음 상태 추가
   const [noDataAvailable, setNoDataAvailable] = useState<boolean>(false);
   
+  // 연도별 기후 데이터 상태 추가
+  const [yearlyClimateData, setYearlyClimateData] = useState<YearlyClimateResponse | null>(null);
+  
   // 초기 데이터 로딩
   useEffect(() => {
     const loadInitialData = async () => {
@@ -87,17 +96,44 @@ const Earth: React.FC = () => {
         const currentDate = new Date().toISOString();
         const startDate = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
         
-        // 세계 데이터 로드 (온도, 습도 데이터)
-        const worldDataResponse = await fetchWorldData(startDate, currentDate, 'HOUR');
+        // 병렬로 데이터 가져오기 - 연도별 기후 데이터 추가
+        const [worldDataResponse, co2Data, yearlyClimateResponse] = await Promise.all([
+          // 기존 세계 데이터 로드 (온도, 습도 데이터)
+          fetchWorldData(startDate, currentDate, 'HOUR'),
+          // CO2 데이터 로드 (별도 API)
+          fetchAllCountriesCO2Data(),
+          // 연도별 기후 데이터 로드 (새로운 API)
+          fetchAllYearlyClimateData()
+        ]);
         
-        // CO2 데이터 로드 (별도 API)
-        console.log('CO2 데이터 로드 시작');
-        const co2Data = await fetchAllCountriesCO2Data();
+        console.log('모든 데이터 로드 완료');
         console.log(`CO2 데이터 로드 완료: ${Object.keys(co2Data).length}개 국가`);
+        
+        // 연도별 기후 데이터 저장
+        setYearlyClimateData(yearlyClimateResponse);
         
         // 최대 연도 범위 계산
         const currentYear = new Date().getFullYear();
         let oldestYear = currentYear - 10; // 기본값: 현재 연도 - 10년
+        
+        // 연도별 데이터에서 사용 가능한 연도 확인
+        if (yearlyClimateResponse && yearlyClimateResponse.groupByDateTime) {
+          const availableYears = new Set<number>();
+          
+          Object.keys(yearlyClimateResponse.groupByDateTime).forEach(timestamp => {
+            // 타임스탬프에서 연도 추출 (YYYY-MM-DD HH:MM:SS 형식)
+            const year = parseInt(timestamp.substring(0, 4), 10);
+            if (!isNaN(year)) {
+              availableYears.add(year);
+            }
+          });
+          
+          // 가장 오래된 연도 찾기
+          if (availableYears.size > 0) {
+            oldestYear = Math.min(...availableYears);
+            console.log(`연도별 데이터에서 가장 오래된 연도: ${oldestYear}`);
+          }
+        }
         
         // groupByDateTime에서 가장 오래된 타임스탬프 찾기
         if (worldDataResponse && worldDataResponse.groupByDateTime) {
@@ -132,8 +168,9 @@ const Earth: React.FC = () => {
               const oldestDate = new Date(oldestTimestamp);
               
               // 최소 5년, 최대 실제 데이터 범위로 설정
-              oldestYear = oldestDate.getFullYear();
-              console.log(`가장 오래된 타임스탬프: ${oldestTimestamp}, 연도: ${oldestYear}`);
+              const yearFromTimestamp = oldestDate.getFullYear();
+              oldestYear = Math.min(oldestYear, yearFromTimestamp);
+              console.log(`타임스탬프 기반 가장 오래된 연도: ${yearFromTimestamp}`);
             }
           }
         }
@@ -221,6 +258,20 @@ const Earth: React.FC = () => {
     setTimeValue(0);
   };
   
+  // 연도별 데이터에서 특정 연도의 데이터 찾기
+  const getYearlyDataForYear = (year: number): Record<string, any> | null => {
+    if (!yearlyClimateData || !yearlyClimateData.groupByDateTime) return null;
+    
+    // 해당 연도로 시작하는 타임스탬프 찾기
+    const yearTimestamp = Object.keys(yearlyClimateData.groupByDateTime)
+      .find(timestamp => timestamp.startsWith(`${year}`));
+    
+    if (!yearTimestamp) return null;
+    
+    // 해당 연도의 데이터 반환
+    return yearlyClimateData.groupByDateTime[yearTimestamp];
+  };
+  
   // 데이터 조회 함수 - 중앙 집중화된 데이터 요청 처리
   const fetchData = async (
     region: string,
@@ -233,6 +284,141 @@ const Earth: React.FC = () => {
     
     try {
       console.log(`${region} 지역 데이터 요청 시작`);
+      
+      // 연도 범위인 경우 다르게 처리
+      if (range === 'year') {
+        // 현재 연도 계산
+        const currentYear = new Date().getFullYear();
+        const targetYear = currentYear - value;
+        
+        console.log(`연도 범위 데이터 요청: ${targetYear}년`);
+        
+        // 연도별 데이터 가져오기
+        const yearData = getYearlyDataForYear(targetYear);
+        
+        if (yearData && Object.keys(yearData).length > 0) {
+          console.log(`${targetYear}년 연도별 데이터 사용`);
+          
+          // 연도별 데이터로 글로벌 데이터 업데이트
+          setGlobalData(yearData);
+          
+          // 해당 국가의 데이터가 있는지 확인
+          if (yearData[region]) {
+            // 지역 데이터 구성
+            const regionData: RegionData = {
+              countryCode: region,
+              name: getCountryNameByCode(region),
+              temperature: parseFloat(yearData[region].temperature),
+              humidity: parseFloat(yearData[region].humidity),
+              description: getCountryDescription(region),
+              // 다른 필드는 기본값 또는 null로 설정
+              environmentalIndex: 5,
+              biodiversityCount: 10000,
+              population: 50000000,
+              area: 100000,
+              conservationEfforts: [
+                `${getCountryNameByCode(region)} 환경 보존 프로그램`,
+                `${getCountryNameByCode(region)} 지속 가능한 개발 이니셔티브`
+              ],
+              threatLevel: 3
+            };
+            
+            // CO2 데이터 가져오기
+            try {
+              const co2Data = await fetchCountryCO2Data(region);
+              if (co2Data.length > 0) {
+                // 해당 연도와 가장 가까운 CO2 데이터 찾기
+                const closestCO2Data = co2Data.reduce((closest, current) => {
+                  if (!closest) return current;
+                  
+                  // 현재 항목이 타겟 연도에 더 가까우면 선택
+                  if (Math.abs(current.year - targetYear) < Math.abs(closest.year - targetYear)) {
+                    return current;
+                  }
+                  
+                  return closest;
+                });
+                
+                if (closestCO2Data) {
+                  regionData.co2Level = closestCO2Data.value;
+                }
+              }
+            } catch (error) {
+              console.error(`${region} 국가의 CO2 데이터 가져오기 실패:`, error);
+            }
+            
+            // 지역 데이터 업데이트
+            setRegionInfo(regionData);
+            setRegionDataMap(prev => ({
+              ...prev,
+              [region]: regionData
+            }));
+            
+            // 히스토리 데이터 구성
+            const historyData: HistoricalData = {
+              temperatures: [],
+              humidity: [],
+              co2Levels: []
+            };
+            
+            // 연도별 히스토리 데이터 구성
+            if (yearlyClimateData && yearlyClimateData.groupByCountry && yearlyClimateData.groupByCountry[region]) {
+              const countryYearlyData = yearlyClimateData.groupByCountry[region];
+              
+              // 타임스탬프 정렬
+              const timestamps = Object.keys(countryYearlyData).sort(
+                (a, b) => new Date(a).getTime() - new Date(b).getTime()
+              );
+              
+              // 데이터 변환
+              timestamps.forEach(timestamp => {
+                const timeData = countryYearlyData[timestamp];
+                // 타임스탬프 형식 변환 ('YYYY-MM-DD HH:MM:SS' -> 'YYYY-MM-DDTHH:MM:SSZ')
+                const normalizedTimestamp = timestamp.trim().replace(' ', 'T') + 'Z';
+                
+                if (timeData.temperature) {
+                  historyData.temperatures.push({
+                    timestamp: normalizedTimestamp,
+                    value: parseFloat(timeData.temperature)
+                  });
+                }
+                
+                if (timeData.humidity) {
+                  historyData.humidity.push({
+                    timestamp: normalizedTimestamp,
+                    value: parseFloat(timeData.humidity)
+                  });
+                }
+              });
+            }
+            
+            // CO2 히스토리 데이터 추가
+            try {
+              const co2Data = await fetchCountryCO2Data(region);
+              
+              historyData.co2Levels = co2Data.map(item => ({
+                timestamp: new Date(item.year, 0, 1).toISOString(),
+                value: item.value
+              }));
+            } catch (error) {
+              console.error(`${region} 국가의 CO2 히스토리 데이터 가져오기 실패:`, error);
+            }
+            
+            // 히스토리 데이터 업데이트
+            setHistoricalData(historyData);
+            setHistoryDataMap(prev => ({
+              ...prev,
+              [region]: historyData
+            }));
+            
+            setNoDataAvailable(false);
+            return true;
+          }
+        }
+      }
+      
+      // 기존 API 사용 (연도 범위가 아니거나, 연도별 데이터가 없는 경우)
+      console.log(`일반 데이터 요청 - 시간 범위: ${range}, 값: ${value}`);
       
       // 글로벌 데이터 업데이트
       const worldDataResponse = await fetchWorldData(startDateStr, endDateStr, range.toUpperCase() as 'HOUR');
@@ -341,6 +527,34 @@ const Earth: React.FC = () => {
       if (selectedRegion) {
         // 선택된 지역이 있으면 해당 지역 데이터 요청
         await fetchData(selectedRegion, range, value, startDate, endDate);
+      } else if (range === 'year') {
+        // 지역 선택이 없고 연도 범위인 경우 - 연도별 데이터만 업데이트
+        const currentYear = new Date().getFullYear();
+        const targetYear = currentYear - value;
+        
+        // 연도별 데이터 가져오기
+        const yearData = getYearlyDataForYear(targetYear);
+        
+        if (yearData && Object.keys(yearData).length > 0) {
+          console.log(`연도 범위 선택: ${targetYear}년 데이터 사용`);
+          setGlobalData(yearData);
+        } else {
+          // 연도별 데이터가 없는 경우 일반 데이터 요청
+          const worldDataResponse = await fetchWorldData(startDate, endDate, range.toUpperCase() as 'HOUR');
+          
+          if (worldDataResponse?.groupByDateTime) {
+            const timestamps = Object.keys(worldDataResponse.groupByDateTime).sort(
+              (a, b) => new Date(b).getTime() - new Date(a).getTime()
+            );
+            
+            if (timestamps.length > 0) {
+              const latestTimestamp = timestamps[0];
+              const latestData = worldDataResponse.groupByDateTime[latestTimestamp];
+              setWorldData(worldDataResponse);
+              setGlobalData(latestData);
+            }
+          }
+        }
       } else {
         // 지역 선택이 없는 경우 글로벌 데이터만 업데이트
         const worldDataResponse = await fetchWorldData(startDate, endDate, range.toUpperCase() as 'HOUR');
