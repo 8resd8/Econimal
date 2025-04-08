@@ -36,8 +36,8 @@ export const useGetTownEvents = () => {
     queryFn: () => getTownEvents(),
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 30000, // 항상 30초마다 갱신
-    staleTime: 20000, // 20초 동안 캐시 데이터 사용
+    refetchInterval: 50000, // 항상 50초마다 갱신
+    // staleTime: 20000, // 20초 동안 캐시 데이터 사용
   });
 
   // useEffect를 사용하여 데이터 변경 시 상태 업데이트 최적화

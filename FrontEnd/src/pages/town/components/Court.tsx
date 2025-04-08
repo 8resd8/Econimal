@@ -11,7 +11,7 @@ const Court = ({ infraEventId, className }: TownProps) => {
   const activeEvents = useTownStore((state) => state.activeEvents);
 
   // const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
-  // [수정] useMemo 추가
+  // useMemo 추가
   const isActive = useMemo(
     () => (infraEventId ? activeEvents.includes(infraEventId) : false),
     [infraEventId, activeEvents],
