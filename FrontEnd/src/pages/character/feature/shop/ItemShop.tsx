@@ -15,6 +15,20 @@ import { useShopFetchMyBack } from './../hooks/useShopFetchMyBack';
 import ErrorCoinModal from '../../componet/shop/ErrorCoinModal';
 import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
 import bgThem from '../../../../assets/auth_background.png';
+import { userMyCharActions } from '@/store/useMyCharStore';
+
+const backgroundToCharacterMap = {
+  '물속 모험의 세계': '부기부기',
+  '얼음나라 대탐험': '팽글링스',
+  '초원의 비밀 정원': '호랭이',
+};
+
+// 캐릭터 이름과 ID 매핑
+const characterNameToIdMap = {
+  부기부기: 835,
+  팽글링스: 836,
+  호랭이: 837,
+};
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -173,12 +187,33 @@ const ItemShopLogic = () => {
   const selectBackground = (backgroundId: number) => {
     if (backgroundId && backgroundId > 0) {
       handleFetchShopBack(backgroundId);
+
+      // 선택한 배경 정보 찾기
+      const selectedBackground = backShopList.find(
+        (bg) => bg.userBackgroundId === backgroundId,
+      );
+
+      if (selectedBackground) {
+        const bgName = selectedBackground.characterName;
+
+        // 기본 배경인 경우, 해당하는 캐릭터도 함께 선택
+        if (backgroundToCharacterMap[bgName]) {
+          const charName = backgroundToCharacterMap[bgName];
+          const charId = characterNameToIdMap[charName];
+
+          if (charId) {
+            // 캐릭터도 선택
+            selectCharacter(charId);
+          }
+        }
+      }
+
       console.log(backgroundId, 'backgroundId');
     } else {
       console.error('backgroundId가 존재하지 않습니다.');
     }
   };
-
+  
   return (
     <div>
       <div
