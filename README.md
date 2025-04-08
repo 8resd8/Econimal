@@ -1,4 +1,4 @@
-![logo.png](FrontEnd/src/assets/logo.png)
+<img src="FrontEnd/src/assets/logo.png" width="150" alt="200"/>
 
 <div> 
 
@@ -185,10 +185,10 @@
 | [김현우](https://github.com/8resd8) | [윤윤호](https://github.com/yun-yunho) | [주재완](https://github.com/red-sprout) |
 
 
-|                Frontend                 |              Frontend              |     Frontend                        |
-|:---------------------------------------:|:----------------------------------:|:-----------------------------------:|
-|     ![박희원](images/profile/phw.png)      |   ![안주민](images/profile/ajm.png)   |   ![황다빈](images/profile/hdb.jpg)    |
-| [박희원](https://github.com/heeeeeeeeeee1) | [안주민](https://github.com/JUMINAHN) | [황다빈](https://github.com/Daba-byte) |
+|                 Frontend                 |              Frontend              |               Frontend               |
+|:----------------------------------------:|:----------------------------------:|:------------------------------------:|
+|      ![박희원](images/profile/phw.png)      |  ![안주민](images/profile/ajm.png)  |    ![황다빈](images/profile/hdb.jpg)    |
+| [박희원](https://github.com/heeeeeeeeeee1)  | [안주민](https://github.com/JUMINAHN) | [황다빈](https://github.com/Daba-byte)  |
 
 # 프로젝트 팀원 역할
 
@@ -199,9 +199,9 @@
 - 백엔드 초기 환경설정 및 패키지 구조 설계
 - JWT 기반 인증/인가 시스템 구축
 - 상점 시스템 백엔드 로직 개발
-- 전역 예외 처리 시스템 설계
+- 전역 예외 처리 시스템 설계 
 - Spring AOP 활용 로그 출력
-- 기후 데이터 812만 개 인덱스 최적화 성능 개선 (30초 -> 1초 미만)
+- 기후 데이터 812만 개 인덱스 최적화 성능 개선
 - 기후 데이터 조회 API 응답속도 개선을 위한 Redis 캐싱 및 스케줄링 적용 
 - HTTP/2 프로토콜 도입 및 적용
 
