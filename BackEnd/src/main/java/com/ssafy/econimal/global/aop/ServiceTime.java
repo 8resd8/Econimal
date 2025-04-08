@@ -72,7 +72,7 @@ public class ServiceTime {
 		String className = fullPathClassName.substring(fullPathClassName.lastIndexOf(".") + 1);
 		String methodName = className + "." + stackTraceElement.getMethodName();
 
-		String layer = "Unknown";
+		String layer = "Other";
 		if (fullPathClassName.contains(".controller.")) {
 			layer = "Controller";
 		} else if (fullPathClassName.contains(".service.")) {
