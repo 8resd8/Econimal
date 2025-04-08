@@ -22,6 +22,7 @@ const TOAST_EXCLUDED_PAGES = [
   '/signup', // 회원가입 페이지
   '/prolog', // 프롤로그 페이지
   '/town',
+  '/edit-profile',
 ];
 
 // 마지막으로 알림을 보낸 시간을 추적하는 변수
