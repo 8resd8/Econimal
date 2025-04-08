@@ -14,14 +14,12 @@ let tokenRefreshErrorCount = 0;
 const MAX_TOKEN_REFRESH_ERRORS = 3;
 let lastTokenRefreshErrorTime = 0;
 
-// 에러 핸들링 함수
-export const handleApiError = (error: Error | AxiosError | unknown): void => {
-  console.error('API 에러 발생:', error);
-
-  // 에러 발생 시 모든 모달 닫기 - 에러 스토어를 통해 처리하기 전에 선제적으로 닫음
+// [최적화] 공통 에러 전처리 함수 - 모든 에러 핸들러에서 공통으로 처리하는 로직
+const preprocessError = (error: Error | AxiosError | unknown): boolean => {
+  // 에러 발생 시 모든 모달 닫기
   setModalOpen(false);
 
-  // 리프레시 요청 관련 에러 처리 개선
+  // 토큰 리프레시 에러 처리
   if (
     axios.isAxiosError(error) &&
     error.config?.url?.includes('/users/refresh')
@@ -40,22 +38,20 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
     // 에러가 여러 번 반복되면 토큰 데이터 정리
     if (tokenRefreshErrorCount >= MAX_TOKEN_REFRESH_ERRORS) {
       clearTokenData();
-
-      // 이후 요청에서 새로 로그인하도록 유도 (선택 사항)
-      // window.location.href = '/login';
     }
 
     // 토큰 리프레시 에러는 사용자에게 표시하지 않음
     console.log('토큰 리프레시 요청 실패, 유저에게 에러 표시 생략');
-    return;
+    return true; // 에러 처리 완료
   }
 
   // Token refresh failed 에러 메시지도 차단
   if (error instanceof Error && error.message === 'Token refresh failed') {
     console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
-    return;
+    return true; // 에러 처리 완료
   }
-  // 400 에러는 직접 조건 체크하고 토스트로 처리
+
+  // 400 에러는 토스트로만 처리
   if (
     axios.isAxiosError(error) &&
     error.response &&
@@ -63,8 +59,22 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
   ) {
     console.log('400 에러 감지, 토스트로 처리');
     showErrorToast('잘못된 요청입니다.');
+    return true; // 에러 처리 완료
+  }
+
+  // 처리되지 않은 에러는 false 반환
+  return false;
+};
+
+// 에러 핸들링 함수
+export const handleApiError = (error: Error | AxiosError | unknown): void => {
+  console.error('API 에러 발생:', error);
+
+  // 공통 전처리 로직으로 처리된 에러는 여기서 종료
+  if (preprocessError(error)) {
     return;
   }
+
   // 기본 에러 유형
   let errorType: ErrorType = 'general';
   let errorMessage = '';
@@ -99,10 +109,8 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
         console.error('에러 응답 파싱 실패:', parseError);
       }
 
-      // 에러 유형 결정
-      if (status === 400) {
-        errorType = 'badRequest';
-      } else if (status === 401 || status === 403) {
+      // 에러 유형 결정 (400 에러는 이미 처리되었으므로 여기서는 다른 에러 유형만 처리)
+      if (status === 401 || status === 403) {
         errorType = 'permission';
 
         // 401 에러는 별도 로깅만 수행
@@ -142,71 +150,22 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
 export const handleMinorError = (error: Error | AxiosError | unknown): void => {
   console.error('Minor API 에러 발생:', error);
 
-  // 경미한 에러 발생 시에도 모든 모달 닫기
-  setModalOpen(false);
-
-  // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
-  if (
-    axios.isAxiosError(error) &&
-    error.config?.url?.includes('/users/refresh')
-  ) {
-    console.log('토큰 리프레시 요청 실패, 무시');
+  // 공통 전처리 로직 실행 (대부분의 경미한 에러는 여기서 처리됨)
+  if (preprocessError(error)) {
     return;
   }
 
-  // Token refresh failed 에러 메시지도 차단
-  if (error instanceof Error && error.message === 'Token refresh failed') {
-    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
-    return;
-  }
-
-  // 400 에러는 항상 토스트로 처리
-  if (
-    axios.isAxiosError(error) &&
-    error.response &&
-    error.response.status === 400
-  ) {
-    try {
-      // 토스트 메시지로 에러 표시
-      showErrorToast('잘못된 요청입니다.');
-      return; // 추가 처리 없이 종료
-    } catch (e) {
-      console.error('토스트 표시 실패:', e);
-    }
-  }
-
-  // 400 에러가 아니거나 파싱에 실패한 경우 기본 에러 핸들러로 처리
+  // 전처리에서 처리되지 않은 에러는 기본 에러 핸들러로 처리
   handleApiError(error);
 };
 
 // 탠스택쿼리 에러 핸들러 함수
 export const queryErrorHandler = (error: unknown) => {
-  // 탠스택쿼리 에러 발생 시에도 모든 모달 닫기
-  setModalOpen(false);
-  // 리프레시 요청 관련 에러인 경우 처리하지 않고 조기 반환 (기존과 동일)
-  if (
-    axios.isAxiosError(error) &&
-    error.config?.url?.includes('/users/refresh')
-  ) {
-    console.log('토큰 리프레시 요청 실패, 무시');
+  // 공통 전처리 로직 실행 (400 에러, 토큰 에러 등은 여기서 처리됨)
+  if (preprocessError(error)) {
     return;
   }
 
-  // Token refresh failed 에러 메시지도 차단
-  if (error instanceof Error && error.message === 'Token refresh failed') {
-    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
-    return;
-  }
-
-  // 400 에러는 항상 토스트로 처리
-  if (
-    axios.isAxiosError(error) &&
-    error.response &&
-    error.response.status === 400
-  ) {
-    showErrorToast('잘못된 요청입니다.');
-    return;
-  } else {
-    handleApiError(error);
-  }
+  // 전처리에서 처리되지 않은 에러는 기본 에러 핸들러로 처리
+  handleApiError(error);
 };
