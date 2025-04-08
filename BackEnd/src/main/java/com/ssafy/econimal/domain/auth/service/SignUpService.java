@@ -14,6 +14,8 @@ import com.ssafy.econimal.domain.character.entity.Character;
 import com.ssafy.econimal.domain.character.repository.CharacterRepository;
 import com.ssafy.econimal.domain.checklist.entity.Checklist;
 import com.ssafy.econimal.domain.checklist.util.ChecklistRandomUtil;
+import com.ssafy.econimal.domain.product.entity.Product;
+import com.ssafy.econimal.domain.product.repository.ProductRepository;
 import com.ssafy.econimal.domain.town.entity.Facility;
 import com.ssafy.econimal.domain.town.entity.Infrastructure;
 import com.ssafy.econimal.domain.town.entity.Town;
@@ -21,8 +23,10 @@ import com.ssafy.econimal.domain.town.repository.FacilityRepository;
 import com.ssafy.econimal.domain.town.repository.InfrastructureRepository;
 import com.ssafy.econimal.domain.town.repository.TownRepository;
 import com.ssafy.econimal.domain.user.entity.User;
+import com.ssafy.econimal.domain.user.entity.UserBackground;
 import com.ssafy.econimal.domain.user.entity.UserCharacter;
 import com.ssafy.econimal.domain.user.entity.UserChecklist;
+import com.ssafy.econimal.domain.user.repository.UserBackgroundRepository;
 import com.ssafy.econimal.domain.user.repository.UserCharacterRepository;
 import com.ssafy.econimal.domain.user.repository.UserChecklistRepository;
 import com.ssafy.econimal.domain.user.repository.UserRepository;
@@ -44,6 +48,8 @@ public class SignUpService {
 	private final TownRepository townRepository;
 	private final BCryptPasswordEncoder encoder;
 	private final AuthValidator validator;
+	private final ProductRepository productRepository;
+	private final UserBackgroundRepository userBackgroundRepository;
 
 	public User signup(SignupRequest request) {
 		validator.validateSignUpUser(request);
@@ -64,6 +70,13 @@ public class SignUpService {
 		for (Character character : originalCharacters) {
 			UserCharacter userCharacter = UserCharacter.createUserCharacter(user, character);
 			userCharacterRepository.save(userCharacter);
+		}
+
+		// UserBackground 생성
+		List<Product> freeProduct = productRepository.findByFreeProduct();
+		for (Product product : freeProduct) {
+			UserBackground userBackground = UserBackground.createUserBackground(user, product, product.getName());
+			userBackgroundRepository.save(userBackground);
 		}
 
 		// 체크리스트 생성
