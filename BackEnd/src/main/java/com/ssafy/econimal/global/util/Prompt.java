@@ -8,6 +8,9 @@ import com.ssafy.econimal.global.common.enums.EcoType;
 
 public class Prompt {
 
+	// CO2 1톤 당 감소하는 온도
+	private static final double CO2TOTEMP = 0.000000005;
+
 	public static String environmentPrompt(String content) {
 		return """
 			다음은 초등학교 저학년 및 유치원생이 작성한 환경 관련 체크리스트 내용입니다.
@@ -63,7 +66,7 @@ public class Prompt {
 			{
 				"feedback": "500자 내외의 종합 평가 피드백",
 				"carbon": "%f",
-				"temperature": "-0.2"
+				"temperature": "%f"
 			}
 			""".formatted(
 			electricityLogs.correct(),
@@ -75,12 +78,8 @@ public class Prompt {
 			courtLogs.correct(),
 			courtLogs.total(),
 			totalCarbon,
-			totalCarbon
+			totalCarbon,
+			totalCarbon * CO2TOTEMP
 		);
-		/*
-			또한, 다음은 사용자의 실시간 환경 데이터입니다:
-			- 탄소 배출량: %d
-			- 온도 상승량: %d
-		 */
 	}
 }
