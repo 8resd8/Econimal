@@ -21,6 +21,8 @@ import {
   useMyCharacterId,
   useMyBackgroundId,
 } from '@/store/useMyCharStore';
+import bgnew from '../../../../assets/char/background/noBack.png';
+import charnew from '../../../../assets/char/background/noProfile.png';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -89,7 +91,7 @@ const ItemShopLogic = () => {
         ...Array(8 - charShopList.length).fill({
           productId: -1,
           characterName: '',
-          image: '',
+          image: charnew,
           owned: false,
           price: -1,
           userCharacterId: -1,
@@ -117,7 +119,7 @@ const ItemShopLogic = () => {
         ...Array(8 - backShopList.length).fill({
           productId: -1,
           characterName: '',
-          image: '',
+          image: bgnew,
           owned: false,
           price: -1,
           userBackgroundId: -1,
@@ -302,68 +304,81 @@ const ItemShopLogic = () => {
 
   //상점에서 배경 선택
   const selectBackground = (backgroundId: number) => {
-    // 이미 처리 중이거나 현재 배경과 동일한 경우 무시
+    // Prevent processing if already in progress or selecting the current background
     if (isProcessing || backgroundId === currentBackgroundId) {
-      console.log('이미 처리 중이거나 현재 배경과 동일합니다.');
+      console.log('Already processing or current background is the same');
       return;
     }
 
     if (backgroundId && backgroundId > 0) {
-      console.log(`배경 선택 호출: ${backgroundId}`);
-      setIsProcessing(true); // 처리 중 상태 설정
+      console.log(`Background selection called: ${backgroundId}`);
+      setIsProcessing(true); // Set processing state
 
-      // 1. 배경 ID로 배경 정보 찾기
+      // 1. Find background info by ID
       const selectedBackground = backShopList.find(
         (bg) => bg.userBackgroundId === backgroundId,
       );
 
       if (selectedBackground) {
         const bgName = selectedBackground.characterName;
-        console.log(`배경 '${bgName}' 선택됨`);
+        console.log(`Background '${bgName}' selected`);
 
-        // 2. 배경 선택 API 호출
-        handleFetchShopBack(backgroundId);
-
-        // 3. 이 배경이 특정 캐릭터의 기본 배경인지 확인
+        // 2. Check if this background is a character-specific default background
         let matchedCharName = null;
         if (bgName === '물속 모험의 세계') matchedCharName = '부기부기';
         else if (bgName === '얼음나라 대탐험') matchedCharName = '팽글링스';
         else if (bgName === '초원의 비밀 정원') matchedCharName = '호랭이';
 
-        // 4. 배경에 맞는 캐릭터가 있으면 자동 선택
-        if (matchedCharName) {
+        // 3. If this is a character-specific background, first change the character, then the background
+        if (matchedCharName && matchedCharName !== currentCharName) {
           console.log(
-            `배경 '${bgName}'에 맞는 캐릭터 '${matchedCharName}' 검색 중...`,
+            `Background '${bgName}' matched to character '${matchedCharName}'`,
           );
+
+          // Find the matching character
           const matchingCharacter = charShopList.find(
             (char) => char.characterName === matchedCharName,
           );
 
           if (matchingCharacter && matchingCharacter.userCharacterId) {
             console.log(
-              `캐릭터 ID ${matchingCharacter.userCharacterId} 찾음, 캐릭터 변경 중...`,
+              `Found character ID ${matchingCharacter.userCharacterId}, changing character first...`,
             );
-            // 5. 지연 후 캐릭터 변경 (API 호출 충돌 방지)
+
+            // Switch to the matched character FIRST
+            handleFetchShopChar(matchingCharacter.userCharacterId);
+
+            // THEN, after a delay, update the background
             setTimeout(() => {
-              handleFetchShopChar(matchingCharacter.userCharacterId);
-            }, 100);
-          } else {
-            console.error(`'${matchedCharName}' 캐릭터를 찾을 수 없음`);
-            setIsProcessing(false); // 처리 완료
+              console.log(
+                `Now setting background to ${backgroundId} after character change`,
+              );
+              handleFetchShopBack(backgroundId);
+
+              // Release processing state after a delay
+              setTimeout(() => {
+                setIsProcessing(false);
+              }, 300);
+            }, 500); // Increased delay to ensure character change completes first
+
+            return; // Exit here to prevent double background update
           }
-        } else {
-          // 기본 배경이 아닌 경우 바로 처리 완료
-          setTimeout(() => {
-            setIsProcessing(false);
-          }, 300);
         }
+
+        // For common backgrounds or when the character is already correct, just update the background
+        handleFetchShopBack(backgroundId);
+
+        // Release processing state after a delay
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 300);
       } else {
-        console.error('배경 정보를 찾을 수 없습니다.');
-        setIsProcessing(false); // 처리 완료
+        console.error(`Could not find background info for ID ${backgroundId}`);
+        setIsProcessing(false);
       }
     } else {
-      console.error('backgroundId가 존재하지 않습니다.');
-      setIsProcessing(false); // 처리 완료
+      console.error('Invalid backgroundId');
+      setIsProcessing(false);
     }
   };
 

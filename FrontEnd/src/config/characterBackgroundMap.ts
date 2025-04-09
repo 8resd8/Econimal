@@ -1,5 +1,3 @@
-
-
 // 기본 매핑은 이름 기반으로 유지
 export const backgroundToCharacterMap: Record<string, string> = {
   '물속 모험의 세계': '부기부기',
