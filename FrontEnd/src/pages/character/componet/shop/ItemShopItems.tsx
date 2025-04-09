@@ -58,6 +58,7 @@ interface Props {
   itemType?: 'character' | 'background'; // 아이템 타입 - 추가됨
   selectable?: boolean; // 선택 가능 여부 (배경인 경우)
   currentCharName?: string; // 현재 선택된 캐릭터 이름
+  currentBackgroundId?: number; // 현재 선택된 배경 ID (추가)
 }
 
 const ItemShopItems = ({
@@ -78,6 +79,7 @@ const ItemShopItems = ({
   itemType = 'character',
   selectable = true, // 기본값 true
   currentCharName,
+  currentBackgroundId, // 현재 선택된 배경 ID prop 추가
 }: Props) => {
   const myCharName = useMyCharName(); // 현재 선택된 캐릭터 이름 (store에서 가져옴)
   // 전달받은 currentCharName이 있으면 우선 사용, 없으면 store에서 가져온 값 사용
@@ -120,7 +122,11 @@ const ItemShopItems = ({
       return true;
     }
 
-    // 배경 타입인 경우 (현재는 배경 이름 비교 로직이 없으므로 선택 ID로만 판단)
+    // 배경 타입이고, 현재 배경 ID와 일치하는 경우 (추가)
+    if (itemType === 'background' && backgroundId && currentBackgroundId) {
+      return backgroundId === currentBackgroundId;
+    }
+
     return false;
   };
 
