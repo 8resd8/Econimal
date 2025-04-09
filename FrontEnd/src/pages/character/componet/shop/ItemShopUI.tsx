@@ -61,7 +61,7 @@ const ItemShopUI = ({
         <div className='flex items-center justify-between w-full px-2 relative pb-2 mt-3'>
           <GoMainBtn />
           <h1 className='absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white'>
-            상점
+          🐾 상점 🐾
           </h1>
           <CharCoin coin={coin} />
         </div>
