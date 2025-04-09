@@ -166,10 +166,12 @@ export const fetchHistoricalData = async ({
     
     // 현재 날짜와 시작 날짜 계산
     let endDate = new Date().toISOString();
-    // 시간 범위에 따른 시작 날짜 계산
-    const formatDate = (date: Date): string => {
-      date.setMinutes(0, 0, 0); // 정각으로 설정
-      return date.toISOString();
+    
+    // 날짜 형식 변환 (ISO 형식으로 통일) - 항상 정각으로 설정
+    const formatDate = (date: Date | string): string => {
+      const d = typeof date === 'string' ? new Date(date) : date;
+      d.setMinutes(0, 0, 0); // 분, 초, 밀리초를 0으로 설정
+      return d.toISOString().split('.')[0];
     };
     
     // 충분한 데이터 포인트를 얻기 위해 기간 확장

@@ -184,6 +184,9 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
     };
   }, [dataPoints, yAxisMin, yAxisMax, label]);
   
+  // 각 포인트당 최소 너비 - 일정한 간격 유지를 위한 상수
+  const MIN_POINT_WIDTH = 40; // 각 데이터 포인트가 차지할 최소 픽셀 너비
+  
   // 차트 옵션 - Y축 전용
   const yAxisOptions = useMemo((): ChartOptions<'line'> => {
     return {
@@ -252,7 +255,8 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
           ticks: {
             maxRotation: 45,
             minRotation: 45,
-            font: { size: 10 }
+            font: { size: 10 },
+            autoSkip: false // 모든 레이블 표시
           },
           border: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
         },
@@ -270,37 +274,29 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
     };
   }, [yAxisRange]);
   
-  // 반응형 포인트 너비 관련 상태
-  const [pointWidth, setPointWidth] = useState(40);
+  // 반응형 디자인을 위한 상태
   const [chartWidth, setChartWidth] = useState(300);
   
-  // 포인트 너비 계산 함수
-  const calculatePointWidth = () => {
-    if (!window.innerWidth) return 40;
-    
-    if (window.innerWidth < 768) {
-      return 30; // 모바일
-    } else if (window.innerWidth < 1200) {
-      return 35; // 태블릿
-    } else {
-      return 40; // 데스크탑
-    }
-  };
-  
-  // 차트 너비 계산 함수
+  // 차트 너비 계산 함수 - 포인트 간격을 일정하게 유지하도록 개선
   const calculateChartWidth = () => {
     if (!chartRef.current) return 300;
     
     const containerWidth = chartRef.current.clientWidth - 60;
-    const requiredWidth = Math.max(300, dataPoints.length * pointWidth);
     
-    return Math.min(requiredWidth, containerWidth * 1.5);
+    // 데이터 포인트 수에 따라 필요한 너비 계산
+    // 각 포인트마다 최소 MIN_POINT_WIDTH 픽셀 확보
+    const requiredWidth = Math.max(
+      300,  // 최소 300px
+      dataPoints.length * MIN_POINT_WIDTH  // 각 포인트당 최소 너비 보장
+    );
+    
+    // 컨테이너보다 넓으면 스크롤이 생기도록 설정
+    return Math.max(requiredWidth, containerWidth);
   };
   
   // 리사이즈 처리
   useEffect(() => {
     const handleResize = () => {
-      setPointWidth(calculatePointWidth());
       if (chartRef.current) {
         setChartWidth(calculateChartWidth());
       }
@@ -319,11 +315,11 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
     if (dataPoints.length > 0 && chartRef.current) {
       setChartWidth(calculateChartWidth());
     }
-  }, [dataPoints.length, pointWidth]);
+  }, [dataPoints.length]);
   
   // 스크롤 컨테이너 초기 스크롤 위치 설정 (최신 데이터 표시)
   useEffect(() => {
-    if (processedChartData.labels.length > 7 && scrollContainerRef.current) {
+    if (processedChartData.labels.length > 0 && scrollContainerRef.current) {
       // 스크롤을 오른쪽 끝으로 이동 (최신 데이터 표시)
       setTimeout(() => {
         if (scrollContainerRef.current) {
@@ -353,16 +349,17 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
     );
   }
   
-  // 데이터 포인트가 7개 초과인 경우 스크롤 활성화
-  const hasScrollBar = dataPoints.length > 7;
-  
   // 스크롤 컨테이너 스타일
   const scrollContainerStyle: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
     overflowY: 'hidden',
-    overflowX: hasScrollBar ? 'auto' : 'hidden',
+    overflowX: 'auto', // 항상 스크롤 허용
   };
+
+  // 데이터 포인트별 간격 계산 (로깅용)
+  const pointSpacing = chartWidth / processedChartData.labels.length;
+  console.log(`[Chart-${componentId}] 차트 너비: ${chartWidth}px, 포인트 개수: ${processedChartData.labels.length}, 포인트당 간격: ${pointSpacing.toFixed(1)}px`);
 
   return (
     <div className="bg-white rounded-lg shadow p-3 h-60 flex flex-col" ref={chartRef}>
@@ -384,7 +381,7 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
             paddingRight: '2px'
           }}>
             {/* Y축만 표시 */}
-            <div style={{ width: '45px', height: '100%' }}>
+            <div style={{ width: '103px', height: '100%' }}>
               <Line 
                 data={{
                   ...processedChartData,
@@ -402,6 +399,7 @@ const RegionDataChart: React.FC<RegionDataChartProps> = ({
               style={scrollContainerStyle}
               className="chart-scroll-container"
             >
+              {/* 여기서 chartWidth가 충분히 커서 각 포인트가 MIN_POINT_WIDTH 픽셀 이상 차지하도록 보장 */}
               <div style={{ width: `${chartWidth}px`, height: '100%' }}>
                 <Line 
                   data={processedChartData} 

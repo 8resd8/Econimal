@@ -1,80 +1,42 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 interface EventAlertProps {
   isActive: boolean;
   className?: string;
 }
 
-const EventAlert = ({ isActive, className = '' }: EventAlertProps) => {
-  // 디버깅용 로그는 개발환경에서만 출력하도록 변경
-  if (process.env.NODE_ENV === 'development') {
-    console.log('EventAlert rendering, isActive:', isActive);
-  }
-
-  const [key, setKey] = useState(0);
-  // 이전 isActive 상태를 추적하는 ref 추가
-  const prevIsActiveRef = useRef(isActive);
-  // 인터벌 ID를 저장하는 ref 추가
-  const intervalRef = useRef<number | null>(null);
-
-  // forceRemount를 useCallback으로 최적화
-  const forceRemount = useCallback(() => {
-    setKey((prev) => prev + 1);
-  }, []);
-
-  // isActive 변경 시 애니메이션 리셋 로직 개선
-  useEffect(() => {
-    // isActive가 false->true로 변경된 경우에만 리마운트
-    if (isActive && !prevIsActiveRef.current) {
-      forceRemount();
-    }
-    prevIsActiveRef.current = isActive;
-
-    if (isActive) {
-      // 이미 실행 중인 인터벌이 있다면 제거 후 재설정
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-      }
-
-      // 참조에 인터벌 ID 저장
-      intervalRef.current = window.setInterval(forceRemount, 3000);
-    }
-
-    return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [isActive, forceRemount]);
-
-  // 별도 가시성 변경 이벤트 핸들러 최적화
-  useEffect(() => {
-    if (!isActive) return;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isActive) {
-        forceRemount();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isActive, forceRemount]);
-
+const EventAlert = memo(({ isActive, className = '' }: EventAlertProps) => {
+  // isActive가 false면 아무것도 렌더링하지 않음
   if (!isActive) return null;
+
+  // 애니메이션 설정을 위한 ref
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  // 컴포넌트가 마운트되면 즉시 애니메이션 적용
+  useEffect(() => {
+    if (alertRef.current) {
+      // 초기 transform 설정으로 애니메이션이 즉시 시작될 수 있게 함
+      alertRef.current.style.transform = 'translateY(0px)';
+    }
+  }, []);
 
   return (
     <div
-      key={key}
       className={`absolute animate-bounce bg-red-500 rounded-full flex items-center justify-center text-white text-2xl sm:text-base md:text-xl lg:text-2xl font-bold ${className}`}
+      // 애니메이션 강제 적용 (CSS 변수 활용)
+      style={{
+        // 애니메이션 속성 직접 지정하여 Tailwind 기본값 덮어쓰기
+        animationDuration: '1s',
+        animationDelay: '0s', // 지연 없이 즉시 시작
+        animationIterationCount: 'infinite',
+        animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
+        animationFillMode: 'both', // 애니메이션 시작 전에도 첫 프레임 적용
+        willChange: 'transform', // GPU 가속 활성화
+      }}
     >
       !
     </div>
   );
-};
+});
 
 export default EventAlert;

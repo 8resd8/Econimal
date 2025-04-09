@@ -18,7 +18,7 @@ const MyHouse = ({ infraEventId, className }: TownProps) => {
   // 이벤트가 활성화 되었는지 확인 -> 활성화 됐을 경우 CSS 효과(ex. 반짝반짝)
   // const isActive = infraEventId ? activeEvents.includes(infraEventId) : false;
   // includes() : 배열에서 특정 요소가 존재하는지 확인하는 메서드
-  // [수정] useMemo를 사용하여 계산 최적화
+  // useMemo를 사용하여 계산 최적화
   const isActive = useMemo(
     () => (infraEventId ? activeEvents.includes(infraEventId) : false),
     [infraEventId, activeEvents],

@@ -1,4 +1,11 @@
-import { useEffect, useState, Suspense, useMemo } from 'react';
+import {
+  useEffect,
+  useState,
+  Suspense,
+  useMemo,
+  useCallback,
+  memo,
+} from 'react';
 import Court from './components/Court';
 import MyHouse from './components/MyHouse';
 import SewageTreatmentCenter from './components/SewageTreatmentCenter';
@@ -10,7 +17,6 @@ import { useGetTownEvents } from './features/useTownQuery';
 import { useTownStore } from '@/store/useTownStore';
 import { TownEvent, TownEventsResponse } from './features/townApi';
 import pollutedImg from '@/assets/town/polluted-river.png';
-
 import LoadingScreen from '@/components/LoadingScreen';
 
 // 하위 컴포넌트로 전달할 인프라 아이디 타입
@@ -26,21 +32,29 @@ interface TownContentProps {
 }
 
 // 실제 마을 컨텐츠 분리 - 이 컴포넌트는 데이터가 준비된 경우에만 렌더링됨
-const TownContent = ({ data }: TownContentProps) => {
+// 실제 마을 컨텐츠 분리 - 이 컴포넌트는 데이터가 준비된 경우에만 렌더링됨
+const TownContent = memo(({ data }: TownContentProps) => {
   const infraStatus = useTownStore((state) => state.infraStatus);
 
-  const townEventsData = data;
-  // seMemo로 이벤트 ID 매핑 최적화
+  // useMemo로 이벤트 ID 매핑 최적화
   const infraEventMap = useMemo(() => {
-    if (!townEventsData?.townStatus) return {};
+    if (!data?.townStatus) return {};
 
-    return townEventsData.townStatus.reduce((acc, event) => {
+    return data.townStatus.reduce((acc, event) => {
       if (event.isActive) {
         acc[event.ecoType] = event.infraEventId;
       }
       return acc;
     }, {} as Record<string, number>);
-  }, [townEventsData]);
+  }, [data]);
+
+  // 각 인프라에 해당 이벤트ID 전달하는 함수를 useCallback으로 최적화
+  const getInfraEventId = useCallback(
+    (ecoType: string): number | undefined => {
+      return infraEventMap[ecoType];
+    },
+    [infraEventMap],
+  );
 
   // 각 인프라에 해당 이벤트ID 전달하는 함수
   // const getInfraEventId = (ecoType: string) => {
@@ -52,9 +66,9 @@ const TownContent = ({ data }: TownContentProps) => {
   //   return infraEvent ? infraEvent.infraEventId : undefined;
   // };
 
-  const getInfraEventId = (ecoType: string): number | undefined => {
-    return infraEventMap[ecoType];
-  };
+  // const getInfraEventId = (ecoType: string): number | undefined => {
+  //   return infraEventMap[ecoType];
+  // };
 
   return (
     // 전체 화면을 차지하는 컨테이너
@@ -109,7 +123,7 @@ const TownContent = ({ data }: TownContentProps) => {
       </div>
     </div>
   );
-};
+});
 
 // 메인 Town 컴포넌트 - 로딩 상태 관리 및 데이터 페칭
 const Town = () => {
