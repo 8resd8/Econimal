@@ -14,7 +14,7 @@ let tokenRefreshErrorCount = 0;
 const MAX_TOKEN_REFRESH_ERRORS = 3;
 let lastTokenRefreshErrorTime = 0;
 
-// [최적화] 공통 에러 전처리 함수 - 모든 에러 핸들러에서 공통으로 처리하는 로직
+// 공통 에러 전처리 함수 - 모든 에러 핸들러에서 공통으로 처리하는 로직
 const preprocessError = (error: Error | AxiosError | unknown): boolean => {
   // 에러 발생 시 모든 모달 닫기
   setModalOpen(false);
@@ -41,28 +41,40 @@ const preprocessError = (error: Error | AxiosError | unknown): boolean => {
     }
 
     // 토큰 리프레시 에러는 사용자에게 표시하지 않음
-    console.log('토큰 리프레시 요청 실패, 유저에게 에러 표시 생략');
     return true; // 에러 처리 완료
   }
 
   // Token refresh failed 에러 메시지도 차단
   if (error instanceof Error && error.message === 'Token refresh failed') {
-    console.log('Token refresh failed 에러 감지, 사용자에게 표시하지 않음');
     return true; // 에러 처리 완료
   }
 
-  // 400 에러는 토스트로만 처리
+  // 400 에러는 현재 경로에 따라 처리
   if (
     axios.isAxiosError(error) &&
     error.response &&
     error.response.status === 400
   ) {
-    console.log('400 에러 감지, 토스트로 처리');
-    showErrorToast('잘못된 요청입니다.');
+    // 현재 사용자가 있는 페이지 URL 확인
+    const currentPath = window.location.pathname;
+
+    // 로그인/회원가입 페이지인지 확인
+    const isAuthPage = currentPath === '/login' || currentPath === '/signup';
+
+    if (isAuthPage) {
+      // 로그인/회원가입 페이지에서는 400 에러 토스트 표시 생략
+      console.log(
+        '로그인/회원가입 페이지 400 에러, 토스트 표시 생략:',
+        error.response.data,
+      );
+    } else {
+      // 다른 페이지에서는 기존대로 토스트 표시
+      console.log('400 에러 감지, 토스트로 처리');
+      showErrorToast('잘못된 요청입니다.');
+    }
+
     return true; // 에러 처리 완료
   }
-
-  // 처리되지 않은 에러는 false 반환
   return false;
 };
 
@@ -90,15 +102,6 @@ export const handleApiError = (error: Error | AxiosError | unknown): void => {
 
       try {
         const errorData = axiosError.response.data as ErrorResponse;
-
-        // 상세 에러 정보 디버깅용
-        console.error('백엔드 에러 상세정보:', {
-          timestamp: errorData.timestamp,
-          status: errorData.status,
-          error: errorData.error,
-          message: errorData.message,
-          path: errorData.path,
-        });
 
         // 서버에서 전달한 에러 메시지가 있으면 사용
         if (errorData.message) {
