@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // 시간 범위 타입
 export type TimeRange = 'hour' | 'day' | 'month' | 'year';
@@ -36,12 +36,12 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
   const [endDate, setEndDate] = useState<string>('');
 
   // 연도 범위 처리 - 'year' 타입일 때는 백엔드 최대값 사용
-  const getMaxValue = () => {
+  const getMaxValue = useCallback(() => {
     if (timeRange === 'year') {
       return maxYears;
     }
     return TIME_RANGE_CONFIG[timeRange].max;
-  };
+  }, [timeRange, maxYears]);
 
   // 범위에 따른 최대값과 스텝 계산
   const maxValue = getMaxValue();
@@ -63,15 +63,10 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       console.log('[TimeSlider] 연도 데이터 초기 로드 완료');
     }
   // 의존성 배열에서 value 제거하여 슬라이더 이동 시 재요청 방지
-  }, [timeRange, onFetchData, maxYears]);
-  
-  // 날짜 계산 및 업데이트
-  useEffect(() => {
-    updateDateRange(value);
-  }, [timeRange, value]);
+  }, [timeRange, onFetchData, maxYears, fetchedData, value]);
   
   // 날짜 범위 계산 함수
-  const updateDateRange = (sliderValue: number) => {
+  const updateDateRange = useCallback((sliderValue: number) => {
     const now = new Date();
     // 현재 시간을 정각으로 설정 (분, 초, 밀리초를 0으로)
     now.setMinutes(0, 0, 0);
@@ -99,18 +94,33 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     // 시작 시간도 정각으로 설정
     start.setMinutes(0, 0, 0);
     setStartDate(formatDateTimeForDisplay(start.toISOString()));
-  };
+  }, [timeRange]);
   
+  // 날짜 계산 및 업데이트 - 별도의 useEffect를 사용
+  useEffect(() => {
+    updateDateRange(value);
+  }, [timeRange, value, updateDateRange]);
+  
+
   // 슬라이더 값 변경 핸들러
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseInt(e.target.value, 10);
     setValue(newValue);
-    onChange(newValue);
+    
+    // 부모 컴포넌트에 값 변경 알림을 setTimeout으로 감싸기
+    setTimeout(() => {
+      onChange(newValue);
+    }, 0);
+  };
+  
+  // 값이 변경될 때 부모 컴포넌트 콜백 호출 및 데이터 요청 처리
+  useEffect(() => {
+    // 부모 컴포넌트에 값 변경 알림
+    onChange(value);
     
     // 연도 타입인 경우 슬라이더 변경 시 데이터를 다시 요청하지 않음
-    if (timeRange !== 'year' && onFetchData) {
-      console.log(`[TimeSlider] 슬라이더 값 변경: ${timeRange} 타입, ${newValue} 값`);
-      setFetchedData(false);
+    if (timeRange !== 'year' && onFetchData && !playing) {
+      console.log(`[TimeSlider] 슬라이더 값 변경: ${timeRange} 타입, ${value} 값`);
       
       // 직접 데이터 요청 (지도 업데이트를 위해)
       const now = new Date();
@@ -119,24 +129,24 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       
       switch (timeRange) {
         case 'hour':
-          startDate = new Date(now.getTime() - newValue * 60 * 60 * 1000);
+          startDate = new Date(now.getTime() - value * 60 * 60 * 1000);
           break;
         case 'day':
-          startDate = new Date(now.getTime() - newValue * 24 * 60 * 60 * 1000);
+          startDate = new Date(now.getTime() - value * 24 * 60 * 60 * 1000);
           break;
         case 'month':
-          startDate = new Date(now.getFullYear(), now.getMonth() - newValue, now.getDate(), now.getHours());
+          startDate = new Date(now.getFullYear(), now.getMonth() - value, now.getDate(), now.getHours());
           break;
         default:
-          startDate = new Date(now.getTime() - newValue * 60 * 60 * 1000);
+          startDate = new Date(now.getTime() - value * 60 * 60 * 1000);
       }
       
       startDate.setMinutes(0, 0, 0);
-      onFetchData(timeRange, newValue, startDate.toISOString(), now.toISOString());
+      onFetchData(timeRange, value, startDate.toISOString(), now.toISOString());
     } else if (timeRange === 'year') {
-      console.log(`[TimeSlider] 연도 슬라이더 값 변경: ${newValue}년 (API 요청 없음)`);
+      console.log(`[TimeSlider] 연도 슬라이더 값 변경: ${value}년 (API 요청 없음)`);
     }
-  };
+  }, [value, timeRange, onChange, onFetchData, playing]);
   
   // 범위 변경 핸들러
   const handleRangeChange = (range: TimeRange) => {
@@ -301,9 +311,6 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     setPlaying(true);
     console.log('[TimeSlider] 재생 시작');
     
-    // 연도 타입일 때는 캐시된 데이터 활용, 다시 API 호출하지 않음
-    const isYearType = timeRange === 'year';
-    
     const timer = setInterval(() => {
       setValue((prev) => {
         const newValue = prev + stepValue;
@@ -315,26 +322,11 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
         // 값 변경 시 부모 컴포넌트에 전달하여 지도 업데이트 트리거
         onChange(newValue);
         
-        // 연도 타입이 아니고, 데이터가 필요한 경우에만 새 API 요청
-        if (!isYearType && onFetchData) {
+        // 연도 타입인 경우에만 데이터 요청 추가
+        if (timeRange === 'year' && onFetchData) {
           const now = new Date();
           now.setMinutes(0, 0, 0);
-          let startDate: Date;
-          
-          switch (timeRange) {
-            case 'hour':
-              startDate = new Date(now.getTime() - newValue * 60 * 60 * 1000);
-              break;
-            case 'day':
-              startDate = new Date(now.getTime() - newValue * 24 * 60 * 60 * 1000);
-              break;
-            case 'month':
-              startDate = new Date(now.getFullYear(), now.getMonth() - newValue, now.getDate(), now.getHours());
-              break;
-            default:
-              startDate = new Date(now.getTime() - newValue * 60 * 60 * 1000);
-          }
-          
+          const startDate = new Date(now.getFullYear() - newValue, 0, 1, 0);
           startDate.setMinutes(0, 0, 0);
           onFetchData(timeRange, newValue, startDate.toISOString(), now.toISOString());
         }
@@ -397,7 +389,7 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     }
   };
   
-  // 날짜 표시용 포맷팅 - 항상 정각(00분)으로 표시
+  // 날짜 표시용 포맷팅 함수
   function formatDateTimeForDisplay(isoString: string): string {
     const date = new Date(isoString);
     
@@ -520,39 +512,30 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       </div>
       
       <div className="flex justify-center gap-4 mt-auto pt-4">
-        {/* 조회하기 버튼 - 연도 타입이 아닐 때만 표시 */}
-        {showDateInputs && (
+        
+        {/* 재생 버튼 - 연도 타입일 때만 표시 */}
+        {timeRange === 'year' && (
           <button
-            onClick={handleFetchData}
-            className="flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+            onClick={togglePlayback}
+            className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-            </svg>
-            조회하기
+            {playing ? (
+              <>
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                일시정지
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+                재생
+              </>
+            )}
           </button>
         )}
-        
-        <button
-          onClick={togglePlayback}
-          className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-        >
-          {playing ? (
-            <>
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              일시정지
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-              </svg>
-              재생
-            </>
-          )}
-        </button>
       </div>
     </div>
   );

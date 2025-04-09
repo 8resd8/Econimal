@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
@@ -41,8 +41,8 @@ const Tooltip = styled.div`
 
 const Legend = styled.div`
   position: absolute;
-  bottom: 35px;
-  left: 20px;
+  bottom: 20px;
+  left: 15px;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 8px 10px;
   border-radius: 5px;

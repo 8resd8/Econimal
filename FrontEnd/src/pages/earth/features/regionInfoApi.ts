@@ -118,7 +118,6 @@ export const fetchRegionInfo = async ({
       startDate,
       endDate,
       type: timeRange.toUpperCase(),
-      countryCode: region
     });
 
     // API 요청
@@ -126,7 +125,6 @@ export const fetchRegionInfo = async ({
       startDate,
       endDate,
       type: timeRange.toUpperCase(),
-      countryCode: region
     });
 
     console.log('지역 정보 API 응답 성공:', response.status);
@@ -213,7 +211,6 @@ export const fetchHistoricalData = async ({
       startDate,
       endDate,
       type: timeRange.toUpperCase(),
-      countryCode: region
     });
 
     // API 호출
@@ -221,7 +218,6 @@ export const fetchHistoricalData = async ({
       startDate,
       endDate,
       type: timeRange.toUpperCase(),
-      countryCode: region
     });
 
     console.log('히스토리 데이터 API 응답 상태:', response.status);

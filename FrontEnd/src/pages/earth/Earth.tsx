@@ -249,7 +249,22 @@ const Earth: React.FC = () => {
   
   // 시간 값 변경 핸들러
   const handleTimeValueChange = (value: number) => {
+    // 단순히 timeValue만 업데이트
     setTimeValue(value);
+    
+    // year 타입일 때는 이미 로드된 yearlyClimateData에서 해당 연도 데이터 찾아 적용
+    if (timeRange === 'year' && yearlyClimateData) {
+      const currentYear = new Date().getFullYear();
+      const targetYear = currentYear - value;
+      
+      // 이미 로드된 연도별 데이터에서 해당 연도 데이터 찾기
+      const yearData = getYearlyDataForYear(targetYear);
+      
+      if (yearData && Object.keys(yearData).length > 0) {
+        // 데이터가 있으면 바로 적용 (API 요청 없음)
+        setGlobalData(yearData);
+      }
+    }
   };
   
   // 시간 범위 변경 핸들러
