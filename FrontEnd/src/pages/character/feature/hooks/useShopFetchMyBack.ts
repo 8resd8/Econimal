@@ -1,3 +1,7 @@
+import { backgroundShopConfig } from '@/config/backgroundShopConfig';
+import { userMyCharActions } from '@/store/useMyCharStore';
+import { useMutation } from '@tanstack/react-query';
+
 // Modified useShopFetchMyBack hook
 export const useShopFetchMyBack = () => {
   const { setUserBackgroundId, setBackImg, setUserCharacterId, setName } =
