@@ -26,7 +26,7 @@ export const useMyCharStore = create<MyCharStoreTypes>()(
           set({ userCharacterId: userId }),
         setUserBackgroundId: (backId: number) =>
           set({ userBackgroundId: backId }),
-        setName: (name: string) => set({ name: name }),
+        setName: (name: string) => set({ name }),
         // 배경 이미지 직접 설정 액션 추가
         setBackImg: (backImg: string) => set({ backImg }),
         setAllData: (characterInfo: CharacterTypes<number>) =>

@@ -1,8 +1,44 @@
 import { useState } from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
-import { Lock, Check } from 'lucide-react';
-import ShopCoin from './ShopCoinUI';
+import { Lock, Check, AlertTriangle } from 'lucide-react';
 import SelectionModal from './SelectModal';
+import { useMyCharName } from '@/store/useMyCharStore';
+
+// 캐릭터 메핑 - 이 정보는 useShopFetchMyChar.ts에서 import하는 것이 좋습니다
+const characterToBackgroundMap = {
+  부기부기: [
+    '물속 모험의 세계',
+    '자연의 숨결',
+    '끝없는 바다 여행',
+    '거대한 얼음 왕국',
+  ],
+  팽글링스: [
+    '얼음나라 대탐험',
+    '자연의 숨결',
+    '끝없는 바다 여행',
+    '거대한 얼음 왕국',
+  ],
+  호랭이: [
+    '초원의 비밀 정원',
+    '자연의 숨결',
+    '끝없는 바다 여행',
+    '거대한 얼음 왕국',
+  ],
+};
+
+// 기본 배경과 캐릭터 매핑 (반대 방향)
+const backgroundToCharacterMap = {
+  '물속 모험의 세계': '부기부기',
+  '얼음나라 대탐험': '팽글링스',
+  '초원의 비밀 정원': '호랭이',
+};
+
+// 공통 배경 (모든 캐릭터가 선택 가능)
+const commonBackgrounds = [
+  '자연의 숨결',
+  '끝없는 바다 여행',
+  '거대한 얼음 왕국',
+];
 
 interface Props {
   setHoveredItemId: (productId: number) => void;
@@ -20,6 +56,8 @@ interface Props {
   selectCharacter?: (characterId: number) => void; // 캐릭터 선택 함수
   selectBackground?: (backgroundId: number) => void; // 배경 선택 함수 - 추가됨
   itemType?: 'character' | 'background'; // 아이템 타입 - 추가됨
+  selectable?: boolean; // 선택 가능 여부 (배경인 경우)
+  currentCharName?: string; // 현재 선택된 캐릭터 이름
 }
 
 const ItemShopItems = ({
@@ -38,19 +76,65 @@ const ItemShopItems = ({
   selectCharacter,
   selectBackground,
   itemType = 'character',
+  selectable = true, // 기본값 true
+  currentCharName,
 }: Props) => {
+  const myCharName = useMyCharName(); // 현재 선택된 캐릭터 이름 (store에서 가져옴)
+  // 전달받은 currentCharName이 있으면 우선 사용, 없으면 store에서 가져온 값 사용
+  const activeCharName = currentCharName || myCharName;
+
   const isSelected = selectedItemId === productId;
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectionStatus, setSelectionStatus] = useState<'loading' | 'success'>(
     'loading',
   );
 
+  // 배경 선택 가능 여부 확인
+  const isBackgroundSelectable = (): boolean => {
+    // 배경 아이템이 아니면 항상 선택 가능
+    if (itemType !== 'background') return true;
+
+    // 현재 선택된 캐릭터가 없으면 모든 배경 선택 가능
+    if (!activeCharName) return true;
+
+    // 이 배경이 기본 배경인지 확인 (물속 모험의 세계, 얼음나라 대탐험, 초원의 비밀 정원)
+    const isBasicBackground =
+      backgroundToCharacterMap[characterName] !== undefined;
+
+    // 기본 배경인 경우: 현재 캐릭터에 매핑된 기본 배경인지 확인
+    if (isBasicBackground) {
+      return backgroundToCharacterMap[characterName] === activeCharName;
+    }
+
+    // 추가 배경은 항상 선택 가능 (자연의 숨결, 끝없는 바다 여행, 거대한 얼음 왕국)
+    return commonBackgrounds.includes(characterName);
+  };
+
+  // 현재 사용 중인 아이템인지 체크
+  const isCurrentlyInUse = (): boolean => {
+    // 이미 선택된 아이템인 경우 (selectedItemId와 일치)
+    if (isSelected) return true;
+
+    // 캐릭터 타입이고, 현재 캐릭터 이름과 일치하는 경우
+    if (itemType === 'character' && characterName === activeCharName) {
+      return true;
+    }
+
+    // 배경 타입인 경우 (현재는 배경 이름 비교 로직이 없으므로 선택 ID로만 판단)
+    return false;
+  };
+
   // 아이템 선택 처리 함수 - 소유한 아이템만 선택 가능
   const handleItemSelection = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // 이미 상품을 소유한 경우에만 선택 처리
-    if (owned) {
+    // 이미 사용 중인 아이템이면 선택 처리 없음
+    if (isCurrentlyInUse()) {
+      return;
+    }
+
+    // 소유한 아이템이고 선택 가능한 경우에만 선택 처리
+    if (owned && (itemType !== 'background' || isBackgroundSelectable())) {
       // UI 표시를 위해 먼저 아이템 선택 상태 업데이트
       selectOwnedItem(productId);
 
@@ -80,7 +164,7 @@ const ItemShopItems = ({
               setShowSelectionModal(false);
             }
           }, 2000);
-        }, 800); // 0.8초 후 성공 처리 (실제로는 서버 응답 대기)
+        }, 800);
       } catch (error) {
         console.error('선택 실패:', error);
         setShowSelectionModal(false);
@@ -109,6 +193,48 @@ const ItemShopItems = ({
     setShowSelectionModal(false);
   };
 
+  // selectable prop이 false거나 isBackgroundSelectable()이 false인 경우 비활성화
+  const isDisabled =
+    itemType === 'background' && (!selectable || !isBackgroundSelectable());
+
+  // 이미 사용 중인 아이템인 경우 추가 비활성화
+  const isInUse = isCurrentlyInUse();
+
+  // 버튼 텍스트 설정
+  const getButtonText = () => {
+    if (owned) {
+      if (isInUse) {
+        return '사용 중';
+      }
+      if (isDisabled) {
+        return '불가능';
+      }
+      return '선택';
+    }
+    return (
+      <>
+        구매<span className='ml-1'>({price})</span>
+      </>
+    );
+  };
+
+  // 버튼 클래스 설정
+  const getButtonClass = () => {
+    if (!owned) {
+      return 'bg-green-600 hover:bg-green-700';
+    }
+
+    if (isInUse) {
+      return 'bg-blue-500 cursor-not-allowed';
+    }
+
+    if (isDisabled) {
+      return 'bg-gray-500 cursor-not-allowed';
+    }
+
+    return 'bg-green-600 hover:bg-green-700';
+  };
+
   return (
     <>
       <div
@@ -117,10 +243,10 @@ const ItemShopItems = ({
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
-        onClick={owned ? handleItemSelection : undefined}
+        onClick={
+          owned && !isDisabled && !isInUse ? handleItemSelection : undefined
+        }
       >
-        {/* 가격 표시 완전 제거 - 잠긴 아이템에는 가격 표시하지 않음 */}
-
         <div
           className={`relative rounded-lg p-4 flex flex-col items-center justify-center aspect-square border 
             ${
@@ -129,6 +255,8 @@ const ItemShopItems = ({
                 : 'bg-gray-800 border-gray-600'
             } 
             ${hoveredItemId === productId ? 'shadow-lg ring ring-red-400' : ''}
+            ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isInUse ? 'ring-2 ring-blue-500' : ''}
           `}
         >
           <div className='relative w-full h-full flex items-center justify-center rounded-md'>
@@ -145,21 +273,28 @@ const ItemShopItems = ({
             )}
           </div>
 
-          {/* 선택된 경우 체크 아이콘 표시 */}
-          {isSelected && (
-            <div className='absolute top-2 left-2 bg-green-500 text-white p-1 rounded-full shadow-md'>
-              <Check size={16} />
+          {/* 현재 사용 중인 아이템 표시 */}
+          {isInUse && (
+            <div className='absolute top-2 left-2 bg-blue-500 text-white p-1 px-2 rounded-md shadow-md text-xs'>
+              사용 중
+            </div>
+          )}
+
+          {/* 배경인 경우, 호환되지 않음을 표시 (선택 불가능한 경우) */}
+          {itemType === 'background' && isDisabled && owned && (
+            <div className='absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs shadow-md'>
+              호환 불가
             </div>
           )}
 
           {/* 버튼 - 보유한 경우 선택, 미보유한 경우 구매 */}
           {hoveredItemId === productId && productId !== -1 && (
             <button
-              onClick={owned ? handleItemSelection : handleBuyItem}
-              className='absolute inset-x-[20%] bottom-[10%] bg-green-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-700'
+              onClick={owned && !isInUse ? handleItemSelection : handleBuyItem}
+              className={`absolute inset-x-[20%] bottom-[10%] ${getButtonClass()} text-white px-4 py-2 rounded-md shadow-md`}
+              disabled={isDisabled || isInUse}
             >
-              {owned ? '선택' : '구매'}
-              {!owned && <span className='ml-1'>({price})</span>}
+              {getButtonText()}
             </button>
           )}
 
