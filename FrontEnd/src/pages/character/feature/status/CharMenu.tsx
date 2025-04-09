@@ -15,7 +15,7 @@ export function CharMenu() {
   const handleCloseChecklist = () => {
     setOpenChecklist(false);
   };
-  const checklistContent = openChceklist && (
+  const checklistContent = openChecklist && (
     <div className='fixed inset-y-0 right-0 w-[375px] max-w-full h-full bg-white shadow-xl transition-transform duration-300 transform translate-x-0 z-[9999]'>
       <div className='p-6 h-full max-h-screen overflow-y-auto'>
         <div className='flex items-center justify-between mb-6'>
