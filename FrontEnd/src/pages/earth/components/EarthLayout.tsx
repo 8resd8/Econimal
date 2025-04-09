@@ -272,7 +272,14 @@ const MapLayout: React.FC<MapLayoutProps> = ({
         co2Levels: historicalData?.co2Levels?.length || 0
       }
     });
-  }, [selectedRegion, loading, noData, historicalData]);
+  }, [
+    selectedRegion, 
+    loading, 
+    noData, 
+    historicalData?.temperatures?.length,
+    historicalData?.humidity?.length,
+    historicalData?.co2Levels?.length
+  ]); // 객체 자체 대신 필요한 값만 의존성으로 추가
   
   // 선택된 지역 변경 시 차트 자동 열기 (데이터가 있는 경우에만)
   useEffect(() => {
