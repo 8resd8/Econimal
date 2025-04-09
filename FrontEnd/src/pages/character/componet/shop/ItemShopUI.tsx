@@ -6,6 +6,7 @@ import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
 import { useState } from 'react';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
+import bgImage from '@/assets/auth_background.png';
 
 const ItemShopUI = ({
   userCoins,
@@ -51,7 +52,10 @@ const ItemShopUI = ({
   };
 
   return (
-    <div className='w-screen h-screen bg-black p-2 flex flex-col items-center relative pt-6 '>
+    <div
+      className='flex items-center justify-center min-h-screen bg-cover bg-center w-full h-full p-5'
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
       <div className='w-full max-w-[812px] flex flex-col items-center h-full px-4'>
         {/* 상점 제목 & 코인 표시 */}
         <div className='flex items-center justify-between w-full px-2 mb-2 relative pb-2 '>

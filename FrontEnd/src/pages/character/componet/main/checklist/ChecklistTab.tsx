@@ -11,15 +11,15 @@ const ChecklistTab = ({
 }) => {
   return (
     <button
-      className={`px-2 py-3 rounded-full font-bold text-sm transition-all shadow-md
+      className={`px-3 py-2 rounded-full font-bold text-sm transition-all shadow-md
         ${
           activeTab === tabName
-            ? 'bg-yellow-400 text-white scale-105' // ✅ 활성화된 버튼은 노란색 & 살짝 커짐
-            : 'bg-gray-200 text-gray-600'
+            ? 'bg-blue-300 text-white scale-105' // ✅ 활성화된 버튼은 노란색 & 살짝 커짐
+            : 'bg-slate-200 text-slate-600'
         }`}
       onClick={() => setActiveTab(tabName)}
     >
-      {tabName === 'daily' ? '📋 ' : '🌱 '}
+      {/* {tabName === 'daily' ? '📋 ' : '🌱 '} */}
       {text}
     </button>
   );
