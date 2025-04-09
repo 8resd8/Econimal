@@ -17,20 +17,6 @@ import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
 import bgThem from '../../../../assets/auth_background.png';
 import { userMyCharActions, useMyCharName } from '@/store/useMyCharStore';
 
-// 기본 배경과 캐릭터 이름 매핑
-const backgroundToCharacterMap: Record<string, string> = {
-  '물속 모험의 세계': '부기부기',
-  '얼음나라 대탐험': '팽글링스',
-  '초원의 비밀 정원': '호랭이',
-};
-
-// 모든 캐릭터가 선택 가능한 공통 배경
-const commonBackgrounds: string[] = [
-  '자연의 숨결',
-  '끝없는 바다 여행',
-  '거대한 얼음 왕국',
-];
-
 const ItemShopLogic = () => {
   const { data } = useShopList();
   const { data: backData } = useShopBackList();
@@ -60,10 +46,13 @@ const ItemShopLogic = () => {
   // 로컬에서도 코인 상태를 미러링 (UI 업데이트 강제를 위한 트릭)
   const [localCoin, setLocalCoin] = useState(coin);
 
+  // 선택된 아이템 ID 상태 추가
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+
   //구매 핸들러 호출 및 훅 가져오기
   const { handleBuyBackShopItem } = useBuyBackItem();
   const { handleFetchShopChar } = useShopFetchMyChar();
-  const { handleFetchShopBack } = useShopFetchMyBack();
+  const { handleFetchShopBack, isBackgroundSelectable } = useShopFetchMyBack();
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
 
@@ -71,23 +60,6 @@ const ItemShopLogic = () => {
   useEffect(() => {
     setLocalCoin(coin);
   }, [coin]);
-
-  // 배경 아이템 선택 가능 여부 확인 함수
-  const isBackgroundSelectable = (backgroundName: string): boolean => {
-    if (!currentCharName) return true; // 캐릭터 선택 안 된 경우 모두 선택 가능
-
-    // 이 배경이 기본 배경인지 확인
-    const isBasicBackground =
-      backgroundToCharacterMap[backgroundName] !== undefined;
-
-    // 기본 배경인 경우: 현재 캐릭터에 매핑된 기본 배경인지 확인
-    if (isBasicBackground) {
-      return backgroundToCharacterMap[backgroundName] === currentCharName;
-    }
-
-    // 공통 배경인 경우 항상 선택 가능
-    return commonBackgrounds.includes(backgroundName);
-  };
 
   // 현재 선택 탭에 따라 아이템 목록 준비
   useEffect(() => {
@@ -114,7 +86,10 @@ const ItemShopLogic = () => {
       currentItem = [
         ...backShopList.slice(0, 8).map((item) => ({
           ...item,
-          selectable: isBackgroundSelectable(item.characterName),
+          selectable: isBackgroundSelectable(
+            item.characterName,
+            currentCharName,
+          ),
         })),
         ...Array(8 - backShopList.length).fill({
           productId: -1,
@@ -208,19 +183,64 @@ const ItemShopLogic = () => {
     }
   };
 
-  //상점에서 캐릭터 선택 (이 부분만 수정하면 됩니다)
+  // 소유한 아이템 선택 시 호출되는 함수
+  const selectOwnedItem = (productId: number) => {
+    setSelectedItemId(productId);
+  };
+
+  //상점에서 캐릭터 선택
+  //상점에서 캐릭터 선택
   const selectCharacter = (characterId: number) => {
     if (characterId && characterId > 0) {
       console.log(`캐릭터 선택 호출: ${characterId}`);
 
-      // 캐릭터 선택 처리 (이름이 자동으로 설정됨)
-      handleFetchShopChar(characterId);
+      // 1. 캐릭터 ID로 캐릭터 정보 찾기
+      const selectedCharacter = charShopList.find(
+        (char) => char.userCharacterId === characterId,
+      );
+
+      if (selectedCharacter) {
+        const charName = selectedCharacter.characterName;
+        console.log(`캐릭터 '${charName}' 선택됨`);
+
+        // 2. 캐릭터 이름으로 기본 배경 이름 찾기
+        let defaultBgName = null;
+        if (charName === '부기부기') defaultBgName = '물속 모험의 세계';
+        else if (charName === '팽글링스') defaultBgName = '얼음나라 대탐험';
+        else if (charName === '호랭이') defaultBgName = '초원의 비밀 정원';
+
+        // 3. 캐릭터 선택 API 호출
+        handleFetchShopChar(characterId);
+
+        // 4. 이름에 맞는 기본 배경 찾기
+        if (defaultBgName) {
+          console.log(`기본 배경 '${defaultBgName}' 검색 중...`);
+          const defaultBg = backShopList.find(
+            (bg) => bg.characterName === defaultBgName,
+          );
+
+          if (defaultBg && defaultBg.userBackgroundId) {
+            console.log(
+              `기본 배경 ID ${defaultBg.userBackgroundId} 찾음, 배경 변경 중...`,
+            );
+            // 5. 기본 배경으로 설정 (약간의 지연 후)
+            setTimeout(() => {
+              handleFetchShopBack(defaultBg.userBackgroundId);
+            }, 100);
+          } else {
+            console.error(`'${defaultBgName}' 배경을 찾을 수 없음`);
+          }
+        }
+      }
     } else {
       console.error('characterId가 존재하지 않습니다.');
     }
   };
 
-  //상점에서 배경 선택 (이 부분만 수정하면 됩니다)
+  //상점에서 배경 선택
+  // ItemShopLogic.tsx 파일에서 배경 선택 함수 교체
+
+  //상점에서 배경 선택
   const selectBackground = (backgroundId: number) => {
     if (backgroundId && backgroundId > 0) {
       console.log(`배경 선택 호출: ${backgroundId}`);
@@ -232,30 +252,39 @@ const ItemShopLogic = () => {
 
       if (selectedBackground) {
         const bgName = selectedBackground.characterName;
+        console.log(`배경 '${bgName}' 선택됨`);
 
-        // 2. 이 배경이 특정 캐릭터에 매핑된 기본 배경인지 확인
-        const matchedCharName = backgroundToCharacterMap[bgName];
+        // 2. 배경 선택 API 호출
+        handleFetchShopBack(backgroundId);
 
+        // 3. 이 배경이 특정 캐릭터의 기본 배경인지 확인
+        let matchedCharName = null;
+        if (bgName === '물속 모험의 세계') matchedCharName = '부기부기';
+        else if (bgName === '얼음나라 대탐험') matchedCharName = '팽글링스';
+        else if (bgName === '초원의 비밀 정원') matchedCharName = '호랭이';
+
+        // 4. 배경에 맞는 캐릭터가 있으면 자동 선택
         if (matchedCharName) {
-          // 3. 매핑된 캐릭터 ID 찾기
+          console.log(
+            `배경 '${bgName}'에 맞는 캐릭터 '${matchedCharName}' 검색 중...`,
+          );
           const matchingCharacter = charShopList.find(
             (char) => char.characterName === matchedCharName,
           );
 
-          if (matchingCharacter) {
-            // 4. 매핑된 캐릭터 자동 선택 (배경 변경 후 약간의 지연을 두고 캐릭터 변경)
+          if (matchingCharacter && matchingCharacter.userCharacterId) {
             console.log(
-              `배경 '${bgName}'에 매핑된 캐릭터 '${matchedCharName}' 자동 선택`,
+              `캐릭터 ID ${matchingCharacter.userCharacterId} 찾음, 캐릭터 변경 중...`,
             );
+            // 5. 지연 후 캐릭터 변경 (API 호출 충돌 방지)
             setTimeout(() => {
-              selectCharacter(matchingCharacter.userCharacterId);
-            }, 300);
+              handleFetchShopChar(matchingCharacter.userCharacterId);
+            }, 100);
+          } else {
+            console.error(`'${matchedCharName}' 캐릭터를 찾을 수 없음`);
           }
         }
       }
-
-      // 배경 선택 처리
-      handleFetchShopBack(backgroundId);
     } else {
       console.error('backgroundId가 존재하지 않습니다.');
     }
@@ -287,6 +316,8 @@ const ItemShopLogic = () => {
           selectedItemForPurchase={selectedItemForPurchase}
           confirmPurchase={confirmPurchase}
           currentCharName={currentCharName}
+          selectOwnedItem={selectOwnedItem}
+          selectedItemId={selectedItemId}
         />
 
         {/* 성공/에러 모달 */}

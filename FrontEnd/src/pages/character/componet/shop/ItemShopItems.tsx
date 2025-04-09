@@ -5,7 +5,7 @@ import ShopCoin from './ShopCoinUI';
 import SelectionModal from './SelectModal';
 import { useMyCharName } from '@/store/useMyCharStore';
 
-// 캐릭터 메핑
+// 캐릭터 메핑 - 이 정보는 useShopFetchMyChar.ts에서 import하는 것이 좋습니다
 const characterToBackgroundMap = {
   부기부기: [
     '물속 모험의 세계',
@@ -34,6 +34,13 @@ const backgroundToCharacterMap = {
   '초원의 비밀 정원': '호랭이',
 };
 
+// 공통 배경 (모든 캐릭터가 선택 가능)
+const commonBackgrounds = [
+  '자연의 숨결',
+  '끝없는 바다 여행',
+  '거대한 얼음 왕국',
+];
+
 interface Props {
   setHoveredItemId: (productId: number) => void;
   handlePurchaseClick: (item: ShopItemTypes) => void;
@@ -50,6 +57,8 @@ interface Props {
   selectCharacter?: (characterId: number) => void; // 캐릭터 선택 함수
   selectBackground?: (backgroundId: number) => void; // 배경 선택 함수 - 추가됨
   itemType?: 'character' | 'background'; // 아이템 타입 - 추가됨
+  selectable?: boolean; // 선택 가능 여부 (배경인 경우)
+  currentCharName?: string; // 현재 선택된 캐릭터 이름
 }
 
 const ItemShopItems = ({
@@ -68,8 +77,13 @@ const ItemShopItems = ({
   selectCharacter,
   selectBackground,
   itemType = 'character',
+  selectable = true, // 기본값 true
+  currentCharName,
 }: Props) => {
-  const currentCharName = useMyCharName(); // 현재 선택된 캐릭터 이름
+  const myCharName = useMyCharName(); // 현재 선택된 캐릭터 이름 (store에서 가져옴)
+  // 전달받은 currentCharName이 있으면 우선 사용, 없으면 store에서 가져온 값 사용
+  const activeCharName = currentCharName || myCharName;
+
   const isSelected = selectedItemId === productId;
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectionStatus, setSelectionStatus] = useState<'loading' | 'success'>(
@@ -77,12 +91,12 @@ const ItemShopItems = ({
   );
 
   // 배경 선택 가능 여부 확인
-  const isBackgroundSelectable = () => {
+  const isBackgroundSelectable = (): boolean => {
     // 배경 아이템이 아니면 항상 선택 가능
     if (itemType !== 'background') return true;
 
     // 현재 선택된 캐릭터가 없으면 모든 배경 선택 가능
-    if (!currentCharName) return true;
+    if (!activeCharName) return true;
 
     // 이 배경이 기본 배경인지 확인 (물속 모험의 세계, 얼음나라 대탐험, 초원의 비밀 정원)
     const isBasicBackground =
@@ -90,11 +104,11 @@ const ItemShopItems = ({
 
     // 기본 배경인 경우: 현재 캐릭터에 매핑된 기본 배경인지 확인
     if (isBasicBackground) {
-      return backgroundToCharacterMap[characterName] === currentCharName;
+      return backgroundToCharacterMap[characterName] === activeCharName;
     }
 
     // 추가 배경은 항상 선택 가능 (자연의 숨결, 끝없는 바다 여행, 거대한 얼음 왕국)
-    return true;
+    return commonBackgrounds.includes(characterName);
   };
 
   // 아이템 선택 처리 함수 - 소유한 아이템만 선택 가능
@@ -161,7 +175,24 @@ const ItemShopItems = ({
     setShowSelectionModal(false);
   };
 
-  const isDisabled = itemType === 'background' && !isBackgroundSelectable();
+  // selectable prop이 false거나 isBackgroundSelectable()이 false인 경우 비활성화
+  const isDisabled =
+    itemType === 'background' && (!selectable || !isBackgroundSelectable());
+
+  // 버튼 텍스트 설정
+  const getButtonText = () => {
+    if (owned) {
+      if (isDisabled) {
+        return '불가능';
+      }
+      return '선택';
+    }
+    return (
+      <>
+        구매<span className='ml-1'>({price})</span>
+      </>
+    );
+  };
 
   return (
     <>
@@ -205,6 +236,13 @@ const ItemShopItems = ({
             </div>
           )}
 
+          {/* 배경인 경우, 호환되지 않음을 표시 (선택 불가능한 경우) */}
+          {itemType === 'background' && isDisabled && owned && (
+            <div className='absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs shadow-md'>
+              호환 불가
+            </div>
+          )}
+
           {/* 버튼 - 보유한 경우 선택, 미보유한 경우 구매 */}
           {hoveredItemId === productId && productId !== -1 && (
             <button
@@ -216,17 +254,7 @@ const ItemShopItems = ({
               } text-white px-4 py-2 rounded-md shadow-md`}
               disabled={isDisabled}
             >
-              {owned ? (
-                isDisabled ? (
-                  '불가능'
-                ) : (
-                  '선택'
-                )
-              ) : (
-                <>
-                  구매<span className='ml-1'>({price})</span>
-                </>
-              )}
+              {getButtonText()}
             </button>
           )}
 
