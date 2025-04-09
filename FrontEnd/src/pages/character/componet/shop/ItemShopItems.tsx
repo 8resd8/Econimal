@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import { Lock, Check, AlertTriangle } from 'lucide-react';
 import SelectionModal from './SelectModal';
+import LockedItemModal from './LockedItemModal';
 import { useMyCharName } from '@/store/useMyCharStore';
 
 // 캐릭터 메핑 - 이 정보는 useShopFetchMyChar.ts에서 import하는 것이 좋습니다
@@ -86,10 +87,10 @@ const ItemShopItems = ({
   const activeCharName = currentCharName || myCharName;
 
   const isSelected = selectedItemId === productId;
-  const [showSelectionModal, setShowSelectionModal] = useState(false);
-  const [selectionStatus, setSelectionStatus] = useState<'loading' | 'success'>(
-    'loading',
-  );
+  const [showSelectionModal, setShowSelectionModal] = useState<
+    'loading' | 'success' | false
+  >(false);
+  const [showLockedModal, setShowLockedModal] = useState<boolean>(false);
 
   // 배경 선택 가능 여부 확인
   const isBackgroundSelectable = (): boolean => {
@@ -145,8 +146,7 @@ const ItemShopItems = ({
       selectOwnedItem(productId);
 
       // 선택 모달 표시
-      setShowSelectionModal(true);
-      setSelectionStatus('loading');
+      setShowSelectionModal('loading');
 
       // 아이템 타입에 따라 서버로 최종 선택 전송
       try {
@@ -154,19 +154,19 @@ const ItemShopItems = ({
         setTimeout(() => {
           if (itemType === 'character' && selectCharacter && characterId) {
             selectCharacter(characterId);
-            setSelectionStatus('success');
+            setShowSelectionModal('success');
           } else if (
             itemType === 'background' &&
             selectBackground &&
             backgroundId
           ) {
             selectBackground(backgroundId);
-            setSelectionStatus('success');
+            setShowSelectionModal('success');
           }
 
           // 성공 상태를 잠시 표시한 후 자동으로 모달 닫기
           setTimeout(() => {
-            if (selectionStatus === 'success') {
+            if (showSelectionModal === 'success') {
               setShowSelectionModal(false);
             }
           }, 2000);
@@ -183,6 +183,12 @@ const ItemShopItems = ({
     e.stopPropagation();
 
     if (!owned) {
+      // productId가 -1인 경우 (Locked) 추가 아이템 출시 예정 모달 표시
+      if (productId === -1) {
+        setShowLockedModal(true);
+        return;
+      }
+
       // 구매 처리를 위해 부모 컴포넌트에 데이터 전달만 하고, 모달은 부모에서 처리
       handlePurchaseClick({
         productId,
@@ -191,6 +197,18 @@ const ItemShopItems = ({
         image,
         characterName,
       });
+    }
+  };
+
+  // 아이템 클릭 처리
+  const handleItemClick = () => {
+    // Locked 아이템 클릭 시 모달 표시
+    if (productId === -1) {
+      setShowLockedModal(true);
+    } else if (owned && !isDisabled && !isInUse) {
+      handleItemSelection({
+        stopPropagation: () => {},
+      } as React.MouseEvent);
     }
   };
 
@@ -208,6 +226,10 @@ const ItemShopItems = ({
 
   // 버튼 텍스트 설정
   const getButtonText = () => {
+    if (productId === -1) {
+      return 'Locked';
+    }
+
     if (owned) {
       if (isInUse) {
         return '사용 중';
@@ -226,6 +248,10 @@ const ItemShopItems = ({
 
   // 버튼 클래스 설정
   const getButtonClass = () => {
+    if (productId === -1) {
+      return 'bg-gray-500 cursor-pointer';
+    }
+
     if (!owned) {
       return 'bg-green-600 hover:bg-green-700';
     }
@@ -249,9 +275,7 @@ const ItemShopItems = ({
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
-        onClick={
-          owned && !isDisabled && !isInUse ? handleItemSelection : undefined
-        }
+        onClick={handleItemClick}
       >
         <div
           className={`relative rounded-lg p-4 flex flex-col items-center justify-center aspect-square border 
@@ -263,6 +287,7 @@ const ItemShopItems = ({
             ${hoveredItemId === productId ? 'shadow-lg ring ring-red-400' : ''}
             ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
             ${isInUse ? 'ring-2 ring-blue-500' : ''}
+            ${productId === -1 ? 'cursor-pointer' : ''}
           `}
         >
           <div className='relative w-full h-full flex items-center justify-center rounded-md'>
@@ -274,10 +299,12 @@ const ItemShopItems = ({
               />
             ) : (
               <div className='relative w-full h-full flex items-center justify-center rounded-md'>
-                {/* <Lock className='w-[50%] h-[50%] text-gray-400' /> */}
+                {productId === -1 ? (
+                  <Lock className='w-[50%] h-[50%] text-gray-400' />
+                ) : null}
                 <img
                   src={image}
-                  alt={characterName}
+                  alt={characterName || 'Locked Item'}
                   className='w-full h-full object-contain opacity-25'
                 />
               </div>
@@ -299,11 +326,17 @@ const ItemShopItems = ({
           )}
 
           {/* 버튼 - 보유한 경우 선택, 미보유한 경우 구매 */}
-          {hoveredItemId === productId && productId !== -1 && (
+          {hoveredItemId === productId && (
             <button
-              onClick={owned && !isInUse ? handleItemSelection : handleBuyItem}
+              onClick={
+                productId === -1
+                  ? handleBuyItem
+                  : owned && !isInUse
+                  ? handleItemSelection
+                  : handleBuyItem
+              }
               className={`absolute inset-x-[20%] bottom-[10%] ${getButtonClass()} text-white px-4 py-2 rounded-md shadow-md`}
-              disabled={isDisabled || isInUse}
+              disabled={productId !== -1 && (isDisabled || isInUse)}
             >
               {getButtonText()}
             </button>
@@ -322,10 +355,15 @@ const ItemShopItems = ({
       {/* 선택 모달 */}
       {showSelectionModal && (
         <SelectionModal
-          status={selectionStatus}
+          status={showSelectionModal}
           characterName={characterName}
           onClose={closeSelectionModal}
         />
+      )}
+
+      {/* Locked 아이템 모달 */}
+      {showLockedModal && (
+        <LockedItemModal onClose={() => setShowLockedModal(false)} />
       )}
     </>
   );
