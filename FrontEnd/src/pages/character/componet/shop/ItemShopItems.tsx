@@ -273,8 +273,13 @@ const ItemShopItems = ({
                 className='w-full h-full object-contain'
               />
             ) : (
-              <div className='w-full h-full flex items-center justify-center bg-gray-700 rounded-md'>
-                <Lock className='w-[50%] h-[50%] text-gray-400' />
+              <div className='relative w-full h-full flex items-center justify-center rounded-md'>
+                {/* <Lock className='w-[50%] h-[50%] text-gray-400' /> */}
+                <img
+                  src={image}
+                  alt={characterName}
+                  className='w-full h-full object-contain opacity-25'
+                />
               </div>
             )}
           </div>

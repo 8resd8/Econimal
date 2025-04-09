@@ -21,6 +21,8 @@ import {
   useMyCharacterId,
   useMyBackgroundId,
 } from '@/store/useMyCharStore';
+import bgnew from '../../../../assets/char/background/noBack.png';
+import charnew from '../../../../assets/char/background/noProfile.png';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -89,7 +91,7 @@ const ItemShopLogic = () => {
         ...Array(8 - charShopList.length).fill({
           productId: -1,
           characterName: '',
-          image: '',
+          image: charnew,
           owned: false,
           price: -1,
           userCharacterId: -1,
@@ -117,7 +119,7 @@ const ItemShopLogic = () => {
         ...Array(8 - backShopList.length).fill({
           productId: -1,
           characterName: '',
-          image: '',
+          image: bgnew,
           owned: false,
           price: -1,
           userBackgroundId: -1,
