@@ -283,21 +283,7 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
   
   // 재생/일시정지 핸들러
   const togglePlayback = () => {
-    // 데이터가 로드되지 않았다면 먼저 로드
-    if (!fetchedData && onFetchData) {
-      console.log('[TimeSlider] 재생 시작 전 데이터 요청');
-      if (timeRange === 'year') {
-        // 연도 타입의 경우 직접 데이터 로드
-        setFetchedData(true); // 먼저 상태 변경하여 중복 요청 방지
-        const now = new Date();
-        now.setMinutes(0, 0, 0);
-        const startDate = new Date(now.getFullYear() - maxYears, 0, 1, 0);
-        onFetchData(timeRange, value, startDate.toISOString(), now.toISOString());
-      } else {
-        // 다른 타입의 경우 기존 조회 함수 사용
-        handleFetchData();
-      }
-    }
+    // 데이터 요청 부분 제거 (이미 year 범위 선택 시 로드됨)
     
     if (playing) {
       stopPlayback();

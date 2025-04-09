@@ -21,7 +21,9 @@ import {
 } from './features/regionInfoApi';
 import {
   fetchAllCountriesCO2Data,
-  fetchCountryCO2Data
+  fetchCountryCO2Data,
+  CountryCO2Data,
+  CO2Data
 } from './features/co2DataApi';
 // 연도별 기후 API 임포트 추가
 import {
@@ -87,6 +89,10 @@ const Earth: React.FC = () => {
   
   // 연도별 기후 데이터 상태 추가
   const [yearlyClimateData, setYearlyClimateData] = useState<YearlyClimateResponse | null>(null);
+
+  // CO2 데이터를 캐싱할 상태 변수 추가 (컴포넌트 상단)
+  const [cachedCO2Data, setCachedCO2Data] = useState<Record<string, any>>({});
+
   
   // 초기 데이터 로딩
   useEffect(() => {
@@ -96,18 +102,17 @@ const Earth: React.FC = () => {
         const currentDate = new Date().toISOString();
         const startDate = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
         
-        // 병렬로 데이터 가져오기 - 연도별 기후 데이터 추가
-        const [worldDataResponse, co2Data, yearlyClimateResponse] = await Promise.all([
-          // 기존 세계 데이터 로드 (온도, 습도 데이터)
-          fetchWorldData(startDate, currentDate, 'HOUR'),
-          // CO2 데이터 로드 (별도 API)
-          fetchAllCountriesCO2Data(),
-          // 연도별 기후 데이터 로드 (새로운 API)
-          fetchAllYearlyClimateData()
-        ]);
+        // 각 API 요청을 개별적으로 수행하여 타입 문제 해결
+        const worldDataResponse = await fetchWorldData(startDate, currentDate, 'HOUR');
+        const co2DataResponse = await fetchAllCountriesCO2Data();
+        const co2Data = co2DataResponse.groupByCountry;
+        const yearlyClimateResponse = await fetchAllYearlyClimateData();
         
         console.log('모든 데이터 로드 완료');
         console.log(`CO2 데이터 로드 완료: ${Object.keys(co2Data).length}개 국가`);
+        
+        // CO2 데이터 캐싱
+        setCachedCO2Data(co2Data);
         
         // 연도별 기후 데이터 저장
         setYearlyClimateData(yearlyClimateResponse);
@@ -249,20 +254,33 @@ const Earth: React.FC = () => {
   
   // 시간 값 변경 핸들러
   const handleTimeValueChange = (value: number) => {
-    // 단순히 timeValue만 업데이트
     setTimeValue(value);
     
-    // year 타입일 때는 이미 로드된 yearlyClimateData에서 해당 연도 데이터 찾아 적용
     if (timeRange === 'year' && yearlyClimateData) {
       const currentYear = new Date().getFullYear();
       const targetYear = currentYear - value;
       
-      // 이미 로드된 연도별 데이터에서 해당 연도 데이터 찾기
       const yearData = getYearlyDataForYear(targetYear);
       
       if (yearData && Object.keys(yearData).length > 0) {
-        // 데이터가 있으면 바로 적용 (API 요청 없음)
-        setGlobalData(yearData);
+        // 기본 연도 데이터 복사
+        const enhancedYearData = { ...yearData };
+        
+        // 캐싱된 CO2 데이터 통합 (API 요청 없음)
+        Object.keys(enhancedYearData).forEach(countryCode => {
+          if (cachedCO2Data[countryCode] && cachedCO2Data[countryCode].length > 0) {
+            // 해당 연도와 가장 가까운 CO2 데이터 찾기
+            const sortedCO2Data = [...cachedCO2Data[countryCode]].sort((a, b) => 
+              Math.abs(a.year - targetYear) - Math.abs(b.year - targetYear)
+            );
+            
+            // 가장 가까운 연도의 데이터 사용
+            enhancedYearData[countryCode].co2Level = sortedCO2Data[0].value;
+          }
+        });
+        
+        // 통합된 데이터 설정
+        setGlobalData(enhancedYearData);
       }
     }
   };
@@ -555,7 +573,8 @@ const Earth: React.FC = () => {
         if (yearData && Object.keys(yearData).length > 0) {
           // 전체 국가의 CO2 데이터 가져오기
           try {
-            const co2Data = await fetchAllCountriesCO2Data();
+            const co2DataResponse = await fetchAllCountriesCO2Data();
+            const co2Data = co2DataResponse.groupByCountry;
             console.log(`전체 CO2 데이터 로드 완료: ${Object.keys(co2Data).length}개 국가`);
             
             // 연도별 데이터에 CO2 데이터 통합
