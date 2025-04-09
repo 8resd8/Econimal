@@ -71,7 +71,7 @@ export const TOAST_CONTAINER_ID = 'app-toast-container';
 
 // 기본 토스트 옵션
 export const defaultOptions: ToastOptions = {
-  position: 'top-right',
+  position: 'top-center',
   autoClose: 3000,
   hideProgressBar: false,
   closeOnClick: true,
@@ -80,6 +80,10 @@ export const defaultOptions: ToastOptions = {
   containerId: TOAST_CONTAINER_ID,
   closeButton: true,
   rtl: false,
+  style: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
 };
 
 // 토스트 표시 여부 확인 함수
@@ -89,7 +93,7 @@ export const shouldShowToast = (): boolean => {
 
 // -------------------- 인프라 이벤트 관련 함수 --------------------
 
-// [최적화] 통합 마을 이벤트 알림 토스트
+// 통합 마을 이벤트 알림 토스트
 export const showTownEventNotice = (options?: ToastOptions): Id | null => {
   return toastTracker.show(
     'town-event',
@@ -110,7 +114,7 @@ export const showTownEventNotice = (options?: ToastOptions): Id | null => {
 //   COURT: '법원에 문제가 발생했습니다!',
 // };
 
-// [최적화] 통합된 인프라 이벤트 알림 함수
+// 통합된 인프라 이벤트 알림 함수
 export const showInfraEventNotice = (
   // ecoType: string,
   options?: ToastOptions,
@@ -122,7 +126,7 @@ export const showInfraEventNotice = (
   });
 };
 
-// [최적화] 인프라 결과 알림 함수
+// 인프라 결과 알림 함수
 export const showInfraResultNotice = (
   isOptimal: boolean,
   exp: number,
