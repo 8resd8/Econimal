@@ -22,34 +22,18 @@ const ItemShopUI = ({
   confirmPurchase,
   selectCharacter, // 선택된 캐릭터 ID 전달 함수
   selectBackground, // 선택된 배경 ID 전달 함수
+  currentCharName, // 현재 선택된 캐릭터 이름
+  currentBackgroundId, // 현재 선택된 배경 ID (추가)
+  selectOwnedItem, // 선택된 아이템 처리 함수
+  selectedItemId, // 선택된 아이템 ID
 }: ItemShopTypes) => {
   const coin = useCharacterCoin();
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     null,
   );
   const [selectedBackgroundId, setSelectedBackgroundId] = useState<
     number | null
   >(null);
-
-  // 보유한 아이템 선택 시 업데이트
-  const selectOwnedItem = (productId: number) => {
-    setSelectedItemId(productId);
-    const selectedItem = currentItems.find(
-      (item) => item.productId === productId,
-    );
-
-    if (selectedItem) {
-      if (selectedTab === 'characters' && selectedItem.userCharacterId) {
-        setSelectedCharacterId(selectedItem.userCharacterId);
-      } else if (
-        selectedTab === 'backgrounds' &&
-        selectedItem.userBackgroundId
-      ) {
-        setSelectedBackgroundId(selectedItem.userBackgroundId);
-      }
-    }
-  };
 
   return (
     <div
@@ -119,6 +103,8 @@ const ItemShopUI = ({
                   itemType={
                     selectedTab === 'characters' ? 'character' : 'background'
                   }
+                  currentCharName={currentCharName}
+                  currentBackgroundId={currentBackgroundId}
                 />
               ))}
           </div>
