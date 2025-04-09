@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
+		return ErrorResponse.toResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다. 계속해서 문제가 발생하면 관리자에게 문의해주세요.",
 			request.getRequestURI());
 	}
 
@@ -39,25 +39,25 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleMethodArgumentException(MethodArgumentNotValidException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, "요청 데이터가 올바르지 않습니다.", request.getRequestURI());
 	}
 
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleNoResourceException(NoResourceFoundException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+		return ErrorResponse.toResponseEntity(HttpStatus.NOT_FOUND, "요청하신 리소스를 찾을 수 없습니다.", request.getRequestURI());
 	}
 
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage(), request.getRequestURI());
+		return ErrorResponse.toResponseEntity(HttpStatus.METHOD_NOT_ALLOWED, "해당 요청 방식은 지원하지 않습니다.", request.getRequestURI());
 	}
 
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleMessageNotReadableException(HttpMessageNotReadableException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage() + ", 정확한 시간 타입으로 보내야 합니다.", request.getRequestURI());
+		return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, "정확한 타입으로 보내야 합니다.", request.getRequestURI());
 	}
 
 }
