@@ -75,6 +75,7 @@ export const TownNameEditModal = ({
               onChange={(e) => setTownName(e.target.value)}
               className='col-span-3'
               autoComplete='off'
+              maxLength={30}
             />
           </div>
         </div>
