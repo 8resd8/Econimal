@@ -94,22 +94,24 @@ const ItemShopItems = ({
 
   // 배경 선택 가능 여부 확인
   const isBackgroundSelectable = (): boolean => {
-    // 배경 아이템이 아니면 항상 선택 가능
+    // If not a background item, always selectable
     if (itemType !== 'background') return true;
 
-    // 현재 선택된 캐릭터가 없으면 모든 배경 선택 가능
+    // If no active character is selected, all backgrounds are selectable
     if (!activeCharName) return true;
 
-    // 이 배경이 기본 배경인지 확인 (물속 모험의 세계, 얼음나라 대탐험, 초원의 비밀 정원)
+    // Check if this is a default background (물속 모험의 세계, 얼음나라 대탐험, 초원의 비밀 정원)
     const isBasicBackground =
       backgroundToCharacterMap[characterName] !== undefined;
 
-    // 기본 배경인 경우: 현재 캐릭터에 매핑된 기본 배경인지 확인
+    // For basic backgrounds: check if it matches the current character
     if (isBasicBackground) {
-      return backgroundToCharacterMap[characterName] === activeCharName;
+      // Allow selection even if it's for a different character
+      // The selectBackground function will handle the character switching
+      return true;
     }
 
-    // 추가 배경은 항상 선택 가능 (자연의 숨결, 끝없는 바다 여행, 거대한 얼음 왕국)
+    // Common backgrounds (자연의 숨결, 끝없는 바다 여행, 거대한 얼음 왕국) are always selectable
     return commonBackgrounds.includes(characterName);
   };
 
@@ -135,22 +137,21 @@ const ItemShopItems = ({
   const handleItemSelection = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // 이미 사용 중인 아이템이면 선택 처리 없음
+    // If already in use, do nothing
     if (isCurrentlyInUse()) {
       return;
     }
 
-    // 소유한 아이템이고 선택 가능한 경우에만 선택 처리
+    // For owned items that are either not backgrounds or are selectable backgrounds
     if (owned && (itemType !== 'background' || isBackgroundSelectable())) {
-      // UI 표시를 위해 먼저 아이템 선택 상태 업데이트
+      // Update item selection state for UI first
       selectOwnedItem(productId);
 
-      // 선택 모달 표시
+      // Show selection modal
       setShowSelectionModal('loading');
 
-      // 아이템 타입에 따라 서버로 최종 선택 전송
       try {
-        // 서버 요청 시뮬레이션 (실제로는 API 호출)
+        // Simulate server request (would be an API call in reality)
         setTimeout(() => {
           if (itemType === 'character' && selectCharacter && characterId) {
             selectCharacter(characterId);
@@ -160,11 +161,23 @@ const ItemShopItems = ({
             selectBackground &&
             backgroundId
           ) {
+            // For character-specific backgrounds, we need special handling
+            if (
+              backgroundToCharacterMap[characterName] !== undefined &&
+              backgroundToCharacterMap[characterName] !== activeCharName
+            ) {
+              // This is a background for a different character
+              console.log(
+                `Selected ${characterName} which is specific to ${backgroundToCharacterMap[characterName]}`,
+              );
+            }
+
+            // Call the background selection function which will handle character switching if needed
             selectBackground(backgroundId);
             setShowSelectionModal('success');
           }
 
-          // 성공 상태를 잠시 표시한 후 자동으로 모달 닫기
+          // Auto-close success modal after delay
           setTimeout(() => {
             if (showSelectionModal === 'success') {
               setShowSelectionModal(false);
@@ -172,7 +185,7 @@ const ItemShopItems = ({
           }, 2000);
         }, 800);
       } catch (error) {
-        console.error('선택 실패:', error);
+        console.error('Selection failed:', error);
         setShowSelectionModal(false);
       }
     }
