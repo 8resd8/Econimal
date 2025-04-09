@@ -6,8 +6,26 @@ import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
 import { useState } from 'react';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
+import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 
-const ItemShopUI = ({
+interface ItemShopUIProps {
+  userCoins: number;
+  selectedTab: 'characters' | 'backgrounds';
+  setSelectedTab: (tab: 'characters' | 'backgrounds') => void;
+  currentItems: any[];
+  setHoveredItemId: (id: number | null) => void;
+  handlePurchaseClick: (item: ShopItemTypes) => void;
+  hoveredItemId: number | null;
+  showModal: boolean;
+  setShowModal: (show: boolean) => void;
+  selectedItemForPurchase: ShopItemTypes | null;
+  confirmPurchase: () => Promise<void>;
+  selectCharacter: (characterId: number) => void;
+  selectBackground: (backgroundId: number) => void;
+  currentCharName: string | undefined;
+}
+
+const ItemShopUI: React.FC<ItemShopUIProps> = ({
   userCoins,
   selectedTab,
   setSelectedTab,
@@ -19,9 +37,10 @@ const ItemShopUI = ({
   setShowModal,
   selectedItemForPurchase,
   confirmPurchase,
-  selectCharacter, // 선택된 캐릭터 ID 전달 함수
-  selectBackground, // 선택된 배경 ID 전달 함수
-}: ItemShopTypes) => {
+  selectCharacter,
+  selectBackground,
+  currentCharName,
+}) => {
   const coin = useCharacterCoin();
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
@@ -78,6 +97,19 @@ const ItemShopUI = ({
           />
         </div>
 
+        {/* 현재 선택된 캐릭터 표시 */}
+        {currentCharName && (
+          <div className='text-white mb-2 text-center bg-gray-800 py-1 px-4 rounded-md'>
+            현재 선택된 캐릭터:{' '}
+            <span className='font-bold'>{currentCharName}</span>
+            {selectedTab === 'backgrounds' && (
+              <p className='text-xs text-gray-300 mt-1'>
+                * 선택 가능한 배경만 활성화됩니다.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* 아이템 리스트 */}
         <div className='flex w-full overflow-y-auto justify-center'>
           <div className='grid grid-cols-4 gap-3 w-[93%] pt-6'>
@@ -115,6 +147,11 @@ const ItemShopUI = ({
                   itemType={
                     selectedTab === 'characters' ? 'character' : 'background'
                   }
+                  // 선택 가능 여부 (배경인 경우 체크)
+                  selectable={
+                    item.selectable !== undefined ? item.selectable : true
+                  }
+                  currentCharName={currentCharName}
                 />
               ))}
           </div>
