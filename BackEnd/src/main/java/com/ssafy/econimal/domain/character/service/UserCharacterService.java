@@ -65,7 +65,7 @@ public class UserCharacterService {
 			ifPresent(userCharacter -> userCharacter.updateIsMain(true));
 	}
 
-	// 최초 1회 메인 캐릭터 선택 및 캐릭터마다 배경 지급
+	// 최초 1회 메인 캐릭터 선택
 	public void setInitCharacterAndBackground(User user, Long userCharacterId) {
 		if (userCharacterRepository.findByUserAndMainIsTrue(user).isPresent()) {
 			return; // 예외 발생하지 않고 바로 종료
@@ -76,31 +76,5 @@ public class UserCharacterService {
 
 		// 메인 캐릭터 선택
 		userCharacter.updateIsMain(true);
-
-		// 캐릭터마다 기본 배경 지정
-		if (userCharacter.getCharacter().getId().equals(1L)) {
-			Product bugibugi = productRepository.findById(1774L)
-				.orElseThrow(() -> new InitialSettingException("거북이 배경 지급오류"));
-
-			createUserBackground(user, bugibugi);
-		} else if (userCharacter.getCharacter().getId().equals(2L)) {
-			Product penguin = productRepository.findById(1775L)
-				.orElseThrow(() -> new InitialSettingException("펭귄 배경 지급오류"));
-			createUserBackground(user, penguin);
-
-		} else if (userCharacter.getCharacter().getId().equals(3L)) {
-			Product horangE = productRepository.findById(1776L)
-				.orElseThrow(() -> new InitialSettingException("호랑이 배경 지급오류"));
-			createUserBackground(user, horangE);
-		}
-	}
-
-	private void createUserBackground(User user, Product product) {
-		UserBackground userBackground = UserBackground.builder()
-			.user(user)
-			.product(product)
-			.isMain(true)
-			.build();
-		userBackgroundRepository.save(userBackground);
 	}
 }

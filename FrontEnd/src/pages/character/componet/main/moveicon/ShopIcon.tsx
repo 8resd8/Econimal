@@ -7,12 +7,14 @@ const ShopIcon = ({
 }) => {
   return (
     <button
-      className='group w-28 h-24 bg-gradient-to-b from-orange-100 to-orange-50 rounded-3xl flex flex-col items-center justify-center border-4 border-orange-300 shadow-xl hover:from-orange-200 hover:to-orange-100 transition-colors'
+      className='group w-24 h-24 bg-gradient-to-b from-slate-100 to-slate-50
+      rounded-[50%] flex flex-col items-center justify-center border-4 border-slate-200
+      shadow-xl hover:from-orange-200 hover:to-orange-100 transition-colors'
       onClick={(e) => {
         if (onClick) onClick(e);
       }}
     >
-      <div className='w-12 h-12 flex items-center justify-center'>
+      <div className='w-12 h-12 flex items-center justify-center pr-2 pt-1'>
         <svg
           width='56'
           height='56'
@@ -53,7 +55,7 @@ const ShopIcon = ({
           />
         </svg>
       </div>
-      <span className='text-sm mt-2 font-bold text-orange-700'>상점</span>
+      <span className='text-sm mt-2 font-bold text-slate-700'>상점</span>
     </button>
   );
 };

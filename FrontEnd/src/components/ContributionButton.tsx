@@ -12,7 +12,9 @@ const ContributionButton: React.FC = () => {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-6 right-16 z-50 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-lg flex items-center transition-colors duration-200"
+      className="fixed bottom-6 right-16 z-40 border-slate-200 bg-slate-50 hover:bg-slate-300
+      text-slate-700 font-bold py-2 px-4 rounded-full shadow-lg flex items-center transition-colors
+      duration-200"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

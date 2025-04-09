@@ -12,11 +12,11 @@ import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
-import com.ssafy.econimal.domain.globe.dto.QGlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.QGlobeInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.QClimateInfoDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v2.ClimateInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.climate.v2.QClimateInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ public class ClimateQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
-	public List<GlobeInfoDto> findClimateAverageByTime(GlobeInfoRequest request) {
+	public List<ClimateInfoDto> findClimateAverageByTime(GlobeInfoRequest request) {
 
 		// 날짜 형식 동적 처리
 		String format = "";
@@ -49,7 +49,7 @@ public class ClimateQueryRepository {
 			, ConstantImpl.create(format));
 
 		return queryFactory
-			.select(new QGlobeInfoDto(
+			.select(new QClimateInfoDto(
 				climates.countryCode.as("country"),
 				formattedDate,
 				climates.temperature.avg(),
@@ -65,7 +65,7 @@ public class ClimateQueryRepository {
 	}
 
 	// 1년
-	public List<GlobeInfoV2Dto> findClimateAverageByYearV2() {
+	public List<ClimateInfoV2Dto> findClimateAverageByYearV2() {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime beforeNow = now.minusYears(1);
 		int fixedDay = 1; // 1일 고정
@@ -82,7 +82,7 @@ public class ClimateQueryRepository {
 		// 2025-01-01 00:00:00
 
 		return queryFactory
-			.select(new QGlobeInfoV2Dto(
+			.select(new QClimateInfoV2Dto(
 				climates.countryCode.as("country"),
 				formattedDate,                    // 포맷팅된 날짜 문자열 (예: "2023-04")
 				climates.temperature.avg(),       // 평균 온도
@@ -98,7 +98,7 @@ public class ClimateQueryRepository {
 			.fetch();
 	}
 
-	public List<GlobeInfoV2Dto> findClimateAverageByMonthV2() {
+	public List<ClimateInfoV2Dto> findClimateAverageByMonthV2() {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime beforeNow = now.minusMonths(3); // 3달치
 
@@ -112,7 +112,7 @@ public class ClimateQueryRepository {
 		// 2024-01-03 00:00:00
 
 		return queryFactory
-			.select(new QGlobeInfoV2Dto(
+			.select(new QClimateInfoV2Dto(
 				climates.countryCode.as("country"),
 				formattedDate,                    // 포맷팅된 날짜
 				climates.temperature.avg(),       // 평균 온도
@@ -129,7 +129,7 @@ public class ClimateQueryRepository {
 			.fetch();
 	}
 
-	public List<GlobeInfoV2Dto> findClimateAverageByDayV2() {
+	public List<ClimateInfoV2Dto> findClimateAverageByDayV2() {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime beforeNow = now.minusDays(3); // 3일
 
@@ -143,7 +143,7 @@ public class ClimateQueryRepository {
 		// 2024-01-01 02:00:00
 
 		return queryFactory
-			.select(new QGlobeInfoV2Dto(
+			.select(new QClimateInfoV2Dto(
 				climates.countryCode.as("country"),
 				formattedDate,                    // 포맷팅된 날짜
 				climates.temperature.avg(),       // 평균 온도

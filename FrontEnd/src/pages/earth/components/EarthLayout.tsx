@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import RegionDataChart from './RegionDataChart';
 import { RegionData } from '../features/regionInfoApi';
 import { getCountryDescription, getCountryNameByCode } from '../utils/countryUtils';
-
 
 // 스타일 컴포넌트 정의
 const LayoutContainer = styled.div`
@@ -208,15 +207,15 @@ const DescriptionBox = styled.div`
   font-size: 12px;
   color: #4b5563;
   max-height: 45px;
-`;
-
+`; 
 
 // 히스토리 데이터 인터페이스
 interface HistoricalData {
   temperatures: { timestamp: string; value: number }[];
   co2Levels: { timestamp: string; value: number }[];
-  humidity: { timestamp: string; value: number }[]; // humidity 필드가 이미 있음
+  humidity: { timestamp: string; value: number }[]; 
 }
+
 // 확장된 HistoricalData 인터페이스 정의
 interface ExtendedHistoricalData {
   temperatures: { timestamp: string; value: number }[];
@@ -249,9 +248,21 @@ const MapLayout: React.FC<MapLayoutProps> = ({
 }) => {
   const [isChartsOpen, setIsChartsOpen] = useState<boolean>(false);
   
+  // 컴포넌트 ID 생성 - 고유 식별자
+  const componentId = useMemo(() => Math.random().toString(36).substr(2, 5), []);
+  
+  // 컴포넌트 마운트/언마운트 로깅
+  useEffect(() => {
+    console.log(`[MapLayout-${componentId}] 마운트 - 선택 지역: ${selectedRegion || 'none'}`);
+    
+    return () => {
+      console.log(`[MapLayout-${componentId}] 언마운트 - 선택 지역: ${selectedRegion || 'none'}`);
+    };
+  }, []);
+  
   // 디버깅용 로그 추가
   useEffect(() => {
-    console.log('MapLayout 컴포넌트 상태:', {
+    console.log(`[MapLayout-${componentId}] 데이터 변경:`, {
       selectedRegion,
       loading,
       noData,
@@ -261,13 +272,20 @@ const MapLayout: React.FC<MapLayoutProps> = ({
         co2Levels: historicalData?.co2Levels?.length || 0
       }
     });
-  }, [selectedRegion, loading, noData, historicalData]);
+  }, [
+    selectedRegion, 
+    loading, 
+    noData, 
+    historicalData?.temperatures?.length,
+    historicalData?.humidity?.length,
+    historicalData?.co2Levels?.length
+  ]); // 객체 자체 대신 필요한 값만 의존성으로 추가
   
   // 선택된 지역 변경 시 차트 자동 열기 (데이터가 있는 경우에만)
   useEffect(() => {
     // 선택된 지역이 있고 로딩 중이 아닐 때
     if (selectedRegion) {
-      console.log('지역 선택 감지: 차트 표시 여부 결정');
+      console.log(`[MapLayout-${componentId}] 지역 선택 감지: 차트 표시 여부 결정`);
       // 로딩이 끝난 후에 데이터 여부에 따라 차트 열기/닫기
       if (!loading) {
         const hasData = 
@@ -275,7 +293,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({
           (historicalData?.humidity?.length > 0) || 
           (historicalData?.co2Levels?.length > 0);
         
-        console.log('데이터 여부:', hasData, '차트 열기:', hasData && !noData);
+        console.log(`[MapLayout-${componentId}] 데이터 여부: ${hasData}, 차트 열기: ${hasData && !noData}`);
         setIsChartsOpen(hasData && !noData);
       } else {
         // 로딩 중에는 차트 영역 보여주기 (로딩 스피너 표시)
@@ -295,10 +313,21 @@ const MapLayout: React.FC<MapLayoutProps> = ({
   // 지역명 가져오기
   const regionName = selectedRegion ? getCountryNameByCode(selectedRegion) || selectedRegion : '';
   
-  // 데이터가 있는지 확인 (배열이 비어있지 않은지)
-  const hasTemperatureData = historicalData?.temperatures?.length > 0;
-  const hasHumidityData = historicalData?.humidity?.length > 0;
-  const hasCO2Data = historicalData?.co2Levels?.length > 0;
+  // 데이터 유효성 검사 함수
+  const validateDataPoints = (data: { timestamp: string; value: number }[] | undefined): boolean => {
+    if (!data || data.length === 0) return false;
+    return data.every(point => 
+      point && 
+      typeof point.timestamp === 'string' && 
+      typeof point.value === 'number' && 
+      !isNaN(point.value)
+    );
+  };
+  
+  // 각 데이터 유효성 검사
+  const hasTemperatureData = validateDataPoints(historicalData?.temperatures);
+  const hasHumidityData = validateDataPoints(historicalData?.humidity);
+  const hasCO2Data = validateDataPoints(historicalData?.co2Levels);
   
   // 표시 가능한 데이터가 있는지 확인
   const hasAnyData = hasTemperatureData || hasHumidityData || hasCO2Data;
@@ -315,7 +344,14 @@ const MapLayout: React.FC<MapLayoutProps> = ({
   // 최신 데이터 값 가져오기
   const getLatestValue = (dataPoints: { timestamp: string; value: number }[]): number | undefined => {
     if (!dataPoints || dataPoints.length === 0) return undefined;
-    return dataPoints[dataPoints.length - 1].value;
+    
+    // 데이터 정렬 (날짜순)
+    const sortedData = [...dataPoints].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    
+    // 가장 최신(마지막) 데이터 반환
+    return sortedData[sortedData.length - 1].value;
   };
   
   // 각 데이터의 최신 값
@@ -323,15 +359,16 @@ const MapLayout: React.FC<MapLayoutProps> = ({
   const latestHumidity = hasHumidityData ? getLatestValue(historicalData.humidity) : undefined;
   const latestCO2 = hasCO2Data ? getLatestValue(historicalData.co2Levels) : undefined;
   
-  // 디버깅용 로그 추가
-  useEffect(() => {
-    console.log('MapLayout 데이터:', data);
-    console.log('countryCode 존재 여부:', !!data?.countryCode);
-    if (data?.countryCode) {
-      console.log('설명 함수 반환 값:', getCountryDescription(data.countryCode));
-    }
-  }, [data, data?.countryCode]);
-
+  // 차트 항목별 고유 키 생성 (성능 최적화)
+  const tempChartKey = useMemo(() => 
+    `temp-${selectedRegion || 'none'}-${componentId}`, [selectedRegion, componentId]);
+    
+  const humChartKey = useMemo(() => 
+    `hum-${selectedRegion || 'none'}-${componentId}`, [selectedRegion, componentId]);
+    
+  const co2ChartKey = useMemo(() => 
+    `co2-${selectedRegion || 'none'}-${componentId}`, [selectedRegion, componentId]);
+    
   return (
     <LayoutContainer>
       <MapArea>
@@ -352,6 +389,30 @@ const MapLayout: React.FC<MapLayoutProps> = ({
             {regionName ? `${regionName} 지역 데이터` : '지역 데이터'}
           </ChartsTitle>
         </ChartsHeader>
+        
+        {/* 로딩 중일 때 표시 */}
+        {loading && (
+          <LoadingContainer>
+            <LoadingSpinner />
+            <div>{regionName || selectedRegion} 데이터를 불러오는 중...</div>
+          </LoadingContainer>
+        )}
+        
+        {/* 데이터가 없을 때 표시 */}
+        {!loading && noData && (
+          <NoDataContainer>
+            <div className="text-5xl mb-4">📊</div>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              {regionName} 지역의 데이터가 없습니다
+            </h3>
+            <p className="text-gray-500 text-sm mb-2">
+              현재 해당 지역의 데이터를 이용할 수 없습니다.
+            </p>
+            <p className="text-gray-400 text-xs">
+              추후 업데이트 예정입니다.
+            </p>
+          </NoDataContainer>
+        )}
         
         {/* 데이터 요약 영역 (로딩 중이 아니고 데이터가 있을 때) */}
         {!loading && !noData && hasAnyData && (
@@ -386,40 +447,16 @@ const MapLayout: React.FC<MapLayoutProps> = ({
           </DataSummary>
         )}
         
-        {/* 로딩 중일 때 표시 */}
-        {loading && (
-          <LoadingContainer>
-            <LoadingSpinner />
-            <div>데이터를 불러오는 중...</div>
-          </LoadingContainer>
-        )}
-        
-        {/* 데이터가 없을 때 표시 */}
-        {!loading && noData && (
-          <NoDataContainer>
-            <div className="text-5xl mb-4">📊</div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">
-              {regionName} 지역의 데이터가 없습니다
-            </h3>
-            <p className="text-gray-500 text-sm mb-2">
-              현재 해당 지역의 데이터를 이용할 수 없습니다.
-            </p>
-            <p className="text-gray-400 text-xs">
-              추후 업데이트 예정입니다.
-            </p>
-          </NoDataContainer>
-        )}
-        
         {/* 데이터가 있을 때 차트 표시 - 가로 스크롤로 변경 */}
         {!loading && !noData && hasAnyData && (
           <ChartsContent>
-            {/* 온도 차트 */}
+            {/* 온도 차트 - 고유 키 사용 */}
             {hasTemperatureData && (
-              <ChartItem>
+              <ChartItem key={tempChartKey}>
                 <RegionDataChart
-                  title="온도 추이"
+                  title={`${regionName} 온도 추이`}
                   dataPoints={historicalData.temperatures}
-                  label="온도"
+                  label={`${regionName} 온도`}
                   borderColor="#ef4444"
                   backgroundColor="rgba(239, 68, 68, 0.2)"
                   yAxisLabel="온도 (°C)"
@@ -429,13 +466,13 @@ const MapLayout: React.FC<MapLayoutProps> = ({
               </ChartItem>
             )}
             
-            {/* 습도 차트 */}
+            {/* 습도 차트 - 고유 키 사용 */}
             {hasHumidityData && (
-              <ChartItem>
+              <ChartItem key={humChartKey}>
                 <RegionDataChart
-                  title="습도 추이"
+                  title={`${regionName} 습도 추이`}
                   dataPoints={historicalData.humidity}
-                  label="습도"
+                  label={`${regionName} 습도`}
                   borderColor="#10b981"
                   backgroundColor="rgba(16, 185, 129, 0.2)"
                   yAxisLabel="습도 (%)"
@@ -445,13 +482,13 @@ const MapLayout: React.FC<MapLayoutProps> = ({
               </ChartItem>
             )}
             
-            {/* CO2 차트 */}
+            {/* CO2 차트 - 고유 키 사용 */}
             {hasCO2Data && (
-              <ChartItem>
+              <ChartItem key={co2ChartKey}>
                 <RegionDataChart
-                  title="이산화탄소 농도 추이"
+                  title={`${regionName} 이산화탄소 농도 추이`}
                   dataPoints={historicalData.co2Levels}
-                  label="CO2"
+                  label={`${regionName} CO2`}
                   borderColor="#3b82f6"
                   backgroundColor="rgba(59, 130, 246, 0.2)"
                   yAxisLabel="CO2 (ppm)"

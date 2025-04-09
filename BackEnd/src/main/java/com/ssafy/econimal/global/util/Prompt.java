@@ -8,6 +8,9 @@ import com.ssafy.econimal.global.common.enums.EcoType;
 
 public class Prompt {
 
+	// CO2 1톤 당 감소하는 온도
+	private static final double CO2TOTEMP = 0.000000005;
+
 	public static String environmentPrompt(String content) {
 		return """
 			다음은 초등학교 저학년 및 유치원생이 작성한 환경 관련 체크리스트 내용입니다.
@@ -50,6 +53,8 @@ public class Prompt {
 			- 각 영역(전기, 수도, 가스, 법원)의 정답률을 바탕으로 사용자의 이해 수준을 분석해 주세요.
 			- 특히 정답률이 낮거나 높은 항목이 있다면 강조해서 설명해주세요.
 			- 탄소 배출량과 온도 상승량 데이터를 종합하여 환경 인식 및 행동 변화 필요성에 대해 간단히 언급해주세요.
+			- 탄소 배출량의 단위은 톤(ton)이에요.
+			- 각 항목에 대해서 문제를 풀지 않는 부분에 대한 피드백은 생략해주고, 문제를 풀라고만 해주세요.
 			- 피드백은 약 500자 분량으로 간결하고 아이도 이해하기 쉽게 구어체로 작성해주세요.
 			
 			# 평가 결과:
@@ -62,7 +67,7 @@ public class Prompt {
 			{
 				"feedback": "500자 내외의 종합 평가 피드백",
 				"carbon": "%f",
-				"temperature": "-0.2"
+				"temperature": "%f"
 			}
 			""".formatted(
 			electricityLogs.correct(),
@@ -74,12 +79,8 @@ public class Prompt {
 			courtLogs.correct(),
 			courtLogs.total(),
 			totalCarbon,
-			totalCarbon
+			totalCarbon,
+			totalCarbon * CO2TOTEMP
 		);
-		/*
-			또한, 다음은 사용자의 실시간 환경 데이터입니다:
-			- 탄소 배출량: %d
-			- 온도 상승량: %d
-		 */
 	}
 }

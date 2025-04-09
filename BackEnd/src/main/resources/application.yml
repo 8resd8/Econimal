@@ -76,3 +76,6 @@ management:
   endpoint:
     health:
       show-details: always
+
+climate:
+  api-url: ${climate.api-url}

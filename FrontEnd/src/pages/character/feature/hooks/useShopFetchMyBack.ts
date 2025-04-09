@@ -1,64 +1,110 @@
-import { useMutation } from '@tanstack/react-query';
-import { userMyCharActions } from '@/store/useMyCharStore';
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
+import { characterToBackgroundMap } from '@/config/characterBackgroundMap';
+import { userMyCharActions } from '@/store/useMyCharStore';
+import { useMutation } from '@tanstack/react-query';
 
-// 서버 ID와 로컬 ID 매핑 (항상 최신 서버 ID에 맞게 업데이트)
-const serverToLocalIdMap = {
-  45: 1774, // 물속 모험의 세계
-  46: 1775, // 얼음나라 대탐험
-  47: 1776, // 초원의 비밀 정원
-  48: 1777, // 자연의 숨결
-  49: 1778, // 끝없는 바다 여행
-  50: 1779, // 거대한 얼음 왕국
+// Common backgrounds that all characters can use
+const commonBackgrounds = [
+  '자연의 숨결',
+  '끝없는 바다 여행',
+  '거대한 얼음 왕국',
+];
+
+// Background to character mapping
+const backgroundToCharacterMap = {
+  '물속 모험의 세계': '부기부기',
+  '얼음나라 대탐험': '팽글링스',
+  '초원의 비밀 정원': '호랭이',
 };
 
+// Modified useShopFetchMyBack hook
 export const useShopFetchMyBack = () => {
-  const { setUserBackgroundId, setBackImg } = userMyCharActions();
+  const { setUserBackgroundId, setBackImg, setUserCharacterId, setName } =
+    userMyCharActions();
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (backgroundId: number) => {
-      // 서버 API 호출은 생략하고 성공 처리
+      // Server API call
+      console.log(`Sending backgroundId to server: ${backgroundId}`);
       return { success: true };
     },
   });
 
-  // 배경 선택 핸들러
+  // Select background by ID
   const handleFetchShopBack = (backgroundId: number) => {
-    // 1. 올바른 배경 ID 찾기 (서버 ID를 로컬 ID로 변환)
-    const mappedId = serverToLocalIdMap[backgroundId] || backgroundId;
-
-    // 2. 배경 이미지 찾기
+    // 1. Find background info
     const selectedBackground = backgroundShopConfig.find(
-      (bg) => bg.productId === mappedId,
+      (bg) =>
+        bg.userBackgroundId === backgroundId || bg.productId === backgroundId,
     );
 
     if (selectedBackground) {
-      // 3. Zustand 상태 업데이트
-      setUserBackgroundId(mappedId);
+      // 2. Update Zustand state
+      setUserBackgroundId(backgroundId);
       setBackImg(selectedBackground.image);
 
       console.log(
-        `'${selectedBackground.characterName}' 배경이 적용되었습니다`,
-      );
-    } else {
-      console.error(
-        `배경 ID ${backgroundId}(매핑: ${mappedId})를 찾을 수 없습니다`,
+        `Applied background '${selectedBackground.characterName}' (ID: ${backgroundId})`,
       );
 
-      // 기본 배경 적용 (첫 번째 배경)
+      // Don't automatically change character here
+      // Let the component handle character switching separately
+    } else {
+      console.error(`Background ID ${backgroundId} not found`);
+
+      // Apply default background (first one) if not found
       if (backgroundShopConfig.length > 0) {
         const defaultBackground = backgroundShopConfig[0];
         setUserBackgroundId(defaultBackground.productId);
         setBackImg(defaultBackground.image);
-        console.log(
-          `기본 배경 '${defaultBackground.characterName}'이 적용되었습니다`,
-        );
       }
     }
 
-    // 형식상 서버 통신 (실제로는 처리하지 않음)
+    // Server communication
     mutate(backgroundId);
   };
 
-  return { handleFetchShopBack, isPending };
+  // Select background by name
+  const handleFetchShopBackByName = (backgroundName: string) => {
+    // Find background info by name
+    const selectedBackground = backgroundShopConfig.find(
+      (bg) => bg.characterName === backgroundName,
+    );
+
+    if (selectedBackground) {
+      console.log(`Found background by name: ${backgroundName}`);
+      // Process selection with found background
+      handleFetchShopBack(selectedBackground.userBackgroundId);
+    } else {
+      console.error(`Could not find background with name "${backgroundName}"`);
+    }
+  };
+
+  // Check if background is selectable
+  const isBackgroundSelectable = (
+    backgroundName: string,
+    currentCharName: string | undefined,
+  ): boolean => {
+    if (!currentCharName) return true; // All selectable if no character is selected
+
+    // Check if this is a basic/default background
+    const isBasicBackground =
+      backgroundToCharacterMap[backgroundName] !== undefined;
+
+    // For basic backgrounds: allow selection even if it's for another character
+    // The component will handle the character switching
+    if (isBasicBackground) {
+      return true;
+    }
+
+    // Common backgrounds are always selectable
+    return commonBackgrounds.includes(backgroundName);
+  };
+
+  return {
+    handleFetchShopBack,
+    handleFetchShopBackByName,
+    isBackgroundSelectable,
+    isPending,
+  };
 };

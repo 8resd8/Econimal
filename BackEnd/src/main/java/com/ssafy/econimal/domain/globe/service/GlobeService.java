@@ -4,18 +4,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.ssafy.econimal.domain.globe.dto.GlobeDataDto;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoDto;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoRequest;
-import com.ssafy.econimal.domain.globe.dto.GlobeInfoV2Dto;
-import com.ssafy.econimal.domain.globe.dto.GlobeResponse;
-import com.ssafy.econimal.domain.globe.dto.GlobeV2Response;
-import com.ssafy.econimal.domain.globe.dto.GroupByCountryDto;
-import com.ssafy.econimal.domain.globe.dto.GroupByDateTimeDto;
+import com.ssafy.econimal.domain.globe.dto.GlobeData;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByCountryDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v1.GroupByDateTimeDto;
+import com.ssafy.econimal.domain.globe.dto.climate.v2.ClimateInfoV2Dto;
+import com.ssafy.econimal.domain.globe.dto.co2.CarbonCO2Dto;
+import com.ssafy.econimal.domain.globe.dto.request.GlobeInfoRequest;
+import com.ssafy.econimal.domain.globe.dto.response.ClimateResponse;
+import com.ssafy.econimal.domain.globe.dto.response.GlobeV2Response;
+import com.ssafy.econimal.domain.globe.repository.CarbonCO2QueryRepository;
 import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
+import com.ssafy.econimal.global.config.WebClientConfig;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,16 +32,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GlobeService {
 
+	@Value("${climate.api-url}")
+	private String climateApiUrl;
+
 	private final ClimateQueryRepository climateQueryRepository;
+	private final CarbonCO2QueryRepository carbonCO2QueryRepository;
 
 	// key : 낧짜, value : 해당 날짜의 국가별 기후 데이터
-	private Map<String, Map<String, GlobeDataDto>> groupByDateTime(List<GlobeInfoDto> infoList) {
+	private Map<String, Map<String, ClimateDataDto>> groupByDateTime(List<ClimateInfoDto> infoList) {
 		return infoList.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoDto::dateTime,
+				ClimateInfoDto::dateTime,
 				Collectors.toMap(
-					GlobeInfoDto::country,
-					info -> new GlobeDataDto(
+					ClimateInfoDto::country,
+					info -> new ClimateDataDto(
 						String.valueOf(info.temperature()),
 						String.valueOf(info.humidity())
 					),
@@ -43,13 +55,13 @@ public class GlobeService {
 	}
 
 	// key : 국가, value : 해당 국가의 시간별 기후 데이터
-	private Map<String, Map<String, GlobeDataDto>> groupByCountry(List<GlobeInfoDto> infoList) {
+	private Map<String, Map<String, ClimateDataDto>> groupByCountry(List<ClimateInfoDto> infoList) {
 		return infoList.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoDto::country,
+				ClimateInfoDto::country,
 				Collectors.toMap(
-					GlobeInfoDto::dateTime,
-					info -> new GlobeDataDto(
+					ClimateInfoDto::dateTime,
+					info -> new ClimateDataDto(
 						String.valueOf(info.temperature()),
 						String.valueOf(info.humidity())
 					),
@@ -59,60 +71,90 @@ public class GlobeService {
 	}
 
 	@Transactional(readOnly = true)
-	public GlobeResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
+	public ClimateResponse getGlobeInfoByRDB(GlobeInfoRequest globeInfoRequest) {
 
-		List<GlobeInfoDto> infoList = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
+		List<ClimateInfoDto> infoList = climateQueryRepository.findClimateAverageByTime(globeInfoRequest);
 
 		// 날짜별 그룹핑 처리
-		Map<String, Map<String, GlobeDataDto>> groupedByDateTime = groupByDateTime(infoList);
+		Map<String, Map<String, ClimateDataDto>> groupedByDateTime = groupByDateTime(infoList);
 
 		// 국가별 그룹핑 처리
-		Map<String, Map<String, GlobeDataDto>> groupedByCountry = groupByCountry(infoList);
+		Map<String, Map<String, ClimateDataDto>> groupedByCountry = groupByCountry(infoList);
 
-		return new GlobeResponse(
+		return new ClimateResponse(
 			new GroupByDateTimeDto(groupedByDateTime),
 			new GroupByCountryDto(groupedByCountry)
 		);
 	}
 
-	// 1년 단위
-	@Transactional(readOnly = true)
-	public GlobeV2Response getGlobeInfoYear() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
+	// 1년 단위: 1시간 갱신
+	@Cacheable(value = "climateYearCache", key = "'climate:year'")
+	@Scheduled(cron = "0 2 * * * *")
+	public GlobeV2Response getClimateInfoYear() {
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByYearV2();
 
 		return getGlobeV2Response(climates);
 	}
 
-	// 3달단위
-	@Transactional(readOnly = true)
-	public GlobeV2Response getGlobeInfoMonth() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
+	// 3달단위: 1시간 갱신
+	@Cacheable(value = "climateThreeMonthCache", key = "'climate:three-month'")
+	@Scheduled(cron = "0 2 * * * *")
+	public GlobeV2Response getClimateInfoMonth() {
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByMonthV2();
 
 		return getGlobeV2Response(climates);
 	}
 
-	// 3일단위
-	@Transactional(readOnly = true)
-	public GlobeV2Response getGlobeInfoDay() {
-		List<GlobeInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
+	// 3일단위: 1시간 갱신
+	@Cacheable(value = "climateThreeDayCache", key = "'climate:three-day'")
+	@Scheduled(cron = "0 2 * * * *")
+	public GlobeV2Response getClimateInfoDay() {
+		List<ClimateInfoV2Dto> climates = climateQueryRepository.findClimateAverageByDayV2();
 
 		return getGlobeV2Response(climates);
+	}
+
+	// 전체 기간 이산화탄소 연도별 평균
+	@Cacheable(value = "carbonAllYearCache", key = "'carbon:all-year'")
+	public GlobeV2Response getCarbonCO2InfoAll() {
+		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
+
+		return getGlobeV2Response(carbonCo2s);
+	}
+
+	// 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
+	// 1시간 갱신
+	@Cacheable(value = "climateAllYearCache", key = "'climate:all-year'")
+	@Scheduled(cron = "0 2 * * * *")
+	public GlobeV2Response getClimateInfoAll() {
+		// Response Type 동일하므로 변환하여 사용
+		WebClient webClient = WebClientConfig.createWebClient(climateApiUrl);
+		return WebClientConfig.get(webClient, "/globe/all/climate", GlobeV2Response.class)
+			.block();
 	}
 
 	// 동일한 출력결과 사용
-	private GlobeV2Response getGlobeV2Response(List<GlobeInfoV2Dto> climates) {
-		Map<String, Map<String, Map<String, Double>>> groupedData = climates.stream()
+	private <T extends GlobeData> GlobeV2Response getGlobeV2Response(List<T> dataList) {
+		Map<String, Map<String, Map<String, String>>> groupedByCountry = dataList.stream()
 			.collect(Collectors.groupingBy(
-				GlobeInfoV2Dto::formattedDateHour, // 최상위 키: 날짜
+				GlobeData::country,
 				Collectors.toMap(
-					GlobeInfoV2Dto::country,       // 내부 키: 국가 코드
-					dto -> Map.of(                 // 내부 값: 온도와 습도 정보를 담은 Map
-						"temperature", dto.temperature(),
-						"humidity", dto.humidity()
-					)
+					GlobeData::formattedDateHour,
+					GlobeData::toValueMap,
+					(existing, replacement) -> replacement // key 중복 방지
 				)
 			));
 
-		return new GlobeV2Response(groupedData);
+		Map<String, Map<String, Map<String, String>>> groupedByDateTime = dataList.stream()
+			.collect(Collectors.groupingBy(
+				GlobeData::formattedDateHour,
+				Collectors.toMap(
+					GlobeData::country,
+					GlobeData::toValueMap,
+					(existing, replacement) -> replacement // key 중복 방지
+				)
+			));
+
+		return new GlobeV2Response(groupedByCountry, groupedByDateTime);
 	}
 }

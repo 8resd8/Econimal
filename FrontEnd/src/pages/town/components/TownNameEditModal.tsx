@@ -7,12 +7,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  // DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePatchTownName } from '../features/useTownQuery';
-// import { X } from 'lucide-react';
 
 interface TownNameEditModalProps {
   open: boolean;
@@ -26,23 +24,68 @@ export const TownNameEditModal = ({
   onOpenChange,
   currentTownName,
 }: TownNameEditModalProps) => {
-  const [townName, setTownName] = useState(currentTownName); // currentTownName이 townName의 초기값
-  // const [isLoading, setIsLoading] = useState(false);
+  const [townName, setTownName] = useState(currentTownName);
+
+  // 입력 유효성 상태 추가
+  const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const MAX_LENGTH = 30; // 최대 길이 상수로 정의
+
   const patchTownName = usePatchTownName();
 
-  // 모달이 열릴 때 마다 현재 마을 이름을 상태에 반영
+  // 모달이 열릴 때마다 현재 마을 이름을 상태에 반영하고 유효성 검사 수행
   useEffect(() => {
     if (open) {
-      // 사용자가 모달 누르면 open이 true로 변경
+      // 이름 설정
       setTownName(currentTownName);
+
+      // 유효성 검사 수행
+      if (currentTownName.length > MAX_LENGTH) {
+        setIsValid(false);
+        setErrorMessage(`마을 이름은 최대 ${MAX_LENGTH}자까지만 가능합니다.`);
+      } else {
+        setIsValid(true);
+        setErrorMessage('');
+      }
     }
   }, [open, currentTownName]);
 
-  // 변경된 마을 이름 저장(제출) 함수
+  // 입력값 변경 핸들러
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 30자를 초과하는 입력 처리
+    if (value.length > MAX_LENGTH) {
+      // 30자로 잘라내고 오류 메시지 표시
+      setTownName(value.slice(0, MAX_LENGTH));
+      setIsValid(false);
+      setErrorMessage(`마을 이름은 최대 ${MAX_LENGTH}자까지만 가능합니다.`);
+    } else {
+      // 유효한 입력 처리
+      setTownName(value);
+      setIsValid(true);
+      setErrorMessage('');
+    }
+  };
+
+  // 저장 버튼 클릭 핸들러
   const handleSave = async () => {
+    // 한 번 더 유효성 검사
+    if (townName.length > MAX_LENGTH) {
+      setIsValid(false);
+      setErrorMessage(`마을 이름은 최대 ${MAX_LENGTH}자까지만 가능합니다.`);
+      return;
+    }
+
+    // 빈 이름 처리
+    if (townName.trim() === '') {
+      setIsValid(false);
+      setErrorMessage('마을 이름을 입력해주세요.');
+      return;
+    }
+
     try {
-      // setIsLoading(true);///
-      // api 호출
+      // API 호출
       await patchTownName({ townName });
       // 성공 시 모달 닫기
       onOpenChange(false);
@@ -57,9 +100,6 @@ export const TownNameEditModal = ({
         <DialogHeader>
           <DialogTitle>마을 이름을 수정해주세요</DialogTitle>
           <DialogDescription>{/* 세부 설명*/}</DialogDescription>
-          {/* <DialogClose>
-            <X />
-          </DialogClose> */}
         </DialogHeader>
         <div className='grid gap-4 py-4'>
           <div className='grid grid-cols-4 items-center gap-4'>
@@ -69,20 +109,26 @@ export const TownNameEditModal = ({
             <Input
               id='name'
               value={townName}
-              // 사용자가 키보드를 누를 때마다 onChange가 실행
-              // 입력한 값이 townName 상태로 업데이트되고,
-              // 이 값이 다시 value={townName}으로 적용돼서 실시간으로 입력 필드에 반영
-              onChange={(e) => setTownName(e.target.value)}
-              className='col-span-3'
+              onChange={handleInputChange}
+              className={`col-span-3 ${!isValid ? 'border-red-500' : ''}`}
               autoComplete='off'
+              maxLength={MAX_LENGTH}
             />
           </div>
+          <span
+            className={`text-sm ${isValid ? 'text-gray-500' : 'text-red-500'}`}
+          >
+            * 마을 이름은 최대 {MAX_LENGTH}자까지 가능합니다.
+          </span>
         </div>
         <DialogFooter>
-          <Button type='submit' onClick={handleSave}>
+          <Button
+            type='submit'
+            onClick={handleSave}
+            disabled={!isValid || townName.trim() === ''}
+          >
             저장
           </Button>
-          {/* 저장 버튼 클릭 시 api 요청 후 모달 닫히기 */}
         </DialogFooter>
       </DialogContent>
     </Dialog>

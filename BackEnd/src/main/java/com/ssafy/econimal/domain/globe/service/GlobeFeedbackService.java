@@ -2,6 +2,8 @@ package com.ssafy.econimal.domain.globe.service;
 
 import static com.ssafy.econimal.global.util.Prompt.*;
 
+import java.util.Optional;
+
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,8 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.econimal.domain.carbonlog.repository.CarbonLogRepository;
 import com.ssafy.econimal.domain.carbonlog.repository.UserLogQueryRepository;
-import com.ssafy.econimal.domain.globe.dto.GlobeAIResponseDto;
 import com.ssafy.econimal.domain.globe.dto.UserLogDto;
+import com.ssafy.econimal.domain.globe.dto.response.GlobeAIResponseDto;
 import com.ssafy.econimal.domain.globe.dto.response.GlobeFeedbackResponse;
 import com.ssafy.econimal.domain.user.entity.User;
 
@@ -30,7 +32,7 @@ public class GlobeFeedbackService {
 	@Transactional(readOnly = true)
 	public GlobeFeedbackResponse getFeedback(User user) {
 		UserLogDto userLogDto = getUserLog(user);
-		Double totalCarbon = getUserCarbonTotal(user);
+		Double totalCarbon = Optional.ofNullable(getUserCarbonTotal(user)).orElse(0.0);
 		GlobeAIResponseDto globeAIFeedbackDto = getAIFeedback(userLogDto, totalCarbon);
 		return new GlobeFeedbackResponse(userLogDto, globeAIFeedbackDto);
 	}
@@ -48,7 +50,6 @@ public class GlobeFeedbackService {
 	// chatGPT 프롬프팅을 통한 피드백 제공
 	private GlobeAIResponseDto getAIFeedback(UserLogDto userLogDto, Double totalCarbon) {
 		String aiResponse = chatModel.call(globeFeedbackPrompt(userLogDto, totalCarbon));
-		System.out.println(aiResponse);
 		ObjectMapper objectMapper = new ObjectMapper();
 		GlobeAIResponseDto response = null;
 		try {

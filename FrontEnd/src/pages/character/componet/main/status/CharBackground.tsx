@@ -25,6 +25,7 @@ import {
   useMyCharName,
   useBackImg,
 } from '@/store/useMyCharStore';
+import ContributionButton from '@/components/ContributionButton';
 
 const CharBackground = () => {
   // const { myChar } = useCharStore();
@@ -111,30 +112,35 @@ const CharBackground = () => {
       <div className='relative z-10 w-full h-full'>
         {/* 상단 UI (한 줄 정렬) */}
         <div className='flex items-center justify-between px-5 md:px-6 py-4 md:py-5 w-full fixed top-0 left-0 z-50'>
-          {/* 왼쪽: 프로필 + 경험치바 */}
+          {/* 왼쪽: 프로필 + 경험치바 + 코인 (세로 정렬로 변경) */}
           <div className='relative flex items-center gap-2 md:gap-3 flex-shrink-0'>
             <CharProfile
               level={level}
               profileImg={myCharacterInfo.profileImg}
             />
-            <div className='relative'>
-              <ExpBar current={exp} max={100} className='absolute top-[5px]' />
+            {/* 경험치바와 코인을 포함하는 세로 컨테이너 */}
+            <div className='flex flex-col justify-center gap-1 md:gap-2'>
+              {/* 경험치바 - 원래 크기 유지 */}
+              <div className='relative'>
+                <ExpBar current={exp} max={100} />
+              </div>
+              {/* 코인 - 원래 크기 유지 */}
+              <div className='flex items-baseline'>
+                <CharCoin
+                  coin={coin}
+                  className='w-[120px] h-[30px] md:w-[140px] md:h-[32px] flex items-baseline justify-center'
+                />
+              </div>
             </div>
           </div>
 
           <div className='flex items-baseline gap-4 md:gap-5 flex-shrink-0'>
-            <div className='flex items-baseline'>
-              <CharCoin
-                coin={coin}
-                className='w-[120px] h-[30px] md:w-[140px] md:h-[32px] flex items-baseline justify-center'
-              />
-            </div>
             <CharMenu />
           </div>
         </div>
 
         {/* 왼쪽 이동 버튼 */}
-        <div className='absolute left-5 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-2 md:gap-3 z-[100] scale-[0.65] md:scale-[0.75]'>
+        <div className='absolute left-5 md:left-12 top-[65%] -translate-y-1/2 flex flex-col gap-5 md:gap-3 z-[100] scale-[0.65] md:scale-[0.75]'>
           <TownIcon
             onClick={() => nav('/town')}
             className='w-[35px] h-[35px] md:w-[40px] md:h-[40px]'
@@ -150,7 +156,7 @@ const CharBackground = () => {
         </div>
 
         {/* 캐릭터 & 발판 */}
-        <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-36 md:w-40 scale-90 md:scale-100'>
+        <div className='absolute bottom-4 left-1/2 -translate-x-1/2 w-36 md:w-40 md:scale-100'>
           <div className='relative flex flex-col items-center'>
             {/* 캐릭터 이미지 */}
             <CharEmotionChange faceImg={faceImg} className='z-10' />
@@ -159,10 +165,11 @@ const CharBackground = () => {
             <img
               src={footImg}
               alt='발판'
-              className='relative bottom-[-4px] w-full z-0'
+              className='relative bottom-[-13px] right-2 w-full z-0 scale-110'
             />
           </div>
         </div>
+        <ContributionButton />
       </div>
     </div>
   );

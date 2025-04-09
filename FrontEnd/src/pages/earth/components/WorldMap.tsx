@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
@@ -7,16 +7,16 @@ import { getCountryCodeByName, getCountryNameByCode } from '../utils/countryUtil
 
 // 스타일 컴포넌트 정의
 const MapContainer = styled.div`
-  width: 100%; // 90%에서 100%로 변경
-  height: 100%; // 80vh에서 100%로 변경
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  margin: 0; // 마진 제거
-  overflow: hidden; // 넘치는 부분 숨김
-  border-radius: 10px; // 모서리 둥글게
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
 `;
 
 const MapSvg = styled.svg`
@@ -24,7 +24,7 @@ const MapSvg = styled.svg`
   height: 100%;
   background-color: #f0f8ff;
   border-radius: 10px;
-  display: block; // 추가: 불필요한 여백 제거
+  display: block;
 `;
 
 const Tooltip = styled.div`
@@ -41,16 +41,16 @@ const Tooltip = styled.div`
 
 const Legend = styled.div`
   position: absolute;
-  bottom: 35px;
-  left: 20px; // 좌측에서 여백 증가
-  background-color: rgba(255, 255, 255, 0.9); // 불투명도 약간 증가
+  bottom: 20px;
+  left: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
   padding: 8px 10px;
   border-radius: 5px;
   z-index: 10;
   display: flex;
   flex-direction: column;
   scale: 90%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // 그림자 추가
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const LegendTitle = styled.div`
@@ -77,14 +77,14 @@ const LegendLabels = styled.div`
 const DataTypeSelector = styled.div`
   position: absolute;
   top: 15px;
-  left: 15px; // 위치 조정
+  left: 15px;
   display: flex;
-  background-color: rgba(255, 255, 255, 0.9); // 불투명도 증가
+  background-color: rgba(255, 255, 255, 0.9);
   padding: 8px;
   border-radius: 5px;
   z-index: 10;
   scale: 90%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // 그림자 추가
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const DataTypeButton = styled.button<{ active: boolean }>`
@@ -147,24 +147,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
     }
   }, [countriesData]);
   
-  // 더미 데이터 생성 (API가 동작하지 않을 때 테스트용)
-  const generateDummyData = (): Record<string, CountryData> => {
-    const dummyData: Record<string, CountryData> = {};
-    
-    // 백엔드에서 제공하는 국가 코드에 대한 더미 데이터 생성
-    const countries = ["KR", "JP", "US", "CN", "RU", "GB", "FR", "DE", "IT", "CA", "AU", "IN", "BR"];
-    
-    countries.forEach(code => {
-      dummyData[code] = {
-        temperature: 15 + Math.random() * 15, // 15~30도 사이 랜덤 온도
-        humidity: 40 + Math.random() * 60,    // 40~100% 사이 랜덤 습도
-        co2Level: 350 + Math.random() * 100   // 350~450ppm 사이 랜덤 CO2 농도
-      };
-    });
-    
-    return dummyData;
-  };
-  
   // 지도 데이터 로드
   useEffect(() => {
     const loadWorldData = async () => {
@@ -190,11 +172,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
   const getColorScale = () => {
     switch (dataType) {
       case 'co2':
-        // CO2 농도에 따른 색상 스케일 (350ppm ~ 450ppm)
+        // CO2 농도에 따른 색상 스케일 - 범위 확장
         return d3.scaleSequential(d3.interpolateBlues)
-          .domain([350, 450]);
+          .domain([350, 430]);
       case 'temperature':
-        // 온도에 따른 색상 스케일 (-10°C ~ 40°C)로 범위 확장
+        // 온도에 따른 색상 스케일 (-10°C ~ 40°C)
         return d3.scaleSequential(d3.interpolateReds)
           .domain([-10, 40]);
       case 'humidity':
@@ -221,19 +203,27 @@ const WorldMap: React.FC<WorldMapProps> = ({
       effectiveData = { ...countriesData };
       console.log('백엔드 데이터 사용:', Object.keys(effectiveData).length, '개 국가');
       
-      // 그린란드 데이터가 없으면 더미 데이터 추가
-      if (!effectiveData['GL']) {
-        console.log('그린란드 데이터 누락, 더미 데이터 추가');
-        effectiveData['GL'] = {
-          temperature: -5 + Math.random() * 10, // -5~5도
-          humidity: 60 + Math.random() * 20,    // 60~80%
-          co2Level: 350 + Math.random() * 30    // 350~380ppm
-        };
+      // CO2 데이터 디버깅 로그 추가
+      if (dataType === 'co2') {
+        const countriesWithCO2 = Object.entries(effectiveData)
+          .filter(([_, data]) => data.co2Level !== undefined);
+        
+        console.log(`CO2 데이터가 있는 국가: ${countriesWithCO2.length}개`);
+        
+        if (countriesWithCO2.length > 0) {
+          console.log('CO2 데이터 샘플:', countriesWithCO2.slice(0, 3));
+        }
+        
+        // CO2 값의 범위 확인
+        if (countriesWithCO2.length > 0) {
+          const co2Values = countriesWithCO2.map(([_, data]) => data.co2Level);
+          const minCO2 = Math.min(...co2Values as number[]);
+          const maxCO2 = Math.max(...co2Values as number[]);
+          console.log(`CO2 데이터 범위: ${minCO2} ~ ${maxCO2}`);
+        }
       }
     } else {
-      // 데이터가 없으면 더미 데이터 사용
-      effectiveData = generateDummyData();
-      console.log('더미 데이터 사용:',  Object.keys(effectiveData).length, '개 국가');
+      console.log('데이터 없음');
     }
     
     console.log('사용할 데이터:', Object.keys(effectiveData).length > 0 
@@ -281,18 +271,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
         // GeoJSON에서의 국가 이름
         const countryName = d.properties.name;
         
-        // 그린란드 확인용 디버깅 로그 추가
-        if (countryName.includes('Green') || countryName === 'Greenland') {
-          console.log('그린란드 발견:', countryName, '속성:', JSON.stringify(d.properties));
-        }
-        
         // 국가 이름으로 코드 찾기
         const countryCode = getCountryCodeByName(countryName);
-        
-        // 그린란드 매핑 디버깅
-        if (countryName.includes('Green') || countryName === 'Greenland') {
-          console.log('그린란드 매핑 결과:', countryCode);
-        }
         
         // 국가 코드가 있고, 해당 코드의 데이터가 있으면 색상 지정
         if (countryCode && effectiveData[countryCode]) {
@@ -303,6 +283,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
           switch (dataType) {
             case 'co2':
               value = countryData.co2Level;
+              
+              // 디버깅 로그: co2Level 값이 정의되었는지 확인
+              if (value === undefined) {
+                console.log(`경고: ${countryCode} 국가의 co2Level이 undefined입니다.`);
+              }
               break;
             case 'temperature':
               value = countryData.temperature;
@@ -328,10 +313,31 @@ const WorldMap: React.FC<WorldMapProps> = ({
         const countryName = d.properties.name;
         const countryCode = getCountryCodeByName(countryName);
         
+        // 툴팁 표시 준비
+        let tooltipContent = `<strong>${countryName}</strong>`;
+        
+        if (countryCode && effectiveData[countryCode]) {
+          const data = effectiveData[countryCode];
+          
+          // 데이터 타입에 따른 값 표시
+          if (dataType === 'temperature' && data.temperature !== undefined) {
+            tooltipContent += `<br>온도: ${data.temperature.toFixed(1)}°C`;
+          } else if (dataType === 'humidity' && data.humidity !== undefined) {
+            tooltipContent += `<br>습도: ${data.humidity.toFixed(1)}%`;
+          } else if (dataType === 'co2' && data.co2Level !== undefined) {
+            tooltipContent += `<br>CO2: ${data.co2Level.toFixed(1)} ppm`;
+          }
+        }
+        
+        // 툴팁 표시
+        tooltip
+          .html(tooltipContent)
+          .style('display', 'block');
+          
+        // 테두리 스타일 변경
         d3.select(event.currentTarget)
           .attr('stroke', '#000')
           .attr('stroke-width', 1);
-          
       })
       .on('mousemove', (event) => {
         tooltip
@@ -430,7 +436,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
     switch (dataType) {
       case 'co2':
         min = '350 ppm';
-        max = '450 ppm';
+        max = '430 ppm';
         title = '이산화탄소 농도';
         break;
       case 'temperature':
@@ -463,7 +469,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   
   return (
     <MapContainer>
-      <MapSvg ref={svgRef} preserveAspectRatio="xMidYMid meet" /> {/* preserveAspectRatio 추가 */}
+      <MapSvg ref={svgRef} preserveAspectRatio="xMidYMid meet" />
       
       <DataTypeSelector>
         <DataTypeButton 
@@ -495,11 +501,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
         <LegendLabels>
           <span id="legend-min">
             {dataType === 'temperature' ? '-10 °C' : 
-             dataType === 'humidity' ? '0 %' : '350 ppm'}
+             dataType === 'humidity' ? '0 %' : '300 ppm'}
           </span>
           <span id="legend-max">
             {dataType === 'temperature' ? '40 °C' : 
-             dataType === 'humidity' ? '100 %' : '450 ppm'}
+             dataType === 'humidity' ? '100 %' : '500 ppm'}
           </span>
         </LegendLabels>
       </Legend>

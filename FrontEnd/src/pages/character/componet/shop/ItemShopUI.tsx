@@ -1,4 +1,3 @@
-// 3. 수정된 ItemShopUI.tsx
 import GoMainBtn from '@/components/GoMainBtn';
 import { ItemShopTypes } from '../../types/shop/ItemShopTypesUI';
 import CharCoin from '../main/status/CharCoin';
@@ -7,6 +6,7 @@ import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
 import { useState } from 'react';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
+import bgImage from '@/assets/auth_background.png';
 
 const ItemShopUI = ({
   userCoins,
@@ -22,9 +22,12 @@ const ItemShopUI = ({
   confirmPurchase,
   selectCharacter, // 선택된 캐릭터 ID 전달 함수
   selectBackground, // 선택된 배경 ID 전달 함수
+  currentCharName, // 현재 선택된 캐릭터 이름
+  currentBackgroundId, // 현재 선택된 배경 ID (추가)
+  selectOwnedItem, // 선택된 아이템 처리 함수
+  selectedItemId, // 선택된 아이템 ID
 }: ItemShopTypes) => {
   const coin = useCharacterCoin();
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     null,
   );
@@ -32,27 +35,11 @@ const ItemShopUI = ({
     number | null
   >(null);
 
-  // 보유한 아이템 선택 시 업데이트
-  const selectOwnedItem = (productId: number) => {
-    setSelectedItemId(productId);
-    const selectedItem = currentItems.find(
-      (item) => item.productId === productId,
-    );
-
-    if (selectedItem) {
-      if (selectedTab === 'characters' && selectedItem.userCharacterId) {
-        setSelectedCharacterId(selectedItem.userCharacterId);
-      } else if (
-        selectedTab === 'backgrounds' &&
-        selectedItem.userBackgroundId
-      ) {
-        setSelectedBackgroundId(selectedItem.userBackgroundId);
-      }
-    }
-  };
-
   return (
-    <div className='w-screen h-screen bg-black p-2 flex flex-col items-center relative pt-6 '>
+    <div
+      className='flex items-center justify-center min-h-screen bg-cover bg-center w-full h-full p-5'
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
       <div className='w-full max-w-[812px] flex flex-col items-center h-full px-4'>
         {/* 상점 제목 & 코인 표시 */}
         <div className='flex items-center justify-between w-full px-2 mb-2 relative pb-2 '>
@@ -116,6 +103,8 @@ const ItemShopUI = ({
                   itemType={
                     selectedTab === 'characters' ? 'character' : 'background'
                   }
+                  currentCharName={currentCharName}
+                  currentBackgroundId={currentBackgroundId}
                 />
               ))}
           </div>
