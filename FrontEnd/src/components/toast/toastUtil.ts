@@ -1,7 +1,7 @@
 import { toast, ToastOptions, Id } from 'react-toastify';
-import { EcoType } from '@/pages/town/features/infraApi';
 import { isModalOpen } from '@/components/EventDetector';
 import { useErrorStore } from '@/store/errorStore';
+// import { EcoType } from '@/pages/town/features/infraApi';
 
 // [최적화] 토스트 관리를 위한 객체
 // 마지막으로 표시된 토스트의 시간과 ID를 저장
@@ -102,17 +102,17 @@ export const showTownEventNotice = (options?: ToastOptions): Id | null => {
   );
 };
 
-// 인프라 타입별 메시지 맵 (참조용)
-const infraEventMessages: Record<EcoType, string> = {
-  ELECTRICITY: '가정에 문제가 발생했습니다!',
-  WATER: '하수처리장에 문제가 발생했습니다!',
-  GAS: '공장에 문제가 발생했습니다!',
-  COURT: '법원에 문제가 발생했습니다!',
-};
+// 인프라 타입별 메시지 맵
+// const infraEventMessages: Record<EcoType, string> = {
+//   ELECTRICITY: '가정에 문제가 발생했습니다!',
+//   WATER: '하수처리장에 문제가 발생했습니다!',
+//   GAS: '공장에 문제가 발생했습니다!',
+//   COURT: '법원에 문제가 발생했습니다!',
+// };
 
 // [최적화] 통합된 인프라 이벤트 알림 함수
 export const showInfraEventNotice = (
-  ecoType: string,
+  // ecoType: string,
   options?: ToastOptions,
   onClick?: () => void,
 ): Id | null => {
