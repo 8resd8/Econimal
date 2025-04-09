@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // 시간 범위 타입
 export type TimeRange = 'hour' | 'day' | 'month' | 'year';
@@ -17,14 +17,18 @@ interface TimeSliderProps {
   onRangeChange: (range: TimeRange) => void;
   onFetchData?: (range: TimeRange, value: number, startDate: string, endDate: string) => void;
   maxYears?: number; // 백엔드에서 가져온 데이터의 최대 연도 범위 (기본값: 15)
+  selectedRegion?: string | null; // 추가된 부분
 }
+
+let lastRequestTime = 0;
 
 const TimeSlider: React.FC<TimeSliderProps> = ({ 
   timeRange, 
   onChange, 
   onRangeChange,
   onFetchData,
-  maxYears = 15 // 기본값 15년으로 설정 (백엔드에서 실제 값을 가져오면 업데이트)
+  maxYears = 15, // 기본값 15년으로 설정 (백엔드에서 실제 값을 가져오면 업데이트)
+  selectedRegion
 }) => {
   const [value, setValue] = useState<number>(0);
   const [playing, setPlaying] = useState<boolean>(false);
@@ -118,35 +122,54 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
     // 부모 컴포넌트에 값 변경 알림
     onChange(value);
     
+    // 지역 선택 후 자동 요청 시에는 API 요청 무시 (중요: 이 부분 추가)
+    if (selectedRegion) {
+      console.log('[TimeSlider] 지역이 선택된 상태에서 값 변경됨 - API 요청 무시');
+      return;
+    }
+    
     // 연도 타입인 경우 슬라이더 변경 시 데이터를 다시 요청하지 않음
     if (timeRange !== 'year' && onFetchData && !playing) {
       console.log(`[TimeSlider] 슬라이더 값 변경: ${timeRange} 타입, ${value} 값`);
       
-      // 직접 데이터 요청 (지도 업데이트를 위해)
-      const now = new Date();
-      now.setMinutes(0, 0, 0);
-      let startDate: Date;
-      
-      switch (timeRange) {
-        case 'hour':
-          startDate = new Date(now.getTime() - value * 60 * 60 * 1000);
-          break;
-        case 'day':
-          startDate = new Date(now.getTime() - value * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          startDate = new Date(now.getFullYear(), now.getMonth() - value, now.getDate(), now.getHours());
-          break;
-        default:
-          startDate = new Date(now.getTime() - value * 60 * 60 * 1000);
+      // 마지막 요청 시간 확인
+      const now = Date.now();
+      if (now - lastRequestTime < 500) { // 0.5초 이내 중복 요청 방지
+        console.log('[TimeSlider] 요청 간격이 너무 짧아 무시됨');
+        return;
       }
       
+      // 요청 시간 업데이트
+      lastRequestTime = now;
+      
+      // 직접 데이터 요청 (지도 업데이트를 위해)
+      const currentDate = new Date();
+      currentDate.setMinutes(0, 0, 0);
+      let startDate: Date;
+          
+      switch (timeRange) {
+        case 'hour':
+          startDate = new Date(currentDate.getTime() - value * 60 * 60 * 1000);
+          break;
+        case 'day':
+          startDate = new Date(currentDate.getTime() - value * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - value, currentDate.getDate(), currentDate.getHours());
+          break;
+        default:
+          startDate = new Date(currentDate.getTime() - value * 60 * 60 * 1000);
+      }
+          
       startDate.setMinutes(0, 0, 0);
-      onFetchData(timeRange, value, startDate.toISOString(), now.toISOString());
+      onFetchData(timeRange, value, startDate.toISOString(), currentDate.toISOString());
     } else if (timeRange === 'year') {
       console.log(`[TimeSlider] 연도 슬라이더 값 변경: ${value}년 (API 요청 없음)`);
     }
-  }, [value, timeRange, onChange, onFetchData, playing]);
+  }, [value, timeRange, onChange, onFetchData, playing, selectedRegion]);
+
+  // 컴포넌트 상단에 추가
+  const lastRequestTimeRef = useRef<number>(0);
   
   // 범위 변경 핸들러
   const handleRangeChange = (range: TimeRange) => {
@@ -256,28 +279,6 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
       // 종료일 변경 시 슬라이더 값 재계산 필요 (필요한 경우 추가 로직 구현)
     } catch (e) {
       console.error('날짜 파싱 오류:', e);
-    }
-  };
-  
-  // 조회하기 버튼 핸들러
-  const handleFetchData = () => {
-    if (onFetchData && timeRange !== 'year') {
-      console.log(`[TimeSlider] 조회하기 버튼: ${timeRange} 타입, ${value} 값`);
-      
-      // 날짜 문자열을 파싱하여 Date 객체로 변환
-      const startDateTime = parseDisplayDate(startDate);
-      const endDateTime = parseDisplayDate(endDate);
-      
-      // 분, 초, 밀리초를 0으로 설정하여 정각으로 맞춤
-      startDateTime.setMinutes(0, 0, 0);
-      endDateTime.setMinutes(0, 0, 0);
-      
-      // ISO 형식으로 변환하여 API 호출
-      const formattedStartDate = startDateTime.toISOString();
-      const formattedEndDate = endDateTime.toISOString();
-      
-      onFetchData(timeRange, value, formattedStartDate, formattedEndDate);
-      setFetchedData(true);
     }
   };
   
