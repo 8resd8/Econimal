@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import CharChecklist from '../../componet/main/checklist/CharChecklist';
@@ -14,6 +15,24 @@ export function CharMenu() {
   const handleCloseChecklist = () => {
     setOpenChecklist(false);
   };
+  const checklistContent = openChecklist && (
+    <div className='fixed inset-y-0 right-0 w-[375px] max-w-full h-full bg-white shadow-xl transition-transform duration-300 transform translate-x-0 z-[9999]'>
+      <div className='p-6 h-full max-h-screen overflow-y-auto'>
+        <div className='flex items-center justify-between mb-6'>
+          <h2 className='text-xl font-bold text-blue-700'>
+            📖 나의 체크리스트
+          </h2>
+          <button
+            onClick={handleCloseChecklist}
+            className='p-2 hover:bg-gray-200 rounded-full transition-colors'
+          >
+            <X className='w-5 h-5 text-red-500' />
+          </button>
+        </div>
+        <CharChecklist />
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -44,10 +63,14 @@ export function CharMenu() {
         </svg>
       </button>
 
+      {/* Portal을 통해 최상위로 렌더링 */}
+      {ReactDOM.createPortal(checklistContent, document.body)}
       {/* 오른쪽 슬라이드 패널 */}
       {openChecklist && (
-        <div className='fixed z-50 inset-y-0 right-0 w-[375px] max-w-full h-full bg-slate-50 shadow-xl
-        transition-transform duration-300 transform translate-x-0 pb-4'>
+        <div
+          className='fixed z-50 inset-y-0 right-0 w-[375px] max-w-full h-full bg-slate-50 shadow-xl
+        transition-transform duration-300 transform translate-x-0 pb-4'
+        >
           <div className='p-5 h-full max-h-screen overflow-y-auto'>
             <div className='flex items-center justify-between mb-4'>
               <h2 className='text-2xl font-bold text-slate-700'>

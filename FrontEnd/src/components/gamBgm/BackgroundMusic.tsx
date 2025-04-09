@@ -87,7 +87,7 @@ const BackgroundMusic = ({
       </div>
 
       {/* 볼륨 슬라이더 (클릭 시 표시) */}
-      {showVolume && (
+      {/* {showVolume && (
         <div
           style={{
             position: 'absolute',
@@ -111,7 +111,7 @@ const BackgroundMusic = ({
           />
           <span>{Math.round(volume * 100)}%</span>
         </div>
-      )}
+      )} */}
 
       <audio ref={audioRef} src={src} loop />
     </div>

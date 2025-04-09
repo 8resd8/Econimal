@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/store'; // Zustand 스토어 사용
 import { usePrologStore } from '@/store/prologStore'; // 경로는 실제 파일 위치에 맞게 수정
 import prologVideo from '@/assets/prolog.mp4';
+import ReactDOM from 'react-dom'; // Portal을 위해 ReactDOM 추가
 
 interface PrologVideoProps {
   onComplete?: () => void;
@@ -24,7 +25,7 @@ const PrologVideo: React.FC<PrologVideoProps> = ({ onComplete }) => {
   // 영상이 끝나면 메인 페이지로 이동
   useEffect(() => {
     const currentVideo = videoRef.current;
-    
+
     if (currentVideo) {
       currentVideo.addEventListener('ended', handleVideoEnded);
     }
@@ -36,14 +37,14 @@ const PrologVideo: React.FC<PrologVideoProps> = ({ onComplete }) => {
     };
   }, []);
 
-    // 별도 스토어 사용 시
-    const { setHasSeenProlog } = usePrologStore();
+  // 별도 스토어 사용 시
+  const { setHasSeenProlog } = usePrologStore();
 
-    // 영상 종료 시 실행되는 함수
-    const handleVideoEnded = (): void => {
+  // 영상 종료 시 실행되는 함수
+  const handleVideoEnded = (): void => {
     setHasSeenProlog(true);
     navigateToMain();
-    };
+  };
 
   // 스킵 버튼 클릭 시 실행되는 함수
   const handleSkip = (): void => {
@@ -61,26 +62,32 @@ const PrologVideo: React.FC<PrologVideoProps> = ({ onComplete }) => {
     navigate('/');
   };
 
+  // 스킵 버튼 내용
+  const skipButtonContent = (
+    <button
+      onClick={handleSkip}
+      className='fixed top-8 right-8 z-50 px-5 py-3 bg-black bg-opacity-60 text-white border border-white rounded-lg cursor-pointer text-lg font-extrabold transition-all duration-300 hover:bg-opacity-20 focus:outline-none'
+    >
+      SKIP⏭️
+    </button>
+  );
+
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div className='relative w-full h-screen bg-black overflow-hidden'>
       {!isSkipped && (
         <>
           <video
             ref={videoRef}
-            className="w-full h-full object-cover"
+            className='w-full h-full object-cover'
             autoPlay
             muted
             playsInline
           >
-            <source src={prologVideo} type="video/mp4" />
+            <source src={prologVideo} type='video/mp4' />
             브라우저가 비디오 태그를 지원하지 않습니다.
           </video>
-          <button 
-            onClick={handleSkip}
-            className="absolute bottom-8 right-8 px-5 py-3 bg-black bg-opacity-60 text-white border border-white rounded-lg cursor-pointer text-lg font-extrabold transition-all duration-300 hover:bg-opacity-20 focus:outline-none"
-          >
-            SKIP⏭️
-          </button>
+          {/* Portal을 사용하여 스킵 버튼을 body에 직접 렌더링 */}
+          {ReactDOM.createPortal(skipButtonContent, document.body)}
         </>
       )}
     </div>
