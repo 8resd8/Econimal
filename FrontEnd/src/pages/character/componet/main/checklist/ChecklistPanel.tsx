@@ -272,7 +272,8 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
               ) : (
                 <button
                   onClick={() => handleCompleteStart(item)}
-                  className='relative px-4 py-2 rounded-full bg-slate-300 text-slate-700 font-semibold shadow-md hover:bg-slate-400 transition-all'
+                  className='relative px-4 py-2 rounded-full bg-slate-300 text-slate-700 font-semibold shadow-md
+                  hover:bg-slate-400 transition-all'
                 >
                   🎉 완료하기
                   <span className='absolute -top-3 -right-3 bg-blue-400 text-white text-xs px-2 py-1 rounded-full shadow'>

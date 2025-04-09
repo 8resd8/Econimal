@@ -34,13 +34,13 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
 
   return (
     <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000]'>
-      <div className='bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-4 border-blue-100'>
+      <div className='bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-5 border-4 border-blue-100 scale-[85%]'>
         {/* 닫기 버튼 */}
         <button
           onClick={() => setIsModalOpen(false)}
-          className='absolute top-4 right-4 p-1 hover:bg-gray-200 rounded-full'
+          className='absolute top-4 right-4 p-1 hover:bg-slate-200 rounded-full'
         >
-          <X className='w-6 h-6 text-gray-500' />
+          <X className='w-6 h-6 text-slate-700' />
         </button>
 
         {/* 제목 및 아이콘 */}
@@ -65,8 +65,8 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
               setNewDescription(e.target.value);
               setError(''); // 입력 시 에러 메시지 초기화
             }}
-            className={`w-full p-3 border-2 rounded-xl mb-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
-              error ? 'border-red-300' : 'border-gray-300'
+            className={`w-full p-3 border-2 rounded-xl mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+              error ? 'border-red-300' : 'border-slate-300'
             }`}
           />
 
@@ -83,7 +83,8 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
         <div className='flex gap-4'>
           <button
             onClick={() => setIsModalOpen(false)}
-            className='flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-colors duration-200'
+            className='flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl
+            font-bold transition-colors duration-200'
           >
             취소
           </button>
@@ -92,7 +93,7 @@ const CustomChecklistModal: React.FC<CustomChecklistModalProps> = ({
             className={`flex-1 py-3 rounded-xl font-semibold transition-colors duration-200 ${
               newItemDescription.trim().length >= 5 &&
               newItemDescription.trim().length <= 50
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                ? 'bg-blue-300 hover:bg-blue-400 text-slate-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
             disabled={
