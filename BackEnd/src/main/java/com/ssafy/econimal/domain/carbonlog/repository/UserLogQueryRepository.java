@@ -1,5 +1,6 @@
 package com.ssafy.econimal.domain.carbonlog.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,15 +60,19 @@ public class UserLogQueryRepository {
 			.groupBy(facility.ecoType)
 			.fetch();
 
-		// fetch() 결과를 Map<EcoType, LogInfoDto>로 변환
-		Map<EcoType, LogInfoDto> logs = results.stream()
+		Map<EcoType, LogInfoDto> logs = Arrays.stream(EcoType.values())
 			.collect(Collectors.toMap(
-				tuple -> tuple.get(facility.ecoType),
-				tuple -> new LogInfoDto(
-					Optional.ofNullable(tuple.get(correctExpr)).orElse(0L),
-					Optional.ofNullable(tuple.get(totalExpr)).orElse(0L)
-				)
+				ecoType -> ecoType,
+				ecoType -> new LogInfoDto(0L, 0L)
 			));
+
+		// 쿼리 결과로 덮어쓰기
+		results.forEach(tuple -> {
+			EcoType ecoType = tuple.get(facility.ecoType);
+			Long correct = Optional.ofNullable(tuple.get(correctExpr)).orElse(0L);
+			Long total = Optional.ofNullable(tuple.get(totalExpr)).orElse(0L);
+			logs.put(ecoType, new LogInfoDto(correct, total));
+		});
 
 		return new UserLogDto(logs);
 	}
