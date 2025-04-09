@@ -1,6 +1,21 @@
 import { backgroundShopConfig } from '@/config/backgroundShopConfig';
+import { characterToBackgroundMap } from '@/config/characterBackgroundMap';
 import { userMyCharActions } from '@/store/useMyCharStore';
 import { useMutation } from '@tanstack/react-query';
+
+// Common backgrounds that all characters can use
+const commonBackgrounds = [
+  '자연의 숨결',
+  '끝없는 바다 여행',
+  '거대한 얼음 왕국',
+];
+
+// Background to character mapping
+const backgroundToCharacterMap = {
+  '물속 모험의 세계': '부기부기',
+  '얼음나라 대탐험': '팽글링스',
+  '초원의 비밀 정원': '호랭이',
+};
 
 // Modified useShopFetchMyBack hook
 export const useShopFetchMyBack = () => {
