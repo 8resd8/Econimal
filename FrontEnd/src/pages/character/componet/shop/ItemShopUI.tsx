@@ -1,12 +1,12 @@
 import GoMainBtn from '@/components/GoMainBtn';
-import { ItemShopTypes } from '../../types/shop/ItemShopTypesUI';
+import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import CharCoin from '../main/status/CharCoin';
 import BuyModal from './BuyModal';
 import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
-import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
+import { useMyCharacterId, useMyBackgroundId } from '@/store/useMyCharStore';
 
 interface ItemShopUIProps {
   userCoins: number;
@@ -23,6 +23,8 @@ interface ItemShopUIProps {
   selectCharacter: (characterId: number) => void;
   selectBackground: (backgroundId: number) => void;
   currentCharName: string | undefined;
+  selectOwnedItem: (productId: number) => void;
+  selectedItemId: number | null;
 }
 
 const ItemShopUI: React.FC<ItemShopUIProps> = ({
@@ -40,33 +42,46 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
   selectCharacter,
   selectBackground,
   currentCharName,
+  selectOwnedItem,
+  selectedItemId,
 }) => {
   const coin = useCharacterCoin();
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
-    null,
+  // 현재 사용 중인 캐릭터와 배경 ID 가져오기
+  const currentCharacterId = useMyCharacterId();
+  const currentBackgroundId = useMyBackgroundId();
+
+  const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
+    selectedItemId,
   );
-  const [selectedBackgroundId, setSelectedBackgroundId] = useState<
-    number | null
-  >(null);
 
-  // 보유한 아이템 선택 시 업데이트
-  const selectOwnedItem = (productId: number) => {
-    setSelectedItemId(productId);
-    const selectedItem = currentItems.find(
-      (item) => item.productId === productId,
-    );
-
-    if (selectedItem) {
-      if (selectedTab === 'characters' && selectedItem.userCharacterId) {
-        setSelectedCharacterId(selectedItem.userCharacterId);
-      } else if (
-        selectedTab === 'backgrounds' &&
-        selectedItem.userBackgroundId
-      ) {
-        setSelectedBackgroundId(selectedItem.userBackgroundId);
+  // 탭이 변경될 때, 현재 선택 중인 항목 설정
+  useEffect(() => {
+    // 현재 탭에 따라 적절한 선택 ID 설정
+    if (selectedTab === 'characters') {
+      // 캐릭터 탭에서는 현재 사용 중인 캐릭터를 선택 상태로 표시
+      const currentCharacterItem = currentItems.find(
+        (item) => item.userCharacterId === currentCharacterId,
+      );
+      if (currentCharacterItem) {
+        setLocalSelectedItemId(currentCharacterItem.productId);
+        selectOwnedItem(currentCharacterItem.productId);
+      }
+    } else if (selectedTab === 'backgrounds') {
+      // 배경 탭에서는 현재 사용 중인 배경을 선택 상태로 표시
+      const currentBackgroundItem = currentItems.find(
+        (item) => item.userBackgroundId === currentBackgroundId,
+      );
+      if (currentBackgroundItem) {
+        setLocalSelectedItemId(currentBackgroundItem.productId);
+        selectOwnedItem(currentBackgroundItem.productId);
       }
     }
+  }, [selectedTab, currentItems, currentCharacterId, currentBackgroundId]);
+
+  // 아이템 선택 처리 함수 - 부모 컴포넌트로 전달
+  const handleSelectOwnedItem = (productId: number) => {
+    setLocalSelectedItemId(productId);
+    selectOwnedItem(productId);
   };
 
   return (
@@ -119,7 +134,7 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
                   key={index}
                   setHoveredItemId={setHoveredItemId}
                   handlePurchaseClick={handlePurchaseClick}
-                  selectOwnedItem={selectOwnedItem}
+                  selectOwnedItem={handleSelectOwnedItem}
                   productId={item.productId}
                   price={item.price}
                   owned={item.owned}
@@ -137,7 +152,7 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
                       : undefined
                   }
                   hoveredItemId={hoveredItemId}
-                  selectedItemId={selectedItemId}
+                  selectedItemId={localSelectedItemId}
                   selectCharacter={
                     selectedTab === 'characters' ? selectCharacter : undefined
                   }

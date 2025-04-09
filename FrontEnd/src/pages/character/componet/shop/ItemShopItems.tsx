@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
-import { Lock, Check } from 'lucide-react';
-import ShopCoin from './ShopCoinUI';
+import { Lock, Check, AlertTriangle } from 'lucide-react';
 import SelectionModal from './SelectModal';
 import { useMyCharName } from '@/store/useMyCharStore';
 
@@ -111,9 +110,28 @@ const ItemShopItems = ({
     return commonBackgrounds.includes(characterName);
   };
 
+  // 현재 사용 중인 아이템인지 체크
+  const isCurrentlyInUse = (): boolean => {
+    // 이미 선택된 아이템인 경우 (selectedItemId와 일치)
+    if (isSelected) return true;
+
+    // 캐릭터 타입이고, 현재 캐릭터 이름과 일치하는 경우
+    if (itemType === 'character' && characterName === activeCharName) {
+      return true;
+    }
+
+    // 배경 타입인 경우 (현재는 배경 이름 비교 로직이 없으므로 선택 ID로만 판단)
+    return false;
+  };
+
   // 아이템 선택 처리 함수 - 소유한 아이템만 선택 가능
   const handleItemSelection = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // 이미 사용 중인 아이템이면 선택 처리 없음
+    if (isCurrentlyInUse()) {
+      return;
+    }
 
     // 소유한 아이템이고 선택 가능한 경우에만 선택 처리
     if (owned && (itemType !== 'background' || isBackgroundSelectable())) {
@@ -179,9 +197,15 @@ const ItemShopItems = ({
   const isDisabled =
     itemType === 'background' && (!selectable || !isBackgroundSelectable());
 
+  // 이미 사용 중인 아이템인 경우 추가 비활성화
+  const isInUse = isCurrentlyInUse();
+
   // 버튼 텍스트 설정
   const getButtonText = () => {
     if (owned) {
+      if (isInUse) {
+        return '사용 중';
+      }
       if (isDisabled) {
         return '불가능';
       }
@@ -194,6 +218,23 @@ const ItemShopItems = ({
     );
   };
 
+  // 버튼 클래스 설정
+  const getButtonClass = () => {
+    if (!owned) {
+      return 'bg-green-600 hover:bg-green-700';
+    }
+
+    if (isInUse) {
+      return 'bg-blue-500 cursor-not-allowed';
+    }
+
+    if (isDisabled) {
+      return 'bg-gray-500 cursor-not-allowed';
+    }
+
+    return 'bg-green-600 hover:bg-green-700';
+  };
+
   return (
     <>
       <div
@@ -202,7 +243,9 @@ const ItemShopItems = ({
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
-        onClick={owned && !isDisabled ? handleItemSelection : undefined}
+        onClick={
+          owned && !isDisabled && !isInUse ? handleItemSelection : undefined
+        }
       >
         <div
           className={`relative rounded-lg p-4 flex flex-col items-center justify-center aspect-square border 
@@ -213,6 +256,7 @@ const ItemShopItems = ({
             } 
             ${hoveredItemId === productId ? 'shadow-lg ring ring-red-400' : ''}
             ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isInUse ? 'ring-2 ring-blue-500' : ''}
           `}
         >
           <div className='relative w-full h-full flex items-center justify-center rounded-md'>
@@ -229,10 +273,10 @@ const ItemShopItems = ({
             )}
           </div>
 
-          {/* 선택된 경우 체크 아이콘 표시 */}
-          {isSelected && (
-            <div className='absolute top-2 left-2 bg-green-500 text-white p-1 rounded-full shadow-md'>
-              <Check size={16} />
+          {/* 현재 사용 중인 아이템 표시 */}
+          {isInUse && (
+            <div className='absolute top-2 left-2 bg-blue-500 text-white p-1 px-2 rounded-md shadow-md text-xs'>
+              사용 중
             </div>
           )}
 
@@ -246,13 +290,9 @@ const ItemShopItems = ({
           {/* 버튼 - 보유한 경우 선택, 미보유한 경우 구매 */}
           {hoveredItemId === productId && productId !== -1 && (
             <button
-              onClick={owned ? handleItemSelection : handleBuyItem}
-              className={`absolute inset-x-[20%] bottom-[10%] ${
-                isDisabled
-                  ? 'bg-gray-500 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700'
-              } text-white px-4 py-2 rounded-md shadow-md`}
-              disabled={isDisabled}
+              onClick={owned && !isInUse ? handleItemSelection : handleBuyItem}
+              className={`absolute inset-x-[20%] bottom-[10%] ${getButtonClass()} text-white px-4 py-2 rounded-md shadow-md`}
+              disabled={isDisabled || isInUse}
             >
               {getButtonText()}
             </button>

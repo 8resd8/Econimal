@@ -15,7 +15,12 @@ import { useShopFetchMyBack } from './../hooks/useShopFetchMyBack';
 import ErrorCoinModal from '../../componet/shop/ErrorCoinModal';
 import SuccessPurchaseModal from '../../componet/shop/SuccessPurchaseModal';
 import bgThem from '../../../../assets/auth_background.png';
-import { userMyCharActions, useMyCharName } from '@/store/useMyCharStore';
+import {
+  userMyCharActions,
+  useMyCharName,
+  useMyCharacterId,
+  useMyBackgroundId,
+} from '@/store/useMyCharStore';
 
 const ItemShopLogic = () => {
   const { data } = useShopList();
@@ -27,6 +32,8 @@ const ItemShopLogic = () => {
   const coin = useCharacterCoin();
   const { setCoin } = useCharacterActions();
   const currentCharName = useMyCharName(); // 현재 선택된 캐릭터 이름
+  const currentCharacterId = useMyCharacterId(); // 현재 선택된 캐릭터 ID
+  const currentBackgroundId = useMyBackgroundId(); // 현재 선택된 배경 ID
 
   // 캐릭터 선택 탭 전환 여부 => 상태 관리
   const [selectedTab, setSelectedTab] = useState<'characters' | 'backgrounds'>(
@@ -49,10 +56,18 @@ const ItemShopLogic = () => {
   // 선택된 아이템 ID 상태 추가
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
+  // 중복 선택 방지를 위한 처리 중 상태
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
   //구매 핸들러 호출 및 훅 가져오기
   const { handleBuyBackShopItem } = useBuyBackItem();
-  const { handleFetchShopChar } = useShopFetchMyChar();
-  const { handleFetchShopBack, isBackgroundSelectable } = useShopFetchMyBack();
+  const { handleFetchShopChar, isPending: isCharPending } =
+    useShopFetchMyChar();
+  const {
+    handleFetchShopBack,
+    isBackgroundSelectable,
+    isPending: isBackPending,
+  } = useShopFetchMyBack();
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
 
@@ -81,6 +96,14 @@ const ItemShopLogic = () => {
           selectable: true, // 캐릭터는 항상 선택 가능
         }),
       ];
+
+      // 캐릭터 탭에서 현재 사용 중인 캐릭터 선택 상태로 설정
+      const currentCharItem = charShopList.find(
+        (char) => char.userCharacterId === currentCharacterId,
+      );
+      if (currentCharItem) {
+        setSelectedItemId(currentCharItem.productId);
+      }
     } else {
       // 배경 탭인 경우 배경 선택 가능 여부 설정
       currentItem = [
@@ -101,6 +124,14 @@ const ItemShopLogic = () => {
           selectable: true,
         }),
       ];
+
+      // 배경 탭에서 현재 사용 중인 배경 선택 상태로 설정
+      const currentBackItem = backShopList.find(
+        (back) => back.userBackgroundId === currentBackgroundId,
+      );
+      if (currentBackItem) {
+        setSelectedItemId(currentBackItem.productId);
+      }
     }
 
     setCurrentItems(currentItem);
@@ -111,7 +142,22 @@ const ItemShopLogic = () => {
     backShopList,
     selectedTab,
     currentCharName,
+    currentCharacterId,
+    currentBackgroundId,
   ]);
+
+  // API 요청 중인 동안 중복 선택 방지
+  useEffect(() => {
+    if (isCharPending || isBackPending) {
+      setIsProcessing(true);
+    } else {
+      // API 요청이 완료되면 일정 시간 후 처리 상태 해제
+      const timer = setTimeout(() => {
+        setIsProcessing(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isCharPending, isBackPending]);
 
   if (!data || charShopList.length === 0) {
     return <div>Loading...</div>;
@@ -185,14 +231,26 @@ const ItemShopLogic = () => {
 
   // 소유한 아이템 선택 시 호출되는 함수
   const selectOwnedItem = (productId: number) => {
+    // 이미 선택된 아이템이거나 처리 중인 경우 무시
+    if (selectedItemId === productId || isProcessing) {
+      return;
+    }
+
+    // 새 아이템 선택
     setSelectedItemId(productId);
   };
 
   //상점에서 캐릭터 선택
-  //상점에서 캐릭터 선택
   const selectCharacter = (characterId: number) => {
+    // 이미 처리 중이거나 현재 캐릭터와 동일한 경우 무시
+    if (isProcessing || characterId === currentCharacterId) {
+      console.log('이미 처리 중이거나 현재 캐릭터와 동일합니다.');
+      return;
+    }
+
     if (characterId && characterId > 0) {
       console.log(`캐릭터 선택 호출: ${characterId}`);
+      setIsProcessing(true); // 처리 중 상태 설정
 
       // 1. 캐릭터 ID로 캐릭터 정보 찾기
       const selectedCharacter = charShopList.find(
@@ -229,21 +287,30 @@ const ItemShopLogic = () => {
             }, 100);
           } else {
             console.error(`'${defaultBgName}' 배경을 찾을 수 없음`);
+            setIsProcessing(false); // 처리 완료
           }
         }
+      } else {
+        console.error('캐릭터 정보를 찾을 수 없습니다.');
+        setIsProcessing(false); // 처리 완료
       }
     } else {
       console.error('characterId가 존재하지 않습니다.');
+      setIsProcessing(false); // 처리 완료
     }
   };
 
   //상점에서 배경 선택
-  // ItemShopLogic.tsx 파일에서 배경 선택 함수 교체
-
-  //상점에서 배경 선택
   const selectBackground = (backgroundId: number) => {
+    // 이미 처리 중이거나 현재 배경과 동일한 경우 무시
+    if (isProcessing || backgroundId === currentBackgroundId) {
+      console.log('이미 처리 중이거나 현재 배경과 동일합니다.');
+      return;
+    }
+
     if (backgroundId && backgroundId > 0) {
       console.log(`배경 선택 호출: ${backgroundId}`);
+      setIsProcessing(true); // 처리 중 상태 설정
 
       // 1. 배경 ID로 배경 정보 찾기
       const selectedBackground = backShopList.find(
@@ -282,11 +349,21 @@ const ItemShopLogic = () => {
             }, 100);
           } else {
             console.error(`'${matchedCharName}' 캐릭터를 찾을 수 없음`);
+            setIsProcessing(false); // 처리 완료
           }
+        } else {
+          // 기본 배경이 아닌 경우 바로 처리 완료
+          setTimeout(() => {
+            setIsProcessing(false);
+          }, 300);
         }
+      } else {
+        console.error('배경 정보를 찾을 수 없습니다.');
+        setIsProcessing(false); // 처리 완료
       }
     } else {
       console.error('backgroundId가 존재하지 않습니다.');
+      setIsProcessing(false); // 처리 완료
     }
   };
 
