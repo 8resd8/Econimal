@@ -63,7 +63,7 @@ function roundToHour(dateStr: string): string {
 export const fetchWorldData = async (
   startDateParam: Date | string, 
   endDateParam: Date | string, 
-  type: 'HOUR' | 'DAY' | 'MONTH' | 'YEAR'
+  type: 'HOUR' | 'DAY' | 'MONTH'
 ): Promise<WorldData> => {
   try {
     // 인증 토큰 확인
@@ -79,7 +79,7 @@ export const fetchWorldData = async (
     const formatDate = (date: Date | string): string => {
       const d = typeof date === 'string' ? new Date(date) : date;
       d.setMinutes(0, 0, 0); // 분, 초, 밀리초를 0으로 설정
-      return d.toISOString();
+      return d.toISOString().split('.')[0];
     };
 
     const startDate = formatDate(startDateParam);

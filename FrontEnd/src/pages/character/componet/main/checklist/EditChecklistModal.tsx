@@ -121,10 +121,10 @@ const EditChecklistModal: React.FC<EditChecklistModalProps> = ({
             <button
               type='submit'
               disabled={isButtonDisabled}
-              className={`px-4 py-2 transition ${
+              className={`px-4 py-2 transition rounded-lg ${
                 isButtonDisabled
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-blue-400 hover:bg-blue-500 text-white'
               }`}
             >
               {isValidating ? '검증 중...' : '수정하기'}

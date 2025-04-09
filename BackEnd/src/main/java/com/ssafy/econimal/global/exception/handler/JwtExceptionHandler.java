@@ -24,7 +24,7 @@ public class JwtExceptionHandler {
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleJwtException(SignatureException ex,
 		HttpServletRequest request) {
-		return ErrorResponse.toResponseEntity(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI());
+		return ErrorResponse.toResponseEntity(HttpStatus.FORBIDDEN, "잘못된 토큰입니다.", request.getRequestURI());
 	}
 
 }

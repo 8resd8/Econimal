@@ -1,33 +1,14 @@
 import GoMainBtn from '@/components/GoMainBtn';
-import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
+import { ItemShopTypes } from '../../types/shop/ItemShopTypesUI';
 import CharCoin from '../main/status/CharCoin';
 import BuyModal from './BuyModal';
 import ItemShopItems from './ItemShopItems';
 import TabItemButton from './TabItemButton';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useCharacterCoin } from '@/store/useCharStatusStore';
-import { useMyCharacterId, useMyBackgroundId } from '@/store/useMyCharStore';
+import bgImage from '@/assets/auth_background.png';
 
-interface ItemShopUIProps {
-  userCoins: number;
-  selectedTab: 'characters' | 'backgrounds';
-  setSelectedTab: (tab: 'characters' | 'backgrounds') => void;
-  currentItems: any[];
-  setHoveredItemId: (id: number | null) => void;
-  handlePurchaseClick: (item: ShopItemTypes) => void;
-  hoveredItemId: number | null;
-  showModal: boolean;
-  setShowModal: (show: boolean) => void;
-  selectedItemForPurchase: ShopItemTypes | null;
-  confirmPurchase: () => Promise<void>;
-  selectCharacter: (characterId: number) => void;
-  selectBackground: (backgroundId: number) => void;
-  currentCharName: string | undefined;
-  selectOwnedItem: (productId: number) => void;
-  selectedItemId: number | null;
-}
-
-const ItemShopUI: React.FC<ItemShopUIProps> = ({
+const ItemShopUI = ({
   userCoins,
   selectedTab,
   setSelectedTab,
@@ -39,53 +20,42 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
   setShowModal,
   selectedItemForPurchase,
   confirmPurchase,
-  selectCharacter,
-  selectBackground,
-  currentCharName,
-  selectOwnedItem,
-  selectedItemId,
-}) => {
+  selectCharacter, // 선택된 캐릭터 ID 전달 함수
+  selectBackground, // 선택된 배경 ID 전달 함수
+}: ItemShopTypes) => {
   const coin = useCharacterCoin();
-  // 현재 사용 중인 캐릭터와 배경 ID 가져오기
-  const currentCharacterId = useMyCharacterId();
-  const currentBackgroundId = useMyBackgroundId();
-
-  const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
-    selectedItemId,
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
+    null,
   );
+  const [selectedBackgroundId, setSelectedBackgroundId] = useState<
+    number | null
+  >(null);
 
-  // 탭이 변경될 때, 현재 선택 중인 항목 설정
-  useEffect(() => {
-    // 현재 탭에 따라 적절한 선택 ID 설정
-    if (selectedTab === 'characters') {
-      // 캐릭터 탭에서는 현재 사용 중인 캐릭터를 선택 상태로 표시
-      const currentCharacterItem = currentItems.find(
-        (item) => item.userCharacterId === currentCharacterId,
-      );
-      if (currentCharacterItem) {
-        setLocalSelectedItemId(currentCharacterItem.productId);
-        selectOwnedItem(currentCharacterItem.productId);
-      }
-    } else if (selectedTab === 'backgrounds') {
-      // 배경 탭에서는 현재 사용 중인 배경을 선택 상태로 표시
-      const currentBackgroundItem = currentItems.find(
-        (item) => item.userBackgroundId === currentBackgroundId,
-      );
-      if (currentBackgroundItem) {
-        setLocalSelectedItemId(currentBackgroundItem.productId);
-        selectOwnedItem(currentBackgroundItem.productId);
+  // 보유한 아이템 선택 시 업데이트
+  const selectOwnedItem = (productId: number) => {
+    setSelectedItemId(productId);
+    const selectedItem = currentItems.find(
+      (item) => item.productId === productId,
+    );
+
+    if (selectedItem) {
+      if (selectedTab === 'characters' && selectedItem.userCharacterId) {
+        setSelectedCharacterId(selectedItem.userCharacterId);
+      } else if (
+        selectedTab === 'backgrounds' &&
+        selectedItem.userBackgroundId
+      ) {
+        setSelectedBackgroundId(selectedItem.userBackgroundId);
       }
     }
-  }, [selectedTab, currentItems, currentCharacterId, currentBackgroundId]);
-
-  // 아이템 선택 처리 함수 - 부모 컴포넌트로 전달
-  const handleSelectOwnedItem = (productId: number) => {
-    setLocalSelectedItemId(productId);
-    selectOwnedItem(productId);
   };
 
   return (
-    <div className='w-screen h-screen bg-black p-2 flex flex-col items-center relative pt-6 '>
+    <div
+      className='flex items-center justify-center min-h-screen bg-cover bg-center w-full h-full p-5'
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
       <div className='w-full max-w-[812px] flex flex-col items-center h-full px-4'>
         {/* 상점 제목 & 코인 표시 */}
         <div className='flex items-center justify-between w-full px-2 mb-2 relative pb-2 '>
@@ -112,19 +82,6 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
           />
         </div>
 
-        {/* 현재 선택된 캐릭터 표시 */}
-        {currentCharName && (
-          <div className='text-white mb-2 text-center bg-gray-800 py-1 px-4 rounded-md'>
-            현재 선택된 캐릭터:{' '}
-            <span className='font-bold'>{currentCharName}</span>
-            {selectedTab === 'backgrounds' && (
-              <p className='text-xs text-gray-300 mt-1'>
-                * 선택 가능한 배경만 활성화됩니다.
-              </p>
-            )}
-          </div>
-        )}
-
         {/* 아이템 리스트 */}
         <div className='flex w-full overflow-y-auto justify-center'>
           <div className='grid grid-cols-4 gap-3 w-[93%] pt-6'>
@@ -134,7 +91,7 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
                   key={index}
                   setHoveredItemId={setHoveredItemId}
                   handlePurchaseClick={handlePurchaseClick}
-                  selectOwnedItem={handleSelectOwnedItem}
+                  selectOwnedItem={selectOwnedItem}
                   productId={item.productId}
                   price={item.price}
                   owned={item.owned}
@@ -152,7 +109,7 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
                       : undefined
                   }
                   hoveredItemId={hoveredItemId}
-                  selectedItemId={localSelectedItemId}
+                  selectedItemId={selectedItemId}
                   selectCharacter={
                     selectedTab === 'characters' ? selectCharacter : undefined
                   }
@@ -162,11 +119,6 @@ const ItemShopUI: React.FC<ItemShopUIProps> = ({
                   itemType={
                     selectedTab === 'characters' ? 'character' : 'background'
                   }
-                  // 선택 가능 여부 (배경인 경우 체크)
-                  selectable={
-                    item.selectable !== undefined ? item.selectable : true
-                  }
-                  currentCharName={currentCharName}
                 />
               ))}
           </div>
