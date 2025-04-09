@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { ShopItemTypes } from '../../types/shop/ShopItemTypes';
 import { Lock, Check, AlertTriangle } from 'lucide-react';
 import SelectionModal from './SelectModal';
-import LockedItemModal from './LockedItemModal';
 import { useMyCharName } from '@/store/useMyCharStore';
+import LockedItemModal from './LockeditemModal';
 
 // 캐릭터 메핑 - 이 정보는 useShopFetchMyChar.ts에서 import하는 것이 좋습니다
 const characterToBackgroundMap = {
