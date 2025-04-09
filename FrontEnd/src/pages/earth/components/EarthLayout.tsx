@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import RegionDataChart from './RegionDataChart';
 import { RegionData } from '../features/regionInfoApi';
 import { getCountryDescription, getCountryNameByCode } from '../utils/countryUtils';
+import loadingGif from "@/assets/ailoading.gif";
 
 // 스타일 컴포넌트 정의
 const LayoutContainer = styled.div`
@@ -170,21 +171,6 @@ const LoadingContainer = styled.div`
   padding: 30px;
 `;
 
-const LoadingSpinner = styled.div`
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 4px solid #3b82f6;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
 const NoDataContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -303,7 +289,12 @@ const MapLayout: React.FC<MapLayoutProps> = ({
       // 선택된 지역이 없으면 차트 닫기
       setIsChartsOpen(false);
     }
-  }, [selectedRegion, loading, noData, historicalData]);
+  // 다음 줄이 매우 중요합니다. 객체 자체가 아니라 필요한 값만 의존성으로 추가
+  }, [selectedRegion, loading, noData, 
+    // 배열 길이를 직접 참조하지 말고 불리언 값으로 변환
+    !!historicalData?.temperatures?.length,
+    !!historicalData?.humidity?.length, 
+    !!historicalData?.co2Levels?.length]);
   
   // 차트 열기/닫기 토글
   const toggleCharts = () => {
@@ -393,7 +384,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({
         {/* 로딩 중일 때 표시 */}
         {loading && (
           <LoadingContainer>
-            <LoadingSpinner />
+            <img src={loadingGif} alt="로딩중..." className='h-[120px] w-[120px]' />
             <div>{regionName || selectedRegion} 데이터를 불러오는 중...</div>
           </LoadingContainer>
         )}
