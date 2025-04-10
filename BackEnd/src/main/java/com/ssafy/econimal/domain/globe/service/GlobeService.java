@@ -157,7 +157,7 @@ public class GlobeService {
 		return response;
 	}
 
-	private static boolean isValid(GlobeV2Response response) {
+	private boolean isValid(GlobeV2Response response) {
 		return response == null || response.groupByCountry().isEmpty() || response.groupByDateTime().isEmpty();
 	}
 
