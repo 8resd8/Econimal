@@ -6,11 +6,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.ssafy.econimal.domain.auth.util.EmailUtil;
 import com.ssafy.econimal.domain.globe.dto.GlobeData;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateDataDto;
 import com.ssafy.econimal.domain.globe.dto.climate.v1.ClimateInfoDto;
@@ -26,17 +28,21 @@ import com.ssafy.econimal.domain.globe.repository.ClimateQueryRepository;
 import com.ssafy.econimal.global.config.WebClientConfig;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class GlobeService {
 
+	private final RedisTemplate<String, String> redisTemplate;
 	@Value("${climate.api-url}")
 	private String climateApiUrl;
 
 	private final ClimateQueryRepository climateQueryRepository;
 	private final CarbonCO2QueryRepository carbonCO2QueryRepository;
+	private final EmailUtil emailUtil;
 
 	// key : 낧짜, value : 해당 날짜의 국가별 기후 데이터
 	private Map<String, Map<String, ClimateDataDto>> groupByDateTime(List<ClimateInfoDto> infoList) {
@@ -118,19 +124,41 @@ public class GlobeService {
 	@Cacheable(value = "carbonAllYearCache", key = "'carbon:all-year'")
 	public GlobeV2Response getCarbonCO2InfoAll() {
 		List<CarbonCO2Dto> carbonCo2s = carbonCO2QueryRepository.findCO2AverageAll();
-
 		return getGlobeV2Response(carbonCo2s);
 	}
 
-	// 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
-	// 1시간 갱신
+	// 1시간 갱신, 외부 서버로부터 전체 기간 온습도 연도별 평균 가져오기
 	@Cacheable(value = "climateAllYearCache", key = "'climate:all-year'")
 	@Scheduled(cron = "0 2 * * * *")
 	public GlobeV2Response getClimateInfoAll() {
+		// 기존 캐시 삭제
+		redisTemplate.delete("climate:all-year");
+
 		// Response Type 동일하므로 변환하여 사용
 		WebClient webClient = WebClientConfig.createWebClient(climateApiUrl);
-		return WebClientConfig.get(webClient, "/globe/all/climate", GlobeV2Response.class)
+		GlobeV2Response response = WebClientConfig.get(webClient, "/globe/all/climate", GlobeV2Response.class)
 			.block();
+
+		for (int i = 0; i < 5; i++) {
+			if (isValid(response)) {
+				response = WebClientConfig.get(webClient, "/globe/all/climate", GlobeV2Response.class).block();
+				continue;
+			}
+			break;
+		}
+
+		if (isValid(response)) {
+			log.error("에러 발생시 확인 필수");
+			emailUtil.sendAdminEmail("jjw05015@gmail.com");
+			emailUtil.sendAdminEmail("dkanfjgwls@naver.com");
+			emailUtil.sendAdminEmail("yunho_yun@naver.com");
+		}
+
+		return response;
+	}
+
+	private static boolean isValid(GlobeV2Response response) {
+		return response == null || response.groupByCountry().isEmpty() || response.groupByDateTime().isEmpty();
 	}
 
 	// 동일한 출력결과 사용
