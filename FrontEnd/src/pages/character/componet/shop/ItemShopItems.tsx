@@ -4,6 +4,7 @@ import { Lock, Check } from 'lucide-react';
 import ShopCoin from './ShopCoinUI';
 import SelectionModal from './SelectModal';
 import { useMyCharName } from '@/store/useMyCharStore';
+import LockedItemModal from './LockeditemModal';
 
 // 캐릭터 메핑
 const characterToBackgroundMap = {
@@ -74,6 +75,7 @@ const ItemShopItems = ({
   const [selectionStatus, setSelectionStatus] = useState<'loading' | 'success'>(
     'loading',
   );
+  const [showLockedModal, setShowLockedModal] = useState(false); // Locked 모달 상태
 
   // 배경 선택 가능 여부 확인
   const isBackgroundSelectable = () => {
@@ -145,6 +147,11 @@ const ItemShopItems = ({
     setShowSelectionModal(false);
   };
 
+  const handleLockedClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowLockedModal(true);
+  };
+
   return (
     <>
       <div
@@ -153,7 +160,13 @@ const ItemShopItems = ({
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
-        onClick={owned && !isDisabled ? handleItemSelection : undefined}
+        onClick={
+          owned
+            ? handleItemSelection // 소유한 경우 선택 처리
+            : productId === -1 // Locked 상태인 경우
+            ? handleLockedClick
+            : undefined
+        }
       >
         <div
           className={`relative rounded-lg p-4 flex flex-col items-center justify-center aspect-square border 
@@ -233,6 +246,10 @@ const ItemShopItems = ({
           characterName={characterName}
           onClose={closeSelectionModal}
         />
+      )}
+
+      {showLockedModal && (
+        <LockedItemModal onClose={() => setShowLockedModal(false)} />
       )}
     </>
   );
