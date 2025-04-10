@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import bgImage from "@/assets/auth_background.png";
 import GoMainBtn from '@/components/GoMainBtn';
 import ContributionButton from '@/components/ContributionButton';
@@ -22,8 +22,6 @@ import {
 import {
   fetchAllCountriesCO2Data,
   fetchCountryCO2Data,
-  CountryCO2Data,
-  CO2Data
 } from './features/co2DataApi';
 // 연도별 기후 API 임포트 추가
 import {
@@ -649,7 +647,7 @@ const Earth: React.FC = () => {
   const handleRegionSelect = async (region: string) => {
     console.log(`지역 선택: ${region}`);
     
-    // 이전 지역과 같은 경우는 무시
+    // 이전 지역과 같은 경우는 무시 (중요!)
     if (region === selectedRegion) return;
     
     // 로딩 상태 설정
@@ -660,6 +658,21 @@ const Earth: React.FC = () => {
     setSelectedRegion(region);
     
     try {
+      // 이미 데이터가 있는지 확인 (이 부분이 중요!)
+      if (region in regionDataMap && region in historyDataMap) {
+        console.log(`${region} 지역의 저장된 데이터 사용 - 캐시 확인:`, {
+          'regionDataMap에 있음': region in regionDataMap,
+          'historyDataMap에 있음': region in historyDataMap,
+          'regionDataMap 키 목록': Object.keys(regionDataMap),
+          'historyDataMap 키 목록': Object.keys(historyDataMap)
+        });
+        // 저장된 데이터 사용
+        setRegionInfo(regionDataMap[region]);
+        setHistoricalData(historyDataMap[region]);
+        setDataLoading(false);
+        return; // 여기서 함수 종료! API 요청하지 않음
+      }
+
       // 현재 설정된 날짜 계산
       const now = new Date();
       let startDate: Date;
@@ -679,16 +692,6 @@ const Earth: React.FC = () => {
           break;
         default:
           startDate = new Date(now.getTime() - timeValue * 60 * 60 * 1000);
-      }
-      
-      // 이미 데이터가 있는지 확인 (캐시 활용)
-      if (region in regionDataMap && region in historyDataMap) {
-        console.log(`${region} 지역의 캐시된 데이터 사용`);
-        // 캐시된 데이터 사용
-        setRegionInfo(regionDataMap[region]);
-        setHistoricalData(historyDataMap[region]);
-        setDataLoading(false);
-        return;
       }
       
       // CO2 데이터 로드 (오류 무시)
@@ -790,6 +793,7 @@ const Earth: React.FC = () => {
                 onRangeChange={handleTimeRangeChange}
                 onFetchData={handleFetchData}
                 maxYears={maxYears} // 동적으로 백엔드 데이터 최대 연수 전달
+                selectedRegion={selectedRegion} // 추가된 부분
               />
             </div>
 
