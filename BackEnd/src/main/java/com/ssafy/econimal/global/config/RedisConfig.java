@@ -53,7 +53,7 @@ public class RedisConfig {
 	@Bean
 	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-			.entryTtl(Duration.ofDays(31)) // 만료시간: 최대 31일
+			.entryTtl(Duration.ofDays(14)) // 만료시간: 최대 14일
 			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 			.serializeValuesWith(
 				RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
