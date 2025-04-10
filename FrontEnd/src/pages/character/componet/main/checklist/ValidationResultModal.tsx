@@ -27,9 +27,9 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
   if (!isOpen || !validationData) return null;
 
   const isValid = validationData.result;
-  const iconBgColor = isValid ? 'bg-green-100' : 'bg-yellow-100';
-  const iconColor = isValid ? 'text-green-500' : 'text-yellow-500';
-  const borderColor = isValid ? 'border-green-200' : 'border-yellow-200';
+  const iconBgColor = isValid ? 'bg-blue-100' : 'bg-yellow-100';
+  const iconColor = isValid ? 'text-blue-500' : 'text-yellow-500';
+  const borderColor = isValid ? 'border-blue-200' : 'border-yellow-200';
   const confirmButtonText = isEdit ? '수정하기' : '추가하기';
 
   // uuid가 있으면 expId로 사용
@@ -82,7 +82,7 @@ const ValidationResultModal: React.FC<ValidationResultModalProps> = ({
             <span
               className={`px-3 py-1 rounded-full text-sm font-semibold ${
                 validationData.result
-                  ? 'bg-green-100 text-green-700'
+                  ? 'bg-blue-100 text-blue-700'
                   : 'bg-red-100 text-red-700'
               }`}
             >

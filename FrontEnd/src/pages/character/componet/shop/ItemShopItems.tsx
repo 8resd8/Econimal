@@ -156,7 +156,7 @@ const ItemShopItems = ({
     <>
       <div
         className={`relative w-full max-w-[200px] transition-all duration-200 ${
-          isSelected ? 'border-4 border-green-400' : ''
+          isSelected ? 'border-4 border-blue-400' : ''
         }`}
         onMouseEnter={() => setHoveredItemId(productId)}
         onMouseLeave={() => setHoveredItemId(null)}
@@ -199,7 +199,7 @@ const ItemShopItems = ({
 
           {/* 선택된 경우 체크 아이콘 표시 */}
           {isSelected && (
-            <div className='absolute top-2 left-2 bg-green-500 text-white p-1 rounded-full shadow-md'>
+            <div className='absolute top-2 left-2 bg-blue-500 text-white p-1 rounded-full shadow-md'>
               <Check size={16} />
             </div>
           )}
@@ -211,7 +211,7 @@ const ItemShopItems = ({
               className={`absolute inset-x-[20%] bottom-[10%] ${
                 isDisabled
                   ? 'bg-gray-500 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
               } text-white px-4 py-2 rounded-md shadow-md`}
               disabled={isDisabled}
             >

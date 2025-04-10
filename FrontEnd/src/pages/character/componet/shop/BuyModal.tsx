@@ -40,14 +40,14 @@ const BuyModal = ({
         <div className='flex gap-3 mt-6'>
           <button
             onClick={() => setShowModal(false)}
-            className='flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition'
+            className='flex-1 py-3 bg-gray-300 hover:bg-gray-600 text-white rounded-lg font-medium transition'
           >
             취소
           </button>
           <button
             // 이떄 서버 fetching 성공해야 함
             onClick={confirmPurchase}
-            className='flex-1 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition'
+            className='flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition'
           >
             구매 확인
           </button>

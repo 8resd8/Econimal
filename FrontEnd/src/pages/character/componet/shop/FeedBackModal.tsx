@@ -23,44 +23,44 @@ const FeedbackModal = ({
   const getBorderColor = () => {
     switch (status) {
       case 'success':
-        return 'border-green-100';
+        return 'border-blue-100';
       case 'error':
         return 'border-red-100';
       default:
-        return 'border-blue-100';
+        return 'border-yellow-100';
     }
   };
 
   const getBgColor = () => {
     switch (status) {
       case 'success':
-        return 'bg-green-100';
+        return 'bg-blue-100';
       case 'error':
         return 'bg-red-100';
       default:
-        return 'bg-blue-100';
+        return 'bg-yellow-100';
     }
   };
 
   const getTextColor = () => {
     switch (status) {
       case 'success':
-        return 'text-green-500';
+        return 'text-blue-500';
       case 'error':
         return 'text-red-500';
       default:
-        return 'text-blue-500';
+        return 'text-yellow-500';
     }
   };
 
   const getButtonColor = () => {
     switch (status) {
       case 'success':
-        return 'bg-green-500 hover:bg-green-600';
+        return 'bg-blue-500 hover:bg-blue-600';
       case 'error':
         return 'bg-red-500 hover:bg-red-600';
       default:
-        return 'bg-blue-500 hover:bg-blue-600';
+        return 'bg-blue-500 hover:bg-yellow-600';
     }
   };
 

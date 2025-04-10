@@ -55,7 +55,7 @@ const CompleteConfirmModal: React.FC<CompleteConfirmModalProps> = ({
           </button>
           <button
             onClick={onConfirm}
-            className='flex-1 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition'
+            className='flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition'
           >
             완료하기
           </button>

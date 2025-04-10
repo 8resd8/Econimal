@@ -221,7 +221,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
             {/* ✔️ 체크 아이콘 & 설명 */}
             <div className='flex items-center space-x-3'>
               {item.isComplete ? (
-                <div className='p-2 bg-green-400 rounded-full'>
+                <div className='p-2 bg-blue-400 rounded-full'>
                   <Check size={24} className='text-white' />
                 </div>
               ) : (
@@ -266,7 +266,7 @@ const ChecklistPanel: React.FC<ChecklistPanelProps> = ({
 
               {/* 완료하기 버튼 */}
               {item.isComplete ? (
-                <span className='px-4 py-2 bg-green-100 rounded-full text-sm font-bold text-slate-700'>
+                <span className='px-4 py-2 bg-blue-100 rounded-full text-sm font-bold text-slate-700'>
                   🎖️ 완료됨
                 </span>
               ) : (
