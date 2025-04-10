@@ -1,5 +1,7 @@
 package com.ssafy.econimal.domain.carbonlog.util;
 
+import static com.ssafy.econimal.domain.town.util.CarbonCalculator.*;
+
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
@@ -33,7 +35,7 @@ public class CarbonLogUtil {
 
 		// CarbonLog 생성 및 저장
 		CarbonLog carbonLog = CarbonLog.createCarbonLog(user, infraEvent, answer,
-			BigDecimal.valueOf(response.carbon()));
+			BigDecimal.valueOf(calculateRealCarbon(response.exp())));
 		carbonLogRepository.save(carbonLog);
 	}
 }

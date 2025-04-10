@@ -1,7 +1,8 @@
 package com.ssafy.econimal.domain.town.dto.response;
 
+import static com.ssafy.econimal.domain.town.util.CarbonCalculator.*;
+
 import com.ssafy.econimal.domain.town.entity.EcoAnswer;
-import com.ssafy.econimal.domain.town.util.CarbonCalculator;
 import com.ssafy.econimal.domain.town.util.ExpFeedback;
 
 public record EcoAnswerResponse(
@@ -15,8 +16,8 @@ public record EcoAnswerResponse(
 	public static EcoAnswerResponse from(EcoAnswer answer, String description) {
 		int rawExp = answer.getExp();
 
-		double carbon = CarbonCalculator.calculateCarbon(rawExp);
-		ExpFeedback feedback = CarbonCalculator.evaluateExp(rawExp);
+		double carbon = calculateCarbonPercent(rawExp);
+		ExpFeedback feedback = evaluateExp(rawExp);
 
 		return new EcoAnswerResponse(
 			carbon,
