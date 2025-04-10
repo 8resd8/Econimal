@@ -42,7 +42,7 @@ const BackgroundMusic = ({
     <div
       style={{
         position: 'fixed',
-        bottom: '20px',
+        bottom: '24px',
         right: '20px',
         zIndex: 9999, // 콘텐츠보다 위에 표시
         display: 'flex',
@@ -57,8 +57,8 @@ const BackgroundMusic = ({
           borderRadius: '50%',
           boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
           transition: 'all 0.3s ease',
-          width: '50px',
-          height: '50px',
+          width: '40px',
+          height: '40px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -74,7 +74,7 @@ const BackgroundMusic = ({
           }}
           style={{
             width: '40px',
-            height: '40px',
+            height: '30px',
             borderRadius: '50%',
             border: 'none',
             cursor: 'pointer',

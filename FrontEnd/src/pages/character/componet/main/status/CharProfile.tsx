@@ -21,28 +21,28 @@ const CharProfile = ({
   };
 
   return (
-    <div 
-      className="flex items-center bg-slate-50 rounded-full px-3 py-2 shadow-md cursor-pointer"
+    <div
+      className='flex items-center bg-slate-50 rounded-full px-3 py-2 shadow-md cursor-pointer'
       onClick={handleProfileClick}
-      role="button"
-      aria-label="마이 페이지로 이동"
+      role='button'
+      aria-label='마이 페이지로 이동'
     >
       {/* 프로필 이미지 */}
-      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-slate-300">
+      <div className='w-14 h-14 rounded-full overflow-hidden border-2 border-slate-300'>
         <img
           src={profileImg}
-          alt="프로필"
-          className="w-full h-full object-cover"
+          alt='프로필'
+          className='w-full h-full object-cover'
         />
       </div>
-      
+
       {/* 레벨 정보와 물방울 */}
-      <div className="ml-3 flex flex-col justify-center">
+      <div className='ml-3 flex flex-col justify-center'>
         {/* 레벨 텍스트 */}
-        <div className="text-slate-700 font-bold">LV {level}</div>
-        
+        <div className='text-slate-700 font-bold'>LV {level}</div>
+
         {/* 물방울 아이콘 - 5개로 변경하여 20%씩 채워짐 */}
-        <div className="flex mt-1 gap-1">
+        {/* <div className="flex mt-1 gap-1">
           {[...Array(5)].map((_, i) => (
             <svg
               key={i}
@@ -63,7 +63,7 @@ const CharProfile = ({
               />
             </svg>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );
