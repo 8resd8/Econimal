@@ -14,7 +14,7 @@
 
 ## 3. DB 덤프 파일 최신본
 
-[2025.04.09 DB 덤프](econimal_dump.zip)
+[2025.04.09 DB 덤프](./econimal_A504_SQL_dump_2025_04_09_14.sql.bz2)
 
 ## 4. 시연 시나리오
 
