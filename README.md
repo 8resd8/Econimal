@@ -180,9 +180,9 @@
 # 💕‍ 프로젝트 팀원
 이름을 누르면 GitHub 이동합니다
 
-|             Backend              |               Backend               |       Backend                        |
+|             Backend              |               Backend               |               Backend                |
 |:--------------------------------:|:-----------------------------------:|:------------------------------------:|
-|  ![김현우](images/profile/khw.png)  |   ![윤윤호](images/profile/yyh.png)    |    ![주재완](images/profile/jjw.jpg)    |
+|  ![김현우](images/profile/khw.png)  |   ![윤윤호](images/profile/yyh.png)    |    ![주재완](images/profile/jjw.JPG)    |
 | [김현우](https://github.com/8resd8) | [윤윤호](https://github.com/yun-yunho) | [주재완](https://github.com/red-sprout) |
 
 
