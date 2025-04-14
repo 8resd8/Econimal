@@ -149,9 +149,10 @@ public class GlobeService {
 
 		if (isValid(response)) {
 			log.error("에러 발생시 확인 필수");
-			emailUtil.sendAdminEmail("jjw05015@gmail.com");
-			emailUtil.sendAdminEmail("dkanfjgwls@naver.com");
-			emailUtil.sendAdminEmail("yunho_yun@naver.com");
+			// 환경변수 이메일 세팅 또는 메시지 알림 등, 비활성
+			// emailUtil.sendAdminEmail("jjw05015@gmail.com");
+			// emailUtil.sendAdminEmail("dkanfjgwls@naver.com");
+			// emailUtil.sendAdminEmail("yunho_yun@naver.com");
 		}
 
 		return response;
