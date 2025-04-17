@@ -67,4 +67,15 @@ public class Character extends BaseTimeEntity {
 		this.description = description;
 		this.isOriginal = isOriginal;
 	}
+
+	public static Character createCharacter(Product product, String name, CharacterType type, String summary,
+		String description) {
+		return Character.builder()
+			.product(product)
+			.name(name)
+			.type(type)
+			.summary(summary)
+			.description(description)
+			.build();
+	}
 }
