@@ -34,18 +34,19 @@ jobs:
         run: |
           cat << 'EOF' > secret.yml
           database:
-            name:              ${{ DB_NAME }}
-            password:          ${{ DB_PASSWORD }}
-            url:               ${{ DATABASE_URL }}
+            name:              ${{ secrets.DB_NAME }}
+            password:          ${{ secrets.DB_PASSWORD }}
+            url:               ${{ secrets.DATABASE_URL }}
+            driver-class-name: com.mysql.cj.jdbc.Driver
 
           redis:
-            host:     ${{ REDIS_HOST }}
-            port:     ${{ REDIS_PORT }}
-            password: ${{ REDIS_PASSWORD }}
+            host:     ${{ secrets.REDIS_HOST }}
+            port:     ${{ secrets.REDIS_PORT }}
+            password: ${{ secrets.REDIS_PASSWORD }}
 
           jwt:
-            secret:             ${{ JWT_SECRET }}
-            refresh-expiration: ${{ JWT_EXPIRATION }}
+            secret:             ${{ secrets.JWT_SECRET }}
+            refresh-expiration: ${{ secrets.JWT_EXPIRATION }}
             pass-url:
               - "/api/users/signup"
               - "/api/users/login"
@@ -79,28 +80,28 @@ jobs:
               - "Cache-Control"
             exposed-headers:
               - "Authorization"
-            allow-credentials: ${{ CORS_ALLOW_CREDENTIALS }}
-            max-age:           ${{ CORS_MAX_AGE }}
+            allow-credentials: ${{ secrets.CORS_ALLOW_CREDENTIALS }}
+            max-age:           ${{ secrets.CORS_MAX_AGE }}
 
           mail:
-            host:       ${{ MAIL_HOST }}
-            port:       ${{ MAIL_PORT }}
-            username:   ${{ MAIL_USERNAME }}
-            password:   ${{ MAIL_PASSWORD }}
+            host:       ${{ secrets.MAIL_HOST }}
+            port:       ${{ secrets.MAIL_PORT }}
+            username:   ${{ secrets.MAIL_USERNAME }}
+            password:   ${{ secrets.MAIL_PASSWORD }}
             properties:
               mail:
                 smtp:
-                  auth:            ${{ MAIL_SMTP_AUTH }}
+                  auth:            ${{ secrets.MAIL_SMTP_AUTH }}
                   starttls:
-                    enable:        ${{ MAIL_SMTP_STARTTLS_ENABLE }}
+                    enable:        ${{ secrets.MAIL_SMTP_STARTTLS_ENABLE }}
 
           ai:
             gpt:
-              api-key: ${{ AI_API_KEY }}
-              model:   ${{ AI_MODEL }}
+              api-key: ${{ secrets.AI_API_KEY }}
+              model:   ${{ secrets.AI_MODEL }}
 
           climate:
-            api-url: ${{ CLIMATE_API_URL }}
+            api-url: ${{ secrets.CLIMATE_API_URL }}
           EOF
 
       - name: gradlew-setting # 권한 설정
