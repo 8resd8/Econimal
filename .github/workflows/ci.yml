@@ -9,6 +9,33 @@ on:
 
 # 실행할 작업 정의
 jobs:
+  # 1) MySQL·Redis 컨테이너 서비스 등록
+  services:
+    mysql:
+      image: mysql:8.0
+      env:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: econimal
+        MYSQL_USER: ssafy
+        MYSQL_PASSWORD: ssafy
+      ports:
+        - 3306:3306
+      options: >-
+        --health-cmd="mysqladmin ping -h localhost"
+        --health-interval=10s
+        --health-timeout=5s
+        --health-retries=3
+
+    redis:
+      image: redis:7
+      ports:
+        - 6379:6379
+      options: >-
+        --health-cmd="redis-cli ping"
+        --health-interval=10s
+        --health-timeout=5s
+        --health-retries=3
+
   build:
     runs-on: ubuntu-latest # 작업 실행할 환경
     permissions:
