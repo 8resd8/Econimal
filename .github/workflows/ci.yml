@@ -28,6 +28,81 @@ jobs:
       - name: Setup Gradle # 3. Gradle 설정, 의존성 캐싱
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
+      # 4) secret.yml 생성
+      - name: Generate secret.yml
+        working-directory: ./BackEnd/
+        run: |
+          cat << 'EOF' > secret.yml
+          database:
+            name:              ${{ DB_NAME }}
+            password:          ${{ DB_PASSWORD }}
+            url:               ${{ DATABASE_URL }}
+
+          redis:
+            host:     ${{ REDIS_HOST }}
+            port:     ${{ REDIS_PORT }}
+            password: ${{ REDIS_PASSWORD }}
+
+          jwt:
+            secret:             ${{ JWT_SECRET }}
+            refresh-expiration: ${{ JWT_EXPIRATION }}
+            pass-url:
+              - "/api/users/signup"
+              - "/api/users/login"
+              - "/api/users/logout"
+              - "/api/users/refresh"
+              - "/api/users/password"
+              - "/api/users/email-validation"
+              - "/api/users/email/password/reset/request"
+              - "/api/users/email/password/reset/confirm"
+              - "/api/actuator"
+              - "/api/actuator/health"
+              - "/api/actuator/prometheus"
+              - "/api/users/ex"
+
+          cors:
+            allowed-origins:
+              - "http://localhost:5173"
+              - "https://localhost:5173"
+              - "http://j12a504.p.ssafy.io"
+              - "https://j12a504.p.ssafy.io"
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "PATCH"
+              - "DELETE"
+              - "OPTIONS"
+            allowed-headers:
+              - "Authorization"
+              - "Content-Type"
+              - "Cache-Control"
+            exposed-headers:
+              - "Authorization"
+            allow-credentials: ${{ CORS_ALLOW_CREDENTIALS }}
+            max-age:           ${{ CORS_MAX_AGE }}
+
+          mail:
+            host:       ${{ MAIL_HOST }}
+            port:       ${{ MAIL_PORT }}
+            username:   ${{ MAIL_USERNAME }}
+            password:   ${{ MAIL_PASSWORD }}
+            properties:
+              mail:
+                smtp:
+                  auth:            ${{ MAIL_SMTP_AUTH }}
+                  starttls:
+                    enable:        ${{ MAIL_SMTP_STARTTLS_ENABLE }}
+
+          ai:
+            gpt:
+              api-key: ${{ AI_API_KEY }}
+              model:   ${{ AI_MODEL }}
+
+          climate:
+            api-url: ${{ CLIMATE_API_URL }}
+          EOF
+
       - name: gradlew-setting # 권한 설정
         working-directory: ./BackEnd/
         run: |
