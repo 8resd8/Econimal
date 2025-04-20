@@ -30,7 +30,7 @@ jobs:
 
       # 4) secret.yml 생성
       - name: Generate secret.yml
-        working-directory: ./BackEnd/
+        working-directory: ./BackEnd/src/main/resources/
         run: |
           cat << 'EOF' > secret.yml
           database:
