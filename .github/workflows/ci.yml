@@ -141,3 +141,9 @@ jobs:
           chmod +x ./gradlew.bat
           java --version
           ./gradlew clean build
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: BackEnd/build/reports/tests
