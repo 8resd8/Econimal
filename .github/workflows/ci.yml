@@ -131,13 +131,21 @@ jobs:
             api-url: ${{ secrets.CLIMATE_API_URL }}
           EOF
 
-      - name: gradlew-setting # 권한 설정
-        working-directory: ./BackEnd/
+      - name: Wait for services # DB 및 Redis 컨테이너가 준비될 때까지 대기
+        # dockerize 도구를 사용 (apt-get install dockerize)
         run: |
-          pwd
-          ls -al
-          gradle wrapper
-          chmod +x ./gradle
-          chmod +x ./gradlew.bat
-          java --version
-          ./gradlew clean build
+          sudo apt-get update && sudo apt-get install -y dockerize
+          dockerize -wait tcp://localhost:3306 -timeout 1m
+          dockerize -wait tcp://localhost:6379 -timeout 1m
+
+      - name: Make Gradle Wrapper Executable # Gradle Wrapper 스크립트에 실행 권한 부여
+        working-directory: ./BackEnd/
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle # 프로젝트 빌드 (테스트 제외)
+        working-directory: ./BackEnd/
+        run: ./gradlew clean build -x test
+
+      - name: Run Tests # 테스트 실행
+        working-directory: ./BackEnd/
+        run: ./gradlew test
