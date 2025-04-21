@@ -1,0 +1,147 @@
+name: Java CI with Gradle
+
+# 워크플로우 실행 트리거 조건
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+# 실행할 작업 정의
+jobs:
+  build:
+    runs-on: ubuntu-latest # 작업 실행할 환경
+    permissions:
+      contents: read
+      packages: write
+
+    # 1) MySQL·Redis 컨테이너 서비스 등록
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: econimal
+          MYSQL_USER: ssafy
+          MYSQL_PASSWORD: ssafy
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout repository # 1. 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 # 2. JDK 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin' # 배포판 선택
+
+      - name: Setup Gradle # 3. Gradle 설정, 의존성 캐싱
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      # 4) secret.yml 생성
+      - name: Generate secret.yml
+        working-directory: ./BackEnd/src/main/resources/
+        run: |
+          cat << 'EOF' > secret.yml
+          database:
+            name:              ${{ secrets.DB_NAME }}
+            password:          ${{ secrets.DB_PASSWORD }}
+            url:               ${{ secrets.DATABASE_URL }}
+            driver-class-name: com.mysql.cj.jdbc.Driver
+
+          redis:
+            host:     ${{ secrets.REDIS_HOST }}
+            port:     ${{ secrets.REDIS_PORT }}
+            password: ${{ secrets.REDIS_PASSWORD }}
+
+          jwt:
+            secret:             ${{ secrets.JWT_SECRET }}
+            refresh-expiration: ${{ secrets.JWT_EXPIRATION }}
+            pass-url:
+              - "/api/users/signup"
+              - "/api/users/login"
+              - "/api/users/logout"
+              - "/api/users/refresh"
+              - "/api/users/password"
+              - "/api/users/email-validation"
+              - "/api/users/email/password/reset/request"
+              - "/api/users/email/password/reset/confirm"
+              - "/api/actuator"
+              - "/api/actuator/health"
+              - "/api/actuator/prometheus"
+              - "/api/users/ex"
+
+          cors:
+            allowed-origins:
+              - "http://localhost:5173"
+              - "https://localhost:5173"
+              - "http://j12a504.p.ssafy.io"
+              - "https://j12a504.p.ssafy.io"
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "PATCH"
+              - "DELETE"
+              - "OPTIONS"
+            allowed-headers:
+              - "Authorization"
+              - "Content-Type"
+              - "Cache-Control"
+            exposed-headers:
+              - "Authorization"
+            allow-credentials: ${{ secrets.CORS_ALLOW_CREDENTIALS }}
+            max-age:           ${{ secrets.CORS_MAX_AGE }}
+
+          mail:
+            host:       ${{ secrets.MAIL_HOST }}
+            port:       ${{ secrets.MAIL_PORT }}
+            username:   ${{ secrets.MAIL_USERNAME }}
+            password:   ${{ secrets.MAIL_PASSWORD }}
+            properties:
+              mail:
+                smtp:
+                  auth:            ${{ secrets.MAIL_SMTP_AUTH }}
+                  starttls:
+                    enable:        ${{ secrets.MAIL_SMTP_STARTTLS_ENABLE }}
+
+          ai:
+            gpt:
+              api-key: ${{ secrets.AI_API_KEY }}
+              model:   ${{ secrets.AI_MODEL }}
+
+          climate:
+            api-url: ${{ secrets.CLIMATE_API_URL }}
+          EOF
+
+      - name: Make Gradle Wrapper Executable # Gradle Wrapper 스크립트에 실행 권한 부여
+        working-directory: ./BackEnd/
+        run: |
+          gradle wrapper
+          chmod +x ./gradlew
+          chmod +x ./gradlew.bat
+
+      - name: Build with Gradle # 프로젝트 빌드
+        working-directory: ./BackEnd/
+        run: ./gradlew clean build -x test
+
+      - name: Run Tests # 테스트 실행
+        working-directory: ./BackEnd/
+        run: ./gradlew test
