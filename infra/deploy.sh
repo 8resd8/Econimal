@@ -1,7 +1,7 @@
 #!/bin/bash
 set -a; source .env; set +a
 
-docker compose start mysql redis
+docker start mysql redis
 
 EXIST_BLUE=$(docker compose ps | grep "backend-blue" | grep Up)
 
