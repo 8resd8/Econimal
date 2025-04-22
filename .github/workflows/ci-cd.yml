@@ -145,3 +145,13 @@ jobs:
       - name: Run Tests # 테스트 실행
         working-directory: ./BackEnd/
         run: ./gradlew test
+
+      - name: executing remote ssh commands using ssh key
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            whoami
+            ls -al
