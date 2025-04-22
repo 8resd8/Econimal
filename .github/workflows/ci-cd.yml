@@ -92,8 +92,8 @@ jobs:
             allowed-origins:
               - "http://localhost:5173"
               - "https://localhost:5173"
-              - "http://j12a504.p.ssafy.io"
-              - "https://j12a504.p.ssafy.io"
+              - "http://43.201.19.173"
+              - "https://43.201.19.173"
             allowed-methods:
               - "GET"
               - "POST"
@@ -146,6 +146,11 @@ jobs:
         working-directory: ./BackEnd/
         run: ./gradlew test
 
+      # --- cd ---
+      - name: Copy JAR to Docker build context
+        run: |
+          cp ./BackEnd/build/libs/BackEnd-0.0.1-SNAPSHOT.jar ./BackEnd/build/libs/
+
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -165,5 +170,8 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/econimal_deploy
+            sudo apt update
+            sudo apt install -y dos2unix
+            dos2unix deploy.sh
             chmod +x deploy.sh
             sudo /bin/bash /home/ubuntu/econimal_deploy/deploy.sh
