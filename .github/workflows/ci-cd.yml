@@ -145,6 +145,19 @@ jobs:
         working-directory: ./BackEnd/
         run: ./gradlew test
 
+      # 8. 빌드된 JAR 파일을 원격 서버로 복사
+      - name: Transfer Backend JAR to Remote Server
+        uses: appleboy/ssh-action@master # deploy 스텝과 같은 버전 사용 권장
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          source: ./BackEnd/build/libs/
+          target: /home/ubuntu/econimal_deploy/BackEnd/build/libs/
+          sync: true # source 경로의 내용을 target 경로로 동기화
+          rm: true
+
       # --- cd ---
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v0.1.10
