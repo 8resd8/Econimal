@@ -166,4 +166,4 @@ jobs:
           script: |
             cd /home/ubuntu/econimal_deploy
             chmod +x deploy.sh
-            sudo /bin/bash deploy.sh
+            sudo /bin/bash /home/ubuntu/econimal_deploy/deploy.sh
