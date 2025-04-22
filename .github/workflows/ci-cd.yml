@@ -147,6 +147,7 @@ jobs:
         run: ./gradlew test
 
       - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
