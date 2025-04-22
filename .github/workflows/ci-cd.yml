@@ -164,5 +164,6 @@ jobs:
           host: ${{ secrets.HOST }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            chmod +x /home/ubuntu/econimal_deploy/deploy.sh
-            /bin/bash /home/ubuntu/econimal_deploy/deploy.sh
+            cd /home/ubuntu/econimal_deploy
+            chmod +x deploy.sh
+            sudo /bin/bash deploy.sh
