@@ -156,3 +156,14 @@ jobs:
           script: |
             whoami
             ls -al
+
+      - name: Execute deploy script
+        uses: appleboy/ssh-action@master
+        with:
+          username: ec2-user
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            chmod +x /home/ubuntu/econimal_deploy/deploy.sh
+            sh /home/ubuntu/econimal_deploy/deploy.sh
