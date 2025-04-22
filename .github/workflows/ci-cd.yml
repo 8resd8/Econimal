@@ -160,7 +160,7 @@ jobs:
       - name: Execute deploy script
         uses: appleboy/ssh-action@master
         with:
-          username: ec2-user
+          username: ${{ secrets.USERNAME }}
           host: ${{ secrets.HOST }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
