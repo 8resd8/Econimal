@@ -155,7 +155,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN}}
 
 
-
+      # deploy.sh, docker-compose.yml scp 복사과정 추가하는 게 좋을듯
 
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
