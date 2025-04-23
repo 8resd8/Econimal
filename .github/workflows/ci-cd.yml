@@ -160,8 +160,8 @@ jobs:
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./Backend
-          file: ./Backend/Dockerfile
+          context: ./BackEnd
+          file: ./BackEnd/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/econimal-backend:latest
 
