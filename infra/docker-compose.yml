@@ -1,21 +1,23 @@
 services:
   backend-blue:
     container_name: backend-blue
-    build:
-      context: ../BackEnd
-      dockerfile: Dockerfile
-    image: backend-blue:0.0.1
+#    build:
+#      context: ../BackEnd
+#      dockerfile: Dockerfile
+#    image: backend-blue:0.0.1
+    image: resd/econimal-backend:latest
     ports:
       - 127.0.0.1:${BLUE_PORT}:8080
     networks:
       - econimal-network
 
   backend-green:
-    container_name: backend-green
-    build:
-      context: ../BackEnd
-      dockerfile: Dockerfile
-    image: backend-green:0.0.1
+#    container_name: backend-green
+#    build:
+#      context: ../BackEnd
+#      dockerfile: Dockerfile
+#    image: backend-green:0.0.1
+    image: resd/econimal-backend:latest
     ports:
       - 127.0.0.1:${GREEN_PORT}:8080
     networks:
@@ -23,10 +25,11 @@ services:
 
   frontend:
     container_name: frontend
-    build:
-      context: ../FrontEnd
-      dockerfile: Dockerfile
-    image: frontend:0.0.1
+#    build:
+#      context: ../FrontEnd
+#      dockerfile: Dockerfile
+#    image: frontend:0.0.1
+    image: resd/econimal-frontend:latest
     ports:
       - 127.0.0.1:${APP_PORT}:5173
     networks:
