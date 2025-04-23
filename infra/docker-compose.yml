@@ -5,6 +5,7 @@ services:
 #      context: ../BackEnd
 #      dockerfile: Dockerfile
 #    image: backend-blue:0.0.1
+#    image: resd/econimal-backend:latest
     image: resd/econimal-backend:latest
     ports:
       - 127.0.0.1:${BLUE_PORT}:8080
@@ -29,6 +30,7 @@ services:
 #      context: ../FrontEnd
 #      dockerfile: Dockerfile
 #    image: frontend:0.0.1
+#    image: resd/econimal-frontend:latest
     image: resd/econimal-frontend:latest
     ports:
       - 127.0.0.1:${APP_PORT}:5173

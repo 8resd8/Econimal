@@ -155,7 +155,27 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN}}
 
 
+      - name: Transfer deploy.sh to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          source: /infra/deploy.sh
+          target: /home/ubuntu/econimal_deploy/
+          rm: true
 
+      - name: Transfer docker-compose to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          source: /infra/docker-compose.yml
+          target: /home/ubuntu/econimal_deploy
+          rm: true
 
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
@@ -171,7 +191,7 @@ jobs:
           context: ./FrontEnd
           file: ./FrontEnd/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/econimal-frontend:latest # 이미지 태그 예시
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/econimal-frontend:latest
 
       - name: Transfer Docker Compose Files to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -182,7 +202,6 @@ jobs:
           port: ${{ secrets.PORT }}
           source: ./BackEnd/build/libs/
           target: /home/ubuntu/econimal_deploy/BackEnd/build/libs/
-          sync: true # source 경로의 내용을 target 경로로 동기화
           rm: true
 
       # --- cd ---
